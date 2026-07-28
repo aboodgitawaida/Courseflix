@@ -33,7 +33,7 @@ export const Route = createFileRoute("/course/$code")({
 });
 
 function CoursePage() {
-  const { course } = Route.useLoaderData();
+  const { course } = Route.useLoaderData() as { course: import("@/lib/courses").Course };
   const [c1, c2] = course.poster;
   const related = COURSES.filter((c) => c.area === course.area && c.code !== course.code).slice(0, 6);
 
