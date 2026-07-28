@@ -1,10 +1,11 @@
 import { Link } from "@tanstack/react-router";
-import { COURSES } from "@/lib/courses";
+import type { Course } from "@/lib/courses";
 import { Play, Plus, Star } from "lucide-react";
 
-export function Hero() {
-  const feat = COURSES.find((c) => c.code === "CSC311")!;
+export function Hero({ featured, major }: { featured: Course; major: string }) {
+  const feat = featured;
   const [c1, c2] = feat.poster;
+
 
   return (
     <section className="relative overflow-hidden">
