@@ -1,10 +1,11 @@
 import { Link } from "@tanstack/react-router";
-import { COURSES } from "@/lib/courses";
+import type { Course } from "@/lib/courses";
 import { Play, Plus, Star } from "lucide-react";
 
-export function Hero() {
-  const feat = COURSES.find((c) => c.code === "CSC311")!;
+export function Hero({ featured, major }: { featured: Course; major: string }) {
+  const feat = featured;
   const [c1, c2] = feat.poster;
+
 
   return (
     <section className="relative overflow-hidden">
@@ -21,7 +22,7 @@ export function Hero() {
       <div className="relative px-6 md:px-10 pt-12 md:pt-20 pb-16 md:pb-24 max-w-5xl">
         <div className="inline-flex items-center gap-2 rounded-full border border-mint/30 bg-mint/10 px-3 py-1 text-xs font-semibold text-mint mb-5">
           <span className="h-1.5 w-1.5 rounded-full bg-mint animate-pulse" />
-          FEATURED THIS WEEK
+          TOP PICK FOR {major.toUpperCase()}
         </div>
         <h1 className="font-display text-5xl md:text-7xl font-black leading-[0.95] tracking-tight">
           {feat.code}

@@ -3,7 +3,7 @@ import { TopNav } from "@/components/TopNav";
 import { Hero } from "@/components/Hero";
 import { CourseRail } from "@/components/CourseRail";
 import { MajorPicker } from "@/components/MajorPicker";
-import { RAILS } from "@/lib/courses";
+import { getRailsForMajor, getFeaturedForMajor } from "@/lib/courses";
 import { getMajor } from "@/lib/majors";
 import { useMajor } from "@/hooks/use-major";
 
@@ -25,19 +25,20 @@ function Home() {
   const { major, setMajor, hydrated } = useMajor();
   const currentMajor = getMajor(major);
 
-  // Onboarding gate: no major picked yet
   if (hydrated && !currentMajor) {
     return <MajorPicker onPick={setMajor} />;
   }
 
-  const isCS = major === "cs";
+  const rails = getRailsForMajor(major);
+  const featured = getFeaturedForMajor(major);
+  const inMajorCount = rails[0]?.codes.length ?? 0;
 
   return (
     <div className="min-h-screen bg-background text-foreground">
       <TopNav major={currentMajor} onChangeMajor={() => setMajor(null)} />
-      <Hero />
+      <Hero featured={featured} major={currentMajor?.name ?? "your program"} />
 
-      {!isCS && currentMajor && (
+      {currentMajor && inMajorCount < 4 && (
         <div className="mx-6 md:mx-10 mt-6 rounded-2xl border border-mint/30 bg-mint/5 p-5 md:p-6">
           <div className="flex items-start justify-between gap-4 flex-wrap">
             <div>
@@ -45,11 +46,10 @@ function Home() {
                 {currentMajor.emoji} {currentMajor.name}
               </div>
               <h3 className="font-display text-xl md:text-2xl font-bold">
-                Full {currentMajor.name} catalog is loading in soon.
+                We're still seeding the full {currentMajor.name} catalog.
               </h3>
               <p className="text-sm text-muted-foreground mt-1 max-w-2xl">
-                We're seeding UofT CS first while we import the rest. Browse below to see the vibe —
-                every rail, rating, and Reddit review will work the same for your program.
+                A few core courses are in — plus universally-loved breadth picks below so you can still browse.
               </p>
             </div>
             <button
@@ -63,7 +63,7 @@ function Home() {
       )}
 
       <div className="space-y-10 md:space-y-14 pb-24 mt-6">
-        {RAILS.map((r) => (
+        {rails.map((r) => (
           <CourseRail key={r.title} rail={r} />
         ))}
       </div>

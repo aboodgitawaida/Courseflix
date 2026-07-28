@@ -24,6 +24,10 @@ export const MAJORS: Major[] = [
   { id: "health", name: "Health Sciences", category: "Life Sciences", emoji: "🩺" },
   { id: "forensic", name: "Forensic Science", category: "Life Sciences", emoji: "🔬" },
   { id: "exceptional", name: "Exceptionality in Human Learning", category: "Life Sciences", emoji: "🎓" },
+  { id: "physiology", name: "Physiology", category: "Life Sciences", emoji: "🫀" },
+  { id: "hmb", name: "Human Biology", category: "Life Sciences", emoji: "🧍" },
+  { id: "pharm", name: "Pharmacology", category: "Life Sciences", emoji: "💊" },
+  { id: "immuno", name: "Immunology", category: "Life Sciences", emoji: "🦠" },
 
   // Sciences
   { id: "chem", name: "Chemistry", category: "Sciences", emoji: "🧪" },
