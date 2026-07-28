@@ -1,0 +1,189 @@
+import { createFileRoute, Link, notFound } from "@tanstack/react-router";
+import { TopNav } from "@/components/TopNav";
+import { CourseCard } from "@/components/CourseCard";
+import { COURSES, getCourse } from "@/lib/courses";
+import { ArrowLeft, Plus, Share2, Star, MessageSquare, GraduationCap } from "lucide-react";
+
+export const Route = createFileRoute("/course/$code")({
+  loader: ({ params }) => {
+    const course = getCourse(params.code);
+    if (!course) throw notFound();
+    return { course };
+  },
+  head: ({ loaderData }) => ({
+    meta: [
+      { title: loaderData ? `${loaderData.course.code} — ${loaderData.course.title} · courseflix` : "courseflix" },
+      { name: "description", content: loaderData?.course.vibe ?? "UofT course details" },
+      { property: "og:title", content: loaderData ? `${loaderData.course.code} · ${loaderData.course.title}` : "courseflix" },
+      { property: "og:description", content: loaderData?.course.vibe ?? "" },
+      { property: "og:type", content: "article" },
+      { name: "twitter:card", content: "summary_large_image" },
+    ],
+  }),
+  notFoundComponent: () => (
+    <div className="min-h-screen bg-background text-foreground">
+      <TopNav />
+      <div className="px-10 py-24 text-center">
+        <h1 className="font-display text-4xl">Course not found</h1>
+        <Link to="/" className="text-mint mt-4 inline-block">← Back to browse</Link>
+      </div>
+    </div>
+  ),
+  component: CoursePage,
+});
+
+function CoursePage() {
+  const { course } = Route.useLoaderData();
+  const [c1, c2] = course.poster;
+  const related = COURSES.filter((c) => c.area === course.area && c.code !== course.code).slice(0, 6);
+
+  return (
+    <div className="min-h-screen bg-background text-foreground">
+      <TopNav />
+
+      {/* Hero */}
+      <section className="relative overflow-hidden">
+        <div
+          className="absolute inset-0"
+          style={{ background: `linear-gradient(135deg, ${c1} 0%, ${c2} 100%)` }}
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-background via-background/70 to-background/20" />
+
+        <div className="relative px-6 md:px-10 pt-8 pb-14 max-w-6xl">
+          <Link to="/" className="inline-flex items-center gap-1.5 text-sm text-white/80 hover:text-white mb-8">
+            <ArrowLeft className="h-4 w-4" /> Browse
+          </Link>
+          <div className="text-xs font-semibold tracking-widest text-mint uppercase">{course.area} · {course.credits} credit</div>
+          <h1 className="font-display text-5xl md:text-7xl font-black mt-2 leading-[0.95]">{course.code}</h1>
+          <p className="font-display text-2xl md:text-3xl font-semibold mt-2 text-white/90">{course.title}</p>
+          <p className="mt-4 max-w-2xl text-lg text-white/80">{course.vibe}</p>
+
+          <div className="mt-6 flex flex-wrap gap-2">
+            {course.tags.map((t) => (
+              <span key={t} className="text-xs px-2.5 py-1 rounded-full bg-black/40 backdrop-blur border border-white/20 font-medium">
+                {t}
+              </span>
+            ))}
+          </div>
+
+          <div className="mt-8 flex flex-wrap gap-3">
+            <button className="inline-flex items-center gap-2 rounded-full bg-mint text-primary-foreground px-6 py-3 font-semibold text-sm hover:bg-mint-glow transition mint-glow">
+              <Plus className="h-4 w-4" /> Add to shortlist
+            </button>
+            <button className="inline-flex items-center gap-2 rounded-full bg-surface/80 backdrop-blur border border-border/50 px-6 py-3 font-semibold text-sm hover:bg-surface-2 transition">
+              <Share2 className="h-4 w-4" /> Share
+            </button>
+          </div>
+        </div>
+      </section>
+
+      {/* Stats grid */}
+      <section className="px-6 md:px-10 max-w-6xl -mt-6">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+          <StatCard label="Overall" value={course.rating} suffix="/5" accent />
+          <StatCard label="Difficulty" value={course.difficulty} suffix="/5" />
+          <StatCard label="Workload" value={course.workload} suffix="/5" />
+          <StatCard label="Would take again" value={course.wouldTakeAgain} suffix="%" />
+        </div>
+      </section>
+
+      {/* About */}
+      <section className="px-6 md:px-10 max-w-6xl mt-12 grid md:grid-cols-3 gap-8">
+        <div className="md:col-span-2 space-y-8">
+          <div>
+            <h2 className="font-display text-2xl font-bold mb-3">About this course</h2>
+            <p className="text-muted-foreground leading-relaxed">{course.description}</p>
+          </div>
+
+          {/* Reviews */}
+          <div>
+            <div className="flex items-center gap-2 mb-4">
+              <MessageSquare className="h-5 w-5 text-mint" />
+              <h2 className="font-display text-2xl font-bold">What students say</h2>
+            </div>
+            <div className="space-y-3">
+              {course.reviews.map((r, i) => (
+                <div key={i} className="rounded-2xl bg-surface border border-border/40 p-5">
+                  <div className="text-xs font-semibold uppercase tracking-wider text-mint mb-2">
+                    {r.source === "reddit" ? "r/UofT" : "RateMyProfessor"}
+                  </div>
+                  <p className="text-foreground/90 leading-relaxed">"{r.quote}"</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* Sidebar */}
+        <aside className="space-y-6">
+          <div>
+            <div className="flex items-center gap-2 mb-3">
+              <GraduationCap className="h-5 w-5 text-mint" />
+              <h3 className="font-display text-xl font-bold">Top profs</h3>
+            </div>
+            <div className="space-y-2">
+              {course.topProfs.map((p) => (
+                <div key={p.name} className="rounded-xl bg-surface border border-border/40 p-4">
+                  <div className="flex items-center justify-between">
+                    <div className="font-semibold">{p.name}</div>
+                    <div className="flex items-center gap-1 text-mint font-semibold text-sm">
+                      <Star className="h-3.5 w-3.5 fill-current" /> {p.rmp.toFixed(1)}
+                    </div>
+                  </div>
+                  <div className="mt-2 flex flex-wrap gap-1">
+                    {p.tags.map((t) => (
+                      <span key={t} className="text-[10px] px-1.5 py-0.5 rounded bg-mint/10 text-mint border border-mint/20">{t}</span>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {course.prereqs.length > 0 && (
+            <div>
+              <h3 className="font-display text-xl font-bold mb-3">Prereqs</h3>
+              <div className="flex flex-wrap gap-2">
+                {course.prereqs.map((p) => (
+                  <Link
+                    key={p}
+                    to="/course/$code"
+                    params={{ code: p }}
+                    className="text-sm px-3 py-1.5 rounded-full bg-surface border border-border/50 hover:border-mint/50 hover:text-mint transition"
+                  >
+                    {p}
+                  </Link>
+                ))}
+              </div>
+            </div>
+          )}
+        </aside>
+      </section>
+
+      {/* Related */}
+      <section className="mt-16 pb-24">
+        <div className="px-6 md:px-10 mb-3">
+          <h2 className="font-display text-2xl font-bold">More {course.area} courses</h2>
+          <p className="text-sm text-muted-foreground mt-0.5">Because you're looking at {course.code}</p>
+        </div>
+        <div className="scroll-rail flex gap-4 overflow-x-auto px-6 md:px-10 pb-4 pt-2">
+          {related.map((c) => (
+            <CourseCard key={c.code} course={c} />
+          ))}
+        </div>
+      </section>
+    </div>
+  );
+}
+
+function StatCard({ label, value, suffix, accent }: { label: string; value: number; suffix: string; accent?: boolean }) {
+  return (
+    <div className={`rounded-2xl border p-4 ${accent ? "bg-mint/10 border-mint/30" : "bg-surface border-border/40"}`}>
+      <div className="text-xs uppercase tracking-wider text-muted-foreground">{label}</div>
+      <div className={`font-display text-3xl font-black mt-1 ${accent ? "text-mint" : "text-foreground"}`}>
+        {value}
+        <span className="text-base font-semibold text-muted-foreground ml-0.5">{suffix}</span>
+      </div>
+    </div>
+  );
+}
