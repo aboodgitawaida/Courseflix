@@ -13,9 +13,9 @@ export const Route = createFileRoute("/course/$code")({
   head: ({ loaderData }) => ({
     meta: [
       { title: loaderData ? `${loaderData.course.code} — ${loaderData.course.title} · courseflix` : "courseflix" },
-      { name: "description", content: loaderData?.course.vibe ?? "UofT course details" },
+      { name: "description", content: loaderData?.course.description ?? "UTM course details" },
       { property: "og:title", content: loaderData ? `${loaderData.course.code} · ${loaderData.course.title}` : "courseflix" },
-      { property: "og:description", content: loaderData?.course.vibe ?? "" },
+      { property: "og:description", content: loaderData?.course.description ?? "" },
       { property: "og:type", content: "article" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
@@ -56,7 +56,7 @@ function CoursePage() {
           <div className="text-xs font-semibold tracking-widest text-mint uppercase">{course.area} · {course.credits} credit</div>
           <h1 className="font-display text-5xl md:text-7xl font-black mt-2 leading-[0.95]">{course.code}</h1>
           <p className="font-display text-2xl md:text-3xl font-semibold mt-2 text-white/90">{course.title}</p>
-          <p className="mt-4 max-w-2xl text-lg text-white/80">{course.vibe}</p>
+          <p className="mt-4 max-w-2xl text-lg text-white/80">{course.area} · {course.credits} credit{course.credits === 1 ? "" : "s"}{course.hours ? ` · ${course.hours}` : ""}</p>
 
           <div className="mt-6 flex flex-wrap gap-2">
             {course.tags.map((t) => (
@@ -102,6 +102,11 @@ function CoursePage() {
               <h2 className="font-display text-2xl font-bold">What students say</h2>
             </div>
             <div className="space-y-3">
+              {course.reviews.length === 0 && (
+                <div className="rounded-2xl bg-surface border border-border/40 p-5 text-muted-foreground text-sm">
+                  No student reviews yet for {course.code}. Reddit and RateMyProf summaries are coming soon.
+                </div>
+              )}
               {course.reviews.map((r, i) => (
                 <div key={i} className="rounded-2xl bg-surface border border-border/40 p-5">
                   <div className="text-xs font-semibold uppercase tracking-wider text-mint mb-2">
@@ -122,6 +127,11 @@ function CoursePage() {
               <h3 className="font-display text-xl font-bold">Top profs</h3>
             </div>
             <div className="space-y-2">
+              {course.topProfs.length === 0 && (
+                <div className="rounded-xl bg-surface border border-border/40 p-4 text-muted-foreground text-sm">
+                  Instructor ratings aren't wired up yet.
+                </div>
+              )}
               {course.topProfs.map((p) => (
                 <div key={p.name} className="rounded-xl bg-surface border border-border/40 p-4">
                   <div className="flex items-center justify-between">

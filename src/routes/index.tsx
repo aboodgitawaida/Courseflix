@@ -38,7 +38,7 @@ function Home() {
       <TopNav major={currentMajor} onChangeMajor={() => setMajor(null)} />
       <Hero featured={featured} major={currentMajor?.name ?? "your program"} />
 
-      {currentMajor && inMajorCount < 4 && (
+      {currentMajor && inMajorCount < 3 && (
         <div className="mx-6 md:mx-10 mt-6 rounded-2xl border border-mint/30 bg-mint/5 p-5 md:p-6">
           <div className="flex items-start justify-between gap-4 flex-wrap">
             <div>
@@ -69,7 +69,7 @@ function Home() {
       </div>
       <footer className="border-t border-border/40 px-6 md:px-10 py-8 text-xs text-muted-foreground flex flex-wrap gap-2 justify-between">
         <span>courseflix · unofficial · built by a fed-up UofT student</span>
-        <span>Ratings seeded from public reviews. Not affiliated with UofT.</span>
+        <span>Course data from the UTM Academic Calendar. Ratings are sample data. Not affiliated with UofT.</span>
       </footer>
     </div>
   );

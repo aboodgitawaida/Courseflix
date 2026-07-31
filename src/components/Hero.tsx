@@ -30,14 +30,14 @@ export function Hero({ featured, major }: { featured: Course; major: string }) {
           <span className="text-mint">{feat.title}</span>
         </h1>
         <p className="mt-5 max-w-2xl text-base md:text-lg text-muted-foreground">
-          {feat.vibe} {feat.description}
+          {feat.description}
         </p>
         <div className="mt-4 flex items-center gap-4 text-sm text-foreground/80">
           <span className="flex items-center gap-1 font-semibold"><Star className="h-4 w-4 fill-mint text-mint" /> {feat.rating.toFixed(1)}</span>
           <span>·</span>
           <span>{feat.wouldTakeAgain}% would retake</span>
           <span>·</span>
-          <span>Top prof: <span className="text-foreground font-medium">{feat.topProfs[0].name}</span></span>
+          <span className="text-muted-foreground">Sample rating</span>
         </div>
         <div className="mt-8 flex flex-wrap items-center gap-3">
           <Link
