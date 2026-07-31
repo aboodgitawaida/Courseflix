@@ -1,80 +1,56 @@
+## What I found in the audit
 
-# CourseFlix — Netflix for UofT Courses
+I checked all 57 majors and every course in the catalog. Three real problems:
 
-A dark, neon-mint course discovery app for UofT students. Browse courses like Netflix, get "because you took X" recs, see prof + Reddit sentiment at a glance, and shortlist your semester.
+**1. Course codes are from the wrong campuses.** UTM courses always end in `H5` or `Y5` (`CSC108H5F`, `PSY100Y5Y`). Right now the catalog has:
+- St. George codes that don't exist at UTM: `PSL300`, `PSL301`, `PSL440`, `ANA300`, `HMB265`, `BCH210`, `MAT137`, `BIO152`
+- A UTSC code: `NROC34`
+- No campus suffix anywhere
 
-## v1 Feature Scope
+So a physiology student at UTM would be shown courses they literally cannot enroll in. This is the biggest credibility hole before you send it to friends.
 
-**1. Netflix-style browse**
-- Home = horizontal scroll "rails" of course cards (posters, code, title, rating pill, workload tag)
-- Rails: Trending in CS, Bird Courses, Highly Rated Profs, Hidden Gems, New This Year, By Area (AI, Systems, Theory, HCI)
-- Hover/tap card → expanded preview with description, prereqs, avg rating, top prof, one-line vibe
+**2. Ratings, professors, and Reddit quotes are invented.** Every star rating, every RMP score, every "reddit" quote in the app was made up. Some are attached to real professors' names with fake scores. That's the thing most likely to embarrass you when a friend checks a course they've taken.
 
-**2. Course detail page**
-- Big hero (course code + title + tags: Easy / Heavy / Interesting / Bird / Math-Heavy)
-- Star ratings: Overall, Difficulty, Workload, Would Take Again
-- **Prof section**: RateMyProf-style score + top 2 profs teaching it
-- **Reddit vibes**: 3–5 summarized student quotes ("great lectures but brutal midterm")
-- Prereqs pill chain + "Take next" suggestions
-- Add to Shortlist button
+**3. Coverage is lopsided.** Course counts per major: CS 26, HMB 21, Health 18 — but German 1, Chinese 1, HRM 1, Geography 2, Anthropology 2, Art History 2, Religion 2, Professional Writing 2, French/Italian/Spanish/Portuguese 2 each. Those 15+ majors get rails that are mostly backfilled with unrelated courses. Picking "Geography" today is nearly as broken as the physiology case you reported.
 
-**3. Personalized recommendations**
-- Onboarding: pick major (CS default, plus Math, Stats, EngSci, Rotman, Life Sci, etc.), year, completed courses
-- Home rails re-order: "Because you took CSC148…", "Popular in your year", "Fits your interests"
-- Simple tag-based rec engine (share subject area + prereq graph + rating threshold)
+## Plan
 
-**4. Shortlist / Timetable builder**
-- Sidebar drawer: saved courses
-- Shows credit total, workload heatmap (light/med/heavy), prereq warnings
-- Share shortlist via link (so your friends can send you theirs)
+### Step 1 — Rebuild the catalog on real UTM data
 
-**5. Accounts**
-- Email + Google login (Lovable Cloud)
-- Profile stores: major, year, completed courses, shortlist
+Pull from the official UTM Academic Calendar (`utm.calendar.utoronto.ca`) rather than writing courses from memory. For each course store: real UTM code with `H5`/`Y5` suffix, official title, official description, real credit value (0.5 / 1.0), and real prerequisite string.
 
-## Design Direction
+- Rewrite `src/lib/majors.ts` so each major maps to its actual UTM program (Specialist/Major/Minor) and its real first-year/core course requirements.
+- Rewrite `src/lib/courses.ts`: drop every non-UTM code, add correct UTM equivalents (e.g. `PSL300` → the actual UTM physiology sequence, `HMB265` → `BIO207H5`-style UTM genetics).
+- Set a coverage floor: **no major ships with fewer than 8 real courses**, weighted toward first- and second-year requirements since that's who's picking courses. Majors below the floor get filled with their genuine program requirements, not random breadth.
+- Replace the "still seeding" banner logic — with a floor in place, it only appears for genuinely thin programs.
 
-- **Vibe**: Dark Netflix + neon mint. Deep navy/near-black background, forest-green mid-tones, `#2dd4a8` mint as primary accent, `#73ffb8` glow for hover/CTAs.
-- **Type**: Big bold display font for course codes (Space Grotesk), clean sans for body (DM Sans / Inter).
-- **Cards**: Rounded-2xl, subtle gradient overlays, glowing mint border on hover, rating pill top-right.
-- **Motion**: Smooth horizontal scroll rails, card scale-on-hover, page transitions, skeleton shimmer on load.
-- **Mobile-first**: Full-bleed rails, bottom nav (Home / Search / Shortlist / Profile), swipeable cards.
+### Step 2 — Be honest about ratings
 
-## Data Strategy (Hybrid)
+Keep real course data, mark the rest clearly as sample:
+- Rename the invented professor entries so they aren't attributed to real named people with fake scores — either generic ("Prof. A, Fall section") or removed until real data exists.
+- Add a visible "Sample rating — not yet from real students" badge on rating pills and Reddit quote cards.
+- Add a short honest line in the footer and course detail page: course info is from the official UTM calendar; ratings are placeholders until students submit them.
 
-- **Seed now**: I'll hand-seed ~60 popular UofT CS courses (real codes, titles, descriptions from public catalog) + realistic mock ratings, prof names, and Reddit-style quotes so it feels alive on day 1.
-- **Wire later**: Structure DB so real RateMyProf/Reddit data can be dropped in via a scraper/API later without schema changes.
+This turns the weakest part of the app into a reason for friends to sign up and contribute.
 
-## Technical Details
+### Step 3 — Accounts (your chosen priority)
 
-- **Stack**: TanStack Start + Tailwind v4 + shadcn (customized dark/mint theme in `src/styles.css`)
-- **Backend**: Lovable Cloud (Supabase) with tables:
-  - `courses` (code, title, description, area, credits, prereqs[])
-  - `professors` (name, rmp_score, tags)
-  - `course_offerings` (course_id, prof_id, term)
-  - `ratings` (course_id, overall, difficulty, workload, would_take_again — aggregated)
-  - `reviews` (course_id, source: reddit|rmp, quote, sentiment)
-  - `profiles` (user_id, major, year, completed_courses[])
-  - `shortlists` (user_id, course_id, added_at)
-- **Auth**: Email/password + Google via Lovable Cloud (asks about profile table — yes)
-- **Recs**: Simple SQL: courses sharing area/prereqs with completed, filtered by rating ≥ 3.5, excluding already-taken
+Enable Lovable Cloud and move state off localStorage:
+- Email/password + Google sign-in.
+- `profiles` table: major, year, completed courses.
+- `shortlists` table: saved courses per user.
+- On first sign-in, migrate whatever is already in localStorage into the account so nobody loses their picks.
+- Header shows the signed-in account and a sign-out option instead of a permanent "Sign in" button.
+- Browsing stays fully public and no-login — sign-in is only needed to save.
 
-## Build Order
+### The loophole worth naming
 
-1. Design system + dark-mint theme, layout shell, bottom nav
-2. Home rails + course card component (seeded data)
-3. Course detail page with prof + Reddit sections
-4. Onboarding flow (major, year, completed courses)
-5. Auth + profile persistence (Lovable Cloud)
-6. Shortlist drawer + shareable link
-7. Rec engine wired to profile
-8. Polish: animations, empty states, mobile pass
+Once accounts exist, the natural next thing is student-submitted ratings — that's the only way this app ever has real data, and it's why accounts before ratings is the right order. Not in this plan, but it's the step after.
 
-## Out of Scope for v1 (can add later)
+## Technical details
 
-- Real-time Reddit/RMP scraping (structured for it, but seeded for now)
-- Actual timetable conflict detection with time slots
-- Friend social graph / seeing what friends took
-- Non-CS majors having full course catalogs (CS is deep, others get top ~20)
-
-Want me to start with step 1 (design system + home rails) so you can see the vibe fast?
+- Course data stays a typed TS module (fast, no query per page) until real ratings arrive; ratings move to Cloud tables in the ratings step.
+- Real prereq strings get parsed into a code array so the prereq chain UI keeps working.
+- Auth via Lovable Cloud: `profiles` + `shortlists` tables with row-level security scoped to the signed-in user, plus explicit grants.
+- Browse routes stay public/SSR for shareable links; only save/profile actions require a session.
+- I'll fetch UTM calendar pages directly during the build rather than relying on recall, so codes and prerequisites are verifiable.
