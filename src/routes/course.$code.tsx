@@ -100,27 +100,8 @@ function CoursePage() {
           </div>
 
           {/* Reviews */}
-          <div>
-            <div className="flex items-center gap-2 mb-4">
-              <MessageSquare className="h-5 w-5 text-mint" />
-              <h2 className="font-display text-2xl font-bold">What students say</h2>
-            </div>
-            <div className="space-y-3">
-              {course.reviews.length === 0 && (
-                <div className="rounded-2xl bg-surface border border-border/40 p-5 text-muted-foreground text-sm">
-                  No student reviews yet for {course.code}. Reddit and RateMyProf summaries are coming soon.
-                </div>
-              )}
-              {course.reviews.map((r, i) => (
-                <div key={i} className="rounded-2xl bg-surface border border-border/40 p-5">
-                  <div className="text-xs font-semibold uppercase tracking-wider text-mint mb-2">
-                    {r.source === "reddit" ? "r/UofT" : "RateMyProfessor"}
-                  </div>
-                  <p className="text-foreground/90 leading-relaxed">"{r.quote}"</p>
-                </div>
-              ))}
-            </div>
-          </div>
+          <RatingSection code={course.code} />
+
         </div>
 
         {/* Sidebar */}
