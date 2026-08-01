@@ -41,6 +41,28 @@ function CoursePage() {
   const [c1, c2] = course.poster;
   const related = COURSES.filter((c) => c.area === course.area && c.code !== course.code).slice(0, 6);
 
+  const navigate = useNavigate();
+  const { signedIn } = useAuth();
+  const { data: stats } = useCourseStats(course.code);
+  const { data: shortlist = [] } = useShortlist();
+  const toggle = useToggleShortlist();
+  const saved = shortlist.includes(course.code);
+  const hasReal = !!stats && stats.rating_count > 0;
+
+  async function onShortlist() {
+    if (!signedIn) {
+      navigate({ to: "/auth", search: { redirect: `/course/${course.code}` } });
+      return;
+    }
+    try {
+      await toggle.mutateAsync({ code: course.code, saved });
+      toast.success(saved ? "Removed from your shortlist" : "Saved to your shortlist");
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Could not update shortlist");
+    }
+  }
+
+
   return (
     <div className="min-h-screen bg-background text-foreground">
       <TopNav />
