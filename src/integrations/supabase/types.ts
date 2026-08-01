@@ -14,10 +14,109 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      course_ratings: {
+        Row: {
+          comment: string | null
+          course_code: string
+          created_at: string
+          difficulty: number
+          id: string
+          prof_name: string | null
+          rating: number
+          updated_at: string
+          user_id: string
+          workload: number
+          would_take_again: boolean
+        }
+        Insert: {
+          comment?: string | null
+          course_code: string
+          created_at?: string
+          difficulty: number
+          id?: string
+          prof_name?: string | null
+          rating: number
+          updated_at?: string
+          user_id: string
+          workload: number
+          would_take_again?: boolean
+        }
+        Update: {
+          comment?: string | null
+          course_code?: string
+          created_at?: string
+          difficulty?: number
+          id?: string
+          prof_name?: string | null
+          rating?: number
+          updated_at?: string
+          user_id?: string
+          workload?: number
+          would_take_again?: boolean
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          created_at: string
+          display_name: string
+          id: string
+          major_id: string | null
+          updated_at: string
+          year: number | null
+        }
+        Insert: {
+          created_at?: string
+          display_name?: string
+          id: string
+          major_id?: string | null
+          updated_at?: string
+          year?: number | null
+        }
+        Update: {
+          created_at?: string
+          display_name?: string
+          id?: string
+          major_id?: string | null
+          updated_at?: string
+          year?: number | null
+        }
+        Relationships: []
+      }
+      shortlists: {
+        Row: {
+          course_code: string
+          created_at: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          course_code: string
+          created_at?: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          course_code?: string
+          created_at?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
-      [_ in never]: never
+      course_rating_stats: {
+        Row: {
+          avg_difficulty: number | null
+          avg_rating: number | null
+          avg_workload: number | null
+          course_code: string | null
+          pct_would_take_again: number | null
+          rating_count: number | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       [_ in never]: never
