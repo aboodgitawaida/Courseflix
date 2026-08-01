@@ -1,8 +1,12 @@
-import { createFileRoute, Link, notFound } from "@tanstack/react-router";
+import { createFileRoute, Link, notFound, useNavigate } from "@tanstack/react-router";
 import { TopNav } from "@/components/TopNav";
 import { CourseCard } from "@/components/CourseCard";
+import { RatingSection } from "@/components/RatingSection";
 import { COURSES, getCourse } from "@/lib/courses";
-import { ArrowLeft, Plus, Share2, Star, MessageSquare, GraduationCap } from "lucide-react";
+import { useAuth } from "@/hooks/use-auth";
+import { useCourseStats, useShortlist, useToggleShortlist } from "@/lib/ratings";
+import { toast } from "sonner";
+import { ArrowLeft, Plus, Check, Share2, Star, GraduationCap } from "lucide-react";
 
 export const Route = createFileRoute("/course/$code")({
   loader: ({ params }) => {
@@ -37,6 +41,28 @@ function CoursePage() {
   const [c1, c2] = course.poster;
   const related = COURSES.filter((c) => c.area === course.area && c.code !== course.code).slice(0, 6);
 
+  const navigate = useNavigate();
+  const { signedIn } = useAuth();
+  const { data: stats } = useCourseStats(course.code);
+  const { data: shortlist = [] } = useShortlist();
+  const toggle = useToggleShortlist();
+  const saved = shortlist.includes(course.code);
+  const hasReal = !!stats && stats.rating_count > 0;
+
+  async function onShortlist() {
+    if (!signedIn) {
+      navigate({ to: "/auth", search: { redirect: `/course/${course.code}` } });
+      return;
+    }
+    try {
+      await toggle.mutateAsync({ code: course.code, saved });
+      toast.success(saved ? "Removed from your shortlist" : "Saved to your shortlist");
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Could not update shortlist");
+    }
+  }
+
+
   return (
     <div className="min-h-screen bg-background text-foreground">
       <TopNav />
@@ -67,10 +93,20 @@ function CoursePage() {
           </div>
 
           <div className="mt-8 flex flex-wrap gap-3">
-            <button className="inline-flex items-center gap-2 rounded-full bg-mint text-primary-foreground px-6 py-3 font-semibold text-sm hover:bg-mint-glow transition mint-glow">
-              <Plus className="h-4 w-4" /> Add to shortlist
+            <button
+              onClick={onShortlist}
+              className="inline-flex items-center gap-2 rounded-full bg-mint text-primary-foreground px-6 py-3 font-semibold text-sm hover:bg-mint-glow transition mint-glow"
+            >
+              {saved ? <Check className="h-4 w-4" /> : <Plus className="h-4 w-4" />}
+              {saved ? "In your shortlist" : "Add to shortlist"}
             </button>
-            <button className="inline-flex items-center gap-2 rounded-full bg-surface/80 backdrop-blur border border-border/50 px-6 py-3 font-semibold text-sm hover:bg-surface-2 transition">
+            <button
+              onClick={() => {
+                navigator.clipboard?.writeText(window.location.href);
+                toast.success("Link copied");
+              }}
+              className="inline-flex items-center gap-2 rounded-full bg-surface/80 backdrop-blur border border-border/50 px-6 py-3 font-semibold text-sm hover:bg-surface-2 transition"
+            >
               <Share2 className="h-4 w-4" /> Share
             </button>
           </div>
@@ -80,12 +116,22 @@ function CoursePage() {
       {/* Stats grid */}
       <section className="px-6 md:px-10 max-w-6xl -mt-6">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-          <StatCard label="Overall" value={course.rating} suffix="/5" accent />
-          <StatCard label="Difficulty" value={course.difficulty} suffix="/5" />
-          <StatCard label="Workload" value={course.workload} suffix="/5" />
-          <StatCard label="Would take again" value={course.wouldTakeAgain} suffix="%" />
+          <StatCard label="Overall" value={hasReal ? stats!.avg_rating : course.rating} suffix="/5" accent />
+          <StatCard label="Difficulty" value={hasReal ? stats!.avg_difficulty : course.difficulty} suffix="/5" />
+          <StatCard label="Workload" value={hasReal ? stats!.avg_workload : course.workload} suffix="/5" />
+          <StatCard
+            label="Would take again"
+            value={hasReal ? stats!.pct_would_take_again : course.wouldTakeAgain}
+            suffix="%"
+          />
         </div>
+        <p className="text-xs text-muted-foreground mt-2">
+          {hasReal
+            ? `From ${stats!.rating_count} student rating${stats!.rating_count === 1 ? "" : "s"}.`
+            : "Estimated from course level and contact hours — no student ratings yet. Add yours below."}
+        </p>
       </section>
+
 
       {/* About */}
       <section className="px-6 md:px-10 max-w-6xl mt-12 grid md:grid-cols-3 gap-8">
@@ -96,27 +142,8 @@ function CoursePage() {
           </div>
 
           {/* Reviews */}
-          <div>
-            <div className="flex items-center gap-2 mb-4">
-              <MessageSquare className="h-5 w-5 text-mint" />
-              <h2 className="font-display text-2xl font-bold">What students say</h2>
-            </div>
-            <div className="space-y-3">
-              {course.reviews.length === 0 && (
-                <div className="rounded-2xl bg-surface border border-border/40 p-5 text-muted-foreground text-sm">
-                  No student reviews yet for {course.code}. Reddit and RateMyProf summaries are coming soon.
-                </div>
-              )}
-              {course.reviews.map((r, i) => (
-                <div key={i} className="rounded-2xl bg-surface border border-border/40 p-5">
-                  <div className="text-xs font-semibold uppercase tracking-wider text-mint mb-2">
-                    {r.source === "reddit" ? "r/UofT" : "RateMyProfessor"}
-                  </div>
-                  <p className="text-foreground/90 leading-relaxed">"{r.quote}"</p>
-                </div>
-              ))}
-            </div>
-          </div>
+          <RatingSection code={course.code} />
+
         </div>
 
         {/* Sidebar */}
