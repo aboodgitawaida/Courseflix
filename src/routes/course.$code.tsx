@@ -71,10 +71,20 @@ function CoursePage() {
           </div>
 
           <div className="mt-8 flex flex-wrap gap-3">
-            <button className="inline-flex items-center gap-2 rounded-full bg-mint text-primary-foreground px-6 py-3 font-semibold text-sm hover:bg-mint-glow transition mint-glow">
-              <Plus className="h-4 w-4" /> Add to shortlist
+            <button
+              onClick={onShortlist}
+              className="inline-flex items-center gap-2 rounded-full bg-mint text-primary-foreground px-6 py-3 font-semibold text-sm hover:bg-mint-glow transition mint-glow"
+            >
+              {saved ? <Check className="h-4 w-4" /> : <Plus className="h-4 w-4" />}
+              {saved ? "In your shortlist" : "Add to shortlist"}
             </button>
-            <button className="inline-flex items-center gap-2 rounded-full bg-surface/80 backdrop-blur border border-border/50 px-6 py-3 font-semibold text-sm hover:bg-surface-2 transition">
+            <button
+              onClick={() => {
+                navigator.clipboard?.writeText(window.location.href);
+                toast.success("Link copied");
+              }}
+              className="inline-flex items-center gap-2 rounded-full bg-surface/80 backdrop-blur border border-border/50 px-6 py-3 font-semibold text-sm hover:bg-surface-2 transition"
+            >
               <Share2 className="h-4 w-4" /> Share
             </button>
           </div>
@@ -84,12 +94,22 @@ function CoursePage() {
       {/* Stats grid */}
       <section className="px-6 md:px-10 max-w-6xl -mt-6">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-          <StatCard label="Overall" value={course.rating} suffix="/5" accent />
-          <StatCard label="Difficulty" value={course.difficulty} suffix="/5" />
-          <StatCard label="Workload" value={course.workload} suffix="/5" />
-          <StatCard label="Would take again" value={course.wouldTakeAgain} suffix="%" />
+          <StatCard label="Overall" value={hasReal ? stats!.avg_rating : course.rating} suffix="/5" accent />
+          <StatCard label="Difficulty" value={hasReal ? stats!.avg_difficulty : course.difficulty} suffix="/5" />
+          <StatCard label="Workload" value={hasReal ? stats!.avg_workload : course.workload} suffix="/5" />
+          <StatCard
+            label="Would take again"
+            value={hasReal ? stats!.pct_would_take_again : course.wouldTakeAgain}
+            suffix="%"
+          />
         </div>
+        <p className="text-xs text-muted-foreground mt-2">
+          {hasReal
+            ? `From ${stats!.rating_count} student rating${stats!.rating_count === 1 ? "" : "s"}.`
+            : "Estimated from course level and contact hours — no student ratings yet. Add yours below."}
+        </p>
       </section>
+
 
       {/* About */}
       <section className="px-6 md:px-10 max-w-6xl mt-12 grid md:grid-cols-3 gap-8">
