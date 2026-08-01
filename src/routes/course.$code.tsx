@@ -1,8 +1,12 @@
-import { createFileRoute, Link, notFound } from "@tanstack/react-router";
+import { createFileRoute, Link, notFound, useNavigate } from "@tanstack/react-router";
 import { TopNav } from "@/components/TopNav";
 import { CourseCard } from "@/components/CourseCard";
+import { RatingSection } from "@/components/RatingSection";
 import { COURSES, getCourse } from "@/lib/courses";
-import { ArrowLeft, Plus, Share2, Star, MessageSquare, GraduationCap } from "lucide-react";
+import { useAuth } from "@/hooks/use-auth";
+import { useCourseStats, useShortlist, useToggleShortlist } from "@/lib/ratings";
+import { toast } from "sonner";
+import { ArrowLeft, Plus, Check, Share2, Star, GraduationCap } from "lucide-react";
 
 export const Route = createFileRoute("/course/$code")({
   loader: ({ params }) => {
