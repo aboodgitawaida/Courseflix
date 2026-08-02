@@ -29,16 +29,12 @@ export function TopNav({
     <header className="sticky top-0 z-40 backdrop-blur-xl bg-background/70 border-b border-border/40">
       <div className="flex items-center justify-between px-6 md:px-10 h-16 gap-4">
         <Link to="/" className="flex items-center gap-2 group shrink-0">
-          <div className="h-8 w-8 rounded-lg bg-brand flex items-center justify-center brand-glow">
-            <span className="font-display font-black text-background text-lg leading-none">C</span>
-          </div>
-          <span className="font-display font-bold text-lg tracking-tight">
-            course<span className="text-brand">flix</span>
-          </span>
+          <span className="wordmark font-display text-2xl md:text-3xl leading-none">Courseflix</span>
         </Link>
 
         <nav className="hidden md:flex items-center gap-6 text-sm font-medium text-muted-foreground">
           <Link to="/" className="hover:text-foreground transition">Browse</Link>
+          <Link to="/" hash="creator" className="hover:text-foreground transition">Creator</Link>
         </nav>
 
         <div className="flex items-center gap-2 shrink-0">
