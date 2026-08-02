@@ -28,12 +28,7 @@ export function MajorPicker({ onPick }: { onPick: (id: string) => void }) {
 
       <div className="relative max-w-5xl mx-auto px-6 md:px-10 py-12 md:py-20">
         <div className="flex items-center gap-2 mb-8">
-          <div className="h-9 w-9 rounded-lg bg-brand flex items-center justify-center brand-glow">
-            <span className="font-display font-black text-background text-lg leading-none">C</span>
-          </div>
-          <span className="font-display font-bold text-lg tracking-tight">
-            course<span className="text-brand">flix</span>
-          </span>
+          <span className="wordmark font-display text-3xl leading-none">Courseflix</span>
         </div>
 
         <div className="inline-flex items-center gap-2 rounded-full border border-brand/30 bg-brand/10 px-3 py-1 text-xs font-semibold text-brand mb-5">
