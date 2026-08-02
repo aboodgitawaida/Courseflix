@@ -62,12 +62,10 @@ function CoursePage() {
     }
   }
 
-
   return (
     <div className="min-h-screen bg-background text-foreground">
       <TopNav />
 
-      {/* Hero */}
       <section className="relative overflow-hidden">
         <div
           className="absolute inset-0"
@@ -113,7 +111,6 @@ function CoursePage() {
         </div>
       </section>
 
-      {/* Stats grid */}
       <section className="relative z-10 px-6 md:px-10 max-w-6xl -mt-6">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
           <StatCard label="Overall" value={hasReal ? stats!.avg_rating : course.rating} suffix="/5" accent />
@@ -132,8 +129,6 @@ function CoursePage() {
         </p>
       </section>
 
-
-      {/* About */}
       <section className="px-6 md:px-10 max-w-6xl mt-12 grid md:grid-cols-3 gap-8">
         <div className="md:col-span-2 space-y-8">
           <div>
@@ -141,12 +136,10 @@ function CoursePage() {
             <p className="text-muted-foreground leading-relaxed">{course.description}</p>
           </div>
 
-          {/* Reviews */}
           <RatingSection code={course.code} />
 
         </div>
 
-        {/* Sidebar */}
         <aside className="space-y-6">
           <div>
             <div className="flex items-center gap-2 mb-3">
@@ -197,7 +190,6 @@ function CoursePage() {
         </aside>
       </section>
 
-      {/* Related */}
       <section className="mt-16 pb-24">
         <div className="px-6 md:px-10 mb-3">
           <h2 className="font-display text-2xl font-bold">More {course.area} courses</h2>

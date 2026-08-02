@@ -6,10 +6,8 @@ export function Hero({ featured, major }: { featured: Course; major: string }) {
   const feat = featured;
   const [c1, c2] = feat.poster;
 
-
   return (
     <section className="relative overflow-hidden">
-      {/* Background */}
       <div
         className="absolute inset-0"
         style={{

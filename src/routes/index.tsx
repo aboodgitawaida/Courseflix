@@ -46,7 +46,6 @@ function Home() {
       <TopNav major={currentMajor} onChangeMajor={() => setMajor(null)} />
       <Hero featured={featured} major={currentMajor?.name ?? "your program"} />
 
-
       {currentMajor && inMajorCount < 3 && (
         <div className="mx-6 md:mx-10 mt-6 rounded-2xl border border-brand/30 bg-brand/5 p-5 md:p-6">
           <div className="flex items-start justify-between gap-4 flex-wrap">

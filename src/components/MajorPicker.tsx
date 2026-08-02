@@ -23,7 +23,6 @@ export function MajorPicker({ onPick }: { onPick: (id: string) => void }) {
 
   return (
     <div className="fixed inset-0 z-50 bg-background overflow-y-auto">
-      {/* ambient glow */}
       <div className="pointer-events-none absolute -top-40 -left-40 h-[500px] w-[500px] rounded-full bg-brand/20 blur-[120px]" />
       <div className="pointer-events-none absolute top-1/3 -right-40 h-[500px] w-[500px] rounded-full bg-brand/10 blur-[120px]" />
 
@@ -49,7 +48,6 @@ export function MajorPicker({ onPick }: { onPick: (id: string) => void }) {
           You can change it anytime.
         </p>
 
-        {/* Search */}
         <div className="mt-8 relative max-w-lg">
           <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <input
@@ -61,7 +59,6 @@ export function MajorPicker({ onPick }: { onPick: (id: string) => void }) {
           />
         </div>
 
-        {/* Grid */}
         <div className="mt-10 space-y-10 pb-16">
           {grouped.map(([cat, list]) => (
             <div key={cat}>
@@ -94,7 +91,6 @@ export function MajorPicker({ onPick }: { onPick: (id: string) => void }) {
           )}
         </div>
       </div>
-      {/* Silence unused hover state warning while keeping hover intent wiring */}
       {hover && <span className="sr-only">{hover.name}</span>}
     </div>
   );
