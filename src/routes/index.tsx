@@ -39,10 +39,10 @@ function Home() {
       <Hero featured={featured} major={currentMajor?.name ?? "your program"} />
 
       {currentMajor && inMajorCount < 3 && (
-        <div className="mx-6 md:mx-10 mt-6 rounded-2xl border border-mint/30 bg-mint/5 p-5 md:p-6">
+        <div className="mx-6 md:mx-10 mt-6 rounded-2xl border border-brand/30 bg-brand/5 p-5 md:p-6">
           <div className="flex items-start justify-between gap-4 flex-wrap">
             <div>
-              <div className="text-xs font-semibold tracking-widest text-mint uppercase mb-1">
+              <div className="text-xs font-semibold tracking-widest text-brand uppercase mb-1">
                 {currentMajor.emoji} {currentMajor.name}
               </div>
               <h3 className="font-display text-xl md:text-2xl font-bold">
@@ -54,7 +54,7 @@ function Home() {
             </div>
             <button
               onClick={() => setMajor(null)}
-              className="text-xs font-semibold text-mint hover:text-mint-glow underline underline-offset-4"
+              className="text-xs font-semibold text-brand hover:text-brand-glow underline underline-offset-4"
             >
               Change major
             </button>

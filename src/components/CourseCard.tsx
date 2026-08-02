@@ -11,7 +11,7 @@ export function CourseCard({ course, size = "md" }: { course: Course; size?: "md
     <Link
       to="/course/$code"
       params={{ code: course.code }}
-      className={`group relative shrink-0 ${w} ${h} rounded-2xl overflow-hidden border border-border/40 bg-surface transition-all duration-300 hover:scale-[1.04] hover:mint-glow hover:border-mint/60 hover:z-10`}
+      className={`group relative shrink-0 ${w} ${h} rounded-2xl overflow-hidden border border-border/40 bg-surface transition-all duration-300 hover:scale-[1.04] hover:brand-glow hover:border-brand/60 hover:z-10`}
     >
       {/* Poster gradient */}
       <div
@@ -25,7 +25,7 @@ export function CourseCard({ course, size = "md" }: { course: Course; size?: "md
            style={{ backgroundImage: "radial-gradient(circle at 30% 20%, rgba(255,255,255,0.4), transparent 50%)" }} />
 
       {/* Rating pill */}
-      <div className="absolute top-3 right-3 flex items-center gap-1 rounded-full bg-black/50 backdrop-blur px-2.5 py-1 text-xs font-semibold text-mint border border-mint/30">
+      <div className="absolute top-3 right-3 flex items-center gap-1 rounded-full bg-black/50 backdrop-blur px-2.5 py-1 text-xs font-semibold text-brand border border-brand/30">
         <Star className="h-3 w-3 fill-current" /> {course.rating.toFixed(1)}
       </div>
 

@@ -84,11 +84,11 @@ function AuthPage() {
   return (
     <div className="min-h-screen bg-background text-foreground flex flex-col items-center justify-center px-6 py-16">
       <Link to="/" className="flex items-center gap-2 mb-8">
-        <div className="h-9 w-9 rounded-lg bg-mint flex items-center justify-center mint-glow">
+        <div className="h-9 w-9 rounded-lg bg-brand flex items-center justify-center brand-glow">
           <span className="font-display font-black text-background text-lg leading-none">C</span>
         </div>
         <span className="font-display font-bold text-xl tracking-tight">
-          course<span className="text-mint">flix</span>
+          course<span className="text-brand">flix</span>
         </span>
       </Link>
 
@@ -112,7 +112,7 @@ function AuthPage() {
         </div>
 
         {sent ? (
-          <p className="text-sm text-mint">
+          <p className="text-sm text-brand">
             We sent a confirmation link to {email}. Click it, then come back and sign in.
           </p>
         ) : (
@@ -123,7 +123,7 @@ function AuthPage() {
                 onChange={(e) => setName(e.target.value)}
                 placeholder="Display name"
                 maxLength={40}
-                className="w-full h-11 rounded-xl bg-surface-2 border border-border/50 px-3 text-sm outline-none focus:border-mint/60"
+                className="w-full h-11 rounded-xl bg-surface-2 border border-border/50 px-3 text-sm outline-none focus:border-brand/60"
               />
             )}
             <input
@@ -132,7 +132,7 @@ function AuthPage() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="you@mail.utoronto.ca"
-              className="w-full h-11 rounded-xl bg-surface-2 border border-border/50 px-3 text-sm outline-none focus:border-mint/60"
+              className="w-full h-11 rounded-xl bg-surface-2 border border-border/50 px-3 text-sm outline-none focus:border-brand/60"
             />
             <input
               type="password"
@@ -141,11 +141,11 @@ function AuthPage() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder="Password"
-              className="w-full h-11 rounded-xl bg-surface-2 border border-border/50 px-3 text-sm outline-none focus:border-mint/60"
+              className="w-full h-11 rounded-xl bg-surface-2 border border-border/50 px-3 text-sm outline-none focus:border-brand/60"
             />
             <button
               disabled={busy}
-              className="w-full h-11 rounded-xl bg-mint text-primary-foreground font-semibold text-sm hover:bg-mint-glow transition disabled:opacity-60"
+              className="w-full h-11 rounded-xl bg-brand text-primary-foreground font-semibold text-sm hover:bg-brand-glow transition disabled:opacity-60"
             >
               {busy ? "…" : mode === "signin" ? "Sign in" : "Create account"}
             </button>
@@ -154,7 +154,7 @@ function AuthPage() {
 
         <button
           onClick={() => { setMode(mode === "signin" ? "signup" : "signin"); setSent(false); }}
-          className="mt-4 w-full text-xs text-muted-foreground hover:text-mint transition"
+          className="mt-4 w-full text-xs text-muted-foreground hover:text-brand transition"
         >
           {mode === "signin" ? "New here? Create an account" : "Already have an account? Sign in"}
         </button>

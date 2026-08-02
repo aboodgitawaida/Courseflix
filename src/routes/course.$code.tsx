@@ -29,7 +29,7 @@ export const Route = createFileRoute("/course/$code")({
       <TopNav />
       <div className="px-10 py-24 text-center">
         <h1 className="font-display text-4xl">Course not found</h1>
-        <Link to="/" className="text-mint mt-4 inline-block">← Back to browse</Link>
+        <Link to="/" className="text-brand mt-4 inline-block">← Back to browse</Link>
       </div>
     </div>
   ),
@@ -79,7 +79,7 @@ function CoursePage() {
           <Link to="/" className="inline-flex items-center gap-1.5 text-sm text-white/80 hover:text-white mb-8">
             <ArrowLeft className="h-4 w-4" /> Browse
           </Link>
-          <div className="text-xs font-semibold tracking-widest text-mint uppercase">{course.area} · {course.credits} credit</div>
+          <div className="text-xs font-semibold tracking-widest text-brand uppercase">{course.area} · {course.credits} credit</div>
           <h1 className="font-display text-5xl md:text-7xl font-black mt-2 leading-[0.95]">{course.code}</h1>
           <p className="font-display text-2xl md:text-3xl font-semibold mt-2 text-white/90">{course.title}</p>
           <p className="mt-4 max-w-2xl text-lg text-white/80">{course.area} · {course.credits} credit{course.credits === 1 ? "" : "s"}{course.hours ? ` · ${course.hours}` : ""}</p>
@@ -95,7 +95,7 @@ function CoursePage() {
           <div className="mt-8 flex flex-wrap gap-3">
             <button
               onClick={onShortlist}
-              className="inline-flex items-center gap-2 rounded-full bg-mint text-primary-foreground px-6 py-3 font-semibold text-sm hover:bg-mint-glow transition mint-glow"
+              className="inline-flex items-center gap-2 rounded-full bg-brand text-primary-foreground px-6 py-3 font-semibold text-sm hover:bg-brand-glow transition brand-glow"
             >
               {saved ? <Check className="h-4 w-4" /> : <Plus className="h-4 w-4" />}
               {saved ? "In your shortlist" : "Add to shortlist"}
@@ -150,7 +150,7 @@ function CoursePage() {
         <aside className="space-y-6">
           <div>
             <div className="flex items-center gap-2 mb-3">
-              <GraduationCap className="h-5 w-5 text-mint" />
+              <GraduationCap className="h-5 w-5 text-brand" />
               <h3 className="font-display text-xl font-bold">Top profs</h3>
             </div>
             <div className="space-y-2">
@@ -163,13 +163,13 @@ function CoursePage() {
                 <div key={p.name} className="rounded-xl bg-surface border border-border/40 p-4">
                   <div className="flex items-center justify-between">
                     <div className="font-semibold">{p.name}</div>
-                    <div className="flex items-center gap-1 text-mint font-semibold text-sm">
+                    <div className="flex items-center gap-1 text-brand font-semibold text-sm">
                       <Star className="h-3.5 w-3.5 fill-current" /> {p.rmp.toFixed(1)}
                     </div>
                   </div>
                   <div className="mt-2 flex flex-wrap gap-1">
                     {p.tags.map((t) => (
-                      <span key={t} className="text-[10px] px-1.5 py-0.5 rounded bg-mint/10 text-mint border border-mint/20">{t}</span>
+                      <span key={t} className="text-[10px] px-1.5 py-0.5 rounded bg-brand/10 text-brand border border-brand/20">{t}</span>
                     ))}
                   </div>
                 </div>
@@ -186,7 +186,7 @@ function CoursePage() {
                     key={p}
                     to="/course/$code"
                     params={{ code: p }}
-                    className="text-sm px-3 py-1.5 rounded-full bg-surface border border-border/50 hover:border-mint/50 hover:text-mint transition"
+                    className="text-sm px-3 py-1.5 rounded-full bg-surface border border-border/50 hover:border-brand/50 hover:text-brand transition"
                   >
                     {p}
                   </Link>
@@ -215,9 +215,9 @@ function CoursePage() {
 
 function StatCard({ label, value, suffix, accent }: { label: string; value: number; suffix: string; accent?: boolean }) {
   return (
-    <div className={`rounded-2xl border p-4 ${accent ? "bg-mint/10 border-mint/30" : "bg-surface border-border/40"}`}>
+    <div className={`rounded-2xl border p-4 ${accent ? "bg-brand/10 border-brand/30" : "bg-surface border-border/40"}`}>
       <div className="text-xs uppercase tracking-wider text-muted-foreground">{label}</div>
-      <div className={`font-display text-3xl font-black mt-1 ${accent ? "text-mint" : "text-foreground"}`}>
+      <div className={`font-display text-3xl font-black mt-1 ${accent ? "text-brand" : "text-foreground"}`}>
         {value}
         <span className="text-base font-semibold text-muted-foreground ml-0.5">{suffix}</span>
       </div>

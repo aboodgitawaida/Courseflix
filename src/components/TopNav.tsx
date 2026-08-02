@@ -29,11 +29,11 @@ export function TopNav({
     <header className="sticky top-0 z-40 backdrop-blur-xl bg-background/70 border-b border-border/40">
       <div className="flex items-center justify-between px-6 md:px-10 h-16 gap-4">
         <Link to="/" className="flex items-center gap-2 group shrink-0">
-          <div className="h-8 w-8 rounded-lg bg-mint flex items-center justify-center mint-glow">
+          <div className="h-8 w-8 rounded-lg bg-brand flex items-center justify-center brand-glow">
             <span className="font-display font-black text-background text-lg leading-none">C</span>
           </div>
           <span className="font-display font-bold text-lg tracking-tight">
-            course<span className="text-mint">flix</span>
+            course<span className="text-brand">flix</span>
           </span>
         </Link>
 
@@ -45,7 +45,7 @@ export function TopNav({
           {major && onChangeMajor && (
             <button
               onClick={onChangeMajor}
-              className="hidden sm:inline-flex items-center gap-1.5 h-9 px-3 rounded-full bg-surface hover:bg-surface-2 border border-border/50 hover:border-mint/40 text-xs font-semibold transition"
+              className="hidden sm:inline-flex items-center gap-1.5 h-9 px-3 rounded-full bg-surface hover:bg-surface-2 border border-border/50 hover:border-brand/40 text-xs font-semibold transition"
               title="Change major"
             >
               <span>{major.emoji}</span>
@@ -62,7 +62,7 @@ export function TopNav({
           {signedIn ? (
             <div className="flex items-center gap-1.5">
               <span className="hidden sm:inline-flex items-center gap-1.5 h-9 px-3 rounded-full bg-surface border border-border/50 text-xs font-semibold max-w-[140px] truncate">
-                <User className="h-3.5 w-3.5 text-mint" /> {label}
+                <User className="h-3.5 w-3.5 text-brand" /> {label}
               </span>
               <button
                 onClick={signOut}
@@ -76,7 +76,7 @@ export function TopNav({
           ) : (
             <Link
               to="/auth"
-              className="h-9 px-3 rounded-full bg-mint text-primary-foreground text-sm font-semibold hover:bg-mint-glow transition flex items-center gap-1.5"
+              className="h-9 px-3 rounded-full bg-brand text-primary-foreground text-sm font-semibold hover:bg-brand-glow transition flex items-center gap-1.5"
             >
               <User className="h-4 w-4" /> <span className="hidden sm:inline">Sign in</span>
             </Link>
