@@ -71,14 +71,17 @@ function Home() {
         </div>
       )}
 
-      <div className="space-y-10 md:space-y-14 pb-24 mt-6">
+      <div className="space-y-10 md:space-y-14 pb-16 mt-6">
         {rails.map((r) => (
           <CourseRail key={r.title} rail={r} />
         ))}
       </div>
+
+      <CreatorSection />
+
       <footer className="border-t border-border/40 px-6 md:px-10 py-8 text-xs text-muted-foreground flex flex-wrap gap-2 justify-between">
-        <span>courseflix · unofficial · built by a fed-up UofT student</span>
-        <span>Course data from the UTM Academic Calendar. Ratings are sample data. Not affiliated with UofT.</span>
+        <span>Courseflix · unofficial · built by Abood Awaida</span>
+        <span>Course data from the UTM Academic Calendar. Estimated ratings until students rate. Not affiliated with UofT or Netflix.</span>
       </footer>
     </div>
   );
