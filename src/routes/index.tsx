@@ -3,6 +3,8 @@ import { TopNav } from "@/components/TopNav";
 import { Hero } from "@/components/Hero";
 import { CourseRail } from "@/components/CourseRail";
 import { MajorPicker } from "@/components/MajorPicker";
+import { BrandIntro } from "@/components/BrandIntro";
+import { CreatorSection } from "@/components/CreatorSection";
 import { getRailsForMajor, getFeaturedForMajor } from "@/lib/courses";
 import { getMajor } from "@/lib/majors";
 import { useMajor } from "@/hooks/use-major";
@@ -26,7 +28,12 @@ function Home() {
   const currentMajor = getMajor(major);
 
   if (hydrated && !currentMajor) {
-    return <MajorPicker onPick={setMajor} />;
+    return (
+      <>
+        <BrandIntro />
+        <MajorPicker onPick={setMajor} />
+      </>
+    );
   }
 
   const rails = getRailsForMajor(major);
@@ -35,8 +42,10 @@ function Home() {
 
   return (
     <div className="min-h-screen bg-background text-foreground">
+      <BrandIntro />
       <TopNav major={currentMajor} onChangeMajor={() => setMajor(null)} />
       <Hero featured={featured} major={currentMajor?.name ?? "your program"} />
+
 
       {currentMajor && inMajorCount < 3 && (
         <div className="mx-6 md:mx-10 mt-6 rounded-2xl border border-brand/30 bg-brand/5 p-5 md:p-6">
