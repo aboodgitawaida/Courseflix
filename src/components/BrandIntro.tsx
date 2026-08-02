@@ -15,6 +15,7 @@ export function BrandIntro() {
     } catch {
       played = "1";
     }
+    console.log("INTRO-DEBUG", JSON.stringify(played));
     if (played) return;
     setVisible(true);
     try {
