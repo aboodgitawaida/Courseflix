@@ -114,7 +114,7 @@ function CoursePage() {
       </section>
 
       {/* Stats grid */}
-      <section className="px-6 md:px-10 max-w-6xl -mt-6">
+      <section className="relative z-10 px-6 md:px-10 max-w-6xl -mt-6">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
           <StatCard label="Overall" value={hasReal ? stats!.avg_rating : course.rating} suffix="/5" accent />
           <StatCard label="Difficulty" value={hasReal ? stats!.avg_difficulty : course.difficulty} suffix="/5" />
