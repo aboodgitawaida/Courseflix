@@ -13,7 +13,6 @@ export type Course = {
   prereqs: string[];
   hours: string;
   tags: Array<"Bird" | "Easy" | "Heavy" | "Interesting" | "Math-Heavy" | "Project" | "Hidden Gem" | "Lab-Heavy" | "Essay-Heavy" | "Discussion" | "Seminar" | "Intro" | "Upper-year">;
-  /** Sample/demo signal — not real student data yet. */
   rating: number;
   difficulty: number;
   workload: number;
@@ -51,7 +50,6 @@ function hash(s: string) {
   return Math.abs(h);
 }
 
-// Prefix -> majors that count this subject as core / support
 const coreByPrefix = new Map<string, string[]>();
 const supportByPrefix = new Map<string, string[]>();
 for (const m of MAJORS) {

@@ -3,6 +3,7 @@ import { TopNav } from "@/components/TopNav";
 import { Hero } from "@/components/Hero";
 import { CourseRail } from "@/components/CourseRail";
 import { MajorPicker } from "@/components/MajorPicker";
+import { CreatorSection } from "@/components/CreatorSection";
 import { getRailsForMajor, getFeaturedForMajor } from "@/lib/courses";
 import { getMajor } from "@/lib/majors";
 import { useMajor } from "@/hooks/use-major";
@@ -39,10 +40,10 @@ function Home() {
       <Hero featured={featured} major={currentMajor?.name ?? "your program"} />
 
       {currentMajor && inMajorCount < 3 && (
-        <div className="mx-6 md:mx-10 mt-6 rounded-2xl border border-mint/30 bg-mint/5 p-5 md:p-6">
+        <div className="mx-6 md:mx-10 mt-6 rounded-2xl border border-brand/30 bg-brand/5 p-5 md:p-6">
           <div className="flex items-start justify-between gap-4 flex-wrap">
             <div>
-              <div className="text-xs font-semibold tracking-widest text-mint uppercase mb-1">
+              <div className="text-xs font-semibold tracking-widest text-brand uppercase mb-1">
                 {currentMajor.emoji} {currentMajor.name}
               </div>
               <h3 className="font-display text-xl md:text-2xl font-bold">
@@ -54,7 +55,7 @@ function Home() {
             </div>
             <button
               onClick={() => setMajor(null)}
-              className="text-xs font-semibold text-mint hover:text-mint-glow underline underline-offset-4"
+              className="text-xs font-semibold text-brand hover:text-brand-glow underline underline-offset-4"
             >
               Change major
             </button>
@@ -62,14 +63,17 @@ function Home() {
         </div>
       )}
 
-      <div className="space-y-10 md:space-y-14 pb-24 mt-6">
+      <div className="space-y-10 md:space-y-14 pb-16 mt-6">
         {rails.map((r) => (
           <CourseRail key={r.title} rail={r} />
         ))}
       </div>
+
+      <CreatorSection />
+
       <footer className="border-t border-border/40 px-6 md:px-10 py-8 text-xs text-muted-foreground flex flex-wrap gap-2 justify-between">
-        <span>courseflix · unofficial · built by a fed-up UofT student</span>
-        <span>Course data from the UTM Academic Calendar. Ratings are sample data. Not affiliated with UofT.</span>
+        <span>Courseflix · unofficial · built by Abood Awaida</span>
+        <span>Course data from the UTM Academic Calendar. Estimated ratings until students rate. Not affiliated with UofT or Netflix.</span>
       </footer>
     </div>
   );
