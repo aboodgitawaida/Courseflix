@@ -12,6 +12,7 @@ import { useEffect, type ReactNode } from "react";
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { Toaster } from "@/components/ui/sonner";
+import { BrandIntro } from "@/components/BrandIntro";
 import { supabase } from "@/integrations/supabase/client";
 
 function NotFoundComponent() {
@@ -130,6 +131,7 @@ function RootComponent() {
 
   return (
     <QueryClientProvider client={queryClient}>
+      <BrandIntro />
       <Outlet />
       <Toaster position="top-center" />
     </QueryClientProvider>
