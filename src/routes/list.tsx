@@ -135,7 +135,7 @@ function ListPage() {
         {courses.length > 0 && (
           <div className="mt-8 flex flex-wrap gap-4">
             {courses.map((c) => (
-              <div key={c.code} className="relative">
+              <div key={c.code} className="relative shrink-0">
                 <CourseCard course={c} />
                 {!shared && signedIn && (
                   <button
