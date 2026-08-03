@@ -37,7 +37,7 @@ function ListPage() {
 
   const shared = !!ids;
   const codes = useMemo(() => {
-    const raw = shared ? ids!.split(",") : saved;
+    const raw: string[] = shared ? ids!.split(",") : (saved as string[]);
     return [...new Set(raw.map((c) => c.trim().toUpperCase()).filter(Boolean))];
   }, [shared, ids, saved]);
 
