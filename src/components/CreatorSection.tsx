@@ -1,4 +1,4 @@
-import { Github, Linkedin, Mail, Code2 } from "lucide-react";
+import { Github, Linkedin, Mail, Code2, Instagram } from "lucide-react";
 
 export function CreatorSection() {
   return (
@@ -33,7 +33,7 @@ export function CreatorSection() {
                 <Mail className="h-4 w-4" /> Get in touch
               </a>
               <a
-                href="https://github.com/"
+                href="https://github.com/aboodgitawaida"
                 target="_blank"
                 rel="noreferrer"
                 className="inline-flex items-center gap-2 rounded-full border border-border/60 bg-surface-2 px-5 py-2.5 text-sm font-semibold transition hover:border-brand/50"
@@ -41,12 +41,20 @@ export function CreatorSection() {
                 <Github className="h-4 w-4" /> GitHub
               </a>
               <a
-                href="https://www.linkedin.com/"
+                href="https://www.linkedin.com/in/abood-awaida-83b988417/"
                 target="_blank"
                 rel="noreferrer"
                 className="inline-flex items-center gap-2 rounded-full border border-border/60 bg-surface-2 px-5 py-2.5 text-sm font-semibold transition hover:border-brand/50"
               >
                 <Linkedin className="h-4 w-4" /> LinkedIn
+              </a>
+              <a
+                href="https://www.instagram.com/abood.awaida/"
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex items-center gap-2 rounded-full border border-border/60 bg-surface-2 px-5 py-2.5 text-sm font-semibold transition hover:border-brand/50"
+              >
+                <Instagram className="h-4 w-4" /> Instagram
               </a>
               <span className="inline-flex items-center gap-2 rounded-full border border-border/60 px-5 py-2.5 text-sm font-semibold text-muted-foreground">
                 <Code2 className="h-4 w-4" /> Student project · unofficial
