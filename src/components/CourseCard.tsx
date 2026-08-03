@@ -12,7 +12,7 @@ export function CourseCard({ course, size = "md" }: { course: Course; size?: "md
     <Link
       to="/course/$code"
       params={{ code: course.code }}
-      className={`group relative shrink-0 ${w} ${h} rounded-2xl overflow-hidden border border-border/40 bg-surface transition-all duration-300 hover:scale-[1.04] hover:brand-glow hover:border-brand/60 hover:z-10`}
+      className={`group block relative shrink-0 ${w} ${h} rounded-2xl overflow-hidden border border-border/40 bg-surface transition-all duration-300 hover:scale-[1.04] hover:brand-glow hover:border-brand/60 hover:z-10`}
     >
       <div
         className="absolute inset-0"
