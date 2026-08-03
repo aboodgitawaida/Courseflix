@@ -141,6 +141,46 @@ export function getFeaturedForMajor(majorId: string | null): Course {
   );
 }
 
+export type Badge = { label: string; emoji: string; tone: "bird" | "essay" | "exam" | "project" };
+
+export function getBadges(c: Course): Badge[] {
+  const out: Badge[] = [];
+  if (c.tags.includes("Easy") || (c.level <= 200 && c.workload <= 2.6))
+    out.push({ label: "Bird Course", emoji: "🦅", tone: "bird" });
+  if (c.tags.includes("Essay-Heavy")) out.push({ label: "Essay Heavy", emoji: "📝", tone: "essay" });
+  if (c.tags.includes("Project") || c.tags.includes("Lab-Heavy"))
+    out.push({ label: "Group Project", emoji: "💻", tone: "project" });
+  if (c.tags.includes("Heavy") || c.difficulty >= 4)
+    out.push({ label: "Exam Heavy", emoji: "📊", tone: "exam" });
+  return out.slice(0, 2);
+}
+
+export function isCourseworkHeavy(c: Course) {
+  return c.tags.includes("Project") || c.tags.includes("Lab-Heavy") || c.tags.includes("Seminar") || c.tags.includes("Discussion");
+}
+
+export function searchCourses(query: string, limit = 30): Course[] {
+  const s = query.trim().toLowerCase();
+  if (!s) return [];
+  const scored: Array<{ c: Course; score: number }> = [];
+  for (const c of COURSES) {
+    const code = c.code.toLowerCase();
+    const title = c.title.toLowerCase();
+    let score = 0;
+    if (code === s) score = 100;
+    else if (code.startsWith(s)) score = 80;
+    else if (code.includes(s)) score = 60;
+    else if (title.startsWith(s)) score = 50;
+    else if (title.includes(s)) score = 40;
+    else if (c.description.toLowerCase().includes(s)) score = 15;
+    if (score) scored.push({ c, score });
+  }
+  return scored
+    .sort((a, b) => b.score - a.score || b.c.rating - a.c.rating || a.c.code.localeCompare(b.c.code))
+    .slice(0, limit)
+    .map((x) => x.c);
+}
+
 export function getRailsForMajor(majorId: string | null): Rail[] {
   const major = MAJORS.find((m) => m.id === majorId);
   const core = coursesFor(major, "core");
@@ -148,17 +188,32 @@ export function getRailsForMajor(majorId: string | null): Rail[] {
   const codes = (list: Course[], n = 14) => uniq(list.slice(0, n).map((c) => c.code));
   const byRating = (l: Course[]) => [...l].sort((a, b) => b.rating - a.rating || a.code.localeCompare(b.code));
 
+  const scope = core.concat(support);
+  const pool = scope.length >= 10 ? scope : COURSES;
+
   const first = core.filter((c) => c.level <= 200).sort((a, b) => a.code.localeCompare(b.code));
   const upper = byRating(core.filter((c) => c.level >= 300));
-  const light = byRating(core.concat(support).filter((c) => c.tags.includes("Easy")));
   const seminars = byRating(core.filter((c) => c.level >= 400));
 
+  const trending = byRating(pool.filter((c) => c.level <= 300)).slice(0, 40);
+  const birds = byRating(pool.filter((c) => c.tags.includes("Easy") && c.level <= 200));
+  const coursework = byRating(pool.filter(isCourseworkHeavy));
+  const firstYearTop = byRating(pool.filter((c) => c.level === 100));
+  const prereqCounts = new Map<string, number>();
+  for (const c of COURSES) for (const p of c.prereqs) prereqCounts.set(p, (prereqCounts.get(p) ?? 0) + 1);
+  const gateways = pool
+    .filter((c) => (prereqCounts.get(c.code) ?? 0) > 0)
+    .sort((a, b) => (prereqCounts.get(b.code) ?? 0) - (prereqCounts.get(a.code) ?? 0));
+
   const rails: Rail[] = [
+    { title: "🔥 Trending at UTM", blurb: "What students are browsing most right now", codes: codes(trending) },
     { title: "🎯 Start here", blurb: `First- and second-year ${major?.name ?? "UTM"} courses`, codes: codes(first) },
-    { title: "🔥 Top rated in your program", blurb: "Sample ratings — real reviews coming soon", codes: codes(byRating(core)) },
+    { title: "🦅 Easiest distribution requirements", blurb: "Lighter contact hours, intro level — classic bird picks", codes: codes(birds) },
+    { title: "⚡ No final exam / coursework heavy", blurb: "Projects, labs and seminars instead of one big exam", codes: codes(coursework) },
+    { title: "⭐ Top rated first-year courses", blurb: "100-level courses students rate highest", codes: codes(firstYearTop) },
+    { title: "📚 Popular program prerequisites", blurb: "Courses that unlock the most upper-year options", codes: codes(gateways) },
     { title: "🧩 Required support courses", blurb: "The other subjects your program needs", codes: codes(byRating(support)) },
     { title: "🚀 Upper-year picks", blurb: "Once you've cleared the prereqs", codes: codes(upper) },
-    { title: "🐦 Lighter load", blurb: "Fewer contact hours, intro level", codes: codes(light) },
     { title: "🎓 Seminars & capstones", blurb: "400-level, small classes", codes: codes(seminars) },
   ];
 
@@ -166,3 +221,4 @@ export function getRailsForMajor(majorId: string | null): Rail[] {
 }
 
 export const SUBJECTS = [...new Set(COURSES.map((c) => c.subject))].sort();
+
