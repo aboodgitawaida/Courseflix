@@ -21,8 +21,12 @@ export const Route = createFileRoute("/course/$code")({
       { property: "og:title", content: loaderData ? `${loaderData.course.code} · ${loaderData.course.title}` : "courseflix" },
       { property: "og:description", content: loaderData?.course.description ?? "" },
       { property: "og:type", content: "article" },
+      { property: "og:url", content: loaderData ? `https://courseflix-utm.lovable.app/course/${loaderData.course.code}` : "https://courseflix-utm.lovable.app/" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
+    links: loaderData
+      ? [{ rel: "canonical", href: `https://courseflix-utm.lovable.app/course/${loaderData.course.code}` }]
+      : [],
   }),
   notFoundComponent: () => (
     <div className="min-h-screen bg-background text-foreground">
