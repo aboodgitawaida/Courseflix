@@ -9,10 +9,16 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as ListRouteImport } from './routes/list'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as CourseCodeRouteImport } from './routes/course.$code'
 
+const ListRoute = ListRouteImport.update({
+  id: '/list',
+  path: '/list',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
   path: '/auth',
@@ -32,35 +38,46 @@ const CourseCodeRoute = CourseCodeRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/list': typeof ListRoute
   '/course/$code': typeof CourseCodeRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/list': typeof ListRoute
   '/course/$code': typeof CourseCodeRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/list': typeof ListRoute
   '/course/$code': typeof CourseCodeRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/auth' | '/course/$code'
+  fullPaths: '/' | '/auth' | '/list' | '/course/$code'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/auth' | '/course/$code'
-  id: '__root__' | '/' | '/auth' | '/course/$code'
+  to: '/' | '/auth' | '/list' | '/course/$code'
+  id: '__root__' | '/' | '/auth' | '/list' | '/course/$code'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthRoute: typeof AuthRoute
+  ListRoute: typeof ListRoute
   CourseCodeRoute: typeof CourseCodeRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/list': {
+      id: '/list'
+      path: '/list'
+      fullPath: '/list'
+      preLoaderRoute: typeof ListRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/auth': {
       id: '/auth'
       path: '/auth'
@@ -88,6 +105,7 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthRoute: AuthRoute,
+  ListRoute: ListRoute,
   CourseCodeRoute: CourseCodeRoute,
 }
 export const routeTree = rootRouteImport

@@ -6,7 +6,7 @@ import { COURSES, getCourse } from "@/lib/courses";
 import { useAuth } from "@/hooks/use-auth";
 import { useCourseStats, useShortlist, useToggleShortlist } from "@/lib/ratings";
 import { toast } from "sonner";
-import { ArrowLeft, Plus, Check, Share2, Star, GraduationCap } from "lucide-react";
+import { ArrowLeft, Plus, Check, Share2, Star, GraduationCap, ExternalLink } from "lucide-react";
 
 export const Route = createFileRoute("/course/$code")({
   loader: ({ params }) => {
@@ -21,8 +21,12 @@ export const Route = createFileRoute("/course/$code")({
       { property: "og:title", content: loaderData ? `${loaderData.course.code} · ${loaderData.course.title}` : "courseflix" },
       { property: "og:description", content: loaderData?.course.description ?? "" },
       { property: "og:type", content: "article" },
+      { property: "og:url", content: loaderData ? `https://courseflix-utm.lovable.app/course/${loaderData.course.code}` : "https://courseflix-utm.lovable.app/" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
+    links: loaderData
+      ? [{ rel: "canonical", href: `https://courseflix-utm.lovable.app/course/${loaderData.course.code}` }]
+      : [],
   }),
   notFoundComponent: () => (
     <div className="min-h-screen bg-background text-foreground">
@@ -166,6 +170,37 @@ function CoursePage() {
                     ))}
                   </div>
                 </div>
+              ))}
+            </div>
+          </div>
+
+          <div>
+            <h3 className="font-display text-xl font-bold mb-3">Quick links</h3>
+            <div className="space-y-2">
+              {[
+                {
+                  label: "View on UTM Academic Calendar",
+                  href: `https://utm.calendar.utoronto.ca/search-courses?course_search=${encodeURIComponent(course.code)}`,
+                },
+                {
+                  label: "Check Timetable Builder availability",
+                  href: `https://ttb.utoronto.ca/?courseCode=${encodeURIComponent(course.code)}`,
+                },
+                {
+                  label: `Search r/UTM for ${course.code}`,
+                  href: `https://www.reddit.com/r/UTM/search/?q=${encodeURIComponent(course.code)}&restrict_sr=1`,
+                },
+              ].map((l) => (
+                <a
+                  key={l.label}
+                  href={l.href}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="flex items-center justify-between gap-2 rounded-xl bg-surface border border-border/40 p-3.5 text-sm font-medium hover:border-brand/50 hover:text-brand transition"
+                >
+                  {l.label}
+                  <ExternalLink className="h-4 w-4 shrink-0" />
+                </a>
               ))}
             </div>
           </div>

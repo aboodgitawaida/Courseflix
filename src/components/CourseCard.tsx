@@ -1,11 +1,12 @@
 import { Link } from "@tanstack/react-router";
-import type { Course } from "@/lib/courses";
+import { getBadges, type Course } from "@/lib/courses";
 import { Star } from "lucide-react";
 
 export function CourseCard({ course, size = "md" }: { course: Course; size?: "md" | "lg" }) {
   const w = size === "lg" ? "w-[280px] md:w-[320px]" : "w-[220px] md:w-[240px]";
   const h = size === "lg" ? "h-[380px] md:h-[420px]" : "h-[300px] md:h-[320px]";
   const [c1, c2] = course.poster;
+  const badges = getBadges(course);
 
   return (
     <Link
@@ -35,11 +36,17 @@ export function CourseCard({ course, size = "md" }: { course: Course; size?: "md
         <div className="font-display text-2xl font-bold text-white leading-none">{course.code}</div>
         <div className="mt-1 text-sm font-medium text-white/85 line-clamp-2">{course.title}</div>
         <div className="mt-2 flex flex-wrap gap-1">
-          {course.tags.slice(0, 2).map((t) => (
-            <span key={t} className="text-[10px] px-1.5 py-0.5 rounded bg-white/10 text-white/80 border border-white/10">
-              {t}
+          {badges.map((b) => (
+            <span key={b.label} className="text-[10px] px-1.5 py-0.5 rounded bg-white/10 text-white/90 border border-white/15">
+              {b.emoji} {b.label}
             </span>
           ))}
+          {badges.length === 0 &&
+            course.tags.slice(0, 2).map((t) => (
+              <span key={t} className="text-[10px] px-1.5 py-0.5 rounded bg-white/10 text-white/80 border border-white/10">
+                {t}
+              </span>
+            ))}
         </div>
       </div>
     </Link>

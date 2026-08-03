@@ -7,17 +7,23 @@ import { CreatorSection } from "@/components/CreatorSection";
 import { getRailsForMajor, getFeaturedForMajor } from "@/lib/courses";
 import { getMajor } from "@/lib/majors";
 import { useMajor } from "@/hooks/use-major";
+import { useEffect } from "react";
 
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "courseflix — Netflix for UofT courses" },
-      { name: "description", content: "Discover UofT courses like Netflix. Ratings, prof vibes, Reddit reviews, and personalized picks for your major." },
-      { property: "og:title", content: "courseflix — Netflix for UofT courses" },
-      { property: "og:description", content: "Browse, rate, and shortlist UofT courses. Real prof scores + Reddit vibes." },
+      { title: "Courseflix — UTM" },
+      { name: "description", content: "Browse every UTM course like Netflix. Pick your major, get curated rows, save a shortlist and share it with friends." },
+      { property: "og:title", content: "Courseflix — UTM" },
+      { property: "og:description", content: "Browse every UTM course like Netflix. Curated rows, bird courses, ratings and a shareable shortlist." },
       { property: "og:type", content: "website" },
+      { property: "og:site_name", content: "Courseflix" },
+      { property: "og:url", content: "https://courseflix-utm.lovable.app/" },
       { name: "twitter:card", content: "summary_large_image" },
+      { name: "twitter:title", content: "Courseflix — UTM" },
+      { name: "twitter:description", content: "Browse every UTM course like Netflix. Curated rows, bird courses, ratings and a shareable shortlist." },
     ],
+    links: [{ rel: "canonical", href: "https://courseflix-utm.lovable.app/" }],
   }),
   component: Home,
 });
@@ -25,6 +31,15 @@ export const Route = createFileRoute("/")({
 function Home() {
   const { major, setMajor, hydrated } = useMajor();
   const currentMajor = getMajor(major);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    if (window.location.hash !== "#creator") return;
+    const t = setTimeout(() => {
+      document.getElementById("creator")?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }, 200);
+    return () => clearTimeout(t);
+  }, [hydrated, currentMajor]);
 
   if (hydrated && !currentMajor) {
     return <MajorPicker onPick={setMajor} />;
