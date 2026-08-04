@@ -1,54 +1,182 @@
-import { Link } from "@tanstack/react-router";
-import { getBadges, type Course } from "@/lib/courses";
-import { Star } from "lucide-react";
+import { Star, Plus, Check, GitCompare } from "lucide-react";
+import { toast } from "sonner";
+import { getArt, getBadges, getMatchScore, type Course } from "@/lib/courses";
+import { useCourseUI } from "@/hooks/use-course-ui";
+import { useMajor } from "@/hooks/use-major";
+import { useAuth } from "@/hooks/use-auth";
+import { useShortlist, useToggleShortlist } from "@/lib/ratings";
 
-export function CourseCard({ course, size = "md" }: { course: Course; size?: "md" | "lg" }) {
-  const w = size === "lg" ? "w-[280px] md:w-[320px]" : "w-[220px] md:w-[240px]";
-  const h = size === "lg" ? "h-[380px] md:h-[420px]" : "h-[300px] md:h-[320px]";
-  const [c1, c2] = course.poster;
-  const badges = getBadges(course);
-
-  return (
-    <Link
-      to="/course/$code"
-      params={{ code: course.code }}
-      className={`group block relative shrink-0 ${w} ${h} rounded-2xl overflow-hidden border border-border/40 bg-surface transition-all duration-300 hover:scale-[1.04] hover:brand-glow hover:border-brand/60 hover:z-10`}
-    >
+function Motif({ motif, accent }: { motif: string; accent: string }) {
+  if (motif === "grid")
+    return (
       <div
-        className="absolute inset-0"
+        className="absolute inset-0 opacity-30"
         style={{
-          background: `linear-gradient(135deg, ${c1} 0%, ${c2} 100%)`,
+          backgroundImage: `linear-gradient(${accent}22 1px, transparent 1px), linear-gradient(90deg, ${accent}22 1px, transparent 1px)`,
+          backgroundSize: "22px 22px",
         }}
       />
-      <div className="absolute inset-0 opacity-30 mix-blend-overlay"
-           style={{ backgroundImage: "radial-gradient(circle at 30% 20%, rgba(255,255,255,0.4), transparent 50%)" }} />
+    );
+  if (motif === "neural")
+    return (
+      <div
+        className="absolute inset-0 opacity-40"
+        style={{
+          backgroundImage: `radial-gradient(circle at 25% 35%, ${accent}55, transparent 45%), radial-gradient(circle at 75% 65%, ${accent}33, transparent 40%)`,
+        }}
+      />
+    );
+  if (motif === "columns")
+    return (
+      <div
+        className="absolute inset-0 opacity-25"
+        style={{
+          backgroundImage: `repeating-linear-gradient(90deg, ${accent}44 0 6px, transparent 6px 34px)`,
+        }}
+      />
+    );
+  if (motif === "geometry")
+    return (
+      <div
+        className="absolute inset-0 opacity-30"
+        style={{
+          backgroundImage: `repeating-linear-gradient(45deg, ${accent}33 0 1px, transparent 1px 18px), repeating-linear-gradient(-45deg, ${accent}22 0 1px, transparent 1px 18px)`,
+        }}
+      />
+    );
+  if (motif === "cells")
+    return (
+      <div
+        className="absolute inset-0 opacity-35"
+        style={{
+          backgroundImage: `radial-gradient(circle at 20% 30%, ${accent}44 0 8px, transparent 9px), radial-gradient(circle at 60% 70%, ${accent}33 0 12px, transparent 13px), radial-gradient(circle at 85% 25%, ${accent}33 0 6px, transparent 7px)`,
+        }}
+      />
+    );
+  if (motif === "finance")
+    return (
+      <div
+        className="absolute inset-0 opacity-30"
+        style={{
+          backgroundImage: `linear-gradient(115deg, transparent 40%, ${accent}44 50%, transparent 60%), repeating-linear-gradient(0deg, ${accent}18 0 1px, transparent 1px 20px)`,
+        }}
+      />
+    );
+  if (motif === "books")
+    return (
+      <div
+        className="absolute inset-0 opacity-30"
+        style={{
+          backgroundImage: `repeating-linear-gradient(90deg, ${accent}33 0 10px, transparent 10px 16px, ${accent}22 16px 22px, transparent 22px 30px)`,
+        }}
+      />
+    );
+  return (
+    <div
+      className="absolute inset-0 opacity-30"
+      style={{ backgroundImage: `radial-gradient(circle at 30% 25%, ${accent}44, transparent 55%)` }}
+    />
+  );
+}
 
-      <div className="absolute top-3 right-3 flex items-center gap-1 rounded-full bg-black/50 backdrop-blur px-2.5 py-1 text-xs font-semibold text-brand border border-brand/30">
-        <Star className="h-3 w-3 fill-current" /> {course.rating.toFixed(1)}
-      </div>
+export function CourseCard({ course, size = "md" }: { course: Course; size?: "md" | "lg" }) {
+  const w = size === "lg" ? "w-[300px] md:w-[340px]" : "w-[240px] md:w-[280px]";
+  const art = getArt(course.subject);
+  const badges = getBadges(course);
+  const { openPreview, compare, toggleCompare } = useCourseUI();
+  const { major } = useMajor();
+  const match = getMatchScore(course, major);
+  const { signedIn } = useAuth();
+  const { data: saved = [] } = useShortlist();
+  const toggle = useToggleShortlist();
+  const inList = (saved as string[]).includes(course.code);
+  const inCompare = compare.includes(course.code);
 
-      <div className="absolute top-3 left-3 rounded-md bg-black/40 backdrop-blur px-2 py-0.5 text-[10px] font-medium tracking-wider uppercase text-white/90">
-        {course.area}
-      </div>
+  async function onAdd(e: React.MouseEvent) {
+    e.stopPropagation();
+    if (!signedIn) {
+      toast.error("Sign in to save courses");
+      return;
+    }
+    try {
+      await toggle.mutateAsync({ code: course.code, saved: inList });
+      toast.success(inList ? `${course.code} removed from your shortlist` : `${course.code} added to your shortlist`);
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Could not update shortlist");
+    }
+  }
 
-      <div className="absolute inset-x-0 bottom-0 h-2/3 bg-gradient-to-t from-black/95 via-black/60 to-transparent" />
-      <div className="absolute inset-x-0 bottom-0 p-4">
-        <div className="font-display text-2xl font-bold text-white leading-none">{course.code}</div>
-        <div className="mt-1 text-sm font-medium text-white/85 line-clamp-2">{course.title}</div>
-        <div className="mt-2 flex flex-wrap gap-1">
-          {badges.map((b) => (
-            <span key={b.label} className="text-[10px] px-1.5 py-0.5 rounded bg-white/10 text-white/90 border border-white/15">
-              {b.emoji} {b.label}
-            </span>
-          ))}
-          {badges.length === 0 &&
-            course.tags.slice(0, 2).map((t) => (
-              <span key={t} className="text-[10px] px-1.5 py-0.5 rounded bg-white/10 text-white/80 border border-white/10">
-                {t}
-              </span>
-            ))}
+  return (
+    <article
+      role="button"
+      tabIndex={0}
+      aria-label={`${course.code}, ${course.title}, rated ${course.rating.toFixed(1)} out of 5`}
+      onClick={() => openPreview(course.code)}
+      onKeyDown={(e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          openPreview(course.code);
+        }
+      }}
+      className={`group relative shrink-0 ${w} cursor-pointer rounded-xl border border-white/10 bg-surface overflow-hidden transition-all duration-300 ease-out hover:scale-105 hover:z-30 hover:shadow-2xl hover:shadow-red-900/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand`}
+    >
+      <div className={`relative aspect-video bg-gradient-to-br ${art.gradient}`}>
+        <Motif motif={art.motif} accent={art.accent} />
+        <div className="absolute inset-x-0 bottom-0 h-2/3 bg-gradient-to-t from-black via-black/60 to-transparent" />
+
+        <div className="absolute top-2 left-2 rounded bg-black/60 backdrop-blur px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-white/80">
+          {course.area}
+        </div>
+
+        <div className="absolute top-2 right-2 flex items-center gap-1.5 opacity-0 transition group-hover:opacity-100 focus-within:opacity-100">
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              toggleCompare(course.code);
+            }}
+            aria-label={`${inCompare ? "Remove" : "Add"} ${course.code} ${inCompare ? "from" : "to"} comparison`}
+            className={`grid h-7 w-7 place-items-center rounded-full border border-white/25 backdrop-blur transition ${inCompare ? "bg-brand text-primary-foreground" : "bg-black/60 hover:bg-black"}`}
+          >
+            <GitCompare className="h-3.5 w-3.5" />
+          </button>
+          <button
+            onClick={onAdd}
+            aria-label={`${inList ? "Remove" : "Add"} ${course.code} ${inList ? "from" : "to"} shortlist`}
+            className={`grid h-7 w-7 place-items-center rounded-full border border-white/25 backdrop-blur transition ${inList ? "bg-brand text-primary-foreground" : "bg-black/60 hover:bg-black"}`}
+          >
+            {inList ? <Check className="h-3.5 w-3.5" /> : <Plus className="h-3.5 w-3.5" />}
+          </button>
+        </div>
+
+        <div className="absolute inset-x-0 bottom-0 p-3">
+          <div className="font-display text-2xl font-bold leading-none text-white">{course.code}</div>
+          <div className="mt-1 line-clamp-1 text-xs font-medium text-white/80">{course.title}</div>
         </div>
       </div>
-    </Link>
+
+      <div className="flex items-center justify-between gap-2 px-3 py-2">
+        <span className="flex items-center gap-1 text-xs font-semibold text-brand">
+          <Star className="h-3 w-3 fill-current" /> {course.rating.toFixed(1)}
+        </span>
+        {match !== null && (
+          <span className="text-[10px] font-semibold text-emerald-400">{match}% match</span>
+        )}
+        <span className="text-[10px] text-muted-foreground">{course.credits} cr</span>
+      </div>
+
+      <div className="flex flex-wrap gap-1 px-3 pb-3">
+        {badges.map((b) => (
+          <span key={b.label} className="rounded border border-white/10 bg-white/5 px-1.5 py-0.5 text-[10px] text-white/80">
+            {b.emoji} {b.label}
+          </span>
+        ))}
+        {badges.length === 0 &&
+          course.tags.slice(0, 2).map((t) => (
+            <span key={t} className="rounded border border-white/10 bg-white/5 px-1.5 py-0.5 text-[10px] text-white/70">
+              {t}
+            </span>
+          ))}
+      </div>
+    </article>
   );
 }

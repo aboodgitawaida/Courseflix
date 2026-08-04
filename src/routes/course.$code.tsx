@@ -2,6 +2,7 @@ import { createFileRoute, Link, notFound, useNavigate } from "@tanstack/react-ro
 import { TopNav } from "@/components/TopNav";
 import { CourseCard } from "@/components/CourseCard";
 import { RatingSection } from "@/components/RatingSection";
+import { PrereqTree } from "@/components/PrereqTree";
 import { COURSES, getCourse } from "@/lib/courses";
 import { useAuth } from "@/hooks/use-auth";
 import { useCourseStats, useShortlist, useToggleShortlist } from "@/lib/ratings";
@@ -138,6 +139,12 @@ function CoursePage() {
           <div>
             <h2 className="font-display text-2xl font-bold mb-3">About this course</h2>
             <p className="text-muted-foreground leading-relaxed">{course.description}</p>
+          </div>
+
+          <div>
+            <h2 className="font-display text-2xl font-bold mb-3">Prerequisite path</h2>
+            <PrereqTree code={course.code} />
+            {course.prereqRaw && <p className="mt-3 text-xs text-muted-foreground">{course.prereqRaw}</p>}
           </div>
 
           <RatingSection code={course.code} />

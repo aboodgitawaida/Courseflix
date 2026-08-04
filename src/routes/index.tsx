@@ -4,10 +4,11 @@ import { Hero } from "@/components/Hero";
 import { CourseRail } from "@/components/CourseRail";
 import { MajorPicker } from "@/components/MajorPicker";
 import { CreatorSection } from "@/components/CreatorSection";
-import { getRailsForMajor, getFeaturedForMajor } from "@/lib/courses";
+import { FilterChips } from "@/components/FilterChips";
+import { getRailsForMajor, getFeaturedForMajor, type FilterId } from "@/lib/courses";
 import { getMajor } from "@/lib/majors";
 import { useMajor } from "@/hooks/use-major";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -31,6 +32,7 @@ export const Route = createFileRoute("/")({
 function Home() {
   const { major, setMajor, hydrated } = useMajor();
   const currentMajor = getMajor(major);
+  const [filter, setFilter] = useState<FilterId>("all");
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -45,14 +47,15 @@ function Home() {
     return <MajorPicker onPick={setMajor} />;
   }
 
-  const rails = getRailsForMajor(major);
+  const rails = getRailsForMajor(major, filter);
   const featured = getFeaturedForMajor(major);
-  const inMajorCount = rails[0]?.codes.length ?? 0;
+  const inMajorCount = getRailsForMajor(major)[0]?.codes.length ?? 0;
 
   return (
     <div className="min-h-screen bg-background text-foreground">
-      <TopNav major={currentMajor} onChangeMajor={() => setMajor(null)} />
+      <TopNav />
       <Hero featured={featured} major={currentMajor?.name ?? "your program"} />
+      <FilterChips value={filter} onChange={setFilter} />
 
       {currentMajor && inMajorCount < 3 && (
         <div className="mx-6 md:mx-10 mt-6 rounded-2xl border border-brand/30 bg-brand/5 p-5 md:p-6">
@@ -78,11 +81,16 @@ function Home() {
         </div>
       )}
 
-      <div className="space-y-10 md:space-y-14 pb-16 mt-6">
+      <main className="space-y-8 md:space-y-12 pb-16 mt-6">
+        {rails.length === 0 && (
+          <p className="px-6 md:px-10 text-sm text-muted-foreground">
+            No courses match this filter for your program yet — try another chip.
+          </p>
+        )}
         {rails.map((r) => (
           <CourseRail key={r.title} rail={r} />
         ))}
-      </div>
+      </main>
 
       <CreatorSection />
 
