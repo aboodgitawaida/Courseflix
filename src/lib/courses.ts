@@ -185,7 +185,7 @@ function buildCourse(row: (typeof CATALOG)[number]): Course {
   const load = lecture + practical * 1.2 + (credits === 1 ? 24 : 0);
 
   const tags: CourseTag[] = [];
-  if (level <= 200) tags.push("Intro");
+  if (level <= 100) tags.push("Intro");
   if (level >= 400) tags.push("Seminar");
   else if (level >= 300) tags.push("Upper-year");
   if (dist.includes("S") && ["MAT", "STA", "CSC", "PHY", "AST", "ECO"].includes(subject)) tags.push("Math-Heavy");
