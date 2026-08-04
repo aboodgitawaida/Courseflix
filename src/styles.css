@@ -34,8 +34,8 @@
   --color-brand-glow: var(--brand-glow);
   --color-surface: var(--surface);
   --color-surface-2: var(--surface-2);
-  --font-display: "Bebas Neue", "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
-  --font-sans: "Inter", "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Bebas Neue", "Plus Jakarta Sans", ui-sans-serif, system-ui, "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif;
+  --font-sans: "Inter", "Plus Jakarta Sans", ui-sans-serif, system-ui, "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif;
   --shadow-glow: 0 0 40px -8px var(--brand);
   --shadow-card: 0 20px 40px -20px oklch(0 0 0 / 0.8);
 }
