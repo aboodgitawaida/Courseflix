@@ -140,6 +140,12 @@ function CoursePage() {
             <p className="text-muted-foreground leading-relaxed">{course.description}</p>
           </div>
 
+          <div>
+            <h2 className="font-display text-2xl font-bold mb-3">Prerequisite path</h2>
+            <PrereqTree code={course.code} />
+            {course.prereqRaw && <p className="mt-3 text-xs text-muted-foreground">{course.prereqRaw}</p>}
+          </div>
+
           <RatingSection code={course.code} />
 
         </div>
