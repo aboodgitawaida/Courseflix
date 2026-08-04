@@ -13,6 +13,10 @@ import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { Toaster } from "@/components/ui/sonner";
 import { BrandIntro } from "@/components/BrandIntro";
+import { CourseUIProvider } from "@/hooks/use-course-ui";
+import { CommandPalette } from "@/components/CommandPalette";
+import { CoursePreviewModal } from "@/components/CoursePreviewModal";
+import { CompareDrawer } from "@/components/CompareDrawer";
 import { supabase } from "@/integrations/supabase/client";
 
 function NotFoundComponent() {
