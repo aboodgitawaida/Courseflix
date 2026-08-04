@@ -144,7 +144,7 @@ export function CourseCard({ course, size = "md" }: { course: Course; size?: "md
             aria-label={`${inList ? "Remove" : "Add"} ${course.code} ${inList ? "from" : "to"} shortlist`}
             className={`grid h-7 w-7 place-items-center rounded-full border border-white/25 backdrop-blur transition ${inList ? "bg-brand text-primary-foreground" : "bg-black/60 hover:bg-black"}`}
           >
-            {inList ? <Check className="h-3.5 w-3.5 animate-scale-in" /> : <Plus className="h-3.5 w-3.5" />}
+            {inList ? <Check className="h-3.5 w-3.5" /> : <Plus className="h-3.5 w-3.5" />}
           </button>
         </div>
 
