@@ -131,9 +131,14 @@ function RootComponent() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <BrandIntro />
-      <Outlet />
-      <Toaster position="top-center" />
+      <CourseUIProvider>
+        <BrandIntro />
+        <Outlet />
+        <CommandPalette />
+        <CoursePreviewModal />
+        <CompareDrawer />
+        <Toaster position="top-center" />
+      </CourseUIProvider>
     </QueryClientProvider>
   );
 }
