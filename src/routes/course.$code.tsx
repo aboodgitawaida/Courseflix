@@ -2,6 +2,7 @@ import { createFileRoute, Link, notFound, useNavigate } from "@tanstack/react-ro
 import { TopNav } from "@/components/TopNav";
 import { CourseCard } from "@/components/CourseCard";
 import { RatingSection } from "@/components/RatingSection";
+import { PrereqTree } from "@/components/PrereqTree";
 import { COURSES, getCourse } from "@/lib/courses";
 import { useAuth } from "@/hooks/use-auth";
 import { useCourseStats, useShortlist, useToggleShortlist } from "@/lib/ratings";
