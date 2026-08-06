@@ -9,14 +9,32 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as ListRouteImport } from './routes/list'
+import { Route as HelpRouteImport } from './routes/help'
+import { Route as FriendsRouteImport } from './routes/friends'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as CourseCodeRouteImport } from './routes/course.$code'
 
+const SettingsRoute = SettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ListRoute = ListRouteImport.update({
   id: '/list',
   path: '/list',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const HelpRoute = HelpRouteImport.update({
+  id: '/help',
+  path: '/help',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FriendsRoute = FriendsRouteImport.update({
+  id: '/friends',
+  path: '/friends',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthRoute = AuthRouteImport.update({
@@ -38,44 +56,99 @@ const CourseCodeRoute = CourseCodeRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/friends': typeof FriendsRoute
+  '/help': typeof HelpRoute
   '/list': typeof ListRoute
+  '/settings': typeof SettingsRoute
   '/course/$code': typeof CourseCodeRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/friends': typeof FriendsRoute
+  '/help': typeof HelpRoute
   '/list': typeof ListRoute
+  '/settings': typeof SettingsRoute
   '/course/$code': typeof CourseCodeRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/friends': typeof FriendsRoute
+  '/help': typeof HelpRoute
   '/list': typeof ListRoute
+  '/settings': typeof SettingsRoute
   '/course/$code': typeof CourseCodeRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/auth' | '/list' | '/course/$code'
+  fullPaths:
+    | '/'
+    | '/auth'
+    | '/friends'
+    | '/help'
+    | '/list'
+    | '/settings'
+    | '/course/$code'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/auth' | '/list' | '/course/$code'
-  id: '__root__' | '/' | '/auth' | '/list' | '/course/$code'
+  to:
+    | '/'
+    | '/auth'
+    | '/friends'
+    | '/help'
+    | '/list'
+    | '/settings'
+    | '/course/$code'
+  id:
+    | '__root__'
+    | '/'
+    | '/auth'
+    | '/friends'
+    | '/help'
+    | '/list'
+    | '/settings'
+    | '/course/$code'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthRoute: typeof AuthRoute
+  FriendsRoute: typeof FriendsRoute
+  HelpRoute: typeof HelpRoute
   ListRoute: typeof ListRoute
+  SettingsRoute: typeof SettingsRoute
   CourseCodeRoute: typeof CourseCodeRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/settings': {
+      id: '/settings'
+      path: '/settings'
+      fullPath: '/settings'
+      preLoaderRoute: typeof SettingsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/list': {
       id: '/list'
       path: '/list'
       fullPath: '/list'
       preLoaderRoute: typeof ListRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/help': {
+      id: '/help'
+      path: '/help'
+      fullPath: '/help'
+      preLoaderRoute: typeof HelpRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/friends': {
+      id: '/friends'
+      path: '/friends'
+      fullPath: '/friends'
+      preLoaderRoute: typeof FriendsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/auth': {
@@ -105,7 +178,10 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthRoute: AuthRoute,
+  FriendsRoute: FriendsRoute,
+  HelpRoute: HelpRoute,
   ListRoute: ListRoute,
+  SettingsRoute: SettingsRoute,
   CourseCodeRoute: CourseCodeRoute,
 }
 export const routeTree = rootRouteImport
