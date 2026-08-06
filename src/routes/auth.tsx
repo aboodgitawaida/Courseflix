@@ -6,9 +6,9 @@ import { useAuth } from "@/hooks/use-auth";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/auth")({
-  validateSearch: (s: Record<string, unknown>): { redirect?: string } =>
-    typeof s['redirect'] === "string" ? { redirect: s['redirect'] as string } : {},
-
+  validateSearch: (s: Record<string, unknown>) => ({
+    redirect: typeof s['redirect'] === "string" ? (s['redirect'] as string) : undefined,
+  }),
   head: () => ({
     meta: [
       { title: "Sign in — courseflix UTM" },

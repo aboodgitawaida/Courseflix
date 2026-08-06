@@ -56,95 +56,29 @@ export type Database = {
         }
         Relationships: []
       }
-      friendships: {
-        Row: {
-          addressee_id: string
-          created_at: string
-          id: string
-          requester_id: string
-          status: string
-          updated_at: string
-        }
-        Insert: {
-          addressee_id: string
-          created_at?: string
-          id?: string
-          requester_id: string
-          status?: string
-          updated_at?: string
-        }
-        Update: {
-          addressee_id?: string
-          created_at?: string
-          id?: string
-          requester_id?: string
-          status?: string
-          updated_at?: string
-        }
-        Relationships: []
-      }
-      notifications: {
-        Row: {
-          actor_id: string | null
-          course_code: string | null
-          created_at: string
-          id: string
-          kind: string
-          read: boolean
-          user_id: string
-        }
-        Insert: {
-          actor_id?: string | null
-          course_code?: string | null
-          created_at?: string
-          id?: string
-          kind: string
-          read?: boolean
-          user_id: string
-        }
-        Update: {
-          actor_id?: string | null
-          course_code?: string | null
-          created_at?: string
-          id?: string
-          kind?: string
-          read?: boolean
-          user_id?: string
-        }
-        Relationships: []
-      }
       profiles: {
         Row: {
-          avatar_id: string
           created_at: string
           display_name: string
           id: string
-          is_private: boolean
           major_id: string | null
           updated_at: string
-          username: string | null
           year: number | null
         }
         Insert: {
-          avatar_id?: string
           created_at?: string
           display_name?: string
           id: string
-          is_private?: boolean
           major_id?: string | null
           updated_at?: string
-          username?: string | null
           year?: number | null
         }
         Update: {
-          avatar_id?: string
           created_at?: string
           display_name?: string
           id?: string
-          is_private?: boolean
           major_id?: string | null
           updated_at?: string
-          username?: string | null
           year?: number | null
         }
         Relationships: []
@@ -185,8 +119,7 @@ export type Database = {
       }
     }
     Functions: {
-      are_friends: { Args: { _a: string; _b: string }; Returns: boolean }
-      can_view_shortlist: { Args: { _owner: string }; Returns: boolean }
+      [_ in never]: never
     }
     Enums: {
       [_ in never]: never

@@ -11,9 +11,9 @@ import { useShortlist, useToggleShortlist } from "@/lib/ratings";
 const SITE = "https://courseflix-utm.lovable.app";
 
 export const Route = createFileRoute("/list")({
-  validateSearch: (s: Record<string, unknown>): { ids?: string } =>
-    typeof s['ids'] === "string" ? { ids: s['ids'] as string } : {},
-
+  validateSearch: (s: Record<string, unknown>) => ({
+    ids: typeof s['ids'] === "string" ? (s['ids'] as string) : undefined,
+  }),
   head: () => ({
     meta: [
       { title: "My Shortlist — Courseflix UTM" },
