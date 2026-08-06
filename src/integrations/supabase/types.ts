@@ -56,29 +56,65 @@ export type Database = {
         }
         Relationships: []
       }
+      friendships: {
+        Row: {
+          addressee_id: string
+          created_at: string
+          id: string
+          requester_id: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          addressee_id: string
+          created_at?: string
+          id?: string
+          requester_id: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          addressee_id?: string
+          created_at?: string
+          id?: string
+          requester_id?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
+          avatar_id: string
           created_at: string
           display_name: string
           id: string
+          is_private: boolean
           major_id: string | null
           updated_at: string
+          username: string | null
           year: number | null
         }
         Insert: {
+          avatar_id?: string
           created_at?: string
           display_name?: string
           id: string
+          is_private?: boolean
           major_id?: string | null
           updated_at?: string
+          username?: string | null
           year?: number | null
         }
         Update: {
+          avatar_id?: string
           created_at?: string
           display_name?: string
           id?: string
+          is_private?: boolean
           major_id?: string | null
           updated_at?: string
+          username?: string | null
           year?: number | null
         }
         Relationships: []
@@ -119,7 +155,8 @@ export type Database = {
       }
     }
     Functions: {
-      [_ in never]: never
+      are_friends: { Args: { _a: string; _b: string }; Returns: boolean }
+      can_view_shortlist: { Args: { _owner: string }; Returns: boolean }
     }
     Enums: {
       [_ in never]: never
