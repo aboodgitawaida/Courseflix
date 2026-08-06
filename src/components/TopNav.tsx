@@ -30,8 +30,8 @@ export function TopNav() {
     else navigate({ to: "/" }).then(() => go());
   }
 
-  const label =
-    (user?.user_metadata?.['display_name'] as string | undefined) ?? user?.email?.split("@")[0] ?? "Account";
+
+
 
   return (
     <header className="sticky top-0 z-50 border-b border-white/10 bg-black/80 backdrop-blur-md">
