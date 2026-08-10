@@ -1,27 +1,20 @@
 import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
-import { Search, Bookmark, User, LogOut } from "lucide-react";
+import { Search, Bookmark, User } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
-import { supabase } from "@/integrations/supabase/client";
-import { useQueryClient } from "@tanstack/react-query";
 import { useCourseUI } from "@/hooks/use-course-ui";
 import { useMajor } from "@/hooks/use-major";
 import { MAJORS, getMajor } from "@/lib/majors";
+import { ProfileMenu } from "@/components/ProfileMenu";
+import { NotificationBell } from "@/components/NotificationBell";
 
 export function TopNav() {
-  const { signedIn, user } = useAuth();
+  const { signedIn } = useAuth();
   const navigate = useNavigate();
-  const qc = useQueryClient();
   const { setSearchOpen } = useCourseUI();
   const { major, setMajor } = useMajor();
   const currentMajor = getMajor(major);
   const pathname = useRouterState({ select: (s) => s.location.pathname });
 
-  async function signOut() {
-    await qc.cancelQueries();
-    qc.clear();
-    await supabase.auth.signOut();
-    navigate({ to: "/", replace: true });
-  }
 
   function scrollToCreator(e: React.MouseEvent) {
     e.preventDefault();
@@ -37,8 +30,8 @@ export function TopNav() {
     else navigate({ to: "/" }).then(() => go());
   }
 
-  const label =
-    (user?.user_metadata?.['display_name'] as string | undefined) ?? user?.email?.split("@")[0] ?? "Account";
+
+
 
   return (
     <header className="sticky top-0 z-50 border-b border-white/10 bg-black/80 backdrop-blur-md">
@@ -99,17 +92,10 @@ export function TopNav() {
 
         {signedIn ? (
           <div className="flex shrink-0 items-center gap-1.5">
-            <span className="hidden max-w-[140px] items-center gap-1.5 truncate rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-xs font-semibold sm:inline-flex">
-              <User className="h-3.5 w-3.5 text-brand" /> {label}
-            </span>
-            <button
-              onClick={signOut}
-              aria-label="Sign out"
-              className="grid h-9 w-9 place-items-center rounded-full transition hover:bg-white/10"
-            >
-              <LogOut className="h-4 w-4" />
-            </button>
+            <NotificationBell />
+            <ProfileMenu />
           </div>
+
         ) : (
           <Link
             to="/auth"
