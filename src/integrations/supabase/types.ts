@@ -185,8 +185,7 @@ export type Database = {
       }
     }
     Functions: {
-      are_friends: { Args: { _a: string; _b: string }; Returns: boolean }
-      can_view_shortlist: { Args: { _owner: string }; Returns: boolean }
+      [_ in never]: never
     }
     Enums: {
       [_ in never]: never
