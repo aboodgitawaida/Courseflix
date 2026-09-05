@@ -18,7 +18,7 @@ export function CreatorSection() {
               Software developer · University of Toronto Mississauga
             </p>
             <p className="mt-4 text-sm leading-relaxed text-muted-foreground">
-              I built Courseflix after spending way too many hours digging through the academic
+              I built Courseflix after spending way tooo many hours digging through the academic
               calendar, Reddit threads and rating sites just to figure out which courses were
               actually worth taking. Picking courses should feel like picking what to watch
               tonight: fast, visual and honest. So I pulled the entire UTM catalog into one place,
