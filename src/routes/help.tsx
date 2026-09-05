@@ -56,7 +56,7 @@ function HelpPage() {
         <section className="mt-8 rounded-2xl border border-brand/30 bg-brand/5 p-6">
           <h2 className="font-display text-2xl">Still stuck?</h2>
           <p className="mt-1 text-sm text-muted-foreground">
-            Email the creator, Abood Awaida, and you'll usually get a reply the same day.
+            Email the creator, Abood Awaida, and you'll usually get a reply the same day..
           </p>
           <a
             href={`mailto:${CREATOR_EMAIL}?subject=${encodeURIComponent("Courseflix support")}`}
