@@ -13,7 +13,7 @@ import { useEffect, useState } from "react";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Courseflix — UTM" },
+      { title: "Courseflix" },
       { name: "description", content: "Browse every UTM course like Netflix. Pick your major, get curated rows, save a shortlist and share it with friends." },
       { property: "og:title", content: "Courseflix" },
       { property: "og:description", content: "Browse every UTM course like Netflix. Curated rows, bird courses, ratings and a shareable shortlist." },
@@ -21,7 +21,7 @@ export const Route = createFileRoute("/")({
       { property: "og:site_name", content: "Courseflix" },
       { property: "og:url", content: "https://courseflix-utm.lovable.app/" },
       { name: "twitter:card", content: "summary_large_image" },
-      { name: "twitter:title", content: "Courseflix — UTM" },
+      { name: "twitter:title", content: "Courseflix" },
       { name: "twitter:description", content: "Browse every UTM course like Netflix. Curated rows, bird courses, ratings and a shareable shortlist." },
     ],
     links: [{ rel: "canonical", href: "https://courseflix-utm.lovable.app/" }],
