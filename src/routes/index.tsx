@@ -15,7 +15,7 @@ export const Route = createFileRoute("/")({
     meta: [
       { title: "Courseflix — UTM" },
       { name: "description", content: "Browse every UTM course like Netflix. Pick your major, get curated rows, save a shortlist and share it with friends." },
-      { property: "og:title", content: "Courseflix — UTM" },
+      { property: "og:title", content: "Courseflix" },
       { property: "og:description", content: "Browse every UTM course like Netflix. Curated rows, bird courses, ratings and a shareable shortlist." },
       { property: "og:type", content: "website" },
       { property: "og:site_name", content: "Courseflix" },
