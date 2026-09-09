@@ -9,6 +9,16 @@ export function useAuth() {
   useEffect(() => {
     let mounted = true;
     
+    // Check localStorage for Supabase session
+    console.log("Checking localStorage for Supabase session...");
+    const localStorageKeys = Object.keys(localStorage);
+    console.log("localStorage keys:", localStorageKeys);
+    localStorageKeys.forEach(key => {
+      if (key.includes('supabase') || key.includes('auth')) {
+        console.log(`${key}:`, localStorage.getItem(key));
+      }
+    });
+    
     // Get initial session
     supabase.auth.getSession().then(({ data }) => {
       if (mounted) {
