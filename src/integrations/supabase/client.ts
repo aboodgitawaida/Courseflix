@@ -49,7 +49,7 @@ function createSupabaseClient() {
       fetch: createSupabaseFetch(SUPABASE_PUBLISHABLE_KEY),
     },
     auth: {
-      storage: localStorage,
+      storage: brokeredPreviewStorage() || localStorage,
       persistSession: true,
       autoRefreshToken: true,
     }
