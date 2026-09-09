@@ -3,7 +3,6 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { toast } from "sonner";
-import { useLocation } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/auth")({
   validateSearch: (s: Record<string, unknown>): { redirect?: string } =>
@@ -29,7 +28,6 @@ function safePath(p?: string) {
 function AuthPage() {
   const navigate = useNavigate();
   const search = useSearch({ from: "/auth" });
-  const location = useLocation();
   const dest = safePath(search.redirect);
   const { signedIn, loading } = useAuth();
   const [mode, setMode] = useState<"signin" | "signup">("signin");
@@ -38,34 +36,6 @@ function AuthPage() {
   const [name, setName] = useState("");
   const [busy, setBusy] = useState(false);
   const [sent, setSent] = useState(false);
-
-  // Handle OAuth callback
-  useEffect(() => {
-    const handleOAuthCallback = async () => {
-      const hashParams = new URLSearchParams(location.hash.slice(1));
-      const accessToken = hashParams.get('access_token');
-      const refreshToken = hashParams.get('refresh_token');
-      
-      if (accessToken && refreshToken) {
-        const { data, error } = await supabase.auth.setSession({
-          access_token: accessToken,
-          refresh_token: refreshToken,
-        });
-        
-        if (error) {
-          toast.error("Failed to complete sign-in. Please try again.");
-          console.error("OAuth session error:", error);
-        } else {
-          // Clear the hash params from URL
-          window.location.hash = '';
-          // Navigate to destination
-          navigate({ to: dest, replace: true });
-        }
-      }
-    };
-
-    handleOAuthCallback();
-  }, [location.hash, dest, navigate]);
 
   useEffect(() => {
     if (!loading && signedIn) navigate({ to: dest, replace: true });
@@ -104,7 +74,7 @@ function AuthPage() {
     const { error } = await supabase.auth.signInWithOAuth({
       provider: "google",
       options: { 
-        redirectTo: `${window.location.origin}/auth`,
+        redirectTo: window.location.origin,
       },
     });
     if (error) {
