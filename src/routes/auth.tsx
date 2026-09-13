@@ -31,6 +31,7 @@ function AuthPage() {
   const dest = safePath(search.redirect);
   const { signedIn, loading } = useAuth();
   const [mode, setMode] = useState<"signin" | "signup">("signin");
+  const [forgotPassword, setForgotPassword] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
@@ -63,6 +64,23 @@ function AuthPage() {
         const { error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
       }
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Something went wrong");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function handleForgotPassword(e: React.FormEvent) {
+    e.preventDefault();
+    setBusy(true);
+    try {
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: `${window.location.origin}/auth/reset-password`,
+      });
+      if (error) throw error;
+      setSent(true);
+      toast.success("Check your email for the password reset link.");
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Something went wrong");
     } finally {
@@ -112,7 +130,30 @@ function AuthPage() {
           <div className="h-px flex-1 bg-border/60" /> or <div className="h-px flex-1 bg-border/60" />
         </div>
 
-        {sent ? (
+        {forgotPassword ? (
+          sent ? (
+            <p className="text-sm text-brand">
+              We sent a password reset link to {email}. Check your email.
+            </p>
+          ) : (
+            <form onSubmit={handleForgotPassword} className="space-y-3">
+              <input
+                type="email"
+                required
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="Enter your email"
+                className="w-full h-11 rounded-xl bg-surface-2 border border-border/50 px-3 text-sm outline-none focus:border-brand/60"
+              />
+              <button
+                disabled={busy}
+                className="w-full h-11 rounded-xl bg-brand text-primary-foreground font-semibold text-sm hover:bg-brand-glow transition disabled:opacity-60"
+              >
+                {busy ? "…" : "Send reset link"}
+              </button>
+            </form>
+          )
+        ) : sent ? (
           <p className="text-sm text-brand">
             We sent a confirmation link to {email}. Click it, then come back and sign in.
           </p>
@@ -153,12 +194,31 @@ function AuthPage() {
           </form>
         )}
 
-        <button
-          onClick={() => { setMode(mode === "signin" ? "signup" : "signin"); setSent(false); }}
-          className="mt-4 w-full text-xs text-muted-foreground hover:text-brand transition"
-        >
-          {mode === "signin" ? "New here? Create an account" : "Already have an account? Sign in"}
-        </button>
+        {forgotPassword ? (
+          <button
+            onClick={() => { setForgotPassword(false); setSent(false); }}
+            className="mt-4 w-full text-xs text-muted-foreground hover:text-brand transition"
+          >
+            Back to sign in
+          </button>
+        ) : (
+          <>
+            {mode === "signin" && (
+              <button
+                onClick={() => { setForgotPassword(true); setSent(false); }}
+                className="mt-4 w-full text-xs text-muted-foreground hover:text-brand transition"
+              >
+                Forgot your password?
+              </button>
+            )}
+            <button
+              onClick={() => { setMode(mode === "signin" ? "signup" : "signin"); setSent(false); }}
+              className="mt-2 w-full text-xs text-muted-foreground hover:text-brand transition"
+            >
+              {mode === "signin" ? "New here? Create an account" : "Already have an account? Sign in"}
+            </button>
+          </>
+        )}
       </div>
 
       <Link to="/" className="mt-6 text-xs text-muted-foreground hover:text-foreground">

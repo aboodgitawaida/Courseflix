@@ -15,6 +15,7 @@ import { Route as FriendsRouteImport } from './routes/friends'
 import { Route as HelpRouteImport } from './routes/help'
 import { Route as ListRouteImport } from './routes/list'
 import { Route as SettingsRouteImport } from './routes/settings'
+import { Route as AuthResetPasswordRouteImport } from './routes/auth.reset-password'
 import { Route as CourseCodeRouteImport } from './routes/course.$code'
 
 const IndexRoute = IndexRouteImport.update({
@@ -47,6 +48,11 @@ const SettingsRoute = SettingsRouteImport.update({
   path: '/settings',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthResetPasswordRoute = AuthResetPasswordRouteImport.update({
+  id: '/reset-password',
+  path: '/reset-password',
+  getParentRoute: () => AuthRoute,
+} as any)
 const CourseCodeRoute = CourseCodeRouteImport.update({
   id: '/course/$code',
   path: '/course/$code',
@@ -55,30 +61,33 @@ const CourseCodeRoute = CourseCodeRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/auth': typeof AuthRoute
+  '/auth': typeof AuthRouteWithChildren
   '/friends': typeof FriendsRoute
   '/help': typeof HelpRoute
   '/list': typeof ListRoute
   '/settings': typeof SettingsRoute
+  '/auth/reset-password': typeof AuthResetPasswordRoute
   '/course/$code': typeof CourseCodeRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/auth': typeof AuthRoute
+  '/auth': typeof AuthRouteWithChildren
   '/friends': typeof FriendsRoute
   '/help': typeof HelpRoute
   '/list': typeof ListRoute
   '/settings': typeof SettingsRoute
+  '/auth/reset-password': typeof AuthResetPasswordRoute
   '/course/$code': typeof CourseCodeRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/auth': typeof AuthRoute
+  '/auth': typeof AuthRouteWithChildren
   '/friends': typeof FriendsRoute
   '/help': typeof HelpRoute
   '/list': typeof ListRoute
   '/settings': typeof SettingsRoute
+  '/auth/reset-password': typeof AuthResetPasswordRoute
   '/course/$code': typeof CourseCodeRoute
 }
 export interface FileRouteTypes {
@@ -90,6 +99,7 @@ export interface FileRouteTypes {
     | '/help'
     | '/list'
     | '/settings'
+    | '/auth/reset-password'
     | '/course/$code'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -99,6 +109,7 @@ export interface FileRouteTypes {
     | '/help'
     | '/list'
     | '/settings'
+    | '/auth/reset-password'
     | '/course/$code'
   id:
     | '__root__'
@@ -108,12 +119,13 @@ export interface FileRouteTypes {
     | '/help'
     | '/list'
     | '/settings'
+    | '/auth/reset-password'
     | '/course/$code'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  AuthRoute: typeof AuthRoute
+  AuthRoute: typeof AuthRouteWithChildren
   FriendsRoute: typeof FriendsRoute
   HelpRoute: typeof HelpRoute
   ListRoute: typeof ListRoute
@@ -165,6 +177,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SettingsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/auth/reset-password': {
+      id: '/auth/reset-password'
+      path: '/reset-password'
+      fullPath: '/auth/reset-password'
+      preLoaderRoute: typeof AuthResetPasswordRouteImport
+      parentRoute: typeof AuthRoute
+    }
     '/course/$code': {
       id: '/course/$code'
       path: '/course/$code'
@@ -175,9 +194,19 @@ declare module '@tanstack/react-router' {
   }
 }
 
+interface AuthRouteChildren {
+  AuthResetPasswordRoute: typeof AuthResetPasswordRoute
+}
+
+const AuthRouteChildren: AuthRouteChildren = {
+  AuthResetPasswordRoute: AuthResetPasswordRoute,
+}
+
+const AuthRouteWithChildren = AuthRoute._addFileChildren(AuthRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  AuthRoute: AuthRoute,
+  AuthRoute: AuthRouteWithChildren,
   FriendsRoute: FriendsRoute,
   HelpRoute: HelpRoute,
   ListRoute: ListRoute,
