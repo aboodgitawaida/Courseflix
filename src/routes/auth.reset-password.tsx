@@ -38,8 +38,17 @@ function ResetPasswordPage() {
         }
       });
     } else {
-      toast.error("No reset token found");
-      navigate({ to: "/auth", replace: true });
+      // Check for query parameters as fallback
+      const searchParams = new URLSearchParams(window.location.search);
+      const code = searchParams.get('code');
+      
+      if (code) {
+        // If using code-based flow, let Supabase handle it
+        setLoading(false);
+      } else {
+        toast.error("No reset token found");
+        navigate({ to: "/auth", replace: true });
+      }
     }
   }, [location.hash, navigate]);
 
