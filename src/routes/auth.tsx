@@ -65,7 +65,11 @@ function AuthPage() {
         if (error) throw error;
       }
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Something went wrong");
+      if (mode === "signin" && err instanceof Error && err.message === "Invalid login credentials") {
+        toast.error("No account found with these credentials. Create an account to get started!");
+      } else {
+        toast.error(err instanceof Error ? err.message : "Something went wrong");
+      }
     } finally {
       setBusy(false);
     }
