@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { toast } from "sonner";
+import { resetPassword } from "@/lib/reset-password";
 
 export const Route = createFileRoute("/auth")({
   validateSearch: (s: Record<string, unknown>): { redirect?: string } =>
@@ -79,12 +80,14 @@ function AuthPage() {
     e.preventDefault();
     setBusy(true);
     try {
-      const { error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: `${window.location.origin}/auth/reset-password`,
-      });
-      if (error) throw error;
-      setSent(true);
-      toast.success("Check your email for the password reset link.");
+      const result = await resetPassword({ data: email });
+      
+      if (result.error) {
+        toast.error(result.error);
+      } else {
+        setSent(true);
+        toast.success("Check your email for the password reset link.");
+      }
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Something went wrong");
     } finally {
