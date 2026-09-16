@@ -114,19 +114,9 @@
   display: inline-block;
 }
 
-@utility wordmark-letter {
-  display: inline-block;
-  animation: letter-reveal 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-  opacity: 0;
-}
-
 @keyframes intro-in {
-  0% { transform: scale(3); opacity: 0; letter-spacing: 1em; filter: blur(20px); }
-  20% { opacity: 0; transform: scale(2.5); letter-spacing: 0.8em; filter: blur(15px); }
-  40% { opacity: 1; transform: scale(1.5); letter-spacing: 0.4em; filter: blur(8px); }
-  60% { transform: scale(1.1); letter-spacing: 0.15em; filter: blur(3px); }
-  80% { transform: scale(1.02); letter-spacing: 0.08em; filter: blur(1px); }
-  100% { transform: scale(1); opacity: 1; letter-spacing: 0.06em; filter: blur(0); }
+  0% { transform: scale3d(1.08, 1.08, 1); opacity: 0; }
+  100% { transform: scale3d(1, 1, 1); opacity: 1; }
 }
 
 @keyframes intro-out {
@@ -135,249 +125,77 @@
 }
 
 @keyframes sweep {
-  0% { 
-    transform: translateX(-200%) skewX(-20deg); 
-    opacity: 0;
-  }
-  50% {
-    opacity: 1;
-  }
-  100% { 
-    transform: translateX(200%) skewX(20deg); 
-    opacity: 0;
-  }
-}
-
-@keyframes glow-pulse {
-  0%, 100% { 
-    text-shadow: 0 0 28px oklch(0.55 0.23 28 / 0.55), 0 0 60px oklch(0.55 0.23 28 / 0.3);
-    filter: brightness(1);
-  }
-  50% { 
-    text-shadow: 0 0 40px oklch(0.55 0.23 28 / 0.7), 0 0 80px oklch(0.55 0.23 28 / 0.4), 0 0 120px oklch(0.55 0.23 28 / 0.2);
-    filter: brightness(1.2);
-  }
-}
-
-@keyframes letter-reveal {
-  0% { 
-    opacity: 0; 
-    transform: translateY(50px) scale(0.5) rotateX(-90deg); 
-    filter: blur(20px);
-  }
-  50% {
-    opacity: 0.5;
-    transform: translateY(10px) scale(1.2) rotateX(-20deg);
-    filter: blur(5px);
-  }
-  100% { 
-    opacity: 1; 
-    transform: translateY(0) scale(1) rotateX(0deg); 
-    filter: blur(0);
-  }
-}
-
-@keyframes background-dramatic {
-  0% { 
-    background: radial-gradient(circle at 50% 50%, var(--brand) 0%, transparent 50%);
-    opacity: 0;
-    transform: scale(0.5);
-  }
-  30% {
-    background: radial-gradient(circle at 50% 50%, var(--brand) 8%, transparent 90%);
-    opacity: 0.5;
-    transform: scale(1.5);
-  }
-  60% {
-    background: radial-gradient(circle at 50% 50%, var(--brand) 3%, transparent 85%);
-    opacity: 0.3;
-    transform: scale(2);
-  }
-  100% { 
-    background: radial-gradient(circle at 50% 50%, var(--brand) 0%, transparent 70%);
-    opacity: 0;
-    transform: scale(3);
-  }
-}
-
-@keyframes cinematic-fade {
-  0% { opacity: 0; }
-  10% { opacity: 1; }
-  90% { opacity: 1; }
-  100% { opacity: 0; }
-}
-
-@keyframes particle-float {
-  0%, 100% {
-    transform: translateY(0) translateX(0);
-    opacity: 0;
-  }
-  10% {
-    opacity: 1;
-  }
-  50% {
-    transform: translateY(-100px) translateX(50px);
-    opacity: 0.8;
-  }
-  90% {
-    opacity: 0.3;
-  }
-}
-
-/* Netflix-style Intro Animations */
-@keyframes netflix-ambient-glow {
   0% {
-    opacity: 0;
-    transform: scale3d(0.8, 0.8, 1);
-  }
-  100% {
-    opacity: 1;
-    transform: scale3d(1.2, 1.2, 1);
-  }
-}
-
-@keyframes netflix-wordmark-reveal {
-  0% {
-    opacity: 0;
-    transform: scale3d(0.95, 0.95, 1) translate3d(0, 20px, 0);
-    filter: blur(10px);
-  }
-  30% {
-    opacity: 0.3;
-    transform: scale3d(0.98, 0.98, 1) translate3d(0, 10px, 0);
-    filter: blur(5px);
-  }
-  60% {
-    opacity: 0.8;
-    transform: scale3d(1.01, 1.01, 1) translate3d(0, 5px, 0);
-    filter: blur(2px);
-  }
-  100% {
-    opacity: 1;
-    transform: scale3d(1, 1, 1) translate3d(0, 0, 0);
-    filter: blur(0);
-  }
-}
-
-@keyframes netflix-light-streak {
-  0% {
-    transform: translate3d(-100%, 0, 0) scaleX(0.2);
+    transform: translate3d(-100%, 0, 0);
     opacity: 0;
   }
-  50% {
-    transform: translate3d(0, 0, 0) scaleX(1);
+  40% {
     opacity: 1;
   }
   100% {
-    transform: translate3d(100%, 0, 0) scaleX(0.2);
+    transform: translate3d(100%, 0, 0);
     opacity: 0;
   }
 }
 
-@keyframes netflix-ribbon-stream {
-  0% {
-    transform: translate3d(0, -100%, 0);
-    opacity: 0;
-  }
-  20% {
-    opacity: 0.8;
-  }
-  80% {
-    opacity: 0.6;
-  }
-  100% {
-    transform: translate3d(0, 100%, 0);
-    opacity: 0;
-  }
+@keyframes cinematic-ambient {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 
-@keyframes netflix-zoom-dissolve {
-  0% {
+@keyframes cinematic-logo-reveal {
+  from {
+    opacity: 0;
+    transform: scale3d(0.95, 0.95, 1);
+  }
+  to {
+    opacity: 1;
     transform: scale3d(1, 1, 1);
+  }
+}
+
+@keyframes cinematic-sheen {
+  from { transform: translate3d(-100%, 0, 0); }
+  to { transform: translate3d(100%, 0, 0); }
+}
+
+@keyframes cinematic-dissolve {
+  from {
     opacity: 1;
+    transform: scale3d(1, 1, 1);
   }
-  100% {
-    transform: scale3d(1.5, 1.5, 1);
+  to {
     opacity: 0;
-  }
-}
-
-@keyframes netflix-chromatic-aberration {
-  0%, 100% {
-    text-shadow: none;
-  }
-  50% {
-    text-shadow: 
-      -2px 0 0 rgba(255, 0, 0, 0.3),
-      2px 0 0 rgba(0, 255, 255, 0.3);
-  }
-}
-
-@keyframes netflix-lens-flare {
-  0% {
-    opacity: 0;
-    transform: translate3d(-50%, -50%, 0) scale3d(0, 0, 1);
-  }
-  50% {
-    opacity: 0.6;
-    transform: translate3d(0, 0, 0) scale3d(1, 1, 1);
-  }
-  100% {
-    opacity: 0;
-    transform: translate3d(50%, 50%, 0) scale3d(0, 0, 1);
+    transform: scale3d(1.08, 1.08, 1);
   }
 }
 
 @utility intro-word {
-  animation: intro-in 3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  animation: intro-in 0.9s cubic-bezier(0.22, 1, 0.36, 1) forwards;
 }
 
 @utility intro-sweep {
-  animation: sweep 2s 0.8s ease-in-out forwards;
+  animation: sweep 1.2s 0.35s ease-in-out forwards;
 }
 
-@utility intro-glow {
-  animation: glow-pulse 3s ease-in-out forwards;
+@utility cinematic-ambient {
+  opacity: 0;
+  animation: cinematic-ambient 0.5s ease-out forwards;
 }
 
-@utility intro-bg {
-  animation: background-dramatic 3s ease-in-out forwards;
-}
-
-@utility intro-fade {
-  animation: cinematic-fade 3.5s ease-in-out forwards;
-}
-
-@utility netflix-ambient {
-  animation: netflix-ambient-glow 0.6s ease-out forwards;
-}
-
-@utility netflix-wordmark {
-  animation: netflix-wordmark-reveal 1.2s cubic-bezier(0.215, 0.61, 0.355, 1) 0.6s forwards;
-  will-change: transform, opacity, filter;
-}
-
-@utility netflix-streak {
-  animation: netflix-light-streak 0.8s ease-in-out 0.8s forwards;
+@utility cinematic-logo {
+  opacity: 0;
+  animation: cinematic-logo-reveal 1.3s cubic-bezier(0.22, 1, 0.36, 1) 0.5s forwards;
   will-change: transform, opacity;
 }
 
-@utility netflix-ribbon {
-  animation: netflix-ribbon-stream 1s ease-in-out 1.8s forwards;
-  will-change: transform, opacity;
+@utility cinematic-sheen {
+  animation: cinematic-sheen 0.9s ease-in-out 0.7s forwards;
+  will-change: transform;
 }
 
-@utility netflix-dissolve {
-  animation: netflix-zoom-dissolve 0.7s ease-in 2.8s forwards;
-  will-change: transform, opacity;
-}
-
-@utility netflix-chromatic {
-  animation: netflix-chromatic-aberration 1.4s ease-in-out 0.6s forwards;
-}
-
-@utility netflix-flare {
-  animation: netflix-lens-flare 1s ease-in-out 1s forwards;
+@utility cinematic-overlay {
+  animation: cinematic-dissolve 0.7s ease-in 1.8s forwards;
   will-change: transform, opacity;
 }
 
