@@ -34,7 +34,7 @@ export function TopNav() {
 
 
   return (
-    <header className="sticky top-0 z-50 border-b border-white/10 bg-black/80 backdrop-blur-md">
+    <header className="sticky top-0 z-50 border-b border-border/40 bg-background/80 backdrop-blur-md">
       <div className="flex h-16 items-center gap-3 px-4 md:gap-4 md:px-10">
         <Link to="/" className="shrink-0">
           <span className="wordmark font-display text-2xl leading-none md:text-3xl">Courseflix</span>
@@ -49,7 +49,7 @@ export function TopNav() {
         <button
           onClick={() => setSearchOpen(true)}
           aria-label="Search courses"
-          className="ml-auto hidden h-9 min-w-[220px] items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 text-left text-sm text-muted-foreground transition hover:border-brand/50 sm:flex"
+          className="ml-auto hidden h-9 min-w-[220px] items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 text-left text-sm text-muted-foreground transition hover:border-brand/50 focus-visible:ring-2 focus-visible:ring-red-600/50 sm:flex"
         >
           <Search className="h-4 w-4" />
           <span className="flex-1 truncate">Search courses…</span>
@@ -69,12 +69,12 @@ export function TopNav() {
           <select
             value={major ?? ""}
             onChange={(e) => setMajor(e.target.value || null)}
-            className="h-9 max-w-[180px] truncate rounded-full border border-white/10 bg-white/5 px-3 text-xs font-semibold outline-none transition hover:border-brand/50"
+            className="h-9 max-w-[180px] truncate rounded-full border border-white/10 bg-white/5 backdrop-blur-md px-3 text-xs font-semibold outline-none transition hover:border-brand/50 focus-visible:ring-2 focus-visible:ring-red-600/50"
             aria-label="My program"
           >
             <option value="">My Program: Select</option>
             {MAJORS.map((m) => (
-              <option key={m.id} value={m.id} className="bg-[#121216]">
+              <option key={m.id} value={m.id} className="bg-[#0b0b0c]">
                 {m.emoji} {m.name}
               </option>
             ))}
