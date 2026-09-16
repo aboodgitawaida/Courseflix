@@ -118,13 +118,13 @@ export function CourseCard({ course, size = "md" }: { course: Course; size?: "md
           openPreview(course.code);
         }
       }}
-      className={`group relative shrink-0 ${w} cursor-pointer rounded-xl border border-white/10 bg-surface overflow-hidden transition-all duration-300 ease-out hover:scale-105 hover:z-10 hover:shadow-2xl hover:shadow-red-900/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand`}
+      className={`group relative shrink-0 ${w} cursor-pointer rounded-2xl border border-white/[0.08] bg-surface overflow-hidden transition-all duration-300 ease-out hover:-translate-y-1 hover:shadow-2xl hover:shadow-red-900/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/30`}
     >
       <div className={`relative aspect-video bg-gradient-to-br ${art.gradient}`}>
         <Motif motif={art.motif} accent={art.accent} />
         <div className="absolute inset-x-0 bottom-0 h-2/3 bg-gradient-to-t from-black/90 via-black/40 to-transparent" />
 
-        <div className="absolute top-2 left-2 rounded border border-white/15 bg-white/10 backdrop-blur-md px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-white/80">
+        <div className="absolute top-2 left-2 rounded-lg border border-white/[0.12] bg-white/[0.08] backdrop-blur-md px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-white/80">
           {course.area}
         </div>
 
@@ -135,14 +135,14 @@ export function CourseCard({ course, size = "md" }: { course: Course; size?: "md
               toggleCompare(course.code);
             }}
             aria-label={`${inCompare ? "Remove" : "Add"} ${course.code} ${inCompare ? "from" : "to"} comparison`}
-            className={`grid h-7 w-7 place-items-center rounded-full border border-white/15 bg-white/10 backdrop-blur-md transition ${inCompare ? "bg-brand text-primary-foreground" : "hover:bg-white/20"}`}
+            className={`grid h-7 w-7 place-items-center rounded-full border border-white/[0.12] bg-white/[0.08] backdrop-blur-md transition active:scale-[0.95] ${inCompare ? "bg-brand text-primary-foreground" : "hover:bg-white/[0.12]"}`}
           >
             <GitCompare className="h-3.5 w-3.5" />
           </button>
           <button
             onClick={onAdd}
             aria-label={`${inList ? "Remove" : "Add"} ${course.code} ${inList ? "from" : "to"} shortlist`}
-            className={`grid h-7 w-7 place-items-center rounded-full border border-white/15 bg-white/10 backdrop-blur-md transition ${inList ? "bg-brand text-primary-foreground" : "hover:bg-white/20"}`}
+            className={`grid h-7 w-7 place-items-center rounded-full border border-white/[0.12] bg-white/[0.08] backdrop-blur-md transition active:scale-[0.95] ${inList ? "bg-brand text-primary-foreground" : "hover:bg-white/[0.12]"}`}
           >
             {inList ? <Check className="h-3.5 w-3.5" /> : <Plus className="h-3.5 w-3.5" />}
           </button>
@@ -159,20 +159,20 @@ export function CourseCard({ course, size = "md" }: { course: Course; size?: "md
           <Star className="h-3 w-3 fill-current" /> {course.rating.toFixed(1)}
         </span>
         {match !== null && (
-          <span className="rounded border border-white/15 bg-white/10 backdrop-blur-md px-1.5 py-0.5 text-[10px] font-semibold text-emerald-400">{match}% match</span>
+          <span className="rounded-lg border border-white/[0.12] bg-white/[0.08] backdrop-blur-md px-1.5 py-0.5 text-[10px] font-semibold text-emerald-400">{match}% match</span>
         )}
-        <span className="rounded border border-white/15 bg-white/10 backdrop-blur-md px-1.5 py-0.5 text-[10px] text-muted-foreground">{course.credits} cr</span>
+        <span className="rounded-lg border border-white/[0.12] bg-white/[0.08] backdrop-blur-md px-1.5 py-0.5 text-[10px] text-muted-foreground">{course.credits} cr</span>
       </div>
 
       <div className="flex flex-wrap gap-1 px-3 pb-3">
         {badges.map((b) => (
-          <span key={b.label} className="rounded border border-white/15 bg-white/10 backdrop-blur-md px-1.5 py-0.5 text-[10px] text-white/80">
+          <span key={b.label} className="rounded-lg border border-white/[0.12] bg-white/[0.08] backdrop-blur-md px-1.5 py-0.5 text-[10px] text-white/80">
             {b.emoji} {b.label}
           </span>
         ))}
         {badges.length === 0 &&
           course.tags.slice(0, 2).map((t) => (
-            <span key={t} className="rounded border border-white/15 bg-white/10 backdrop-blur-md px-1.5 py-0.5 text-[10px] text-white/70">
+            <span key={t} className="rounded-lg border border-white/[0.12] bg-white/[0.08] backdrop-blur-md px-1.5 py-0.5 text-[10px] text-white/70">
               {t}
             </span>
           ))}

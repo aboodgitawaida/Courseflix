@@ -42,15 +42,16 @@
 
 :root {
   --radius: 0.5rem;
-  --background: #141414;
+  --background: #09090b;
   --foreground: oklch(0.98 0 0);
 
-  --surface: #0b0b0c;
-  --surface-2: #1a1a1d;
+  --surface: #121215;
+  --surface-2: #1c1c21;
+  --surface-3: #25252b;
 
-  --card: #0b0b0c;
+  --card: #121215;
   --card-foreground: oklch(0.98 0 0);
-  --popover: #0b0b0c;
+  --popover: #1c1c21;
   --popover-foreground: oklch(0.98 0 0);
 
   --brand: #E50914;
@@ -66,7 +67,7 @@
   --accent-foreground: oklch(0.98 0 0);
   --destructive: oklch(0.55 0.23 28);
   --destructive-foreground: oklch(0.99 0 0);
-  --border: rgb(255 255 255 / 0.10);
+  --border: rgb(255 255 255 / 0.08);
   --input: oklch(0.28 0 0);
   --ring: oklch(0.55 0.23 28);
 }
@@ -134,4 +135,39 @@
 
 @utility intro-sweep {
   animation: sweep 1.4s 0.5s ease-in-out forwards;
+}
+
+@keyframes fade-in-up {
+  0% {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+@utility animate-fade-in-up {
+  animation: fade-in-up 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@utility animate-shimmer {
+  animation: shimmer 2s infinite linear;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.05) 50%,
+    transparent 100%
+  );
+  background-size: 200% 100%;
 }

@@ -34,7 +34,7 @@ export function TopNav() {
 
 
   return (
-    <header className="sticky top-0 z-50 border-b border-border/40 bg-background/80 backdrop-blur-md">
+    <header className="sticky top-0 z-50 border-b border-white/[0.08] bg-background/70 backdrop-blur-xl">
       <div className="flex h-16 items-center gap-3 px-4 md:gap-4 md:px-10">
         <Link to="/" className="shrink-0">
           <span className="wordmark font-display text-2xl leading-none md:text-3xl">Courseflix</span>
@@ -49,11 +49,11 @@ export function TopNav() {
         <button
           onClick={() => setSearchOpen(true)}
           aria-label="Search courses"
-          className="ml-auto hidden h-9 min-w-[220px] items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 text-left text-sm text-muted-foreground transition hover:border-brand/50 focus-visible:ring-2 focus-visible:ring-red-600/50 sm:flex"
+          className="ml-auto hidden h-9 min-w-[220px] items-center gap-2 rounded-full border border-white/[0.08] bg-white/[0.04] px-3 text-left text-sm text-muted-foreground transition hover:border-brand/50 hover:bg-white/[0.06] focus-visible:ring-2 focus-visible:ring-white/30 sm:flex"
         >
           <Search className="h-4 w-4" />
           <span className="flex-1 truncate">Search courses…</span>
-          <kbd className="rounded border border-white/15 bg-black/50 px-1.5 py-0.5 text-[10px] font-semibold">⌘K</kbd>
+          <kbd className="rounded border border-white/[0.12] bg-black/50 px-1.5 py-0.5 text-[10px] font-semibold">⌘K</kbd>
         </button>
 
         <button
@@ -69,12 +69,12 @@ export function TopNav() {
           <select
             value={major ?? ""}
             onChange={(e) => setMajor(e.target.value || null)}
-            className="h-9 max-w-[180px] truncate rounded-full border border-white/10 bg-white/5 backdrop-blur-md px-3 text-xs font-semibold outline-none transition hover:border-brand/50 focus-visible:ring-2 focus-visible:ring-red-600/50"
+            className="h-9 max-w-[180px] truncate rounded-full border border-white/[0.08] bg-white/[0.04] backdrop-blur-md px-3 text-xs font-semibold outline-none transition hover:border-brand/50 hover:bg-white/[0.06] focus-visible:ring-2 focus-visible:ring-white/30"
             aria-label="My program"
           >
             <option value="">My Program: Select</option>
             {MAJORS.map((m) => (
-              <option key={m.id} value={m.id} className="bg-[#0b0b0c]">
+              <option key={m.id} value={m.id} className="bg-[#121215]">
                 {m.emoji} {m.name}
               </option>
             ))}

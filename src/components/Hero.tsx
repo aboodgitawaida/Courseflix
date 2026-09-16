@@ -7,7 +7,7 @@ export function Hero({ featured, major }: { featured: Course; major: string }) {
   const [c1, c2] = feat.poster;
 
   return (
-    <section className="relative overflow-hidden">
+    <section className="relative overflow-hidden animate-fade-in-up">
       <div
         className="absolute inset-0"
         style={{
@@ -19,16 +19,16 @@ export function Hero({ featured, major }: { featured: Course; major: string }) {
       <div className="absolute -bottom-40 -left-40 h-[400px] w-[400px] rounded-full bg-brand/10 blur-3xl" />
 
       <div className="relative px-6 md:px-10 pt-12 md:pt-20 pb-16 md:pb-24 max-w-5xl">
-        <div className="inline-flex items-center gap-2 rounded-full border border-brand/30 bg-brand/10 px-3 py-1 text-xs font-semibold text-brand mb-5">
+        <div className="inline-flex items-center gap-2 rounded-full border border-brand/30 bg-brand/10 px-3 py-1 text-xs font-semibold text-brand mb-5 backdrop-blur-md">
           <span className="h-1.5 w-1.5 rounded-full bg-brand animate-pulse" />
           TOP PICK FOR {major.toUpperCase()}
         </div>
         <h1 className="font-display text-5xl md:text-7xl font-black leading-[0.95] tracking-tight text-white">
           {feat.code}
           <br />
-          <span className="text-brand">{feat.title}</span>
+          <span className="text-brand tracking-tight">{feat.title}</span>
         </h1>
-        <p className="mt-5 max-w-2xl text-base md:text-lg text-muted-foreground">
+        <p className="mt-5 max-w-2xl text-base md:text-lg text-neutral-400 leading-relaxed">
           {feat.description}
         </p>
         <div className="mt-4 flex items-center gap-4 text-sm text-foreground/80">
@@ -42,11 +42,11 @@ export function Hero({ featured, major }: { featured: Course; major: string }) {
           <Link
             to="/course/$code"
             params={{ code: feat.code }}
-            className="inline-flex items-center gap-2 rounded-full bg-brand text-primary-foreground px-6 py-3 font-semibold text-sm hover:bg-brand-glow transition brand-glow focus-visible:ring-2 focus-visible:ring-red-600/50"
+            className="inline-flex items-center gap-2 rounded-full bg-brand text-primary-foreground px-6 py-3 font-semibold text-sm hover:bg-brand-glow transition brand-glow focus-visible:ring-2 focus-visible:ring-white/30 active:scale-[0.98]"
           >
             <Play className="h-4 w-4 fill-current" /> Course info
           </Link>
-          <button className="inline-flex items-center gap-2 rounded-full bg-surface/80 backdrop-blur border border-white/15 px-6 py-3 font-semibold text-sm hover:bg-surface-2 transition focus-visible:ring-2 focus-visible:ring-red-600/50">
+          <button className="inline-flex items-center gap-2 rounded-full bg-surface/80 backdrop-blur border border-white/[0.12] px-6 py-3 font-semibold text-sm hover:bg-surface-2 transition focus-visible:ring-2 focus-visible:ring-white/30 active:scale-[0.98]">
             <Plus className="h-4 w-4" /> My list
           </button>
         </div>

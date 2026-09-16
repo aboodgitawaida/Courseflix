@@ -108,8 +108,11 @@ function AuthPage() {
   }
 
   return (
-    <div className="min-h-screen bg-background text-foreground flex flex-col items-center justify-center px-6 py-16">
-      <Link to="/" className="flex items-center gap-2 mb-8">
+    <div className="min-h-screen bg-background text-foreground flex flex-col items-center justify-center px-6 py-16 relative">
+      <div className="fixed inset-0 pointer-events-none">
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[300px] bg-brand/3 rounded-full blur-[100px]" />
+      </div>
+      <Link to="/" className="flex items-center gap-2 mb-8 relative z-10">
         <div className="h-9 w-9 rounded-lg bg-brand flex items-center justify-center brand-glow">
           <span className="font-display font-black text-background text-lg leading-none">C</span>
         </div>
@@ -118,23 +121,23 @@ function AuthPage() {
         </span>
       </Link>
 
-      <div className="w-full max-w-sm rounded-3xl border border-border/50 bg-surface p-6 md:p-8">
-        <h1 className="font-display text-2xl font-bold">
+      <div className="w-full max-w-sm rounded-3xl border border-white/[0.08] bg-surface p-6 md:p-8 relative z-10">
+        <h1 className="font-display text-2xl font-bold text-white tracking-tight">
           {mode === "signin" ? "Welcome back" : "Make an account"}
         </h1>
-        <p className="text-sm text-muted-foreground mt-1">
+        <p className="text-sm text-neutral-500 mt-1">
           Save courses to your shortlist and rate the ones you've actually taken.
         </p>
 
         <button
           onClick={google}
-          className="mt-6 w-full h-11 rounded-xl bg-white text-black font-semibold text-sm hover:opacity-90 transition"
+          className="mt-6 w-full h-11 rounded-xl bg-white text-black font-semibold text-sm hover:opacity-90 transition active:scale-[0.98]"
         >
           Continue with Google
         </button>
 
-        <div className="flex items-center gap-3 my-5 text-xs text-muted-foreground">
-          <div className="h-px flex-1 bg-border/60" /> or <div className="h-px flex-1 bg-border/60" />
+        <div className="flex items-center gap-3 my-5 text-xs text-neutral-500">
+          <div className="h-px flex-1 bg-white/[0.08]" /> or <div className="h-px flex-1 bg-white/[0.08]" />
         </div>
 
         {forgotPassword ? (
@@ -150,11 +153,11 @@ function AuthPage() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="Enter your email"
-                className="w-full h-11 rounded-xl bg-surface-2 border border-border/50 px-3 text-sm outline-none focus:border-brand/60"
+                className="w-full h-11 rounded-xl bg-white/[0.04] border border-white/[0.08] px-3 text-sm outline-none focus:border-brand/60 focus:ring-2 focus:ring-white/30"
               />
               <button
                 disabled={busy}
-                className="w-full h-11 rounded-xl bg-brand text-primary-foreground font-semibold text-sm hover:bg-brand-glow transition disabled:opacity-60"
+                className="w-full h-11 rounded-xl bg-brand text-primary-foreground font-semibold text-sm hover:bg-brand-glow transition disabled:opacity-60 active:scale-[0.98]"
               >
                 {busy ? "…" : "Send reset link"}
               </button>
@@ -172,7 +175,7 @@ function AuthPage() {
                 onChange={(e) => setName(e.target.value)}
                 placeholder="Display name"
                 maxLength={40}
-                className="w-full h-11 rounded-xl bg-surface-2 border border-border/50 px-3 text-sm outline-none focus:border-brand/60"
+                className="w-full h-11 rounded-xl bg-white/[0.04] border border-white/[0.08] px-3 text-sm outline-none focus:border-brand/60 focus:ring-2 focus:ring-white/30"
               />
             )}
             <input
@@ -181,7 +184,7 @@ function AuthPage() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="you@mail.utoronto.ca"
-              className="w-full h-11 rounded-xl bg-surface-2 border border-border/50 px-3 text-sm outline-none focus:border-brand/60"
+              className="w-full h-11 rounded-xl bg-white/[0.04] border border-white/[0.08] px-3 text-sm outline-none focus:border-brand/60 focus:ring-2 focus:ring-white/30"
             />
             <input
               type="password"
@@ -190,11 +193,11 @@ function AuthPage() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder="Password"
-              className="w-full h-11 rounded-xl bg-surface-2 border border-border/50 px-3 text-sm outline-none focus:border-brand/60"
+              className="w-full h-11 rounded-xl bg-white/[0.04] border border-white/[0.08] px-3 text-sm outline-none focus:border-brand/60 focus:ring-2 focus:ring-white/30"
             />
             <button
               disabled={busy}
-              className="w-full h-11 rounded-xl bg-brand text-primary-foreground font-semibold text-sm hover:bg-brand-glow transition disabled:opacity-60"
+              className="w-full h-11 rounded-xl bg-brand text-primary-foreground font-semibold text-sm hover:bg-brand-glow transition disabled:opacity-60 active:scale-[0.98]"
             >
               {busy ? "…" : mode === "signin" ? "Sign in" : "Create account"}
             </button>
@@ -204,7 +207,7 @@ function AuthPage() {
         {forgotPassword ? (
           <button
             onClick={() => { setForgotPassword(false); setSent(false); }}
-            className="mt-4 w-full text-xs text-muted-foreground hover:text-brand transition"
+            className="mt-4 w-full text-xs text-neutral-500 hover:text-brand transition"
           >
             Back to sign in
           </button>
@@ -213,14 +216,14 @@ function AuthPage() {
             {mode === "signin" && (
               <button
                 onClick={() => { setForgotPassword(true); setSent(false); }}
-                className="mt-4 w-full text-xs text-muted-foreground hover:text-brand transition"
+                className="mt-4 w-full text-xs text-neutral-500 hover:text-brand transition"
               >
                 Forgot your password?
               </button>
             )}
             <button
               onClick={() => { setMode(mode === "signin" ? "signup" : "signin"); setSent(false); }}
-              className="mt-2 w-full text-xs text-muted-foreground hover:text-brand transition"
+              className="mt-2 w-full text-xs text-neutral-500 hover:text-brand transition"
             >
               {mode === "signin" ? "New here? Create an account" : "Already have an account? Sign in"}
             </button>
@@ -228,7 +231,7 @@ function AuthPage() {
         )}
       </div>
 
-      <Link to="/" className="mt-6 text-xs text-muted-foreground hover:text-foreground">
+      <Link to="/" className="mt-6 text-xs text-neutral-500 hover:text-foreground relative z-10">
         Keep browsing without an account →
       </Link>
     </div>

@@ -12,16 +12,19 @@ export function CourseRail({ rail, loading = false }: { rail: Rail; loading?: bo
   };
   const courses = rail.codes.map((c) => COURSES.find((x) => x.code === c)).filter(Boolean) as typeof COURSES;
 
+  const animationDelay = Math.random() * 0.2;
+
   return (
     <section
-      className="relative"
+      className="relative animate-fade-in-up"
+      style={{ animationDelay: `${animationDelay}s` }}
       onMouseEnter={() => setHover(true)}
       onMouseLeave={() => setHover(false)}
     >
       <div className="mb-2 flex items-end justify-between px-6 md:px-10">
         <div>
           <h2 className="font-display text-xl font-bold md:text-2xl text-white tracking-tight">{rail.title}</h2>
-          {rail.blurb && <p className="mt-0.5 text-sm text-neutral-400">{rail.blurb}</p>}
+          {rail.blurb && <p className="mt-0.5 text-sm text-neutral-500">{rail.blurb}</p>}
         </div>
       </div>
 
