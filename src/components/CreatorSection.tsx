@@ -14,10 +14,10 @@ export function CreatorSection() {
               Created by
             </div>
             <h2 className="font-display text-4xl md:text-5xl mt-1 text-white font-bold tracking-tight">Abood Awaida</h2>
-            <p className="mt-1 text-sm font-semibold text-foreground/80">
+            <p className="mt-1 text-sm font-semibold text-neutral-400">
               Software developer · University of Toronto Mississauga
             </p>
-            <p className="mt-4 text-sm leading-relaxed text-neutral-400">
+            <p className="mt-4 text-sm leading-relaxed text-neutral-500">
               I built Courseflix after spending way too many hours digging through the academic
               calendar, Reddit threads and rating sites just to figure out which courses were
               actually worth taking. Picking courses should feel like picking what to watch

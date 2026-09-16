@@ -52,7 +52,11 @@ function Home() {
   const inMajorCount = getRailsForMajor(major)[0]?.codes.length ?? 0;
 
   return (
-    <div className="min-h-screen bg-background text-foreground">
+    <div className="min-h-screen bg-background text-foreground relative">
+      <div className="fixed inset-0 pointer-events-none">
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-brand/5 rounded-full blur-[120px]" />
+        <div className="absolute bottom-0 right-0 w-[600px] h-[300px] bg-brand/3 rounded-full blur-[100px]" />
+      </div>
       <TopNav />
       <Hero featured={featured} major={currentMajor?.name ?? "your program"} />
       <FilterChips value={filter} onChange={setFilter} />
@@ -81,7 +85,7 @@ function Home() {
         </div>
       )}
 
-      <main className="space-y-8 md:space-y-12 pb-16 mt-6">
+      <main className="relative space-y-8 md:space-y-12 pb-16 mt-6">
         {rails.length === 0 && (
           <p className="px-6 md:px-10 text-sm text-muted-foreground">
             No courses match this filter for your program yet — try another chip.
@@ -94,7 +98,7 @@ function Home() {
 
       <CreatorSection />
 
-      <footer className="border-t border-neutral-800 px-6 md:px-10 py-8 text-xs text-neutral-400 flex flex-wrap gap-2 justify-between">
+      <footer className="border-t border-white/[0.08] px-6 md:px-10 py-8 text-xs text-neutral-500 flex flex-wrap gap-2 justify-between">
         <span>Courseflix · unofficial · built by Abood Awaida</span>
         <span>Course data from the UTM Academic Calendar. Estimated ratings until students rate. Not affiliated with UofT or Netflix.</span>
       </footer>

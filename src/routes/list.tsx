@@ -51,17 +51,20 @@ function ListPage() {
   }
 
   return (
-    <div className="min-h-screen bg-background text-foreground">
+    <div className="min-h-screen bg-background text-foreground relative">
+      <div className="fixed inset-0 pointer-events-none">
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[300px] bg-brand/3 rounded-full blur-[100px]" />
+      </div>
       <TopNav />
 
-      <div className="px-6 md:px-10 pt-10 pb-20 max-w-6xl">
+      <div className="relative px-6 md:px-10 pt-10 pb-20 max-w-6xl">
         <div className="inline-flex items-center gap-2 rounded-full border border-brand/30 bg-brand/10 px-3 py-1 text-xs font-semibold text-brand backdrop-blur-md">
           <Bookmark className="h-3 w-3" /> {shared ? "SHARED SHORTLIST" : "MY SHORTLIST"}
         </div>
         <h1 className="font-display text-4xl md:text-6xl font-black mt-3 leading-[0.95] text-white tracking-tight">
           {shared ? "A friend's course list" : "My List"}
         </h1>
-        <p className="text-sm text-neutral-400 mt-2">
+        <p className="text-sm text-neutral-500 mt-2">
           {courses.length} course{courses.length === 1 ? "" : "s"}
           {shared ? " · shared link" : " saved"}
         </p>
@@ -99,7 +102,7 @@ function ListPage() {
 
         <div className="mt-6 flex items-start gap-3 rounded-2xl border border-brand/30 bg-brand/5 p-5 backdrop-blur-md">
           <Users className="h-5 w-5 shrink-0 text-brand" />
-          <p className="text-sm text-neutral-400">
+          <p className="text-sm text-neutral-500 leading-relaxed">
             Planning courses with friends? Share your shortlist link to compare schedule overlaps before enrolment opens.
           </p>
         </div>

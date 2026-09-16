@@ -71,17 +71,23 @@ function ResetPasswordPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-background text-foreground flex flex-col items-center justify-center px-6 py-16">
-        <div className="text-sm text-muted-foreground">Loading...</div>
+      <div className="min-h-screen bg-background text-foreground flex flex-col items-center justify-center px-6 py-16 relative">
+        <div className="fixed inset-0 pointer-events-none">
+          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[300px] bg-brand/3 rounded-full blur-[100px]" />
+        </div>
+        <div className="text-sm text-neutral-500 relative z-10">Loading...</div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-background text-foreground flex flex-col items-center justify-center px-6 py-16">
-      <div className="w-full max-w-sm rounded-3xl border border-border/50 bg-surface p-6 md:p-8">
-        <h1 className="font-display text-2xl font-bold">Reset your password</h1>
-        <p className="text-sm text-muted-foreground mt-1">
+    <div className="min-h-screen bg-background text-foreground flex flex-col items-center justify-center px-6 py-16 relative">
+      <div className="fixed inset-0 pointer-events-none">
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[300px] bg-brand/3 rounded-full blur-[100px]" />
+      </div>
+      <div className="w-full max-w-sm rounded-3xl border border-white/[0.08] bg-surface p-6 md:p-8 relative z-10">
+        <h1 className="font-display text-2xl font-bold text-white tracking-tight">Reset your password</h1>
+        <p className="text-sm text-neutral-500 mt-1">
           Enter your new password below.
         </p>
 
@@ -93,11 +99,11 @@ function ResetPasswordPage() {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             placeholder="New password"
-            className="w-full h-11 rounded-xl bg-surface-2 border border-border/50 px-3 text-sm outline-none focus:border-brand/60"
+            className="w-full h-11 rounded-xl bg-white/[0.04] border border-white/[0.08] px-3 text-sm outline-none focus:border-brand/60 focus:ring-2 focus:ring-white/30"
           />
           <button
             disabled={busy}
-            className="w-full h-11 rounded-xl bg-brand text-primary-foreground font-semibold text-sm hover:bg-brand-glow transition disabled:opacity-60"
+            className="w-full h-11 rounded-xl bg-brand text-primary-foreground font-semibold text-sm hover:bg-brand-glow transition disabled:opacity-60 active:scale-[0.98]"
           >
             {busy ? "…" : "Update password"}
           </button>
