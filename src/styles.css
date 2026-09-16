@@ -42,15 +42,15 @@
 
 :root {
   --radius: 0.5rem;
-  --background: #08080A;
+  --background: #141414;
   --foreground: oklch(0.98 0 0);
 
-  --surface: #121216;
-  --surface-2: #1b1b21;
+  --surface: #0b0b0c;
+  --surface-2: #1a1a1d;
 
-  --card: #121216;
+  --card: #0b0b0c;
   --card-foreground: oklch(0.98 0 0);
-  --popover: #121216;
+  --popover: #0b0b0c;
   --popover-foreground: oklch(0.98 0 0);
 
   --brand: #E50914;
@@ -66,7 +66,7 @@
   --accent-foreground: oklch(0.98 0 0);
   --destructive: oklch(0.55 0.23 28);
   --destructive-foreground: oklch(0.99 0 0);
-  --border: rgb(255 255 255 / 0.12);
+  --border: rgb(255 255 255 / 0.10);
   --input: oklch(0.28 0 0);
   --ring: oklch(0.55 0.23 28);
 }

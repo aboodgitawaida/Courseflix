@@ -94,7 +94,7 @@ function Home() {
 
       <CreatorSection />
 
-      <footer className="border-t border-border/40 px-6 md:px-10 py-8 text-xs text-muted-foreground flex flex-wrap gap-2 justify-between">
+      <footer className="border-t border-neutral-800 px-6 md:px-10 py-8 text-xs text-neutral-400 flex flex-wrap gap-2 justify-between">
         <span>Courseflix · unofficial · built by Abood Awaida</span>
         <span>Course data from the UTM Academic Calendar. Estimated ratings until students rate. Not affiliated with UofT or Netflix.</span>
       </footer>

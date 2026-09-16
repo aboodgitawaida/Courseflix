@@ -55,13 +55,13 @@ function ListPage() {
       <TopNav />
 
       <div className="px-6 md:px-10 pt-10 pb-20 max-w-6xl">
-        <div className="inline-flex items-center gap-2 rounded-full border border-brand/30 bg-brand/10 px-3 py-1 text-xs font-semibold text-brand">
+        <div className="inline-flex items-center gap-2 rounded-full border border-brand/30 bg-brand/10 px-3 py-1 text-xs font-semibold text-brand backdrop-blur-md">
           <Bookmark className="h-3 w-3" /> {shared ? "SHARED SHORTLIST" : "MY SHORTLIST"}
         </div>
-        <h1 className="font-display text-4xl md:text-6xl font-black mt-3 leading-[0.95]">
+        <h1 className="font-display text-4xl md:text-6xl font-black mt-3 leading-[0.95] text-white tracking-tight">
           {shared ? "A friend's course list" : "My List"}
         </h1>
-        <p className="text-sm text-muted-foreground mt-2">
+        <p className="text-sm text-neutral-400 mt-2">
           {courses.length} course{courses.length === 1 ? "" : "s"}
           {shared ? " · shared link" : " saved"}
         </p>
@@ -70,13 +70,13 @@ function ListPage() {
           <div className="mt-6 flex flex-wrap gap-2">
             <button
               onClick={() => copy(shareUrl, "Shortlist link copied")}
-              className="inline-flex items-center gap-2 rounded-full bg-brand px-5 py-2.5 text-sm font-semibold text-primary-foreground transition hover:bg-brand-glow"
+              className="inline-flex items-center gap-2 rounded-full bg-brand px-5 py-2.5 text-sm font-semibold text-primary-foreground transition hover:bg-brand-glow focus-visible:ring-2 focus-visible:ring-red-600/50"
             >
               <Share2 className="h-4 w-4" /> Share my shortlist
             </button>
             <button
               onClick={() => copy(shareUrl, "Link copied")}
-              className="inline-flex items-center gap-2 rounded-full border border-border/60 bg-surface-2 px-5 py-2.5 text-sm font-semibold transition hover:border-brand/50"
+              className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-surface-2 px-5 py-2.5 text-sm font-semibold transition hover:border-brand/50 hover:shadow-lg hover:shadow-red-900/20 focus-visible:ring-2 focus-visible:ring-red-600/50"
             >
               <Link2 className="h-4 w-4" /> Copy link
             </button>
@@ -84,36 +84,36 @@ function ListPage() {
               href={`https://www.reddit.com/r/UTM/submit?title=${encodeURIComponent("My UTM course shortlist")}&text=${encodeURIComponent(shareText)}`}
               target="_blank"
               rel="noreferrer"
-              className="inline-flex items-center gap-2 rounded-full border border-border/60 bg-surface-2 px-5 py-2.5 text-sm font-semibold transition hover:border-brand/50"
+              className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-surface-2 px-5 py-2.5 text-sm font-semibold transition hover:border-brand/50 hover:shadow-lg hover:shadow-red-900/20 focus-visible:ring-2 focus-visible:ring-red-600/50"
             >
               <MessageCircle className="h-4 w-4" /> Post to r/UTM
             </a>
             <button
               onClick={() => copy(shareText, "Discord-ready list copied")}
-              className="inline-flex items-center gap-2 rounded-full border border-border/60 bg-surface-2 px-5 py-2.5 text-sm font-semibold transition hover:border-brand/50"
+              className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-surface-2 px-5 py-2.5 text-sm font-semibold transition hover:border-brand/50 hover:shadow-lg hover:shadow-red-900/20 focus-visible:ring-2 focus-visible:ring-red-600/50"
             >
               <Copy className="h-4 w-4" /> Copy for Discord
             </button>
           </div>
         )}
 
-        <div className="mt-6 flex items-start gap-3 rounded-2xl border border-brand/30 bg-brand/5 p-5">
+        <div className="mt-6 flex items-start gap-3 rounded-2xl border border-brand/30 bg-brand/5 p-5 backdrop-blur-md">
           <Users className="h-5 w-5 shrink-0 text-brand" />
-          <p className="text-sm text-muted-foreground">
+          <p className="text-sm text-neutral-400">
             Planning courses with friends? Share your shortlist link to compare schedule overlaps before enrolment opens.
           </p>
         </div>
 
         {!shared && !signedIn && (
-          <div className="mt-8 rounded-2xl border border-border/50 bg-surface p-6">
-            <h2 className="font-display text-2xl">Sign in to save courses</h2>
-            <p className="text-sm text-muted-foreground mt-1">
+          <div className="mt-8 rounded-2xl border border-neutral-800 bg-surface p-6">
+            <h2 className="font-display text-2xl text-white font-bold tracking-tight">Sign in to save courses</h2>
+            <p className="text-sm text-neutral-400 mt-1">
               Your shortlist syncs to your account so it's there on any device.
             </p>
             <Link
               to="/auth"
               search={{ redirect: "/list" }}
-              className="mt-4 inline-flex rounded-full bg-brand px-5 py-2.5 text-sm font-semibold text-primary-foreground hover:bg-brand-glow transition"
+              className="mt-4 inline-flex rounded-full bg-brand px-5 py-2.5 text-sm font-semibold text-primary-foreground hover:bg-brand-glow transition focus-visible:ring-2 focus-visible:ring-red-600/50"
             >
               Sign in
             </Link>
@@ -121,12 +121,12 @@ function ListPage() {
         )}
 
         {!shared && signedIn && !isLoading && courses.length === 0 && (
-          <div className="mt-8 rounded-2xl border border-border/50 bg-surface p-6">
-            <h2 className="font-display text-2xl">Nothing saved yet</h2>
-            <p className="text-sm text-muted-foreground mt-1">
+          <div className="mt-8 rounded-2xl border border-neutral-800 bg-surface p-6">
+            <h2 className="font-display text-2xl text-white font-bold tracking-tight">Nothing saved yet</h2>
+            <p className="text-sm text-neutral-400 mt-1">
               Hit “Add to shortlist” on any course and it shows up here.
             </p>
-            <Link to="/" className="mt-4 inline-flex rounded-full bg-brand px-5 py-2.5 text-sm font-semibold text-primary-foreground hover:bg-brand-glow transition">
+            <Link to="/" className="mt-4 inline-flex rounded-full bg-brand px-5 py-2.5 text-sm font-semibold text-primary-foreground hover:bg-brand-glow transition focus-visible:ring-2 focus-visible:ring-red-600/50">
               Browse courses
             </Link>
           </div>
