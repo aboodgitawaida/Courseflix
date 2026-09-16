@@ -5,6 +5,7 @@ import { CourseRail } from "@/components/CourseRail";
 import { MajorPicker } from "@/components/MajorPicker";
 import { CreatorSection } from "@/components/CreatorSection";
 import { FilterChips } from "@/components/FilterChips";
+import { CinematicIntro } from "@/components/CinematicIntro";
 import { getRailsForMajor, getFeaturedForMajor, type FilterId } from "@/lib/courses";
 import { getMajor } from "@/lib/majors";
 import { useMajor } from "@/hooks/use-major";
@@ -53,6 +54,7 @@ function Home() {
 
   return (
     <div className="min-h-screen bg-background text-foreground relative">
+      <CinematicIntro />
       <div className="fixed inset-0 pointer-events-none">
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-brand/5 rounded-full blur-[120px]" />
         <div className="absolute bottom-0 right-0 w-[600px] h-[300px] bg-brand/3 rounded-full blur-[100px]" />
