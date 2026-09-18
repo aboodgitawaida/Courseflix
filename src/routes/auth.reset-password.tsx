@@ -21,44 +21,68 @@ function ResetPasswordPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Extract access token from URL hash
-    const hashParams = new URLSearchParams(location.hash.slice(1));
-    const accessToken = hashParams.get('access_token');
-    
-    if (accessToken) {
-      supabase.auth.setSession({
-        access_token: accessToken,
-        refresh_token: hashParams.get('refresh_token') || '',
-      }).then(({ error }) => {
-        if (error) {
-          toast.error("Invalid or expired reset link");
-          navigate({ to: "/auth", replace: true });
-        } else {
-          setLoading(false);
-        }
-      });
-    } else {
-      // Check for query parameters as fallback
-      const searchParams = new URLSearchParams(window.location.search);
-      const code = searchParams.get('code');
-      
-      if (code) {
-        // If using code-based flow, let Supabase handle it
-        setLoading(false);
-      } else {
-        toast.error("No reset token found");
-        navigate({ to: "/auth", replace: true });
+    let active = true;
+
+    async function establishRecoverySession() {
+      const hashParams = new URLSearchParams(location.hash.replace(/^#/, ""));
+      const searchParams = new URLSearchParams(location.search);
+      const authError =
+        hashParams.get("error_description") ||
+        searchParams.get("error_description") ||
+        hashParams.get("error") ||
+        searchParams.get("error");
+
+      if (authError) {
+        toast.error(decodeURIComponent(authError.replace(/\+/g, " ")));
+        if (active) navigate({ to: "/auth", replace: true });
+        return;
       }
+
+      const accessToken = hashParams.get("access_token");
+      const refreshToken = hashParams.get("refresh_token");
+      const code = searchParams.get("code");
+      const tokenHash = searchParams.get("token_hash");
+
+      let error: { message: string } | null = null;
+
+      if (accessToken && refreshToken) {
+        ({ error } = await supabase.auth.setSession({
+          access_token: accessToken,
+          refresh_token: refreshToken,
+        }));
+      } else if (code) {
+        ({ error } = await supabase.auth.exchangeCodeForSession(code));
+      } else if (tokenHash) {
+        ({ error } = await supabase.auth.verifyOtp({
+          type: "recovery",
+          token_hash: tokenHash,
+        }));
+      } else {
+        error = { message: "No reset token found" };
+      }
+
+      if (!active) return;
+
+      if (error) {
+        toast.error(error.message || "Invalid or expired reset link");
+        navigate({ to: "/auth", replace: true });
+        return;
+      }
+
+      setLoading(false);
     }
-  }, [location.hash, navigate]);
+
+    void establishRecoverySession();
+    return () => {
+      active = false;
+    };
+  }, [location.hash, location.search, navigate]);
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
     setBusy(true);
     try {
-      const { error } = await supabase.auth.updateUser({
-        password,
-      });
+      const { error } = await supabase.auth.updateUser({ password });
       if (error) throw error;
       toast.success("Password updated successfully!");
       navigate({ to: "/auth", replace: true });
