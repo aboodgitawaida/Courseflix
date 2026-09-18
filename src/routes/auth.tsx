@@ -31,6 +31,7 @@ function AuthPage() {
   const search = useSearch({ from: "/auth" });
   const dest = safePath(search.redirect);
   const { signedIn, loading } = useAuth();
+  const [oauthProcessing, setOauthProcessing] = useState(false);
   const [mode, setMode] = useState<"signin" | "signup">("signin");
   const [forgotPassword, setForgotPassword] = useState(false);
   const [email, setEmail] = useState("");
@@ -39,9 +40,38 @@ function AuthPage() {
   const [busy, setBusy] = useState(false);
   const [sent, setSent] = useState(false);
 
+  // Supabase's PKCE OAuth callback returns ?code=...; exchange it explicitly
+  // before redirecting. This makes the flow reliable on Vercel and avoids a
+  // callback race where the auth page redirects before the session is stored.
   useEffect(() => {
-    if (!loading && signedIn) navigate({ to: dest, replace: true });
-  }, [loading, signedIn, dest, navigate]);
+    const params = new URLSearchParams(window.location.search);
+    const code = params.get("code");
+    const oauthError = params.get("error_description") || params.get("error");
+
+    if (oauthError) {
+      toast.error(`Google sign-in failed: ${oauthError.replace(/\+/g, " ")}`);
+      window.history.replaceState({}, document.title, `${window.location.pathname}${search.redirect ? `?redirect=${encodeURIComponent(search.redirect)}` : ""}`);
+      return;
+    }
+
+    if (!code) return;
+
+    let active = true;
+    setOauthProcessing(true);
+    supabase.auth.exchangeCodeForSession(code).then(({ error }) => {
+      if (!active) return;
+      if (error) toast.error(`Google sign-in failed: ${error.message}`);
+      window.history.replaceState({}, document.title, `${window.location.pathname}${search.redirect ? `?redirect=${encodeURIComponent(search.redirect)}` : ""}`);
+    }).finally(() => {
+      if (active) setOauthProcessing(false);
+    });
+
+    return () => { active = false; };
+  }, [search.redirect]);
+
+  useEffect(() => {
+    if (!loading && !oauthProcessing && signedIn) navigate({ to: dest, replace: true });
+  }, [loading, oauthProcessing, signedIn, dest, navigate]);
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -52,7 +82,7 @@ function AuthPage() {
           email,
           password,
           options: {
-            emailRedirectTo: window.location.origin,
+            emailRedirectTo: `${window.location.origin}/auth`,
             data: { display_name: name || email.split("@")[0] },
           },
         });
@@ -81,7 +111,6 @@ function AuthPage() {
     setBusy(true);
     try {
       const result = await resetPassword({ data: email });
-      
       if (result.error) {
         toast.error(result.error);
       } else {
@@ -96,14 +125,17 @@ function AuthPage() {
   }
 
   async function google() {
+    setBusy(true);
+    const callback = new URL(`${window.location.origin}/auth`);
+    if (dest !== "/") callback.searchParams.set("redirect", dest);
+
     const { error } = await supabase.auth.signInWithOAuth({
       provider: "google",
-      options: {
-        redirectTo: `${window.location.origin}/auth`,
-      },
+      options: { redirectTo: callback.toString() },
     });
     if (error) {
-      toast.error("Google sign-in failed. Try again.");
+      setBusy(false);
+      toast.error(`Google sign-in failed: ${error.message}`);
     }
   }
 
@@ -130,10 +162,12 @@ function AuthPage() {
         </p>
 
         <button
+          type="button"
           onClick={google}
-          className="mt-6 w-full h-11 rounded-xl bg-white text-black font-semibold text-sm hover:opacity-90 transition active:scale-[0.98]"
+          disabled={busy || oauthProcessing}
+          className="mt-6 w-full h-11 rounded-xl bg-white text-black font-semibold text-sm hover:opacity-90 transition active:scale-[0.98] disabled:opacity-60"
         >
-          Continue with Google
+          {busy ? "Redirecting…" : "Continue with Google"}
         </button>
 
         <div className="flex items-center gap-3 my-5 text-xs text-neutral-500">
@@ -142,98 +176,35 @@ function AuthPage() {
 
         {forgotPassword ? (
           sent ? (
-            <p className="text-sm text-brand">
-              We sent a password reset link to {email}. Check your email.
-            </p>
+            <p className="text-sm text-brand">We sent a password reset link to {email}. Check your email.</p>
           ) : (
             <form onSubmit={handleForgotPassword} className="space-y-3">
-              <input
-                type="email"
-                required
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="Enter your email"
-                className="w-full h-11 rounded-xl bg-white/[0.04] border border-white/[0.08] px-3 text-sm outline-none focus:border-brand/60 focus:ring-2 focus:ring-white/30"
-              />
-              <button
-                disabled={busy}
-                className="w-full h-11 rounded-xl bg-brand text-primary-foreground font-semibold text-sm hover:bg-brand-glow transition disabled:opacity-60 active:scale-[0.98]"
-              >
-                {busy ? "…" : "Send reset link"}
-              </button>
+              <input type="email" required value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Enter your email" className="w-full h-11 rounded-xl bg-white/[0.04] border border-white/[0.08] px-3 text-sm outline-none focus:border-brand/60 focus:ring-2 focus:ring-white/30" />
+              <button disabled={busy} className="w-full h-11 rounded-xl bg-brand text-primary-foreground font-semibold text-sm hover:bg-brand-glow transition disabled:opacity-60 active:scale-[0.98]">{busy ? "…" : "Send reset link"}</button>
             </form>
           )
         ) : sent ? (
-          <p className="text-sm text-brand">
-            We sent a confirmation link to {email}. Click it, then come back and sign in.
-          </p>
+          <p className="text-sm text-brand">We sent a confirmation link to {email}. Click it, then come back and sign in.</p>
         ) : (
           <form onSubmit={onSubmit} className="space-y-3">
-            {mode === "signup" && (
-              <input
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                placeholder="Display name"
-                maxLength={40}
-                className="w-full h-11 rounded-xl bg-white/[0.04] border border-white/[0.08] px-3 text-sm outline-none focus:border-brand/60 focus:ring-2 focus:ring-white/30"
-              />
-            )}
-            <input
-              type="email"
-              required
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="you@mail.utoronto.ca"
-              className="w-full h-11 rounded-xl bg-white/[0.04] border border-white/[0.08] px-3 text-sm outline-none focus:border-brand/60 focus:ring-2 focus:ring-white/30"
-            />
-            <input
-              type="password"
-              required
-              minLength={6}
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="Password"
-              className="w-full h-11 rounded-xl bg-white/[0.04] border border-white/[0.08] px-3 text-sm outline-none focus:border-brand/60 focus:ring-2 focus:ring-white/30"
-            />
-            <button
-              disabled={busy}
-              className="w-full h-11 rounded-xl bg-brand text-primary-foreground font-semibold text-sm hover:bg-brand-glow transition disabled:opacity-60 active:scale-[0.98]"
-            >
-              {busy ? "…" : mode === "signin" ? "Sign in" : "Create account"}
-            </button>
+            {mode === "signup" && <input value={name} onChange={(e) => setName(e.target.value)} placeholder="Display name" maxLength={40} className="w-full h-11 rounded-xl bg-white/[0.04] border border-white/[0.08] px-3 text-sm outline-none focus:border-brand/60 focus:ring-2 focus:ring-white/30" />}
+            <input type="email" required value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@mail.utoronto.ca" className="w-full h-11 rounded-xl bg-white/[0.04] border border-white/[0.08] px-3 text-sm outline-none focus:border-brand/60 focus:ring-2 focus:ring-white/30" />
+            <input type="password" required minLength={6} value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Password" className="w-full h-11 rounded-xl bg-white/[0.04] border border-white/[0.08] px-3 text-sm outline-none focus:border-brand/60 focus:ring-2 focus:ring-white/30" />
+            <button disabled={busy} className="w-full h-11 rounded-xl bg-brand text-primary-foreground font-semibold text-sm hover:bg-brand-glow transition disabled:opacity-60 active:scale-[0.98]">{busy ? "…" : mode === "signin" ? "Sign in" : "Create account"}</button>
           </form>
         )}
 
         {forgotPassword ? (
-          <button
-            onClick={() => { setForgotPassword(false); setSent(false); }}
-            className="mt-4 w-full text-xs text-neutral-500 hover:text-brand transition"
-          >
-            Back to sign in
-          </button>
+          <button onClick={() => { setForgotPassword(false); setSent(false); }} className="mt-4 w-full text-xs text-neutral-500 hover:text-brand transition">Back to sign in</button>
         ) : (
           <>
-            {mode === "signin" && (
-              <button
-                onClick={() => { setForgotPassword(true); setSent(false); }}
-                className="mt-4 w-full text-xs text-neutral-500 hover:text-brand transition"
-              >
-                Forgot your password?
-              </button>
-            )}
-            <button
-              onClick={() => { setMode(mode === "signin" ? "signup" : "signin"); setSent(false); }}
-              className="mt-2 w-full text-xs text-neutral-500 hover:text-brand transition"
-            >
-              {mode === "signin" ? "New here? Create an account" : "Already have an account? Sign in"}
-            </button>
+            {mode === "signin" && <button onClick={() => { setForgotPassword(true); setSent(false); }} className="mt-4 w-full text-xs text-neutral-500 hover:text-brand transition">Forgot your password?</button>}
+            <button onClick={() => { setMode(mode === "signin" ? "signup" : "signin"); setSent(false); }} className="mt-2 w-full text-xs text-neutral-500 hover:text-brand transition">{mode === "signin" ? "New here? Create an account" : "Already have an account? Sign in"}</button>
           </>
         )}
       </div>
 
-      <Link to="/" className="mt-6 text-xs text-neutral-500 hover:text-foreground relative z-10">
-        Keep browsing without an account →
-      </Link>
+      <Link to="/" className="mt-6 text-xs text-neutral-500 hover:text-foreground relative z-10">Keep browsing without an account →</Link>
     </div>
   );
 }
