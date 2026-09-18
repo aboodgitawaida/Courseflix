@@ -98,9 +98,8 @@ function AuthPage() {
   async function google() {
     const { error } = await supabase.auth.signInWithOAuth({
       provider: "google",
-      options: { 
+      options: {
         redirectTo: `${window.location.origin}/auth`,
-        skipBrowserRedirect: false,
       },
     });
     if (error) {
