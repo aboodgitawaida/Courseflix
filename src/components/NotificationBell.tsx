@@ -19,7 +19,7 @@ function line(kind: string, name: string, code: string | null) {
 }
 
 export function NotificationBell() {
-  const { data } = useNotifications();
+  const { data, isLoading, error } = useNotifications();
   const markRead = useMarkNotificationsRead();
   const rows = data?.rows ?? [];
   const people = data?.people;
@@ -28,7 +28,7 @@ export function NotificationBell() {
   return (
     <DropdownMenu
       onOpenChange={(open) => {
-        if (open && unread > 0) markRead.mutate();
+        if (open && unread > 0) void markRead.mutateAsync();
       }}
     >
       <DropdownMenuTrigger
@@ -45,12 +45,20 @@ export function NotificationBell() {
       <DropdownMenuContent align="end" className="w-80">
         <DropdownMenuLabel>Activity</DropdownMenuLabel>
         <DropdownMenuSeparator />
-        {rows.length === 0 && (
+        {isLoading && (
+          <div className="px-2 py-6 text-center text-xs text-muted-foreground">Loading activity…</div>
+        )}
+        {error && (
+          <div className="px-2 py-6 text-center text-xs text-destructive">
+            Could not load activity. Try again later.
+          </div>
+        )}
+        {!isLoading && !error && rows.length === 0 && (
           <div className="px-2 py-6 text-center text-xs text-muted-foreground">
             Nothing yet. Add friends to see their picks.
           </div>
         )}
-        {rows.slice(0, 12).map((r) => {
+        {!error && rows.slice(0, 12).map((r) => {
           const person = r.actor_id ? people?.get(r.actor_id) : undefined;
           const name = person?.display_name ?? "A student";
           return (
