@@ -28,6 +28,8 @@ export const AVATARS = [
 
 export const avatarSrc = (id: string | null | undefined) => AVATARS.find((a) => a.id === id)?.src ?? hmalc;
 
+const PROFILE_COLUMNS = "id, display_name, username, avatar_id, major_id, year, is_private";
+
 export function useProfile(userId?: string) {
   return useQuery({
     queryKey: ["profile", userId ?? null],
@@ -36,38 +38,25 @@ export function useProfile(userId?: string) {
       if (!userId) return null;
       const { data: authData, error: authError } = await supabase.auth.getUser();
       if (authError) throw authError;
-
       const uid = authData.user?.id;
       if (!uid) return null;
 
-      const { data, error } = await supabase
-        .from("profiles")
-        .select("id, display_name, username, avatar_id, major_id, year, is_private")
-        .eq("id", uid)
-        .maybeSingle();
-
+      const { data, error } = await supabase.from("profiles").select(PROFILE_COLUMNS).eq("id", uid).maybeSingle();
       if (error) throw error;
       if (data) return data as Profile;
 
-      const fallbackDisplayName = authData.user.user_metadata?.display_name ?? authData.user.email?.split("@")[0] ?? "UTM student";
-      const fallbackProfile = {
-        id: uid,
-        display_name: fallbackDisplayName,
-        username: null,
-        avatar_id: "hmalc",
-        major_id: null,
-        year: null,
-        is_private: false,
-      };
-
       const { data: created, error: createError } = await supabase
         .from("profiles")
-        .upsert(fallbackProfile, { onConflict: "id" })
-        .select("id, display_name, username, avatar_id, major_id, year, is_private")
+        .insert({
+          id: uid,
+          display_name: authData.user.user_metadata?.display_name ?? authData.user.email?.split("@")[0] ?? "UTM student",
+          avatar_id: "hmalc",
+          is_private: false,
+        })
+        .select(PROFILE_COLUMNS)
         .single();
-
       if (createError) throw createError;
-      return (created as Profile) ?? fallbackProfile;
+      return created as Profile;
     },
   });
 }
@@ -80,18 +69,39 @@ export function useUpdateProfile() {
       const uid = auth.user?.id;
       if (!uid) throw new Error("You need to sign in first.");
 
+      // Only send fields being changed. Sending fallback defaults here used to
+      // overwrite the saved name/avatar/privacy whenever another field changed.
       const { data, error } = await supabase
         .from("profiles")
-        .upsert({ id: uid, display_name: auth.user?.user_metadata?.display_name ?? auth.user?.email?.split("@")[0] ?? "UTM student", avatar_id: "hmalc", is_private: false, ...patch }, { onConflict: "id" })
-        .select("id, display_name, username, avatar_id, major_id, year, is_private")
-        .single();
+        .update(patch)
+        .eq("id", uid)
+        .select(PROFILE_COLUMNS)
+        .maybeSingle();
 
       if (error) {
         if (error.code === "23505") throw new Error("That username is already taken.");
         throw new Error(error.message || "Profile update failed.");
       }
-      if (!data) throw new Error("Profile was not updated.");
-      return data as Profile;
+
+      if (data) return data as Profile;
+
+      // Recover accounts created before the profile trigger/table was available.
+      const { data: created, error: createError } = await supabase
+        .from("profiles")
+        .insert({
+          id: uid,
+          display_name: auth.user.user_metadata?.display_name ?? auth.user.email?.split("@")[0] ?? "UTM student",
+          avatar_id: "hmalc",
+          is_private: false,
+          ...patch,
+        })
+        .select(PROFILE_COLUMNS)
+        .single();
+      if (createError) {
+        if (createError.code === "23505") throw new Error("That username is already taken.");
+        throw new Error(createError.message || "Profile update failed.");
+      }
+      return created as Profile;
     },
     onSuccess: (profile) => {
       qc.setQueryData(["profile", profile.id], profile);
