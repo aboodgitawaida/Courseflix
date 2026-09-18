@@ -50,11 +50,11 @@ export function useCourseStats(code: string) {
       if (!data) return null;
       const d = data as Record<string, unknown>;
       return {
-        rating_count: Number(d['rating_count'] ?? 0),
-        avg_rating: Number(d['avg_rating'] ?? 0),
-        avg_difficulty: Number(d['avg_difficulty'] ?? 0),
-        avg_workload: Number(d['avg_workload'] ?? 0),
-        pct_would_take_again: Number(d['pct_would_take_again'] ?? 0),
+        rating_count: Number(d["rating_count"] ?? 0),
+        avg_rating: Number(d["avg_rating"] ?? 0),
+        avg_difficulty: Number(d["avg_difficulty"] ?? 0),
+        avg_workload: Number(d["avg_workload"] ?? 0),
+        pct_would_take_again: Number(d["pct_would_take_again"] ?? 0),
       } as RatingStats;
     },
   });
@@ -83,8 +83,8 @@ export function useSubmitRating(code: string) {
       if (error) throw error;
     },
     onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ["ratings", code] });
-      qc.invalidateQueries({ queryKey: ["rating-stats", code] });
+      void qc.invalidateQueries({ queryKey: ["ratings", code] });
+      void qc.invalidateQueries({ queryKey: ["rating-stats", code] });
     },
   });
 }
@@ -93,12 +93,14 @@ export function useShortlist() {
   return useQuery({
     queryKey: ["shortlist"],
     queryFn: async () => {
-      const { data: auth } = await supabase.auth.getUser();
+      const { data: auth, error: authError } = await supabase.auth.getUser();
+      if (authError) throw authError;
       if (!auth.user) return [] as string[];
       const { data, error } = await supabase.from("shortlists").select("course_code");
       if (error) throw error;
       return (data ?? []).map((r) => r.course_code as string);
     },
+    staleTime: 15_000,
   });
 }
 
@@ -106,7 +108,8 @@ export function useToggleShortlist() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: async ({ code, saved }: { code: string; saved: boolean }) => {
-      const { data: auth } = await supabase.auth.getUser();
+      const { data: auth, error: authError } = await supabase.auth.getUser();
+      if (authError) throw authError;
       const uid = auth.user?.id;
       if (!uid) throw new Error("You need to sign in to save courses.");
       if (saved) {
@@ -123,6 +126,8 @@ export function useToggleShortlist() {
         if (error) throw error;
       }
     },
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["shortlist"] }),
+    onSuccess: () => {
+      void qc.invalidateQueries({ queryKey: ["shortlist"] });
+    },
   });
 }
