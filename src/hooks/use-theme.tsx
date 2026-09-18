@@ -1,13 +1,10 @@
 import { createContext, useCallback, useContext, useEffect, useState, type ReactNode } from "react";
 
 type Theme = "dark" | "light";
-
 const KEY = "courseflix.theme";
 
-const ThemeContext = createContext<{ theme: Theme; toggleTheme: () => void }>({
-  theme: "dark",
-  toggleTheme: () => {},
-});
+type ThemeContextValue = { theme: Theme; toggleTheme: () => void };
+const ThemeContext = createContext<ThemeContextValue>({ theme: "dark", toggleTheme: () => {} });
 
 export function ThemeProvider({ children }: { children: ReactNode }) {
   const [theme, setTheme] = useState<Theme>("dark");
@@ -21,11 +18,12 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     const root = document.documentElement;
     root.classList.toggle("light", theme === "light");
     root.classList.toggle("dark", theme === "dark");
+    root.style.colorScheme = theme;
   }, [theme]);
 
   const toggleTheme = useCallback(() => {
-    setTheme((t) => {
-      const next: Theme = t === "dark" ? "light" : "dark";
+    setTheme((current) => {
+      const next: Theme = current === "dark" ? "light" : "dark";
       window.localStorage.setItem(KEY, next);
       return next;
     });

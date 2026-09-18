@@ -54,15 +54,24 @@ export function useUpdateProfile() {
       const { data: auth } = await supabase.auth.getUser();
       const uid = auth.user?.id;
       if (!uid) throw new Error("You need to sign in first.");
-      const { error } = await supabase.from("profiles").update(patch).eq("id", uid);
+
+      // Upsert also repairs accounts created before the profile trigger existed.
+      const { data, error } = await supabase
+        .from("profiles")
+        .upsert({ id: uid, ...patch }, { onConflict: "id" })
+        .select("id, display_name, username, avatar_id, major_id, year, is_private")
+        .single();
+
       if (error) {
         if (error.code === "23505") throw new Error("That username is already taken.");
-        throw error;
+        throw new Error(error.message || "Profile update failed.");
       }
+      if (!data) throw new Error("Profile was not updated.");
+      return data as Profile;
     },
-    onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ["profile"] });
-      qc.invalidateQueries({ queryKey: ["profile-search"] });
+    onSuccess: (profile) => {
+      qc.setQueryData(["profile"], profile);
+      void qc.invalidateQueries({ queryKey: ["profile-search"] });
     },
   });
 }
