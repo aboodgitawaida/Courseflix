@@ -7,17 +7,9 @@ import goose from "@/assets/avatars/goose.png";
 import maanjiwe from "@/assets/avatars/maanjiwe.png";
 import coffee from "@/assets/avatars/coffee.png";
 
-export type Profile = {
-  id: string;
-  display_name: string;
-  username: string | null;
-  avatar_id: string;
-  major_id: string | null;
-  year: number | null;
-  is_private: boolean;
-};
+export type Profile = { id: string; display_name: string; username: string | null; avatar_id: string; major_id: string | null; year: number | null; is_private: boolean };
 
-export const AVATARS: Array<{ id: string; label: string; src: string }> = [
+export const AVATARS = [
   { id: "hmalc", label: "HMALC Library", src: hmalc },
   { id: "maanjiwe", label: "Maanjiwe nendamowinan", src: maanjiwe },
   { id: "cntower", label: "CN Tower", src: cntower },
@@ -26,21 +18,15 @@ export const AVATARS: Array<{ id: string; label: string; src: string }> = [
   { id: "coffee", label: "8am Lecture Coffee", src: coffee },
 ];
 
-export const avatarSrc = (id: string | null | undefined) =>
-  AVATARS.find((a) => a.id === id)?.src ?? hmalc;
+export const avatarSrc = (id: string | null | undefined) => AVATARS.find((a) => a.id === id)?.src ?? hmalc;
 
-export function useProfile() {
+export function useProfile(userId?: string) {
   return useQuery({
-    queryKey: ["profile"],
+    queryKey: ["profile", userId ?? null],
+    enabled: Boolean(userId),
     queryFn: async () => {
-      const { data: auth } = await supabase.auth.getUser();
-      const uid = auth.user?.id;
-      if (!uid) return null;
-      const { data, error } = await supabase
-        .from("profiles")
-        .select("id, display_name, username, avatar_id, major_id, year, is_private")
-        .eq("id", uid)
-        .maybeSingle();
+      if (!userId) return null;
+      const { data, error } = await supabase.from("profiles").select("id, display_name, username, avatar_id, major_id, year, is_private").eq("id", userId).maybeSingle();
       if (error) throw error;
       return (data as Profile | null) ?? null;
     },
@@ -54,14 +40,7 @@ export function useUpdateProfile() {
       const { data: auth } = await supabase.auth.getUser();
       const uid = auth.user?.id;
       if (!uid) throw new Error("You need to sign in first.");
-
-      // Upsert also repairs accounts created before the profile trigger existed.
-      const { data, error } = await supabase
-        .from("profiles")
-        .upsert({ id: uid, ...patch }, { onConflict: "id" })
-        .select("id, display_name, username, avatar_id, major_id, year, is_private")
-        .single();
-
+      const { data, error } = await supabase.from("profiles").upsert({ id: uid, ...patch }, { onConflict: "id" }).select("id, display_name, username, avatar_id, major_id, year, is_private").single();
       if (error) {
         if (error.code === "23505") throw new Error("That username is already taken.");
         throw new Error(error.message || "Profile update failed.");
@@ -70,7 +49,7 @@ export function useUpdateProfile() {
       return data as Profile;
     },
     onSuccess: (profile) => {
-      qc.setQueryData(["profile"], profile);
+      qc.setQueryData(["profile", profile.id], profile);
       void qc.invalidateQueries({ queryKey: ["profile-search"] });
     },
   });
