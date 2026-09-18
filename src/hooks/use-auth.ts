@@ -7,29 +7,19 @@ export function useAuth() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    let mounted = true;
-    
-    // Get initial session
+    // Listen for OAuth callback tokens
+    const { data: sub } = supabase.auth.onAuthStateChange((_e, s) => {
+      setSession(s);
+      setLoading(false);
+    });
+
+    // Get initial session on load
     supabase.auth.getSession().then(({ data }) => {
-      if (mounted) {
-        setSession(data.session);
-        setLoading(false);
-      }
+      setSession(data.session);
+      setLoading(false);
     });
 
-    // Listen for auth changes
-    const { data: sub } = supabase.auth.onAuthStateChange((event, s) => {
-      if (mounted) {
-        console.log("Auth state changed:", event, s ? "session exists" : "no session");
-        setSession(s);
-        setLoading(false);
-      }
-    });
-
-    return () => {
-      mounted = false;
-      sub.subscription.unsubscribe();
-    };
+    return () => sub.subscription.unsubscribe();
   }, []);
 
   const user: User | null = session?.user ?? null;
