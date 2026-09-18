@@ -1,4 +1,4 @@
-import { createFileRoute, useNavigate, useLocation } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -15,7 +15,6 @@ export const Route = createFileRoute("/auth/reset-password")({
 
 function ResetPasswordPage() {
   const navigate = useNavigate();
-  const location = useLocation();
   const [password, setPassword] = useState("");
   const [busy, setBusy] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -24,8 +23,10 @@ function ResetPasswordPage() {
     let active = true;
 
     async function establishRecoverySession() {
-      const hashParams = new URLSearchParams(location.hash.replace(/^#/, ""));
-      const searchParams = new URLSearchParams(location.search);
+      // Use window.location here because the router's `location.search` is a
+      // parsed search object, not the raw query string from the URL.
+      const hashParams = new URLSearchParams(window.location.hash.replace(/^#/, ""));
+      const searchParams = new URLSearchParams(window.location.search);
       const authError =
         hashParams.get("error_description") ||
         searchParams.get("error_description") ||
@@ -76,7 +77,7 @@ function ResetPasswordPage() {
     return () => {
       active = false;
     };
-  }, [location.hash, location.search, navigate]);
+  }, [navigate]);
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
