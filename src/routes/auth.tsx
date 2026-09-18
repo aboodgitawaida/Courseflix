@@ -100,6 +100,7 @@ function AuthPage() {
       provider: "google",
       options: { 
         redirectTo: `${window.location.origin}/auth`,
+        skipBrowserRedirect: false,
       },
     });
     if (error) {

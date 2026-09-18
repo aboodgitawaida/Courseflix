@@ -9,20 +9,9 @@ export function useAuth() {
   useEffect(() => {
     let mounted = true;
     
-    // Check localStorage for Supabase session
-    console.log("Checking localStorage for Supabase session...");
-    const localStorageKeys = Object.keys(localStorage);
-    console.log("localStorage keys:", localStorageKeys);
-    localStorageKeys.forEach(key => {
-      if (key.includes('supabase') || key.includes('auth')) {
-        console.log(`${key}:`, localStorage.getItem(key));
-      }
-    });
-    
     // Get initial session
     supabase.auth.getSession().then(({ data }) => {
       if (mounted) {
-        console.log("Initial session:", data.session);
         setSession(data.session);
         setLoading(false);
       }
@@ -31,7 +20,7 @@ export function useAuth() {
     // Listen for auth changes
     const { data: sub } = supabase.auth.onAuthStateChange((event, s) => {
       if (mounted) {
-        console.log("Auth state changed:", event, s);
+        console.log("Auth state changed:", event, s ? "session exists" : "no session");
         setSession(s);
         setLoading(false);
       }
@@ -44,6 +33,5 @@ export function useAuth() {
   }, []);
 
   const user: User | null = session?.user ?? null;
-  console.log("Auth state:", { session, user, loading, signedIn: !!user });
   return { session, user, loading, signedIn: !!user };
 }

@@ -10,13 +10,22 @@ export const resetPassword = createServerFn()
       const resendApiKey = process.env.RESEND_API_KEY;
       const supabaseUrl = process.env.VITE_SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL;
 
+      console.log('Reset password environment check:', {
+        hasServiceRoleKey: !!serviceRoleKey,
+        hasResendApiKey: !!resendApiKey,
+        hasSupabaseUrl: !!supabaseUrl,
+        supabaseUrl,
+      });
+
       if (!serviceRoleKey || !resendApiKey || !supabaseUrl) {
+        console.error('Missing environment variables');
         return { error: 'Server environment variables not configured' };
       }
 
       const supabaseAdmin = createClient(supabaseUrl, serviceRoleKey);
       const resend = new Resend(resendApiKey);
 
+      console.log('Generating recovery link for:', email);
       const { data, error } = await supabaseAdmin.auth.admin.generateLink({
         type: 'recovery',
         email,
@@ -24,10 +33,12 @@ export const resetPassword = createServerFn()
       });
 
       if (error || !data.properties?.action_link) {
+        console.error('Failed to generate link:', error);
         return { error: error?.message || 'User not found' };
       }
 
-      await resend.emails.send({
+      console.log('Sending email via Resend to:', email);
+      const emailResult = await resend.emails.send({
         from: 'CourseFlix <noreply@courseflix.ca>',
         to: [email],
         subject: 'Reset your CourseFlix password',
@@ -41,8 +52,16 @@ export const resetPassword = createServerFn()
         `,
       });
 
+      console.log('Email result:', emailResult);
+
+      if (emailResult.error) {
+        console.error('Resend error:', emailResult.error);
+        return { error: emailResult.error.message };
+      }
+
       return { success: true };
     } catch (err: any) {
+      console.error('Reset password error:', err);
       return { error: err.message || 'Internal Server Error' };
     }
   });
