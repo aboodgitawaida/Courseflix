@@ -10,10 +10,11 @@ import {
 import { useEffect, type ReactNode } from "react";
 
 import appCss from "../styles.css?url";
-import { reportLovableError } from "../lib/lovable-error-reporting";
 import { Toaster } from "@/components/ui/sonner";
 import { BrandIntro } from "@/components/BrandIntro";
 import { CourseUIProvider } from "@/hooks/use-course-ui";
+import { SoundProvider } from "@/hooks/use-sound";
+import { ThemeProvider } from "@/hooks/use-theme";
 import { CommandPalette } from "@/components/CommandPalette";
 import { CoursePreviewModal } from "@/components/CoursePreviewModal";
 import { CompareDrawer } from "@/components/CompareDrawer";
@@ -132,14 +133,18 @@ function RootComponent() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <CourseUIProvider>
-        <BrandIntro />
-        <Outlet />
-        <CommandPalette />
-        <CoursePreviewModal />
-        <CompareDrawer />
-        <Toaster position="top-center" />
-      </CourseUIProvider>
+      <ThemeProvider>
+        <SoundProvider>
+          <CourseUIProvider>
+            <BrandIntro />
+            <Outlet />
+            <CommandPalette />
+            <CoursePreviewModal />
+            <CompareDrawer />
+            <Toaster position="top-center" />
+          </CourseUIProvider>
+        </SoundProvider>
+      </ThemeProvider>
     </QueryClientProvider>
   );
 }
