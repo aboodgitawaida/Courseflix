@@ -3,12 +3,15 @@ import { createClient } from '@supabase/supabase-js';
 import { Resend } from 'resend';
 
 export const resetPassword = createServerFn()
-  .validator((email: string) => email)
-  .handler(async (email) => {
+  .validator((email: string) => email.trim())
+  .handler(async ({ data: email }) => {
     try {
       const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
       const resendApiKey = process.env.RESEND_API_KEY;
-      const supabaseUrl = process.env.VITE_SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL;
+      const supabaseUrl =
+        process.env.SUPABASE_URL ||
+        process.env.VITE_SUPABASE_URL ||
+        process.env.NEXT_PUBLIC_SUPABASE_URL;
 
       console.log('Reset password environment check:', {
         hasServiceRoleKey: !!serviceRoleKey,
@@ -29,7 +32,9 @@ export const resetPassword = createServerFn()
       const { data, error } = await supabaseAdmin.auth.admin.generateLink({
         type: 'recovery',
         email,
-        options: { redirectTo: 'https://www.courseflix.ca/auth/reset-password' },
+        options: {
+          redirectTo: 'https://www.courseflix.ca/auth/reset-password',
+        },
       });
 
       if (error || !data.properties?.action_link) {
@@ -60,8 +65,10 @@ export const resetPassword = createServerFn()
       }
 
       return { success: true };
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Reset password error:', err);
-      return { error: err.message || 'Internal Server Error' };
+      return {
+        error: err instanceof Error ? err.message : 'Internal Server Error',
+      };
     }
   });
