@@ -32,7 +32,10 @@ function createSupabaseClient() {
       storage: brokeredPreviewStorage(),
       persistSession: true,
       autoRefreshToken: true,
-      detectSessionInUrl: true,
+      // The auth route explicitly exchanges the OAuth code. Leaving automatic
+      // URL detection enabled would race that exchange and consume the PKCE
+      // verifier before exchangeCodeForSession() runs.
+      detectSessionInUrl: false,
       flowType: 'pkce',
     },
   });
