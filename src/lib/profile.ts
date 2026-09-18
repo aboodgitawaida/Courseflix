@@ -7,7 +7,15 @@ import goose from "@/assets/avatars/goose.png";
 import maanjiwe from "@/assets/avatars/maanjiwe.png";
 import coffee from "@/assets/avatars/coffee.png";
 
-export type Profile = { id: string; display_name: string; username: string | null; avatar_id: string; major_id: string | null; year: number | null; is_private: boolean };
+export type Profile = {
+  id: string;
+  display_name: string;
+  username: string | null;
+  avatar_id: string;
+  major_id: string | null;
+  year: number | null;
+  is_private: boolean;
+};
 
 export const AVATARS = [
   { id: "hmalc", label: "HMALC Library", src: hmalc },
@@ -16,7 +24,7 @@ export const AVATARS = [
   { id: "squirrel", label: "Campus Squirrel", src: squirrel },
   { id: "goose", label: "Angry Goose", src: goose },
   { id: "coffee", label: "8am Lecture Coffee", src: coffee },
-];
+] as const;
 
 export const avatarSrc = (id: string | null | undefined) => AVATARS.find((a) => a.id === id)?.src ?? hmalc;
 
@@ -26,9 +34,40 @@ export function useProfile(userId?: string) {
     enabled: Boolean(userId),
     queryFn: async () => {
       if (!userId) return null;
-      const { data, error } = await supabase.from("profiles").select("id, display_name, username, avatar_id, major_id, year, is_private").eq("id", userId).maybeSingle();
+      const { data: authData, error: authError } = await supabase.auth.getUser();
+      if (authError) throw authError;
+
+      const uid = authData.user?.id;
+      if (!uid) return null;
+
+      const { data, error } = await supabase
+        .from("profiles")
+        .select("id, display_name, username, avatar_id, major_id, year, is_private")
+        .eq("id", uid)
+        .maybeSingle();
+
       if (error) throw error;
-      return (data as Profile | null) ?? null;
+      if (data) return data as Profile;
+
+      const fallbackDisplayName = authData.user.user_metadata?.display_name ?? authData.user.email?.split("@")[0] ?? "UTM student";
+      const fallbackProfile = {
+        id: uid,
+        display_name: fallbackDisplayName,
+        username: null,
+        avatar_id: "hmalc",
+        major_id: null,
+        year: null,
+        is_private: false,
+      };
+
+      const { data: created, error: createError } = await supabase
+        .from("profiles")
+        .upsert(fallbackProfile, { onConflict: "id" })
+        .select("id, display_name, username, avatar_id, major_id, year, is_private")
+        .single();
+
+      if (createError) throw createError;
+      return (created as Profile) ?? fallbackProfile;
     },
   });
 }
@@ -40,7 +79,13 @@ export function useUpdateProfile() {
       const { data: auth } = await supabase.auth.getUser();
       const uid = auth.user?.id;
       if (!uid) throw new Error("You need to sign in first.");
-      const { data, error } = await supabase.from("profiles").upsert({ id: uid, ...patch }, { onConflict: "id" }).select("id, display_name, username, avatar_id, major_id, year, is_private").single();
+
+      const { data, error } = await supabase
+        .from("profiles")
+        .upsert({ id: uid, display_name: auth.user?.user_metadata?.display_name ?? auth.user?.email?.split("@")[0] ?? "UTM student", avatar_id: "hmalc", is_private: false, ...patch }, { onConflict: "id" })
+        .select("id, display_name, username, avatar_id, major_id, year, is_private")
+        .single();
+
       if (error) {
         if (error.code === "23505") throw new Error("That username is already taken.");
         throw new Error(error.message || "Profile update failed.");
