@@ -1,4 +1,4 @@
-import { createFileRoute, useNavigate, Link, useSearch } from "@tanstack/react-router";
+import { createFileRoute, Outlet, useNavigate, Link, useSearch } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
@@ -19,11 +19,22 @@ export const Route = createFileRoute("/auth")({
       { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
-  component: AuthPage,
+  component: AuthLayout,
 });
 
 function safePath(p?: string) {
   return p && p.startsWith("/") && !p.startsWith("//") ? p : "/";
+}
+
+function AuthLayout() {
+  const match = useLocation();
+  const pathname = match.pathname;
+
+  if (pathname.startsWith("/auth/reset-password")) {
+    return <Outlet />;
+  }
+
+  return <AuthPage />;
 }
 
 function AuthPage() {
@@ -40,9 +51,6 @@ function AuthPage() {
   const [busy, setBusy] = useState(false);
   const [sent, setSent] = useState(false);
 
-  // Supabase's PKCE OAuth callback returns ?code=...; exchange it explicitly
-  // before redirecting. This makes the flow reliable on Vercel and avoids a
-  // callback race where the auth page redirects before the session is stored.
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const code = params.get("code");
@@ -180,7 +188,7 @@ function AuthPage() {
           ) : (
             <form onSubmit={handleForgotPassword} className="space-y-3">
               <input type="email" required value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Enter your email" className="w-full h-11 rounded-xl bg-white/[0.04] border border-white/[0.08] px-3 text-sm outline-none focus:border-brand/60 focus:ring-2 focus:ring-white/30" />
-              <button disabled={busy} className="w-full h-11 rounded-xl bg-brand text-primary-foreground font-semibold text-sm hover:bg-brand-glow transition disabled:opacity-60 active:scale-[0.98]">{busy ? "…" : "Send reset link"}</button>
+              <button disabled={busy} className="w-full h-11 rounded-xl bg-brand text-primary-foreground font-semibold text-sm hover:bg-brand-glow transition disabled:opacity-60 active:scale-[0.98]">{busy ? "Sending…" : "Send reset link"}</button>
             </form>
           )
         ) : sent ? (
