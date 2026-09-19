@@ -1,6 +1,7 @@
 import { createServerFn } from '@tanstack/react-start';
 import { createClient } from '@supabase/supabase-js';
 import { Resend } from 'resend';
+import { SITE_CONFIG } from './site';
 
 export const resetPassword = createServerFn()
   .validator((email: string) => email.trim())
@@ -13,13 +14,6 @@ export const resetPassword = createServerFn()
         process.env.VITE_SUPABASE_URL ||
         process.env.NEXT_PUBLIC_SUPABASE_URL;
 
-      console.log('Reset password environment check:', {
-        hasServiceRoleKey: !!serviceRoleKey,
-        hasResendApiKey: !!resendApiKey,
-        hasSupabaseUrl: !!supabaseUrl,
-        supabaseUrl,
-      });
-
       if (!serviceRoleKey || !resendApiKey || !supabaseUrl) {
         console.error('Missing environment variables');
         return { error: 'Server environment variables not configured' };
@@ -28,21 +22,19 @@ export const resetPassword = createServerFn()
       const supabaseAdmin = createClient(supabaseUrl, serviceRoleKey);
       const resend = new Resend(resendApiKey);
 
-      console.log('Generating recovery link for:', email);
       const { data, error } = await supabaseAdmin.auth.admin.generateLink({
         type: 'recovery',
         email,
         options: {
-          redirectTo: 'https://www.courseflix.ca/auth/reset-password',
+          redirectTo: `${SITE_CONFIG.url}/auth/reset-password`,
         },
       });
 
       if (error || !data.properties?.action_link) {
-        console.error('Failed to generate link:', error);
+        console.error('Failed to generate password recovery link');
         return { error: error?.message || 'User not found' };
       }
 
-      console.log('Sending email via Resend to:', email);
       const emailResult = await resend.emails.send({
         from: 'CourseFlix <noreply@courseflix.ca>',
         to: [email],
@@ -57,16 +49,14 @@ export const resetPassword = createServerFn()
         `,
       });
 
-      console.log('Email result:', emailResult);
-
       if (emailResult.error) {
-        console.error('Resend error:', emailResult.error);
+        console.error('Password recovery email failed');
         return { error: emailResult.error.message };
       }
 
       return { success: true };
     } catch (err: unknown) {
-      console.error('Reset password error:', err);
+      console.error('Password recovery request failed');
       return {
         error: err instanceof Error ? err.message : 'Internal Server Error',
       };

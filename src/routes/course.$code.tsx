@@ -4,6 +4,7 @@ import { CourseCard } from "@/components/CourseCard";
 import { RatingSection } from "@/components/RatingSection";
 import { PrereqTree } from "@/components/PrereqTree";
 import { COURSES, getCourse } from "@/lib/courses";
+import { SITE_CONFIG, siteUrl } from "@/lib/site";
 import { useAuth } from "@/hooks/use-auth";
 import { useCourseStats, useShortlist, useToggleShortlist } from "@/lib/ratings";
 import { toast } from "sonner";
@@ -22,11 +23,13 @@ export const Route = createFileRoute("/course/$code")({
       { property: "og:title", content: loaderData ? `${loaderData.course.code} · ${loaderData.course.title}` : "courseflix" },
       { property: "og:description", content: loaderData?.course.description ?? "" },
       { property: "og:type", content: "article" },
-      { property: "og:url", content: loaderData ? `https://courseflix-utm.lovable.app/course/${loaderData.course.code}` : "https://courseflix-utm.lovable.app/" },
+      { property: "og:url", content: loaderData ? siteUrl(`/course/${loaderData.course.code}`) : SITE_CONFIG.url },
+      { property: "og:image", content: SITE_CONFIG.ogImage },
       { name: "twitter:card", content: "summary_large_image" },
+      { name: "twitter:image", content: SITE_CONFIG.ogImage },
     ],
     links: loaderData
-      ? [{ rel: "canonical", href: `https://courseflix-utm.lovable.app/course/${loaderData.course.code}` }]
+      ? [{ rel: "canonical", href: siteUrl(`/course/${loaderData.course.code}`) }]
       : [],
   }),
   notFoundComponent: () => (

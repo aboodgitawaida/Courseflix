@@ -8,6 +8,7 @@ import { FilterChips } from "@/components/FilterChips";
 import { CinematicIntro } from "@/components/CinematicIntro";
 import { getRailsForMajor, getFeaturedForMajor, type FilterId } from "@/lib/courses";
 import { getMajor } from "@/lib/majors";
+import { SITE_CONFIG } from "@/lib/site";
 import { useMajor } from "@/hooks/use-major";
 import { useEffect, useState } from "react";
 
@@ -19,13 +20,15 @@ export const Route = createFileRoute("/")({
       { property: "og:title", content: "Courseflix" },
       { property: "og:description", content: "Browse every UTM course like Netflix. Curated rows, bird courses, ratings and a shareable shortlist." },
       { property: "og:type", content: "website" },
-      { property: "og:site_name", content: "Courseflix" },
-      { property: "og:url", content: "https://courseflix.ca" },
+      { property: "og:site_name", content: SITE_CONFIG.name },
+      { property: "og:url", content: SITE_CONFIG.url },
+      { property: "og:image", content: SITE_CONFIG.ogImage },
       { name: "twitter:card", content: "summary_large_image" },
       { name: "twitter:title", content: "Courseflix" },
       { name: "twitter:description", content: "Browse every UTM course like Netflix. Curated rows, bird courses, ratings and a shareable shortlist." },
+      { name: "twitter:image", content: SITE_CONFIG.ogImage },
     ],
-    links: [{ rel: "canonical", href: "https://courseflix.ca" }],
+    links: [{ rel: "canonical", href: SITE_CONFIG.url }],
   }),
   component: Home,
 });

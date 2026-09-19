@@ -5,10 +5,9 @@ import { Bookmark, Copy, Link2, MessageCircle, Share2, Trash2, Users } from "luc
 import { TopNav } from "@/components/TopNav";
 import { CourseCard } from "@/components/CourseCard";
 import { getCourse } from "@/lib/courses";
+import { SITE_CONFIG, siteUrl } from "@/lib/site";
 import { useAuth } from "@/hooks/use-auth";
 import { useShortlist, useToggleShortlist } from "@/lib/ratings";
-
-const SITE = "https://courseflix-utm.lovable.app";
 
 export const Route = createFileRoute("/list")({
   validateSearch: (s: Record<string, unknown>): { ids?: string } =>
@@ -21,13 +20,17 @@ export const Route = createFileRoute("/list")({
       { property: "og:title", content: "My Shortlist — Courseflix UTM" },
       { property: "og:description", content: "Save UTM courses, share your shortlist, and compare picks with friends." },
       { property: "og:type", content: "website" },
-      { property: "og:url", content: `${SITE}/list` },
+      { property: "og:url", content: siteUrl("/list") },
+      { property: "og:image", content: SITE_CONFIG.ogImage },
       { name: "twitter:card", content: "summary_large_image" },
+      { name: "twitter:image", content: SITE_CONFIG.ogImage },
     ],
-    links: [{ rel: "canonical", href: `${SITE}/list` }],
+    links: [{ rel: "canonical", href: siteUrl("/list") }],
   }),
   component: ListPage,
 });
+
+const SITE = SITE_CONFIG.url;
 
 function ListPage() {
   const { ids } = Route.useSearch();
@@ -73,13 +76,13 @@ function ListPage() {
           <div className="mt-6 flex flex-wrap gap-2">
             <button
               onClick={() => copy(shareUrl, "Shortlist link copied")}
-              className="inline-flex items-center gap-2 rounded-full bg-brand px-5 py-2.5 text-sm font-semibold text-primary-foreground transition hover:bg-brand-glow focus-visible:ring-2 focus-visible:ring-red-600/50"
+              className="inline-flex items-center gap-2 rounded-full bg-brand px-5 py-2.5 text-sm font-semibold text-primary-foreground transition hover:bg-brand-glow focus-visible:ring-2 focus-visible:ring-brand"
             >
               <Share2 className="h-4 w-4" /> Share my shortlist
             </button>
             <button
               onClick={() => copy(shareUrl, "Link copied")}
-              className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-surface-2 px-5 py-2.5 text-sm font-semibold transition hover:border-brand/50 hover:shadow-lg hover:shadow-red-900/20 focus-visible:ring-2 focus-visible:ring-red-600/50"
+              className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-surface-2 px-5 py-2.5 text-sm font-semibold transition hover:border-brand/50 hover:shadow-lg hover:shadow-red-900/10"
             >
               <Link2 className="h-4 w-4" /> Copy link
             </button>
@@ -87,13 +90,13 @@ function ListPage() {
               href={`https://www.reddit.com/r/UTM/submit?title=${encodeURIComponent("My UTM course shortlist")}&text=${encodeURIComponent(shareText)}`}
               target="_blank"
               rel="noreferrer"
-              className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-surface-2 px-5 py-2.5 text-sm font-semibold transition hover:border-brand/50 hover:shadow-lg hover:shadow-red-900/20 focus-visible:ring-2 focus-visible:ring-red-600/50"
+              className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-surface-2 px-5 py-2.5 text-sm font-semibold transition hover:border-brand/50 hover:shadow-lg hover:shadow-red-900/10"
             >
               <MessageCircle className="h-4 w-4" /> Post to r/UTM
             </a>
             <button
               onClick={() => copy(shareText, "Discord-ready list copied")}
-              className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-surface-2 px-5 py-2.5 text-sm font-semibold transition hover:border-brand/50 hover:shadow-lg hover:shadow-red-900/20 focus-visible:ring-2 focus-visible:ring-red-600/50"
+              className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-surface-2 px-5 py-2.5 text-sm font-semibold transition hover:border-brand/50 hover:shadow-lg hover:shadow-red-900/10"
             >
               <Copy className="h-4 w-4" /> Copy for Discord
             </button>
@@ -116,7 +119,7 @@ function ListPage() {
             <Link
               to="/auth"
               search={{ redirect: "/list" }}
-              className="mt-4 inline-flex rounded-full bg-brand px-5 py-2.5 text-sm font-semibold text-primary-foreground hover:bg-brand-glow transition focus-visible:ring-2 focus-visible:ring-red-600/50"
+              className="mt-4 inline-flex rounded-full bg-brand px-5 py-2.5 text-sm font-semibold text-primary-foreground hover:bg-brand-glow transition focus-visible:ring-2 focus-visible:ring-brand"
             >
               Sign in
             </Link>
@@ -129,7 +132,7 @@ function ListPage() {
             <p className="text-sm text-neutral-400 mt-1">
               Hit “Add to shortlist” on any course and it shows up here.
             </p>
-            <Link to="/" className="mt-4 inline-flex rounded-full bg-brand px-5 py-2.5 text-sm font-semibold text-primary-foreground hover:bg-brand-glow transition focus-visible:ring-2 focus-visible:ring-red-600/50">
+            <Link to="/" className="mt-4 inline-flex rounded-full bg-brand px-5 py-2.5 text-sm font-semibold text-primary-foreground hover:bg-brand-glow transition focus-visible:ring-2 focus-visible:ring-brand">
               Browse courses
             </Link>
           </div>
