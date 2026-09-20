@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+'import { createFileRoute } from "@tanstack/react-router";
 import { TopNav } from "@/components/TopNav";
 import { Hero } from "@/components/Hero";
 import { CourseRail } from "@/components/CourseRail";
@@ -26,7 +26,6 @@ export const Route = createFileRoute("/")({
       { name: "twitter:description", content: "Browse every UTM course like Netflix. Curated rows, bird courses, ratings and a shareable shortlist." },
     ],
     links: [
-      { rel: "icon", href: "/favicon.ico?v=2" },
       { rel: "canonical", href: "https://courseflix.ca" },
     ],
   }),
