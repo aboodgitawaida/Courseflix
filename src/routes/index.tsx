@@ -26,7 +26,7 @@ export const Route = createFileRoute("/")({
       { name: "twitter:description", content: "Browse every UTM course like Netflix. Curated rows, bird courses, ratings and a shareable shortlist." },
     ],
     links: [
-      { rel: "icon", href: "/favicon.svg" }, // Add this line (or /favicon.ico depending on your file extension)
+      { rel: "icon", href: "/favicon.ico" },
       { rel: "canonical", href: "https://courseflix.ca" },
     ],
   }),
