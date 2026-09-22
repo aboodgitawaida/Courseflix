@@ -33,7 +33,7 @@ function AuthLayout() {
   return <AuthPage />;
 }
 
-function AuthPage() {
+export function AuthPage() {
   const navigate = useNavigate();
   const search = useSearch({ from: "/auth" });
   const dest = safeAuthRedirect(search.redirect);

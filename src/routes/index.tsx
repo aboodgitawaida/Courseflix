@@ -43,7 +43,7 @@ export const Route = createFileRoute("/")({
   component: Home,
 });
 
-function Home() {
+export function Home() {
   const { major, setMajor, hydrated } = useMajor();
   const currentMajor = getMajor(major);
   const [filter, setFilter] = useState<FilterId>("all");

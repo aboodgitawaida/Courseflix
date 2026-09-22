@@ -35,10 +35,6 @@ without leaking sensitive details.
 
 ### 3. Finish the verification baseline
 
-- [x] Add pure smoke tests for shortlist parsing and rating validation.
-- [x] Add pure smoke tests for authentication return-path safety.
-- [x] Add pure smoke coverage for valid/invalid course lookup and bounded shortlist route input.
-- [ ] Add browser-level smoke tests for home rendering and authenticated/unauthenticated route flows.
 - [ ] Decide whether to resolve the repository's broad legacy Prettier/ESLint baseline. Targeted
       lint for the launch changes passes; full-repository lint still fails on existing formatting.
 - [ ] Run Lighthouse, axe, keyboard-only navigation, 200% zoom, reduced-motion, and screen-reader
@@ -46,18 +42,7 @@ without leaking sensitive details.
 - [ ] Validate the deployed site on narrow mobile, tablet, desktop, slow network, and landscape
       layouts.
 
-### 4. Close remaining error and loading gaps
-
-- [x] Add route-specific error states and retry behavior for ratings, shortlist, friends, and
-      profile query failures.
-- [x] Add panel-level fallbacks so a failed ratings/social/profile query does not look like empty
-      content.
-- [x] Add clear pending behavior for shortlist, friend-request, rating, and profile mutations.
-- [x] Add optimistic shortlist rollback behavior where it improves perceived responsiveness.
-- [x] Add global offline messaging when the browser loses connectivity.
-- [ ] Avoid duplicate error logging between server and client layers.
-
-### 5. Finish accessibility and touch review
+### 4. Finish accessibility and touch review
 
 - [ ] Check contrast for muted text, red-on-dark text, glass controls, and badges.
 - [ ] Verify focus trapping/restoration in the preview modal, command palette, compare drawer, and
@@ -65,14 +50,6 @@ without leaking sensitive details.
 - [ ] Add announcements for shortlist changes, comparison changes, loading completion, result
       counts, and form errors where missing.
 - [ ] Confirm long usernames/program names and sticky `#creator` navigation on physical devices.
-
-### 6. Improve remaining empty states
-
-- [x] Add contextual actions to empty shortlist, friends, notifications, and ratings states.
-- [x] Add a direct action to the command-palette no-results state to return to course browsing.
-- [x] Explain skipped invalid, unavailable, or duplicate courses in shared shortlists.
-- [x] Add missing skeletons for course ratings, friends, settings, notifications, shortlist, and
-      search results.
 
 ## Optional post-launch improvements
 
