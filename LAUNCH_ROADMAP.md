@@ -54,7 +54,7 @@ without leaking sensitive details.
       content.
 - [x] Add clear pending behavior for shortlist, friend-request, rating, and profile mutations.
 - [ ] Add optimistic rollback behavior where it improves perceived responsiveness.
-- [ ] Add offline or degraded-network messaging.
+- [x] Add global offline messaging when the browser loses connectivity.
 - [ ] Avoid duplicate error logging between server and client layers.
 
 ### 5. Finish accessibility and touch review

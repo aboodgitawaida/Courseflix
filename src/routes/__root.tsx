@@ -19,6 +19,7 @@ import { ThemeProvider } from "@/hooks/use-theme";
 import { CommandPalette } from "@/components/CommandPalette";
 import { CoursePreviewModal } from "@/components/CoursePreviewModal";
 import { CompareDrawer } from "@/components/CompareDrawer";
+import { NetworkStatusBanner } from "@/components/NetworkStatusBanner";
 import { supabase } from "@/integrations/supabase/client";
 import { captureFirstTouchAttribution } from "@/lib/attribution";
 
@@ -155,6 +156,7 @@ function RootComponent() {
         <SoundProvider>
           <CourseUIProvider>
             <BrandIntro />
+            <NetworkStatusBanner />
             <Outlet />
             <CommandPalette />
             <CoursePreviewModal />
