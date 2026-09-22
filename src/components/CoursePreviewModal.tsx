@@ -69,7 +69,7 @@ export function CoursePreviewModal() {
               <div className="flex flex-wrap gap-2">
                 <button
                   onClick={onShortlist}
-                  className="inline-flex items-center gap-2 rounded-full bg-brand px-5 py-2.5 text-sm font-semibold text-primary-foreground transition hover:bg-brand-glow"
+                  className="inline-flex items-center gap-2 rounded-full bg-brand px-5 py-2.5 text-sm font-semibold text-primary-foreground transition hover:bg-brand-glow focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70 focus-visible:ring-offset-2 focus-visible:ring-offset-[#121216]"
                 >
                   {inList ? <Check className="h-4 w-4" /> : <Plus className="h-4 w-4" />}
                   {inList ? "In your shortlist" : "Add to Shortlist"}
@@ -79,7 +79,7 @@ export function CoursePreviewModal() {
                     navigator.clipboard?.writeText(course.code);
                     toast.success(`${course.code} copied for ACORN`);
                   }}
-                  className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-5 py-2.5 text-sm font-semibold transition hover:border-brand/50"
+                  className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-5 py-2.5 text-sm font-semibold transition hover:border-brand/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70 focus-visible:ring-offset-2 focus-visible:ring-offset-[#121216]"
                 >
                   <Copy className="h-4 w-4" /> Copy ACORN Code
                 </button>
@@ -129,7 +129,7 @@ export function CoursePreviewModal() {
                   to="/course/$code"
                   params={{ code: course.code }}
                   onClick={closePreview}
-                  className="font-semibold text-brand hover:underline"
+                  className="rounded-sm font-semibold text-brand hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/70"
                 >
                   Full course page →
                 </Link>
@@ -137,7 +137,7 @@ export function CoursePreviewModal() {
                   href={`https://utm.calendar.utoronto.ca/search-courses?course_search=${encodeURIComponent(course.code)}`}
                   target="_blank"
                   rel="noreferrer"
-                  className="inline-flex items-center gap-1 text-muted-foreground hover:text-foreground"
+                  className="inline-flex items-center gap-1 rounded-sm text-muted-foreground hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/70"
                 >
                   Syllabus / calendar entry <ExternalLink className="h-3 w-3" />
                 </a>

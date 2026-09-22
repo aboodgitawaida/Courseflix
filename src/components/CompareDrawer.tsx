@@ -23,7 +23,7 @@ export function CompareDrawer() {
           <h2 className="font-display text-lg font-bold">Compare {courses.length} courses</h2>
           <button
             onClick={clearCompare}
-            className="rounded-full border border-white/15 px-3 py-1 text-xs font-semibold hover:border-brand/50"
+            className="rounded-full border border-white/15 px-3 py-1 text-xs font-semibold hover:border-brand/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/70"
           >
             Clear
           </button>
@@ -36,13 +36,13 @@ export function CompareDrawer() {
                 {courses.map((c) => (
                   <th key={c.code} className="pb-2">
                     <div className="flex items-center gap-2">
-                      <button onClick={() => openPreview(c.code)} className="font-display text-base hover:text-brand">
+                      <button onClick={() => openPreview(c.code)} className="rounded-sm font-display text-base hover:text-brand focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/70">
                         {c.code}
                       </button>
                       <button
                         onClick={() => toggleCompare(c.code)}
                         aria-label={`Remove ${c.code} from comparison`}
-                        className="grid h-5 w-5 place-items-center rounded-full border border-white/15 hover:border-brand/50"
+                        className="grid h-5 w-5 place-items-center rounded-full border border-white/15 hover:border-brand/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/70"
                       >
                         <X className="h-3 w-3" />
                       </button>
