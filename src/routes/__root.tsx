@@ -92,7 +92,9 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "theme-color", content: "#0b0b0b" },
       { property: "og:site_name", content: "Courseflix" },
       { property: "og:type", content: "website" },
+      { property: "og:image", content: "https://courseflix.ca/og-image.svg" },
       { name: "twitter:card", content: "summary_large_image" },
+      { name: "twitter:image", content: "https://courseflix.ca/og-image.svg" },
       { name: "robots", content: "index, follow" },
     ],
     links: [

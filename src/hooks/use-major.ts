@@ -10,12 +10,16 @@ export function useMajor() {
   useEffect(() => {
     try {
       setMajorState(localStorage.getItem(KEY));
-    } catch {}
+    } catch {
+      // Local storage is optional; the picker remains usable in restricted contexts.
+    }
     setHydrated(true);
     const sync = () => {
       try {
         setMajorState(localStorage.getItem(KEY));
-      } catch {}
+      } catch {
+        // Keep the current in-memory preference when storage is unavailable.
+      }
     };
     window.addEventListener(EVENT, sync);
     window.addEventListener("storage", sync);
@@ -31,7 +35,9 @@ export function useMajor() {
       if (id) localStorage.setItem(KEY, id);
       else localStorage.removeItem(KEY);
       window.dispatchEvent(new Event(EVENT));
-    } catch {}
+    } catch {
+      // Keep the current in-memory preference when storage is unavailable.
+    }
   };
 
   return { major, setMajor, hydrated };
