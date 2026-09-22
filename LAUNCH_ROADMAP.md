@@ -35,8 +35,6 @@ without leaking sensitive details.
 
 ### 3. Finish the verification baseline
 
-- [ ] Decide whether to resolve the repository's broad legacy Prettier/ESLint baseline. Targeted
-      lint for the launch changes passes; full-repository lint still fails on existing formatting.
 - [ ] Run Lighthouse, axe, keyboard-only navigation, 200% zoom, reduced-motion, and screen-reader
       checks.
 - [ ] Validate the deployed site on narrow mobile, tablet, desktop, slow network, and landscape
