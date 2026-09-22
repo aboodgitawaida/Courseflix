@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { Check, Search, UserMinus, UserPlus, X } from "lucide-react";
 import { TopNav } from "@/components/TopNav";
@@ -15,6 +15,7 @@ import {
 } from "@/lib/social";
 import { getCourse } from "@/lib/courses";
 import { QueryErrorState } from "@/components/QueryErrorState";
+import { announce } from "@/lib/a11y";
 
 export const Route = createFileRoute("/friends")({
   head: () => ({
@@ -61,6 +62,12 @@ function FriendsPage() {
   const send = useSendFriendRequest();
   const respond = useRespondToRequest();
   const remove = useRemoveFriend();
+
+  useEffect(() => {
+    if (signedIn && !isLoading && !friendshipsError) {
+      announce(`${data?.accepted.length ?? 0} friend${data?.accepted.length === 1 ? "" : "s"} loaded.`);
+    }
+  }, [data?.accepted.length, friendshipsError, isLoading, signedIn]);
 
   const uid = data?.uid ?? null;
   const people = data?.people;

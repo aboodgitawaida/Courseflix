@@ -9,6 +9,7 @@ import { useTheme } from "@/hooks/use-theme";
 import { useSound } from "@/hooks/use-sound";
 import { AVATARS, useProfile, useUpdateProfile } from "@/lib/profile";
 import { MAJORS } from "@/lib/majors";
+import { announce } from "@/lib/a11y";
 
 export const Route = createFileRoute("/settings")({
   head: () => ({ meta: [{ title: "Account & settings — Courseflix UTM" }] }),
@@ -27,6 +28,10 @@ function SettingsPage() {
   const [username, setUsername] = useState("");
   const [majorId, setMajorId] = useState("");
   const [year, setYear] = useState("");
+
+  useEffect(() => {
+    if (signedIn && !isLoading && !profileError && profile) announce("Account settings loaded.");
+  }, [isLoading, profile, profileError, signedIn]);
 
   useEffect(() => {
     if (!user?.id || !profile || initializedUserId.current === user.id) return;
