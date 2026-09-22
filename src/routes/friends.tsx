@@ -151,16 +151,18 @@ function FriendsPage() {
                           {p?.display_name ?? "A student"}
                         </div>
                         <button
+                          disabled={respond.isPending}
                           onClick={() => respond.mutate({ id: r.id, accept: true })}
                           aria-label="Accept request"
-                          className="grid h-8 w-8 place-items-center rounded-full bg-brand text-primary-foreground transition hover:bg-brand-glow"
+                          className="grid h-8 w-8 place-items-center rounded-full bg-brand text-primary-foreground transition hover:bg-brand-glow disabled:cursor-wait disabled:opacity-60"
                         >
                           <Check className="h-4 w-4" />
                         </button>
                         <button
+                          disabled={respond.isPending}
                           onClick={() => respond.mutate({ id: r.id, accept: false })}
                           aria-label="Decline request"
-                          className="grid h-8 w-8 place-items-center rounded-full border border-border/60 transition hover:border-brand/50"
+                          className="grid h-8 w-8 place-items-center rounded-full border border-border/60 transition hover:border-brand/50 disabled:cursor-wait disabled:opacity-60"
                         >
                           <X className="h-4 w-4" />
                         </button>
@@ -199,9 +201,10 @@ function FriendsPage() {
                           <div className="truncate text-xs text-muted-foreground">{p?.username ? `@${p.username}` : ""}</div>
                         </div>
                         <button
+                          disabled={remove.isPending}
                           onClick={() => remove.mutate(r.id)}
                           aria-label={`Remove ${name}`}
-                          className="grid h-8 w-8 place-items-center rounded-full border border-border/60 transition hover:border-brand/50"
+                          className="grid h-8 w-8 place-items-center rounded-full border border-border/60 transition hover:border-brand/50 disabled:cursor-wait disabled:opacity-60"
                         >
                           <UserMinus className="h-4 w-4" />
                         </button>

@@ -52,8 +52,8 @@ without leaking sensitive details.
       profile query failures.
 - [x] Add panel-level fallbacks so a failed ratings/social/profile query does not look like empty
       content.
-- [ ] Add clear pending/rollback behavior for shortlist, friend-request, rating, and profile
-      mutations.
+- [x] Add clear pending behavior for shortlist, friend-request, rating, and profile mutations.
+- [ ] Add optimistic rollback behavior where it improves perceived responsiveness.
 - [ ] Add offline or degraded-network messaging.
 - [ ] Avoid duplicate error logging between server and client layers.
 

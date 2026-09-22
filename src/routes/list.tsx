@@ -166,12 +166,13 @@ function ListPage() {
                 <CourseCard course={c} />
                 {!shared && signedIn && (
                   <button
+                    disabled={toggle.isPending}
                     onClick={async () => {
                       await toggle.mutateAsync({ code: c.code, saved: true });
                       toast.success(`${c.code} removed`);
                     }}
                     aria-label={`Remove ${c.code}`}
-                    className="absolute bottom-3 right-3 z-20 h-9 w-9 rounded-full bg-black/70 border border-white/20 flex items-center justify-center hover:bg-black transition"
+                    className="absolute bottom-3 right-3 z-20 h-9 w-9 rounded-full bg-black/70 border border-white/20 flex items-center justify-center hover:bg-black transition disabled:cursor-wait disabled:opacity-60"
                   >
                     <Trash2 className="h-4 w-4" />
                   </button>
