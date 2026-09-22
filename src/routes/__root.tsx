@@ -8,7 +8,7 @@ import {
   Scripts,
   type ErrorComponentProps,
 } from "@tanstack/react-router";
-import { useEffect, type ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 
 import appCss from "../styles.css?url";
 import { Toaster } from "@/components/ui/sonner";
@@ -22,6 +22,7 @@ import { CompareDrawer } from "@/components/CompareDrawer";
 import { NetworkStatusBanner } from "@/components/NetworkStatusBanner";
 import { supabase } from "@/integrations/supabase/client";
 import { captureFirstTouchAttribution } from "@/lib/attribution";
+import { A11Y_ANNOUNCE_EVENT } from "@/lib/a11y";
 
 function NotFoundComponent() {
   return (
@@ -138,9 +139,19 @@ function RootShell({ children }: { children: ReactNode }) {
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
   const router = useRouter();
+  const [announcement, setAnnouncement] = useState("");
 
   useEffect(() => {
     captureFirstTouchAttribution();
+  }, []);
+
+  useEffect(() => {
+    const onAnnouncement = (event: Event) => {
+      const message = (event as CustomEvent<string>).detail;
+      if (typeof message === "string") setAnnouncement(message);
+    };
+    window.addEventListener(A11Y_ANNOUNCE_EVENT, onAnnouncement);
+    return () => window.removeEventListener(A11Y_ANNOUNCE_EVENT, onAnnouncement);
   }, []);
 
   useEffect(() => {
@@ -159,6 +170,9 @@ function RootComponent() {
           <CourseUIProvider>
             <BrandIntro />
             <NetworkStatusBanner />
+            <p className="sr-only" role="status" aria-live="polite" aria-atomic="true">
+              {announcement}
+            </p>
             <Outlet />
             <CommandPalette />
             <CoursePreviewModal />

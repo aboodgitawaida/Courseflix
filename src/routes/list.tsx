@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useMemo } from "react";
+import { useEffect, useMemo } from "react";
 import { toast } from "sonner";
 import { Bookmark, Copy, Link2, MessageCircle, Share2, Trash2, Users } from "lucide-react";
 import { TopNav } from "@/components/TopNav";
@@ -10,6 +10,7 @@ import { useShortlist, useToggleShortlist } from "@/lib/ratings";
 import { siteUrl } from "@/lib/site";
 import { parseShortlistCodesWithStats, parseShortlistSearch } from "@/lib/validation";
 import { QueryErrorState } from "@/components/QueryErrorState";
+import { announce } from "@/lib/a11y";
 
 export const Route = createFileRoute("/list")({
   validateSearch: parseShortlistSearch,
@@ -53,6 +54,12 @@ function ListPage() {
   >[];
   const shareUrl = siteUrl(`/list?ids=${encodeURIComponent(courses.map((c) => c.code).join(","))}`);
   const shareText = `My UTM course shortlist 👇\n${courses.map((c) => `• ${c.code} — ${c.title}`).join("\n")}\n\n${shareUrl}`;
+
+  useEffect(() => {
+    if (!shared && signedIn && !isLoading && !shortlistError) {
+      announce(`${courses.length} shortlist course${courses.length === 1 ? "" : "s"} loaded.`);
+    }
+  }, [courses.length, isLoading, shared, shortlistError, signedIn]);
 
   function copy(text: string, msg: string) {
     navigator.clipboard?.writeText(text);
