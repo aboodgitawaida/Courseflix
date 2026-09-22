@@ -151,11 +151,10 @@ Specifically test:
 
 **Priority: P0**
 
-**Partially complete.** Environment diagnostics, email-address logging, reset-link logging, provider-result logging, and provider-detail responses were removed from `src/lib/reset-password.ts`. Remaining work:
+**Partially complete.** Environment diagnostics, email-address logging, reset-link logging, provider-result logging, and provider-detail responses were removed from `src/lib/reset-password.ts`. A bounded in-memory throttle, email validation, and redacted structured server logger are now implemented. Remaining work:
 
-1. Replace raw `console.error` calls with a small structured logging abstraction.
-2. Add rate limiting or abuse protection to password reset requests.
-3. Confirm the Supabase service-role key is available only to server-side code in the deployed environment.
+1. Replace the in-memory throttle with durable/distributed rate limiting if password-reset abuse becomes a concern across multiple serverless instances.
+2. Confirm the Supabase service-role key is available only to server-side code in the deployed environment.
 
 ---
 
@@ -185,21 +184,20 @@ Specifically test:
 
 The package scripts currently include development, build, lint, formatting, and preview commands, but no obvious automated test suite.
 
-**Partially complete.** The production build passes. Targeted lint for the launch-safety changes passes, but the full repository lint still has pre-existing errors. Remaining work:
+**Partially complete.** The production build, targeted lint, and new TypeScript typecheck now pass. The full repository lint still has broad pre-existing formatting/generated-code errors. Remaining work:
 
 1. Resolve the existing full-repository lint errors and rerun `npm run lint`.
-2. Add a type-check script if it is not already covered by the build.
-3. Add at least smoke tests for:
+2. Add at least smoke tests for:
    - Home route rendering
    - Course route with valid and invalid codes
    - Authentication redirect handling
    - Shortlist parsing
    - Rating validation
-4. Add an accessibility test pass using:
+3. Add an accessibility test pass using:
    - axe DevTools
    - Lighthouse
    - keyboard-only navigation
-5. Create a release checklist and test against production, not only local development.
+4. Create a release checklist and test against production, not only local development.
 
 ---
 
@@ -488,7 +486,7 @@ The routes already define route-level titles and descriptions, especially:
 
 The next step is making metadata complete and consistent.
 
-**Partially complete.** Route-level titles/descriptions and canonical URL centralization exist, but global defaults, social images, structured data, and a tested branded preview asset do not.
+**Partially complete.** Route-level titles/descriptions, canonical URL centralization, global title/description/robots defaults, and default social metadata now exist. Social images, structured data, and a tested branded preview asset do not.
 
 ### Global metadata
 
