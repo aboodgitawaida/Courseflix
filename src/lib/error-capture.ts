@@ -1,9 +1,31 @@
 
 let lastCapturedError: { error: unknown; at: number } | undefined;
 const TTL_MS = 5_000;
+const seenErrors = new Map<string, number>();
 
 function record(error: unknown) {
-  lastCapturedError = { error, at: Date.now() };
+  const now = Date.now();
+  const key = fingerprint(error);
+
+  const lastSeenAt = seenErrors.get(key);
+  if (lastSeenAt !== undefined && now - lastSeenAt < TTL_MS) {
+    return;
+  }
+
+  seenErrors.set(key, now);
+  lastCapturedError = { error, at: now };
+}
+
+function fingerprint(error: unknown): string {
+  if (error instanceof Error) {
+    return `${error.name}:${error.message}:${error.stack ?? "no-stack"}`;
+  }
+
+  try {
+    return JSON.stringify(error) ?? String(error);
+  } catch {
+    return String(error);
+  }
 }
 
 const CAUSE_DEPTH_LIMIT = 5;
