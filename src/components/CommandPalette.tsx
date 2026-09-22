@@ -41,7 +41,22 @@ export function CommandPalette() {
         placeholder="Search courses, codes, departments or tags — e.g. ANT222H5"
       />
       <CommandList>
-        <CommandEmpty>No courses matched.</CommandEmpty>
+        <CommandEmpty>
+          <div className="space-y-2 px-3 py-2">
+            <p>No courses matched.</p>
+            <button
+              type="button"
+              onClick={() => {
+                setSearchOpen(false);
+                setQ("");
+                window.location.assign("/");
+              }}
+              className="rounded-full border border-brand/40 bg-brand/10 px-3 py-1.5 text-xs font-semibold text-brand transition hover:bg-brand/15"
+            >
+              Browse courses
+            </button>
+          </div>
+        </CommandEmpty>
         <CommandGroup heading={q.trim() ? "Results" : "Popular right now"}>
           {results.map((c) => (
             <CommandItem

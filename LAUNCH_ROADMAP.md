@@ -69,7 +69,7 @@ without leaking sensitive details.
 ### 6. Improve remaining empty states
 
 - [x] Add contextual actions to empty shortlist, friends, notifications, and ratings states.
-- [ ] Add a direct action to the command-palette no-results state if a useful destination emerges.
+- [x] Add a direct action to the command-palette no-results state to return to course browsing.
 - [x] Explain skipped invalid, unavailable, or duplicate courses in shared shortlists.
 - [ ] Add missing skeletons for course ratings, friends, settings, notifications, shortlist, and
       search results.
