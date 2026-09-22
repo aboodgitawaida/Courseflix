@@ -1,5 +1,10 @@
 import { describe, expect, it } from "vitest";
-import { parseShortlistCodes, parseShortlistSearch, validateRatingInput } from "./validation";
+import {
+  parseShortlistCodes,
+  parseShortlistCodesWithStats,
+  parseShortlistSearch,
+  validateRatingInput,
+} from "./validation";
 import { getCourse } from "./courses";
 import { safeAuthRedirect } from "./auth-redirect";
 
@@ -24,6 +29,15 @@ describe("parseShortlistCodes", () => {
   it("keeps only the first 30 known valid codes", () => {
     const raw = Array.from({ length: 35 }, (_, index) => `ABC${String(index).padStart(3, "0")}H5`);
     expect(parseShortlistCodes(raw, () => true)).toHaveLength(30);
+  });
+
+  it("reports skipped duplicate, malformed, and unknown entries", () => {
+    expect(
+      parseShortlistCodesWithStats(
+        ["CSC108H5", "CSC108H5", "invalid", "BIO999H5"],
+        (code) => code !== "BIO999H5",
+      ),
+    ).toEqual({ codes: ["CSC108H5"], skipped: 2 });
   });
 });
 

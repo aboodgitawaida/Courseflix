@@ -32,14 +32,19 @@ export function validateRatingInput(input: RatingValidationInput) {
 }
 
 export function parseShortlistCodes(raw: string[], isKnownCourse: (code: string) => boolean) {
-  return [
-    ...new Set(
-      raw
-        .map((code) => code.trim().toUpperCase())
-        .filter(isValidCourseCode)
-        .filter(isKnownCourse),
-    ),
-  ].slice(0, 30);
+  return parseShortlistCodesWithStats(raw, isKnownCourse).codes;
+}
+
+export function parseShortlistCodesWithStats(
+  raw: string[],
+  isKnownCourse: (code: string) => boolean,
+) {
+  const normalized = [...new Set(raw.map((code) => code.trim().toUpperCase()))];
+  const codes = [...new Set(normalized.filter(isValidCourseCode).filter(isKnownCourse))].slice(
+    0,
+    30,
+  );
+  return { codes, skipped: normalized.length - codes.length };
 }
 
 export function parseShortlistSearch(search: Record<string, unknown>) {

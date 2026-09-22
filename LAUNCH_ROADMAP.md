@@ -70,7 +70,7 @@ without leaking sensitive details.
 
 - [ ] Add contextual actions to empty shortlist, search, friends, notifications, and ratings
       states.
-- [ ] Explain skipped invalid courses in shared shortlists.
+- [x] Explain skipped invalid, unavailable, or duplicate courses in shared shortlists.
 - [ ] Add missing skeletons for course ratings, friends, settings, notifications, shortlist, and
       search results.
 
