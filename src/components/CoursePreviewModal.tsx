@@ -136,7 +136,7 @@ export function CoursePreviewModal() {
                 <a
                   href={`https://utm.calendar.utoronto.ca/search-courses?course_search=${encodeURIComponent(course.code)}`}
                   target="_blank"
-                  rel="noreferrer"
+                  rel="noopener noreferrer"
                   className="inline-flex items-center gap-1 rounded-sm text-muted-foreground hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/70"
                 >
                   Syllabus / calendar entry <ExternalLink className="h-3 w-3" />

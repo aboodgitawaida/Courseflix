@@ -85,18 +85,32 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
   head: () => ({
     meta: [
       { charSet: "utf-8" },
-      { title: "Courseflix — Discover UTM courses like Netflix" },
+      { title: "CourseFlix | Browse & Discover UTM Courses Like Netflix" },
       {
         name: "description",
         content:
-          "Discover UTM courses like Netflix, compare options, save a shortlist, and share your picks with friends.",
+          "Browse every UTM course like Netflix. Pick your major, get curated rows, save a shortlist, and share it with friends.",
       },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
       { name: "theme-color", content: "#0b0b0b" },
+      { property: "og:url", content: "https://courseflix.ca/" },
+      { property: "og:title", content: "CourseFlix | Browse & Discover UTM Courses Like Netflix" },
+      {
+        property: "og:description",
+        content:
+          "Browse every UTM course like Netflix. Pick your major, get curated rows, save a shortlist, and share it with friends.",
+      },
       { property: "og:site_name", content: "Courseflix" },
       { property: "og:type", content: "website" },
       { property: "og:image", content: "https://courseflix.ca/og-image.svg" },
       { name: "twitter:card", content: "summary_large_image" },
+      { name: "twitter:url", content: "https://courseflix.ca/" },
+      { name: "twitter:title", content: "CourseFlix | Browse & Discover UTM Courses Like Netflix" },
+      {
+        name: "twitter:description",
+        content:
+          "Browse every UTM course like Netflix. Pick your major, get curated rows, save a shortlist, and share it with friends.",
+      },
       { name: "twitter:image", content: "https://courseflix.ca/og-image.svg" },
       { name: "robots", content: "index, follow" },
     ],
@@ -114,6 +128,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { rel: "icon", type: "image/png", sizes: "32x32", href: "/favicon-32x32.png?v=1" },
       { rel: "icon", type: "image/x-icon", href: "/favicon.ico?v=8" },
       { rel: "apple-touch-icon", sizes: "180x180", href: "/apple-touch-icon.png?v=1" },
+      { rel: "canonical", href: "https://courseflix.ca/" },
     ],
   }),
   shellComponent: RootShell,

@@ -108,7 +108,7 @@ function ListPage() {
             <a
               href={`https://www.reddit.com/r/UTM/submit?title=${encodeURIComponent("My UTM course shortlist")}&text=${encodeURIComponent(shareText)}`}
               target="_blank"
-              rel="noreferrer"
+              rel="noopener noreferrer"
               className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-surface-2 px-5 py-2.5 text-sm font-semibold transition hover:border-brand/50 hover:shadow-lg hover:shadow-red-900/20 focus-visible:ring-2 focus-visible:ring-red-600/50"
             >
               <MessageCircle className="h-4 w-4" /> Post to r/UTM

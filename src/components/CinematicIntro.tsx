@@ -28,9 +28,9 @@ export function CinematicIntro() {
       <div className="cinematic-ambient pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-red-950/40 via-black to-black" />
 
       <div className="cinematic-logo relative z-10 overflow-hidden">
-        <h1 className="text-4xl font-black tracking-wider text-white drop-shadow-[0_0_30px_rgba(229,9,20,0.6)] md:text-6xl">
+        <div className="text-4xl font-black tracking-wider text-white drop-shadow-[0_0_30px_rgba(229,9,20,0.6)] md:text-6xl">
           COURSEFLIX
-        </h1>
+        </div>
         <div className="cinematic-sheen pointer-events-none absolute inset-y-0 left-0 w-1/2 bg-gradient-to-r from-transparent via-white/35 to-transparent" />
       </div>
 

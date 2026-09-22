@@ -48,9 +48,9 @@ export function BrandIntro() {
       }`}
     >
       <div className="relative">
-        <h1 className="wordmark intro-word font-display text-[15vw] leading-none md:text-[11vw]">
+        <div className="wordmark intro-word font-display text-[15vw] leading-none md:text-[11vw]">
           Courseflix
-        </h1>
+        </div>
         <div className="pointer-events-none absolute inset-0 overflow-hidden">
           <div className="intro-sweep h-full w-1/3 bg-gradient-to-r from-transparent via-white/25 to-transparent" />
         </div>
