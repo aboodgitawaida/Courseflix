@@ -8,6 +8,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { useCourseStats, useShortlist, useToggleShortlist } from "@/lib/ratings";
 import { toast } from "sonner";
 import { ArrowLeft, Plus, Check, Share2, Star, GraduationCap, ExternalLink } from "lucide-react";
+import { siteUrl } from "@/lib/site";
 
 export const Route = createFileRoute("/course/$code")({
   loader: ({ params }) => {
@@ -17,16 +18,28 @@ export const Route = createFileRoute("/course/$code")({
   },
   head: ({ loaderData }) => ({
     meta: [
-      { title: loaderData ? `${loaderData.course.code} — ${loaderData.course.title} · courseflix` : "courseflix" },
+      {
+        title: loaderData
+          ? `${loaderData.course.code} — ${loaderData.course.title} · courseflix`
+          : "courseflix",
+      },
       { name: "description", content: loaderData?.course.description ?? "UTM course details" },
-      { property: "og:title", content: loaderData ? `${loaderData.course.code} · ${loaderData.course.title}` : "courseflix" },
+      {
+        property: "og:title",
+        content: loaderData
+          ? `${loaderData.course.code} · ${loaderData.course.title}`
+          : "courseflix",
+      },
       { property: "og:description", content: loaderData?.course.description ?? "" },
       { property: "og:type", content: "article" },
-      { property: "og:url", content: loaderData ? `https://courseflix-utm.lovable.app/course/${loaderData.course.code}` : "https://courseflix-utm.lovable.app/" },
+      {
+        property: "og:url",
+        content: loaderData ? siteUrl(`/course/${loaderData.course.code}`) : siteUrl(),
+      },
       { name: "twitter:card", content: "summary_large_image" },
     ],
     links: loaderData
-      ? [{ rel: "canonical", href: `https://courseflix-utm.lovable.app/course/${loaderData.course.code}` }]
+      ? [{ rel: "canonical", href: siteUrl(`/course/${loaderData.course.code}`) }]
       : [],
   }),
   notFoundComponent: () => (
@@ -34,7 +47,9 @@ export const Route = createFileRoute("/course/$code")({
       <TopNav />
       <div className="px-10 py-24 text-center">
         <h1 className="font-display text-4xl">Course not found</h1>
-        <Link to="/" className="text-brand mt-4 inline-block">← Back to browse</Link>
+        <Link to="/" className="text-brand mt-4 inline-block">
+          ← Back to browse
+        </Link>
       </div>
     </div>
   ),
@@ -44,7 +59,10 @@ export const Route = createFileRoute("/course/$code")({
 function CoursePage() {
   const { course } = Route.useLoaderData() as { course: import("@/lib/courses").Course };
   const [c1, c2] = course.poster;
-  const related = COURSES.filter((c) => c.area === course.area && c.code !== course.code).slice(0, 6);
+  const related = COURSES.filter((c) => c.area === course.area && c.code !== course.code).slice(
+    0,
+    6,
+  );
 
   const navigate = useNavigate();
   const { signedIn } = useAuth();
@@ -79,17 +97,32 @@ function CoursePage() {
         <div className="absolute inset-0 bg-gradient-to-t from-background via-background/70 to-background/20" />
 
         <div className="relative px-6 md:px-10 pt-8 pb-14 max-w-6xl">
-          <Link to="/" className="inline-flex items-center gap-1.5 text-sm text-white/80 hover:text-white mb-8">
+          <Link
+            to="/"
+            className="inline-flex items-center gap-1.5 text-sm text-white/80 hover:text-white mb-8"
+          >
             <ArrowLeft className="h-4 w-4" /> Browse
           </Link>
-          <div className="text-xs font-semibold tracking-widest text-brand uppercase">{course.area} · {course.credits} credit</div>
-          <h1 className="font-display text-5xl md:text-7xl font-black mt-2 leading-[0.95]">{course.code}</h1>
-          <p className="font-display text-2xl md:text-3xl font-semibold mt-2 text-white/90">{course.title}</p>
-          <p className="mt-4 max-w-2xl text-lg text-white/80">{course.area} · {course.credits} credit{course.credits === 1 ? "" : "s"}{course.hours ? ` · ${course.hours}` : ""}</p>
+          <div className="text-xs font-semibold tracking-widest text-brand uppercase">
+            {course.area} · {course.credits} credit
+          </div>
+          <h1 className="font-display text-5xl md:text-7xl font-black mt-2 leading-[0.95]">
+            {course.code}
+          </h1>
+          <p className="font-display text-2xl md:text-3xl font-semibold mt-2 text-white/90">
+            {course.title}
+          </p>
+          <p className="mt-4 max-w-2xl text-lg text-white/80">
+            {course.area} · {course.credits} credit{course.credits === 1 ? "" : "s"}
+            {course.hours ? ` · ${course.hours}` : ""}
+          </p>
 
           <div className="mt-6 flex flex-wrap gap-2">
             {course.tags.map((t) => (
-              <span key={t} className="text-xs px-2.5 py-1 rounded-full bg-black/40 backdrop-blur border border-white/20 font-medium">
+              <span
+                key={t}
+                className="text-xs px-2.5 py-1 rounded-full bg-black/40 backdrop-blur border border-white/20 font-medium"
+              >
                 {t}
               </span>
             ))}
@@ -118,9 +151,22 @@ function CoursePage() {
 
       <section className="relative z-10 px-6 md:px-10 max-w-6xl -mt-6">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-          <StatCard label="Overall" value={hasReal ? stats!.avg_rating : course.rating} suffix="/5" accent />
-          <StatCard label="Difficulty" value={hasReal ? stats!.avg_difficulty : course.difficulty} suffix="/5" />
-          <StatCard label="Workload" value={hasReal ? stats!.avg_workload : course.workload} suffix="/5" />
+          <StatCard
+            label="Overall"
+            value={hasReal ? stats!.avg_rating : course.rating}
+            suffix="/5"
+            accent
+          />
+          <StatCard
+            label="Difficulty"
+            value={hasReal ? stats!.avg_difficulty : course.difficulty}
+            suffix="/5"
+          />
+          <StatCard
+            label="Workload"
+            value={hasReal ? stats!.avg_workload : course.workload}
+            suffix="/5"
+          />
           <StatCard
             label="Would take again"
             value={hasReal ? stats!.pct_would_take_again : course.wouldTakeAgain}
@@ -144,11 +190,12 @@ function CoursePage() {
           <div>
             <h2 className="font-display text-2xl font-bold mb-3">Prerequisite path</h2>
             <PrereqTree code={course.code} />
-            {course.prereqRaw && <p className="mt-3 text-xs text-muted-foreground">{course.prereqRaw}</p>}
+            {course.prereqRaw && (
+              <p className="mt-3 text-xs text-muted-foreground">{course.prereqRaw}</p>
+            )}
           </div>
 
           <RatingSection code={course.code} />
-
         </div>
 
         <aside className="space-y-6">
@@ -173,7 +220,12 @@ function CoursePage() {
                   </div>
                   <div className="mt-2 flex flex-wrap gap-1">
                     {p.tags.map((t) => (
-                      <span key={t} className="text-[10px] px-1.5 py-0.5 rounded bg-brand/10 text-brand border border-brand/20">{t}</span>
+                      <span
+                        key={t}
+                        className="text-[10px] px-1.5 py-0.5 rounded bg-brand/10 text-brand border border-brand/20"
+                      >
+                        {t}
+                      </span>
                     ))}
                   </div>
                 </div>
@@ -235,7 +287,9 @@ function CoursePage() {
       <section className="mt-16 pb-24">
         <div className="px-6 md:px-10 mb-3">
           <h2 className="font-display text-2xl font-bold">More {course.area} courses</h2>
-          <p className="text-sm text-muted-foreground mt-0.5">Because you're looking at {course.code}</p>
+          <p className="text-sm text-muted-foreground mt-0.5">
+            Because you're looking at {course.code}
+          </p>
         </div>
         <div className="scroll-rail flex gap-4 overflow-x-auto px-6 md:px-10 pb-4 pt-2">
           {related.map((c) => (
@@ -247,11 +301,25 @@ function CoursePage() {
   );
 }
 
-function StatCard({ label, value, suffix, accent }: { label: string; value: number; suffix: string; accent?: boolean }) {
+function StatCard({
+  label,
+  value,
+  suffix,
+  accent,
+}: {
+  label: string;
+  value: number;
+  suffix: string;
+  accent?: boolean;
+}) {
   return (
-    <div className={`rounded-2xl border p-4 ${accent ? "bg-brand/10 border-brand/30" : "bg-surface border-border/40"}`}>
+    <div
+      className={`rounded-2xl border p-4 ${accent ? "bg-brand/10 border-brand/30" : "bg-surface border-border/40"}`}
+    >
       <div className="text-xs uppercase tracking-wider text-muted-foreground">{label}</div>
-      <div className={`font-display text-3xl font-black mt-1 ${accent ? "text-brand" : "text-foreground"}`}>
+      <div
+        className={`font-display text-3xl font-black mt-1 ${accent ? "text-brand" : "text-foreground"}`}
+      >
         {value}
         <span className="text-base font-semibold text-muted-foreground ml-0.5">{suffix}</span>
       </div>

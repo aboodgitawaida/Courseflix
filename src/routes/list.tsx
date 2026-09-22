@@ -7,24 +7,30 @@ import { CourseCard } from "@/components/CourseCard";
 import { getCourse } from "@/lib/courses";
 import { useAuth } from "@/hooks/use-auth";
 import { useShortlist, useToggleShortlist } from "@/lib/ratings";
-
-const SITE = "https://courseflix-utm.lovable.app";
+import { siteUrl } from "@/lib/site";
 
 export const Route = createFileRoute("/list")({
   validateSearch: (s: Record<string, unknown>): { ids?: string } =>
-    typeof s['ids'] === "string" ? { ids: s['ids'] as string } : {},
+    typeof s["ids"] === "string" ? { ids: (s["ids"] as string).slice(0, 300) } : {},
 
   head: () => ({
     meta: [
       { title: "My Short List — Courseflix UTM" },
-      { name: "description", content: "Your saved UTM courses in one place. Share your shortlist link with friends and compare picks before enrolment opens." },
+      {
+        name: "description",
+        content:
+          "Your saved UTM courses in one place. Share your shortlist link with friends and compare picks before enrolment opens.",
+      },
       { property: "og:title", content: "My Shortlist — Courseflix UTM" },
-      { property: "og:description", content: "Save UTM courses, share your shortlist, and compare picks with friends." },
+      {
+        property: "og:description",
+        content: "Save UTM courses, share your shortlist, and compare picks with friends.",
+      },
       { property: "og:type", content: "website" },
-      { property: "og:url", content: `${SITE}/list` },
+      { property: "og:url", content: siteUrl("/list") },
       { name: "twitter:card", content: "summary_large_image" },
     ],
-    links: [{ rel: "canonical", href: `${SITE}/list` }],
+    links: [{ rel: "canonical", href: siteUrl("/list") }],
   }),
   component: ListPage,
 });
@@ -38,11 +44,20 @@ function ListPage() {
   const shared = !!ids;
   const codes = useMemo(() => {
     const raw: string[] = shared ? ids!.split(",") : (saved as string[]);
-    return [...new Set(raw.map((c) => c.trim().toUpperCase()).filter(Boolean))];
+    return [
+      ...new Set(
+        raw
+          .map((c) => c.trim().toUpperCase())
+          .filter((c) => /^[A-Z]{2,4}\d{3}[HY]\d$/.test(c))
+          .filter((c) => Boolean(getCourse(c))),
+      ),
+    ].slice(0, 30);
   }, [shared, ids, saved]);
 
-  const courses = codes.map((c) => getCourse(c)).filter(Boolean) as NonNullable<ReturnType<typeof getCourse>>[];
-  const shareUrl = `${SITE}/list?ids=${courses.map((c) => c.code).join(",")}`;
+  const courses = codes.map((c) => getCourse(c)).filter(Boolean) as NonNullable<
+    ReturnType<typeof getCourse>
+  >[];
+  const shareUrl = siteUrl(`/list?ids=${encodeURIComponent(courses.map((c) => c.code).join(","))}`);
   const shareText = `My UTM course shortlist 👇\n${courses.map((c) => `• ${c.code} — ${c.title}`).join("\n")}\n\n${shareUrl}`;
 
   function copy(text: string, msg: string) {
@@ -103,13 +118,16 @@ function ListPage() {
         <div className="mt-6 flex items-start gap-3 rounded-2xl border border-brand/30 bg-brand/5 p-5 backdrop-blur-md">
           <Users className="h-5 w-5 shrink-0 text-brand" />
           <p className="text-sm text-neutral-500 leading-relaxed">
-            Planning courses with friends? Share your shortlist link to compare schedule overlaps before enrolment opens.
+            Planning courses with friends? Share your shortlist link to compare schedule overlaps
+            before enrolment opens.
           </p>
         </div>
 
         {!shared && !signedIn && (
           <div className="mt-8 rounded-2xl border border-neutral-800 bg-surface p-6">
-            <h2 className="font-display text-2xl text-white font-bold tracking-tight">Sign in to save courses</h2>
+            <h2 className="font-display text-2xl text-white font-bold tracking-tight">
+              Sign in to save courses
+            </h2>
             <p className="text-sm text-neutral-400 mt-1">
               Your shortlist syncs to your account so it's there on any device.
             </p>
@@ -125,11 +143,16 @@ function ListPage() {
 
         {!shared && signedIn && !isLoading && courses.length === 0 && (
           <div className="mt-8 rounded-2xl border border-neutral-800 bg-surface p-6">
-            <h2 className="font-display text-2xl text-white font-bold tracking-tight">Nothing saved yet</h2>
+            <h2 className="font-display text-2xl text-white font-bold tracking-tight">
+              Nothing saved yet
+            </h2>
             <p className="text-sm text-neutral-400 mt-1">
               Hit “Add to shortlist” on any course and it shows up here.
             </p>
-            <Link to="/" className="mt-4 inline-flex rounded-full bg-brand px-5 py-2.5 text-sm font-semibold text-primary-foreground hover:bg-brand-glow transition focus-visible:ring-2 focus-visible:ring-red-600/50">
+            <Link
+              to="/"
+              className="mt-4 inline-flex rounded-full bg-brand px-5 py-2.5 text-sm font-semibold text-primary-foreground hover:bg-brand-glow transition focus-visible:ring-2 focus-visible:ring-red-600/50"
+            >
               Browse courses
             </Link>
           </div>

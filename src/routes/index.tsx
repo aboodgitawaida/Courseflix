@@ -8,6 +8,7 @@ import { FilterChips } from "@/components/FilterChips";
 import { CinematicIntro } from "@/components/CinematicIntro";
 import { getRailsForMajor, getFeaturedForMajor, type FilterId } from "@/lib/courses";
 import { getMajor } from "@/lib/majors";
+import { siteUrl } from "@/lib/site";
 import { useMajor } from "@/hooks/use-major";
 import { useEffect, useState } from "react";
 
@@ -15,19 +16,29 @@ export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
       { title: "Courseflix" },
-      { name: "description", content: "Browse every UTM course like Netflix. Pick your major, get curated rows, save a shortlist and share it with friends." },
+      {
+        name: "description",
+        content:
+          "Browse every UTM course like Netflix. Pick your major, get curated rows, save a shortlist and share it with friends.",
+      },
       { property: "og:title", content: "Courseflix" },
-      { property: "og:description", content: "Browse every UTM course like Netflix. Curated rows, bird courses, ratings and a shareable shortlist." },
+      {
+        property: "og:description",
+        content:
+          "Browse every UTM course like Netflix. Curated rows, bird courses, ratings and a shareable shortlist.",
+      },
       { property: "og:type", content: "website" },
       { property: "og:site_name", content: "Courseflix" },
-      { property: "og:url", content: "https://courseflix.ca" },
+      { property: "og:url", content: siteUrl() },
       { name: "twitter:card", content: "summary_large_image" },
       { name: "twitter:title", content: "Courseflix" },
-      { name: "twitter:description", content: "Browse every UTM course like Netflix. Curated rows, bird courses, ratings and a shareable shortlist." },
+      {
+        name: "twitter:description",
+        content:
+          "Browse every UTM course like Netflix. Curated rows, bird courses, ratings and a shareable shortlist.",
+      },
     ],
-    links: [
-      { rel: "canonical", href: "https://courseflix.ca" },
-    ],
+    links: [{ rel: "canonical", href: siteUrl() }],
   }),
   component: Home,
 });
@@ -76,7 +87,8 @@ function Home() {
                 We're still seeding the full {currentMajor.name} catalog.
               </h3>
               <p className="text-sm text-muted-foreground mt-1 max-w-2xl">
-                A few core courses are in — plus universally-loved breadth picks below so you can still browse.
+                A few core courses are in — plus universally-loved breadth picks below so you can
+                still browse.
               </p>
             </div>
             <button
@@ -104,7 +116,10 @@ function Home() {
 
       <footer className="border-t border-white/[0.08] px-6 md:px-10 py-8 text-xs text-neutral-500 flex flex-wrap gap-2 justify-between">
         <span>Courseflix · unofficial · built by Abood Awaida</span>
-        <span>Course data from the UTM Academic Calendar. Estimated ratings until students rate. Not affiliated with UofT or Netflix.</span>
+        <span>
+          Course data from the UTM Academic Calendar. Estimated ratings until students rate. Not
+          affiliated with UofT or Netflix.
+        </span>
       </footer>
     </div>
   );

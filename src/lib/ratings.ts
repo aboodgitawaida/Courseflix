@@ -78,6 +78,22 @@ export function useSubmitRating(code: string) {
 
   return useMutation({
     mutationFn: async (input: RatingInput) => {
+      if (!/^[A-Z]{2,4}\d{3}[HY]\d$/.test(input.course_code)) {
+        throw new Error("That course code is not valid.");
+      }
+      if (
+        ![input.rating, input.difficulty, input.workload].every(
+          (value) => Number.isInteger(value) && value >= 1 && value <= 5,
+        )
+      ) {
+        throw new Error("Ratings must be whole numbers from 1 to 5.");
+      }
+      if (input.prof_name && input.prof_name.length > 80) {
+        throw new Error("Professor names must be 80 characters or fewer.");
+      }
+      if (input.comment && input.comment.length > 1000) {
+        throw new Error("Comments must be 1,000 characters or fewer.");
+      }
       const { data: auth, error: authError } = await supabase.auth.getUser();
       if (authError) throw new Error(`Authentication failed: ${authError.message}`);
       const userId = auth.user?.id;
