@@ -61,32 +61,21 @@ src/
 
 **Goal:** Remove launch blockers, fix trust-impacting inconsistencies, validate security assumptions, and establish a reliable baseline before visual refinement.
 
-## 1.1 Fix production-domain and metadata inconsistencies
+## 1.1 Finish production metadata and deployment configuration
 
 **Priority: P0**
 
-Several routes use inconsistent domains:
+**Partially complete.** `src/lib/site.ts` now centralizes `https://courseflix.ca`, and the home, course, shortlist, and password-reset paths use it. The following still require verification or implementation:
 
-- `src/routes/index.tsx` uses `https://courseflix.ca`
-- `src/routes/list.tsx` uses `https://courseflix-utm.lovable.app`
-- `src/routes/course.$code.tsx` uses `https://courseflix-utm.lovable.app`
-- Authentication reset redirects to `https://www.courseflix.ca`
-
-### Actions
-
-1. Choose one canonical public domain:
-   - `https://courseflix.ca`, or
-   - `https://www.courseflix.ca`
-2. Create a shared site configuration value rather than hardcoding URLs in routes.
-3. Ensure the canonical domain is used consistently for:
+1. Ensure the canonical domain is used consistently for:
    - `canonical`
    - `og:url`
    - password reset redirects
    - shortlist share URLs
    - OAuth callback URLs
    - sitemap and robots files
-4. Confirm the deployed domain is configured in Supabase Auth redirect settings.
-5. Add an `og:image` and `twitter:image` to the public pages.
+2. Confirm the deployed domain is configured in Supabase Auth redirect settings.
+3. Add an `og:image` and `twitter:image` to the public pages.
 
 ### Why this matters
 
@@ -100,11 +89,11 @@ Domain inconsistency can cause:
 
 ---
 
-## 1.2 Audit Supabase Row Level Security policies
+## 1.2 Complete the Supabase Row Level Security audit
 
 **Priority: P0**
 
-The frontend correctly relies on Supabase for operations such as:
+**Partially complete.** Repository migrations define RLS for profiles, ratings, shortlists, notifications, and the newly added friendships table. The frontend relies on Supabase for:
 
 - Shortlist reads/writes in `src/lib/ratings.ts`
 - Ratings in `src/lib/ratings.ts`
@@ -112,7 +101,7 @@ The frontend correctly relies on Supabase for operations such as:
 - Profile access in `src/lib/profile.ts`
 - Notifications in `src/lib/social.ts`
 
-However, the repository code alone cannot prove that database policies are safe. The application is making broad queries such as:
+The repository alone cannot prove the deployed policies are safe, and the following live tests remain:
 
 - `from("friendships").select("*")`
 - `from("shortlists").select("course_code")`
@@ -142,105 +131,39 @@ Specifically test:
 - A user modifying another person’s rating
 - A user marking another user’s notification as read
 
-### Important implementation concern
-
-`useRespondToRequest()` and `useRemoveFriend()` use only `.eq("id", id)` on the client. This is acceptable only if database policies enforce participant ownership. The client must not be treated as a security boundary.
+`useRespondToRequest()` and `useRemoveFriend()` still use only `.eq("id", id)` on the client. This is acceptable only after the deployed policies are tested; the client must not be treated as a security boundary.
 
 ---
 
-## 1.3 Tighten input validation and query safety
+## 1.3 Finish input validation and query safety
 
 **Priority: P0**
 
-### Areas to audit
-
-#### Profile search
-
-`src/lib/social.ts` builds an `ilike` expression from raw user input:
-
-```text
-.or(`username.ilike.%${q}%,display_name.ilike.%${q}%`)
-```
-
-Actions:
-
-- Escape `%`, `_`, commas, parentheses, and other PostgREST filter characters.
-- Normalize and cap query length.
-- Debounce search input.
-- Consider a server-side search function if more complex filtering is needed.
-- Avoid returning unnecessary profile fields.
-
-#### Ratings
-
-`src/lib/ratings.ts` should validate:
-
-- Rating range
-- Difficulty range
-- Workload range
-- Course code format
-- Professor name length
-- Comment length
-- Empty string normalization
-
-Use shared Zod schemas for both client feedback and server/database boundaries.
+**Partially complete.** Profile-search escaping, query length bounds, rating ranges/lengths/course-code validation, shortlist deduplication/format/count bounds, and generic password-reset responses are implemented. Outstanding work:
 
 #### Settings
 
 `src/routes/settings.tsx` currently normalizes usernames manually. Add explicit validation for:
 
-- Maximum display-name length
-- Username length and allowed characters
-- Valid academic year values
-- Valid major IDs
-- Avatar ID membership in the known avatar list
-
-#### Shared shortlist URLs
-
-`src/routes/list.tsx` accepts comma-separated course IDs from the URL. Add:
-
-- Maximum number of IDs
-- Course-code format validation
-- Duplicate removal
-- Invalid-course handling
-- URL length consideration
-- Clear messaging when some requested courses do not exist
-
-#### Password reset
-
-`src/lib/reset-password.ts` currently returns errors such as `"User not found"`. Use a generic response such as:
-
-> “If an account exists for that email, a reset message has been sent.”
-
-This avoids account enumeration.
+- Validate the normalized display name, username, academic year, major ID, and avatar ID at the mutation boundary rather than relying only on HTML controls.
+- Add a shared schema (Zod is already installed) if validation is expanded across more forms.
+- Add debounce to profile search if live querying becomes noisy.
 
 ---
 
-## 1.4 Remove debugging artifacts and operational leakage
+## 1.4 Finish operational protection for sensitive flows
 
 **Priority: P0**
 
-`src/lib/reset-password.ts` contains production logging for:
+**Partially complete.** Environment diagnostics, email-address logging, reset-link logging, provider-result logging, and provider-detail responses were removed from `src/lib/reset-password.ts`. Remaining work:
 
-- Presence of service-role key
-- Presence of Resend key
-- Supabase URL
-- Email address
-- Generated-link flow
-- Email provider result
-
-Actions:
-
-1. Remove all environment diagnostics from production logs.
-2. Never log email addresses or password-reset details.
-3. Never log service-role configuration values, even indirectly.
-4. Replace raw `console.error` calls with a small structured logging abstraction.
-5. Ensure error responses do not expose provider internals.
-6. Add rate limiting or abuse protection to password reset requests.
-7. Confirm the Supabase service-role key is available only to server-side code.
+1. Replace raw `console.error` calls with a small structured logging abstraction.
+2. Add rate limiting or abuse protection to password reset requests.
+3. Confirm the Supabase service-role key is available only to server-side code in the deployed environment.
 
 ---
 
-## 1.5 Fix obvious launch-visible UX defects
+## 1.5 Fix remaining launch-visible UX defects
 
 **Priority: P1**
 
@@ -248,46 +171,34 @@ Actions:
 
 `src/components/Hero.tsx` renders a “My list” button but does not currently connect it to shortlist behavior.
 
-Actions:
+**Not done.** Actions:
 
 - Make it use the same shortlist mutation as `CourseCard`.
 - Redirect unauthenticated users to authentication with a safe return path.
 - Show saved/unsaved state.
 - Provide a toast or inline confirmation.
 
-### Help copy typo
-
-`src/routes/help.tsx` contains:
-
-> “same day..”
-
-Correct the punctuation and perform a copy review across all public-facing text.
-
 ### Error boundaries
 
-`src/routes/__root.tsx` has a root error component, and server-level fallback handling exists in `src/start.ts` and `src/server.ts`. Improve this by:
+`src/routes/__root.tsx` has a root error component, and server-level fallback handling exists in `src/start.ts` and `src/server.ts`. **Partially complete.** Retry behavior exists in the root error component and the Help page now provides a feedback path. Remaining work:
 
 - Adding route-specific error states where useful
-- Showing a user-friendly error ID or support reference
 - Providing retry behavior for query failures
+- Showing a user-friendly error ID or support reference
 - Avoiding duplicate error logging from both component and server layers
-- Supporting a “Report a problem” link
+- Adding route-specific panel-level fallbacks where useful
 
 ---
 
-## 1.6 Establish a verification baseline
+## 1.6 Complete the verification baseline
 
 **Priority: P1**
 
 The package scripts currently include development, build, lint, formatting, and preview commands, but no obvious automated test suite.
 
-Before further polish:
+**Partially complete.** The production build passes. Targeted lint for the launch-safety changes passes, but the full repository lint still has pre-existing errors. Remaining work:
 
-1. Run:
-   ```bash
-   npm run lint
-   npm run build
-   ```
+1. Resolve the existing full-repository lint errors and rerun `npm run lint`.
 2. Add a type-check script if it is not already covered by the build.
 3. Add at least smoke tests for:
    - Home route rendering
@@ -356,6 +267,8 @@ This will create the “Apple/Google” precision the application currently lack
 
 `src/components/Hero.tsx` already establishes the featured-course experience with gradients, atmospheric glows, typography, and metadata.
 
+**Partially complete.** The visual hero and course-information CTA exist, but the My list action is still disconnected and the remaining motion/accessibility work is outstanding.
+
 Enhancements:
 
 1. Add a more deliberate entrance sequence:
@@ -382,6 +295,8 @@ const animationDelay = Math.random() * 0.2;
 ```
 
 Replace random animation timing with deterministic timing based on rail index. Random render-time animation can cause inconsistent visual output and hydration mismatch risk.
+
+**Not done.** `Math.random()` is still used in `CourseRail.tsx`.
 
 ---
 
@@ -586,6 +501,8 @@ The routes already define route-level titles and descriptions, especially:
 
 The next step is making metadata complete and consistent.
 
+**Partially complete.** Route-level titles/descriptions and canonical URL centralization exist, but global defaults, social images, structured data, and a tested branded preview asset do not.
+
 ### Global metadata
 
 In `src/routes/__root.tsx`, establish:
@@ -789,6 +706,8 @@ and the root client boundary in:
 
 provide a good foundation.
 
+**Partially complete.** Server and root fallback pages exist, and safe-read retries are used in several React Query hooks. The taxonomy, support reference, offline messaging, panel-level fallbacks, and mutation rollback strategy are not implemented.
+
 Add:
 
 1. A consistent error taxonomy:
@@ -841,6 +760,8 @@ The repository README should include:
 
 This helps recruiters evaluate engineering judgment, not just visual polish.
 
+**Partially complete.** `README.md` currently has only a short product description, live link, and deployment test comment; the architecture, setup, environment, security, limitations, screenshots, and project story remain to be documented.
+
 ---
 
 ## 3.6 High-impact, low-effort feature enhancements
@@ -876,6 +797,8 @@ Enhance empty states with contextual actions:
 - No ratings: “Be the first student to rate this course”
 - Invalid shared list: show valid courses and explain skipped entries
 
+**Partially complete.** Basic empty states exist for shortlist, friends, search, and ratings, and invalid shortlist codes are filtered. Contextual actions and an explicit explanation of skipped invalid courses are still missing.
+
 This makes the product feel intentional even when users have no data.
 
 ---
@@ -901,46 +824,44 @@ This directly supports the Reddit, friends, and resume launch goals.
 
 ## First release block
 
-1. Choose and standardize the canonical domain.
-2. Audit Supabase RLS policies.
-3. Remove password-reset logging and account-enumeration responses.
+1. Finish canonical-domain deployment checks, Supabase redirect configuration, and social preview assets.
+2. Complete live multi-account RLS tests.
+3. Add settings validation, password-reset rate limiting, and structured redacted logging.
 4. Fix the Hero “My list” button.
-5. Validate all user inputs and shared shortlist parameters.
-6. Run lint/build/type verification.
-7. Add route-level error and loading states where currently missing.
+5. Resolve full-repository lint failures and add smoke/type/accessibility verification.
+6. Add route-level error and loading states where currently missing.
 
 ## Second release block
 
-8. Centralize SEO, canonical, OG, and Twitter metadata.
-9. Create and wire branded social preview assets.
+7. Complete global SEO defaults and wire branded social preview assets.
 10. Improve mobile navigation and touch interactions.
-11. Replace random animation timing.
+9. Replace random animation timing.
 12. Improve course-card focus, saved states, and mobile controls.
 13. Complete the accessibility audit.
 
 ## Third release block
 
-14. Add UTM capture and privacy-conscious analytics.
+12. Add UTM capture and privacy-conscious analytics.
 15. Optimize shortlist/query usage.
 16. Add onboarding.
 17. Add intelligent empty states.
 18. Improve sharing.
-19. Update the README with architecture and portfolio documentation.
-20. Perform final production QA across mobile, tablet, desktop, slow network, keyboard navigation, and authenticated/unauthenticated flows.
+17. Update the README with architecture and portfolio documentation.
+18. Perform final production QA across mobile, tablet, desktop, slow network, keyboard navigation, and authenticated/unauthenticated flows.
 
 ## Launch acceptance criteria
 
 Before posting publicly, CourseFlix should satisfy:
 
-- One canonical production domain everywhere
-- No debug or sensitive logs
+- One canonical production domain everywhere (code centralized; deployment/config verification remains)
+- No debug or sensitive logs (reset-password diagnostics removed; structured logging audit remains)
 - Verified RLS policies
-- No obvious dead buttons or broken flows
+- No obvious dead buttons or broken flows (Hero “My list” remains a known dead button)
 - Complete OG/Twitter metadata with a tested preview image
 - Mobile navigation usable at narrow widths
 - Keyboard navigation works throughout the core experience
 - Loading, error, and empty states are present
-- Lint and production build pass
+- Lint and production build pass (build and targeted lint pass; full lint does not)
 - Password reset and OAuth redirects work on the production domain
 - UTM attribution is captured and tested
-- README communicates the product and engineering decisions clearly
+- README communicates the product and engineering decisions clearly (currently only a minimal description and live link)
