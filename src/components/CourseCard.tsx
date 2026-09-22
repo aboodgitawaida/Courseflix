@@ -141,8 +141,10 @@ export function CourseCard({ course, size = "md" }: { course: Course; size?: "md
           </button>
           <button
             onClick={onAdd}
+            disabled={toggle.isPending}
             aria-label={`${inList ? "Remove" : "Add"} ${course.code} ${inList ? "from" : "to"} shortlist`}
-            className={`grid h-7 w-7 place-items-center rounded-full border border-white/[0.12] bg-white/[0.08] backdrop-blur-md transition active:scale-[0.95] ${inList ? "bg-brand text-primary-foreground" : "hover:bg-white/[0.12]"}`}
+            aria-busy={toggle.isPending}
+            className={`grid h-7 w-7 place-items-center rounded-full border border-white/[0.12] bg-white/[0.08] backdrop-blur-md transition active:scale-[0.95] disabled:cursor-wait disabled:opacity-60 ${inList ? "bg-brand text-primary-foreground" : "hover:bg-white/[0.12]"}`}
           >
             {inList ? <Check className="h-3.5 w-3.5" /> : <Plus className="h-3.5 w-3.5" />}
           </button>
