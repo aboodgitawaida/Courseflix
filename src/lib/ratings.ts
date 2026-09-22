@@ -146,7 +146,20 @@ export function useToggleShortlist() {
         );
       if (error) throw new Error(`Could not save ${code} to shortlist: ${error.message}`);
     },
-    onSuccess: () => {
+    onMutate: async ({ code, saved }) => {
+      await queryClient.cancelQueries({ queryKey: ["shortlist"] });
+      const previous = queryClient.getQueryData<string[]>(["shortlist"]) ?? [];
+
+      const next = saved ? previous.filter((item) => item !== code) : [...new Set([code, ...previous])];
+      queryClient.setQueryData(["shortlist"], next);
+      return { previous };
+    },
+    onError: (_error, _variables, context) => {
+      if (context?.previous) {
+        queryClient.setQueryData(["shortlist"], context.previous);
+      }
+    },
+    onSettled: () => {
       void queryClient.invalidateQueries({ queryKey: ["shortlist"] });
     },
   });

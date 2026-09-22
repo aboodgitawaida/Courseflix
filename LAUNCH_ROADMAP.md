@@ -53,7 +53,7 @@ without leaking sensitive details.
 - [x] Add panel-level fallbacks so a failed ratings/social/profile query does not look like empty
       content.
 - [x] Add clear pending behavior for shortlist, friend-request, rating, and profile mutations.
-- [ ] Add optimistic rollback behavior where it improves perceived responsiveness.
+- [x] Add optimistic shortlist rollback behavior where it improves perceived responsiveness.
 - [x] Add global offline messaging when the browser loses connectivity.
 - [ ] Avoid duplicate error logging between server and client layers.
 
