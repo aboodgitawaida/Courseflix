@@ -1,10 +1,36 @@
-import { Link } from "@tanstack/react-router";
+import { Link, useNavigate } from "@tanstack/react-router";
 import type { Course } from "@/lib/courses";
 import { Play, Plus, Star } from "lucide-react";
+import { toast } from "sonner";
+import { useAuth } from "@/hooks/use-auth";
+import { useShortlist, useToggleShortlist } from "@/lib/ratings";
 
 export function Hero({ featured, major }: { featured: Course; major: string }) {
   const feat = featured;
   const [c1, c2] = feat.poster;
+  const navigate = useNavigate();
+  const { signedIn } = useAuth();
+  const { data: saved = [] } = useShortlist();
+  const toggle = useToggleShortlist();
+  const inList = saved.includes(feat.code);
+
+  async function onToggleList() {
+    if (!signedIn) {
+      navigate({ to: "/auth", search: { redirect: `/course/${feat.code}` } });
+      return;
+    }
+
+    try {
+      await toggle.mutateAsync({ code: feat.code, saved: inList });
+      toast.success(
+        inList
+          ? `${feat.code} removed from your shortlist`
+          : `${feat.code} added to your shortlist`,
+      );
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Could not update shortlist");
+    }
+  }
 
   return (
     <section className="relative overflow-hidden animate-fade-in-up">
@@ -32,7 +58,9 @@ export function Hero({ featured, major }: { featured: Course; major: string }) {
           {feat.description}
         </p>
         <div className="mt-4 flex items-center gap-4 text-sm text-foreground/80">
-          <span className="flex items-center gap-1 font-semibold"><Star className="h-4 w-4 fill-brand text-brand" /> {feat.rating.toFixed(1)}</span>
+          <span className="flex items-center gap-1 font-semibold">
+            <Star className="h-4 w-4 fill-brand text-brand" /> {feat.rating.toFixed(1)}
+          </span>
           <span>·</span>
           <span>{feat.wouldTakeAgain}% would retake</span>
           <span>·</span>
@@ -46,8 +74,13 @@ export function Hero({ featured, major }: { featured: Course; major: string }) {
           >
             <Play className="h-4 w-4 fill-current" /> Course info
           </Link>
-          <button className="inline-flex items-center gap-2 rounded-full bg-surface/80 backdrop-blur border border-white/[0.12] px-6 py-3 font-semibold text-sm hover:bg-surface-2 transition focus-visible:ring-2 focus-visible:ring-white/30 active:scale-[0.98]">
-            <Plus className="h-4 w-4" /> My list
+          <button
+            onClick={() => void onToggleList()}
+            disabled={toggle.isPending}
+            aria-pressed={inList}
+            className="inline-flex items-center gap-2 rounded-full bg-surface/80 backdrop-blur border border-white/[0.12] px-6 py-3 font-semibold text-sm hover:bg-surface-2 transition focus-visible:ring-2 focus-visible:ring-white/30 active:scale-[0.98] disabled:opacity-60"
+          >
+            <Plus className="h-4 w-4" /> {inList ? "In my list" : "My list"}
           </button>
         </div>
       </div>
