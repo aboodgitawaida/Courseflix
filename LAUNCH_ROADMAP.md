@@ -809,20 +809,17 @@ This directly supports the Reddit, friends, and resume launch goals.
 ## Second release block
 
 7. Complete global SEO defaults and wire branded social preview assets.
-8. Improve mobile navigation and touch interactions.
-9. Replace random animation timing.
-10. Improve course-card focus, saved states, and mobile controls.
-11. Complete the accessibility audit.
+8. Improve course-card focus, saved states, and mobile controls.
+9. Complete the accessibility audit.
 
 ## Third release block
 
-12. Add UTM capture and privacy-conscious analytics.
-13. Optimize shortlist/query usage.
-14. Add onboarding.
-15. Add intelligent empty states.
-16. Improve sharing.
-17. Update the README with architecture and portfolio documentation.
-18. Perform final production QA across mobile, tablet, desktop, slow network, keyboard navigation, and authenticated/unauthenticated flows.
+10. Optimize shortlist/query usage.
+11. Add onboarding.
+12. Add intelligent empty states.
+13. Improve sharing.
+14. Update the README with architecture and portfolio documentation.
+15. Perform final production QA across mobile, tablet, desktop, slow network, keyboard navigation, and authenticated/unauthenticated flows.
 
 ## Launch acceptance criteria
 
@@ -833,10 +830,10 @@ Before posting publicly, CourseFlix should satisfy:
 - Verified RLS policies
 - No obvious dead buttons or broken flows
 - Complete OG/Twitter metadata with a tested preview image
-- Mobile navigation usable at narrow widths
+- Mobile navigation usable at narrow widths (implemented; physical-device validation remains)
 - Keyboard navigation works throughout the core experience
 - Loading, error, and empty states are present
 - Lint and production build pass (build and targeted lint pass; full lint does not)
 - Password reset and OAuth redirects work on the production domain
-- UTM attribution is captured and tested
+- UTM attribution is captured in code (deployed-link validation remains)
 - README communicates the product and engineering decisions clearly (currently only a minimal description and live link)
