@@ -11,7 +11,7 @@ that require access to the deployed Vercel/Supabase environments.
 - [ ] Confirm Vercel environment variables are present and use the production Supabase project.
 - [ ] Confirm `https://courseflix.ca` is configured as the Supabase site URL and redirect URL.
 - [ ] Verify OAuth callback and password-reset redirects on the deployed build.
-- [ ] Verify canonical URLs, social previews, and the `/og-image.svg` asset on production.
+- [ ] Verify canonical URLs, social previews, and the `/og-image.png` asset on production.
 
 ### 2. Complete the live Supabase RLS test matrix
 
