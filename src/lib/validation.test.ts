@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { parseShortlistCodes, validateRatingInput } from "./validation";
+import { parseShortlistCodes, parseShortlistSearch, validateRatingInput } from "./validation";
+import { getCourse } from "./courses";
 import { safeAuthRedirect } from "./auth-redirect";
 
 const validRating = {
@@ -23,6 +24,18 @@ describe("parseShortlistCodes", () => {
   it("keeps only the first 30 known valid codes", () => {
     const raw = Array.from({ length: 35 }, (_, index) => `ABC${String(index).padStart(3, "0")}H5`);
     expect(parseShortlistCodes(raw, () => true)).toHaveLength(30);
+  });
+});
+
+describe("course and shortlist route inputs", () => {
+  it("accepts known courses and rejects unknown course routes", () => {
+    expect(getCourse("CSC108H5")?.code).toBe("CSC108H5");
+    expect(getCourse("NOT999H5")).toBeUndefined();
+  });
+
+  it("bounds shortlist query input and drops non-string values", () => {
+    expect(parseShortlistSearch({ ids: "x".repeat(400) }).ids).toHaveLength(300);
+    expect(parseShortlistSearch({ ids: 123 })).toEqual({});
   });
 });
 
