@@ -1,5 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { z } from "zod";
 import { supabase } from "@/integrations/supabase/client";
+import { MAJORS } from "@/lib/majors";
 import hmalc from "@/assets/avatars/hmalc.png";
 import cntower from "@/assets/avatars/cntower.png";
 import squirrel from "@/assets/avatars/squirrel.png";
@@ -26,9 +28,33 @@ export const AVATARS = [
   { id: "coffee", label: "8am Lecture Coffee", src: coffee },
 ] as const;
 
-export const avatarSrc = (id: string | null | undefined) => AVATARS.find((a) => a.id === id)?.src ?? hmalc;
+export const avatarSrc = (id: string | null | undefined) =>
+  AVATARS.find((a) => a.id === id)?.src ?? hmalc;
 
 const PROFILE_COLUMNS = "id, display_name, username, avatar_id, major_id, year, is_private";
+
+const profilePatchSchema = z
+  .object({
+    display_name: z.string().trim().min(1).max(40).optional(),
+    username: z
+      .string()
+      .trim()
+      .regex(
+        /^[a-z0-9_.]{3,24}$/,
+        "Usernames must be 3–24 characters using letters, numbers, underscores, or periods.",
+      )
+      .nullable()
+      .optional(),
+    avatar_id: z.enum(AVATARS.map((avatar) => avatar.id) as [string, ...string[]]).optional(),
+    major_id: z
+      .string()
+      .refine((id) => MAJORS.some((major) => major.id === id), "That program is not recognized.")
+      .nullable()
+      .optional(),
+    year: z.number().int().min(1).max(5).nullable().optional(),
+    is_private: z.boolean().optional(),
+  })
+  .strict();
 
 export function useProfile(userId?: string) {
   return useQuery({
@@ -41,7 +67,11 @@ export function useProfile(userId?: string) {
       const uid = authData.user?.id;
       if (!uid) return null;
 
-      const { data, error } = await supabase.from("profiles").select(PROFILE_COLUMNS).eq("id", uid).maybeSingle();
+      const { data, error } = await supabase
+        .from("profiles")
+        .select(PROFILE_COLUMNS)
+        .eq("id", uid)
+        .maybeSingle();
       if (error) throw error;
       if (data) return data as Profile;
 
@@ -49,7 +79,10 @@ export function useProfile(userId?: string) {
         .from("profiles")
         .insert({
           id: uid,
-          display_name: authData.user.user_metadata?.display_name ?? authData.user.email?.split("@")[0] ?? "UTM student",
+          display_name:
+            authData.user.user_metadata?.display_name ??
+            authData.user.email?.split("@")[0] ??
+            "UTM student",
           avatar_id: "hmalc",
           is_private: false,
         })
@@ -65,6 +98,7 @@ export function useUpdateProfile() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: async (patch: Partial<Omit<Profile, "id">>) => {
+      const validatedPatch = profilePatchSchema.parse(patch);
       const { data: auth } = await supabase.auth.getUser();
       const uid = auth.user?.id;
       if (!uid) throw new Error("You need to sign in first.");
@@ -73,7 +107,7 @@ export function useUpdateProfile() {
       // overwrite the saved name/avatar/privacy whenever another field changed.
       const { data, error } = await supabase
         .from("profiles")
-        .update(patch)
+        .update(validatedPatch)
         .eq("id", uid)
         .select(PROFILE_COLUMNS)
         .maybeSingle();
@@ -90,10 +124,13 @@ export function useUpdateProfile() {
         .from("profiles")
         .insert({
           id: uid,
-          display_name: auth.user.user_metadata?.display_name ?? auth.user.email?.split("@")[0] ?? "UTM student",
+          display_name:
+            auth.user.user_metadata?.display_name ??
+            auth.user.email?.split("@")[0] ??
+            "UTM student",
           avatar_id: "hmalc",
           is_private: false,
-          ...patch,
+          ...validatedPatch,
         })
         .select(PROFILE_COLUMNS)
         .single();
