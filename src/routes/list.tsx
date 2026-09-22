@@ -8,6 +8,7 @@ import { getCourse } from "@/lib/courses";
 import { useAuth } from "@/hooks/use-auth";
 import { useShortlist, useToggleShortlist } from "@/lib/ratings";
 import { siteUrl } from "@/lib/site";
+import { parseShortlistCodes } from "@/lib/validation";
 
 export const Route = createFileRoute("/list")({
   validateSearch: (s: Record<string, unknown>): { ids?: string } =>
@@ -44,14 +45,7 @@ function ListPage() {
   const shared = !!ids;
   const codes = useMemo(() => {
     const raw: string[] = shared ? ids!.split(",") : (saved as string[]);
-    return [
-      ...new Set(
-        raw
-          .map((c) => c.trim().toUpperCase())
-          .filter((c) => /^[A-Z]{2,4}\d{3}[HY]\d$/.test(c))
-          .filter((c) => Boolean(getCourse(c))),
-      ),
-    ].slice(0, 30);
+    return parseShortlistCodes(raw, (code) => Boolean(getCourse(code)));
   }, [shared, ids, saved]);
 
   const courses = codes.map((c) => getCourse(c)).filter(Boolean) as NonNullable<

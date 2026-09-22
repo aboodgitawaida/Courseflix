@@ -35,8 +35,8 @@ without leaking sensitive details.
 
 ### 3. Finish the verification baseline
 
-- [ ] Add smoke tests for home rendering, valid/invalid course routes, auth redirects, shortlist
-      parsing, and rating validation.
+- [x] Add pure smoke tests for shortlist parsing and rating validation.
+- [ ] Add route-level smoke tests for home rendering, valid/invalid course routes, and auth redirects.
 - [ ] Decide whether to resolve the repository's broad legacy Prettier/ESLint baseline. Targeted
       lint for the launch changes passes; full-repository lint still fails on existing formatting.
 - [ ] Run Lighthouse, axe, keyboard-only navigation, 200% zoom, reduced-motion, and screen-reader
