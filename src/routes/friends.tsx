@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { toast } from "sonner";
 import { Check, Search, UserMinus, UserPlus, X } from "lucide-react";
 import { TopNav } from "@/components/TopNav";
@@ -55,6 +55,7 @@ function FriendShortlist({ userId, name }: { userId: string; name: string }) {
 function FriendsPage() {
   const { signedIn } = useAuth();
   const [query, setQuery] = useState("");
+  const searchRef = useRef<HTMLInputElement>(null);
   const { data, isLoading, error: friendshipsError, refetch } = useFriendships();
   const { data: results = [], isFetching } = useProfileSearch(query);
   const send = useSendFriendRequest();
@@ -102,6 +103,7 @@ function FriendsPage() {
             <div className="mt-6 flex items-center gap-2 rounded-full border border-border/60 bg-surface-2 px-4">
               <Search className="h-4 w-4 text-muted-foreground" />
               <input
+                ref={searchRef}
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 placeholder="Search by username or name…"
@@ -185,7 +187,16 @@ function FriendsPage() {
               )}
               {isLoading && <p className="mt-2 text-xs text-muted-foreground">Loading…</p>}
               {!isLoading && (data?.accepted.length ?? 0) === 0 && (
-                <p className="mt-2 text-sm text-muted-foreground">No friends yet — search a username above.</p>
+                <div className="mt-2 flex flex-wrap items-center gap-3">
+                  <p className="text-sm text-muted-foreground">No friends yet — find a classmate to get started.</p>
+                  <button
+                    type="button"
+                    onClick={() => searchRef.current?.focus()}
+                    className="text-xs font-semibold text-brand underline underline-offset-4"
+                  >
+                    Search students
+                  </button>
+                </div>
               )}
               <div className="mt-3 space-y-3">
                 {data?.accepted.map((r) => {
