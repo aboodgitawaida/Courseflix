@@ -7,9 +7,16 @@ export const Route = createFileRoute("/help")({
   head: () => ({
     meta: [
       { title: "Help centre — Courseflix UTM" },
-      { name: "description", content: "Questions about Courseflix ratings, shortlists, privacy or friends? Read the basics or email the creator directly." },
+      {
+        name: "description",
+        content:
+          "Questions about Courseflix ratings, shortlists, privacy or friends? Read the basics or email the creator directly.",
+      },
       { property: "og:title", content: "Help centre — Courseflix UTM" },
-      { property: "og:description", content: "How Courseflix ratings, shortlists and privacy work, plus how to get in touch." },
+      {
+        property: "og:description",
+        content: "How Courseflix ratings, shortlists and privacy work, plus how to get in touch.",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
     ],
@@ -56,13 +63,14 @@ function HelpPage() {
         <section className="mt-8 rounded-2xl border border-brand/30 bg-brand/5 p-6">
           <h2 className="font-display text-2xl">Still stuck?</h2>
           <p className="mt-1 text-sm text-muted-foreground">
-            Email the creator, Abood Awaida, and you'll usually get a reply the same day..
+            Found a bug, missing course, inaccurate estimate, or confusing screen? Email the
+            creator, Abood Awaida, and include what you expected to happen.
           </p>
           <a
-            href={`mailto:${CREATOR_EMAIL}?subject=${encodeURIComponent("Courseflix support")}`}
+            href={`mailto:${CREATOR_EMAIL}?subject=${encodeURIComponent("Courseflix launch feedback")}`}
             className="mt-4 inline-flex items-center gap-2 rounded-full bg-brand px-5 py-2.5 text-sm font-semibold text-primary-foreground transition hover:bg-brand-glow"
           >
-            <Mail className="h-4 w-4" /> {CREATOR_EMAIL}
+            <Mail className="h-4 w-4" /> Send launch feedback
           </a>
         </section>
 
@@ -86,16 +94,34 @@ function HelpPage() {
         </section>
 
         <div className="mt-8 flex flex-wrap gap-3 text-sm">
-          <a href={UTM_LINKS.calendar} target="_blank" rel="noreferrer" className="rounded-full border border-border/60 bg-surface-2 px-4 py-2 font-semibold transition hover:border-brand/50">
+          <a
+            href={UTM_LINKS.calendar}
+            target="_blank"
+            rel="noreferrer"
+            className="rounded-full border border-border/60 bg-surface-2 px-4 py-2 font-semibold transition hover:border-brand/50"
+          >
             UTM Academic Calendar
           </a>
-          <a href={UTM_LINKS.timetable} target="_blank" rel="noreferrer" className="rounded-full border border-border/60 bg-surface-2 px-4 py-2 font-semibold transition hover:border-brand/50">
+          <a
+            href={UTM_LINKS.timetable}
+            target="_blank"
+            rel="noreferrer"
+            className="rounded-full border border-border/60 bg-surface-2 px-4 py-2 font-semibold transition hover:border-brand/50"
+          >
             Timetable Builder
           </a>
-          <a href={UTM_LINKS.reddit} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 rounded-full border border-border/60 bg-surface-2 px-4 py-2 font-semibold transition hover:border-brand/50">
+          <a
+            href={UTM_LINKS.reddit}
+            target="_blank"
+            rel="noreferrer"
+            className="inline-flex items-center gap-2 rounded-full border border-border/60 bg-surface-2 px-4 py-2 font-semibold transition hover:border-brand/50"
+          >
             <MessageCircle className="h-4 w-4" /> r/UTM
           </a>
-          <Link to="/" className="rounded-full border border-border/60 bg-surface-2 px-4 py-2 font-semibold transition hover:border-brand/50">
+          <Link
+            to="/"
+            className="rounded-full border border-border/60 bg-surface-2 px-4 py-2 font-semibold transition hover:border-brand/50"
+          >
             Back to browsing
           </Link>
         </div>

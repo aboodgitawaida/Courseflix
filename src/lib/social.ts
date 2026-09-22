@@ -78,11 +78,12 @@ export function useFriendships() {
 }
 
 export function useProfileSearch(query: string) {
+  const normalizedQuery = query.trim().slice(0, 80);
   return useQuery({
-    queryKey: ["profile-search", query],
-    enabled: query.trim().length >= 2,
+    queryKey: ["profile-search", normalizedQuery],
+    enabled: normalizedQuery.length >= 2,
     queryFn: async () => {
-      const q = query.trim();
+      const q = normalizedQuery.replace(/[\\%_,()]/g, "\\$&");
       const { data, error } = await supabase
         .from("profiles")
         .select("id, display_name, username, avatar_id, major_id, year, is_private")
@@ -185,7 +186,9 @@ export function useNotifications() {
 
       const rows = (data ?? []) as NotificationRow[];
       const people = await profilesByIds([
-        ...new Set(rows.map((row) => row.actor_id).filter((value): value is string => Boolean(value))),
+        ...new Set(
+          rows.map((row) => row.actor_id).filter((value): value is string => Boolean(value)),
+        ),
       ]);
       return { rows, people };
     },

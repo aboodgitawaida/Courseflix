@@ -1,6 +1,7 @@
-import { createServerFn } from '@tanstack/react-start';
-import { createClient } from '@supabase/supabase-js';
-import { Resend } from 'resend';
+import { createServerFn } from "@tanstack/react-start";
+import { createClient } from "@supabase/supabase-js";
+import { Resend } from "resend";
+import { SITE_URL } from "./site";
 
 export const resetPassword = createServerFn()
   .validator((email: string) => email.trim())
@@ -13,40 +14,31 @@ export const resetPassword = createServerFn()
         process.env.VITE_SUPABASE_URL ||
         process.env.NEXT_PUBLIC_SUPABASE_URL;
 
-      console.log('Reset password environment check:', {
-        hasServiceRoleKey: !!serviceRoleKey,
-        hasResendApiKey: !!resendApiKey,
-        hasSupabaseUrl: !!supabaseUrl,
-        supabaseUrl,
-      });
-
       if (!serviceRoleKey || !resendApiKey || !supabaseUrl) {
-        console.error('Missing environment variables');
-        return { error: 'Server environment variables not configured' };
+        console.error("Missing environment variables");
+        return { error: "Password reset is temporarily unavailable. Please try again later." };
       }
 
       const supabaseAdmin = createClient(supabaseUrl, serviceRoleKey);
       const resend = new Resend(resendApiKey);
 
-      console.log('Generating recovery link for:', email);
       const { data, error } = await supabaseAdmin.auth.admin.generateLink({
-        type: 'recovery',
+        type: "recovery",
         email,
         options: {
-          redirectTo: 'https://www.courseflix.ca/auth/reset-password',
+          redirectTo: `${SITE_URL}/auth/reset-password`,
         },
       });
 
       if (error || !data.properties?.action_link) {
-        console.error('Failed to generate link:', error);
-        return { error: error?.message || 'User not found' };
+        console.error("Failed to generate password reset link:", error);
+        return { error: "If an account exists for that email, a reset message has been sent." };
       }
 
-      console.log('Sending email via Resend to:', email);
       const emailResult = await resend.emails.send({
-        from: 'CourseFlix <noreply@courseflix.ca>',
+        from: "CourseFlix <noreply@courseflix.ca>",
         to: [email],
-        subject: 'Reset your CourseFlix password',
+        subject: "Reset your CourseFlix password",
         html: `
           <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
             <h2>Reset Your Password</h2>
@@ -57,18 +49,16 @@ export const resetPassword = createServerFn()
         `,
       });
 
-      console.log('Email result:', emailResult);
-
       if (emailResult.error) {
-        console.error('Resend error:', emailResult.error);
-        return { error: emailResult.error.message };
+        console.error("Resend error:", emailResult.error);
+        return { error: "Password reset is temporarily unavailable. Please try again later." };
       }
 
       return { success: true };
     } catch (err: unknown) {
-      console.error('Reset password error:', err);
+      console.error("Reset password error:", err);
       return {
-        error: err instanceof Error ? err.message : 'Internal Server Error',
+        error: "Password reset is temporarily unavailable. Please try again later.",
       };
     }
   });
