@@ -20,6 +20,7 @@ import { CommandPalette } from "@/components/CommandPalette";
 import { CoursePreviewModal } from "@/components/CoursePreviewModal";
 import { CompareDrawer } from "@/components/CompareDrawer";
 import { supabase } from "@/integrations/supabase/client";
+import { captureFirstTouchAttribution } from "@/lib/attribution";
 
 function NotFoundComponent() {
   return (
@@ -134,6 +135,10 @@ function RootShell({ children }: { children: ReactNode }) {
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
   const router = useRouter();
+
+  useEffect(() => {
+    captureFirstTouchAttribution();
+  }, []);
 
   useEffect(() => {
     const { data: sub } = supabase.auth.onAuthStateChange((event) => {
