@@ -41,3 +41,7 @@ export function parseShortlistCodes(raw: string[], isKnownCourse: (code: string)
     ),
   ].slice(0, 30);
 }
+
+export function parseShortlistSearch(search: Record<string, unknown>) {
+  return typeof search["ids"] === "string" ? { ids: search["ids"].slice(0, 300) } : {};
+}

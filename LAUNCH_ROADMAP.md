@@ -37,7 +37,8 @@ without leaking sensitive details.
 
 - [x] Add pure smoke tests for shortlist parsing and rating validation.
 - [x] Add pure smoke tests for authentication return-path safety.
-- [ ] Add route-level smoke tests for home rendering, valid/invalid course routes, and auth redirects.
+- [x] Add pure smoke coverage for valid/invalid course lookup and bounded shortlist route input.
+- [ ] Add browser-level smoke tests for home rendering and authenticated/unauthenticated route flows.
 - [ ] Decide whether to resolve the repository's broad legacy Prettier/ESLint baseline. Targeted
       lint for the launch changes passes; full-repository lint still fails on existing formatting.
 - [ ] Run Lighthouse, axe, keyboard-only navigation, 200% zoom, reduced-motion, and screen-reader

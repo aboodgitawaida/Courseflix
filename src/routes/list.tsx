@@ -8,11 +8,10 @@ import { getCourse } from "@/lib/courses";
 import { useAuth } from "@/hooks/use-auth";
 import { useShortlist, useToggleShortlist } from "@/lib/ratings";
 import { siteUrl } from "@/lib/site";
-import { parseShortlistCodes } from "@/lib/validation";
+import { parseShortlistCodes, parseShortlistSearch } from "@/lib/validation";
 
 export const Route = createFileRoute("/list")({
-  validateSearch: (s: Record<string, unknown>): { ids?: string } =>
-    typeof s["ids"] === "string" ? { ids: (s["ids"] as string).slice(0, 300) } : {},
+  validateSearch: parseShortlistSearch,
 
   head: () => ({
     meta: [
