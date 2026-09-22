@@ -9,6 +9,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { useShortlist, useToggleShortlist } from "@/lib/ratings";
 import { siteUrl } from "@/lib/site";
 import { parseShortlistCodes, parseShortlistSearch } from "@/lib/validation";
+import { QueryErrorState } from "@/components/QueryErrorState";
 
 export const Route = createFileRoute("/list")({
   validateSearch: parseShortlistSearch,
@@ -38,7 +39,7 @@ export const Route = createFileRoute("/list")({
 function ListPage() {
   const { ids } = Route.useSearch();
   const { signedIn } = useAuth();
-  const { data: saved = [], isLoading } = useShortlist();
+  const { data: saved = [], isLoading, error: shortlistError, refetch } = useShortlist();
   const toggle = useToggleShortlist();
 
   const shared = !!ids;
@@ -135,6 +136,12 @@ function ListPage() {
         )}
 
         {!shared && signedIn && !isLoading && courses.length === 0 && (
+          shortlistError ? (
+            <QueryErrorState
+              message="Could not load your shortlist."
+              onRetry={() => void refetch()}
+            />
+          ) : (
           <div className="mt-8 rounded-2xl border border-neutral-800 bg-surface p-6">
             <h2 className="font-display text-2xl text-white font-bold tracking-tight">
               Nothing saved yet
@@ -149,6 +156,7 @@ function ListPage() {
               Browse courses
             </Link>
           </div>
+          )
         )}
 
         {courses.length > 0 && (

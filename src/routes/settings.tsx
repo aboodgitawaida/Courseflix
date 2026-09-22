@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { Check, Lock, Unlock } from "lucide-react";
 import { TopNav } from "@/components/TopNav";
+import { QueryErrorState } from "@/components/QueryErrorState";
 import { useAuth } from "@/hooks/use-auth";
 import { useTheme } from "@/hooks/use-theme";
 import { useSound } from "@/hooks/use-sound";
@@ -16,7 +17,7 @@ export const Route = createFileRoute("/settings")({
 
 function SettingsPage() {
   const { signedIn, user } = useAuth();
-  const { data: profile, isLoading, error: profileError } = useProfile(user?.id);
+  const { data: profile, isLoading, error: profileError, refetch } = useProfile(user?.id);
   const update = useUpdateProfile();
   const { theme, toggleTheme } = useTheme();
   const { muted, toggleMuted, play } = useSound();
@@ -104,8 +105,11 @@ function SettingsPage() {
         )}
 
         {signedIn && profileError && (
-          <div className="mt-8 rounded-2xl border border-destructive/40 bg-destructive/10 p-5 text-sm text-destructive">
-            Could not load your profile. {profileError instanceof Error ? profileError.message : "Please refresh and try again."}
+          <div className="mt-8">
+            <QueryErrorState
+              message="Could not load your profile."
+              onRetry={() => void refetch()}
+            />
           </div>
         )}
 
