@@ -1,4 +1,5 @@
 import { createContext, useContext, useMemo, useState, type ReactNode } from "react";
+import { announce } from "@/lib/a11y";
 
 type CourseUI = {
   previewCode: string | null;
@@ -25,10 +26,24 @@ export function CourseUIProvider({ children }: { children: ReactNode }) {
       closePreview: () => setPreviewCode(null),
       compare,
       toggleCompare: (code) =>
-        setCompare((prev) =>
-          prev.includes(code) ? prev.filter((c) => c !== code) : prev.length >= 3 ? prev : [...prev, code],
-        ),
-      clearCompare: () => setCompare([]),
+        setCompare((prev) => {
+          if (prev.includes(code)) {
+            announce(`${code} removed from comparison.`);
+            return prev.filter((c) => c !== code);
+          }
+          if (prev.length >= 3) {
+            announce("Comparison is limited to three courses.");
+            return prev;
+          }
+          announce(
+            `${code} added to comparison. ${prev.length + 1} course${prev.length === 0 ? "" : "s"} selected.`,
+          );
+          return [...prev, code];
+        }),
+      clearCompare: () => {
+        announce("Comparison cleared.");
+        setCompare([]);
+      },
       searchOpen,
       setSearchOpen,
     }),

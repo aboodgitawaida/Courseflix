@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { validateRatingInput } from "@/lib/validation";
+import { announce } from "@/lib/a11y";
 
 export type RatingRow = {
   id: string;
@@ -158,6 +159,9 @@ export function useToggleShortlist() {
       if (context?.previous) {
         queryClient.setQueryData(["shortlist"], context.previous);
       }
+    },
+    onSuccess: (_data, { code, saved }) => {
+      announce(saved ? `${code} removed from your shortlist.` : `${code} added to your shortlist.`);
     },
     onSettled: () => {
       void queryClient.invalidateQueries({ queryKey: ["shortlist"] });
