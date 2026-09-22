@@ -170,7 +170,16 @@ export function RatingSection({ code }: { code: string }) {
         )}
         {reviews.length === 0 && (
           <div className="rounded-2xl bg-surface border border-border/40 p-5 text-muted-foreground text-sm">
-            No student ratings for {code} yet. Be the first — it takes 15 seconds.
+            <p>No student ratings for {code} yet. Be the first — it takes 15 seconds.</p>
+            {signedIn && !open && (
+              <button
+                type="button"
+                onClick={() => setOpen(true)}
+                className="mt-3 rounded-full border border-brand/40 px-4 py-1.5 text-xs font-semibold text-brand transition hover:bg-brand/10"
+              >
+                Rate this course
+              </button>
+            )}
           </div>
         )}
         {reviews.map((r) => (
