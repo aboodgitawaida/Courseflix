@@ -14,6 +14,7 @@ import {
   useSendFriendRequest,
 } from "@/lib/social";
 import { getCourse } from "@/lib/courses";
+import { QueryErrorState } from "@/components/QueryErrorState";
 
 export const Route = createFileRoute("/friends")({
   head: () => ({
@@ -54,7 +55,7 @@ function FriendShortlist({ userId, name }: { userId: string; name: string }) {
 function FriendsPage() {
   const { signedIn } = useAuth();
   const [query, setQuery] = useState("");
-  const { data, isLoading } = useFriendships();
+  const { data, isLoading, error: friendshipsError, refetch } = useFriendships();
   const { data: results = [], isFetching } = useProfileSearch(query);
   const send = useSendFriendRequest();
   const respond = useRespondToRequest();
@@ -172,6 +173,14 @@ function FriendsPage() {
 
             <section className="mt-8">
               <h2 className="font-display text-2xl">Your friends</h2>
+              {friendshipsError && (
+                <div className="mt-3">
+                  <QueryErrorState
+                    message="Could not load your friends."
+                    onRetry={() => void refetch()}
+                  />
+                </div>
+              )}
               {isLoading && <p className="mt-2 text-xs text-muted-foreground">Loading…</p>}
               {!isLoading && (data?.accepted.length ?? 0) === 0 && (
                 <p className="mt-2 text-sm text-muted-foreground">No friends yet — search a username above.</p>

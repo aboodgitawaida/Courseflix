@@ -48,8 +48,10 @@ without leaking sensitive details.
 
 ### 4. Close remaining error and loading gaps
 
-- [ ] Add route-specific error states and retry behavior for query failures.
-- [ ] Add panel-level fallbacks so one failed query does not blank an entire page.
+- [x] Add route-specific error states and retry behavior for ratings, shortlist, friends, and
+      profile query failures.
+- [x] Add panel-level fallbacks so a failed ratings/social/profile query does not look like empty
+      content.
 - [ ] Add clear pending/rollback behavior for shortlist, friend-request, rating, and profile
       mutations.
 - [ ] Add offline or degraded-network messaging.

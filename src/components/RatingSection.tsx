@@ -4,6 +4,7 @@ import { Star } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
 import { useCourseRatings, useCourseStats, useSubmitRating } from "@/lib/ratings";
 import { toast } from "sonner";
+import { QueryErrorState } from "@/components/QueryErrorState";
 
 function Stars({ value, onChange }: { value: number; onChange: (n: number) => void }) {
   return (
@@ -51,8 +52,8 @@ function Scale({ label, value, onChange }: { label: string; value: number; onCha
 
 export function RatingSection({ code }: { code: string }) {
   const { signedIn, user } = useAuth();
-  const { data: reviews = [] } = useCourseRatings(code);
-  const { data: stats } = useCourseStats(code);
+  const { data: reviews = [], error: reviewsError, refetch: refetchReviews } = useCourseRatings(code);
+  const { data: stats, error: statsError, refetch: refetchStats } = useCourseStats(code);
   const submit = useSubmitRating(code);
 
   const mine = reviews.find((r) => r.user_id === user?.id);
@@ -158,6 +159,15 @@ export function RatingSection({ code }: { code: string }) {
       )}
 
       <div className="space-y-3">
+        {(reviewsError || statsError) && (
+          <QueryErrorState
+            message="Could not load student ratings."
+            onRetry={() => {
+              void refetchReviews();
+              void refetchStats();
+            }}
+          />
+        )}
         {reviews.length === 0 && (
           <div className="rounded-2xl bg-surface border border-border/40 p-5 text-muted-foreground text-sm">
             No student ratings for {code} yet. Be the first — it takes 15 seconds.
