@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { toast } from "sonner";
 import { resetPassword } from "@/lib/reset-password";
+import { safeAuthRedirect } from "@/lib/auth-redirect";
 
 export const Route = createFileRoute("/auth")({
   validateSearch: (s: Record<string, unknown>): { redirect?: string } =>
@@ -22,10 +23,6 @@ export const Route = createFileRoute("/auth")({
   component: AuthLayout,
 });
 
-function safePath(p?: string) {
-  return p && p.startsWith("/") && !p.startsWith("//") ? p : "/";
-}
-
 function AuthLayout() {
   const { pathname } = useLocation();
 
@@ -39,7 +36,7 @@ function AuthLayout() {
 function AuthPage() {
   const navigate = useNavigate();
   const search = useSearch({ from: "/auth" });
-  const dest = safePath(search.redirect);
+  const dest = safeAuthRedirect(search.redirect);
   const { signedIn, loading } = useAuth();
   const [oauthProcessing, setOauthProcessing] = useState(false);
   const [mode, setMode] = useState<"signin" | "signup">("signin");
