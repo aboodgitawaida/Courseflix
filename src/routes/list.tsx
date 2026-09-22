@@ -73,7 +73,7 @@ function ListPage() {
         <h1 className="font-display text-4xl md:text-6xl font-black mt-3 leading-[0.95] text-white tracking-tight">
           {shared ? "A friend's course list" : "My List"}
         </h1>
-        <p className="text-sm text-neutral-500 mt-2">
+        <p className="text-sm text-neutral-500 mt-2" role="status" aria-live="polite">
           {courses.length} course{courses.length === 1 ? "" : "s"}
           {shared ? " · shared link" : " saved"}
         </p>
