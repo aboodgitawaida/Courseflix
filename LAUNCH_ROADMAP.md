@@ -112,15 +112,15 @@ The repository alone cannot prove the deployed policies are safe, and the follow
 
 Verify policies for each table:
 
-| Table | Required policy behavior |
-|---|---|
-| `profiles` | Public fields only; private profile data restricted |
-| `shortlists` | Users can read/write their own list; friend/public access must be intentional |
-| `course_ratings` | Anyone may read approved ratings; users can insert/update only their own rating |
-| `friendships` | Users can only create requests involving themselves; only participants can accept/delete |
-| `notifications` | Users can read and mark only their own notifications |
-| `course_rating_stats` | Read-only access to aggregated data |
-| Any admin/service table | Never exposed to the browser client |
+| Table                   | Required policy behavior                                                                 |
+| ----------------------- | ---------------------------------------------------------------------------------------- |
+| `profiles`              | Public fields only; private profile data restricted                                      |
+| `shortlists`            | Users can read/write their own list; friend/public access must be intentional            |
+| `course_ratings`        | Anyone may read approved ratings; users can insert/update only their own rating          |
+| `friendships`           | Users can only create requests involving themselves; only participants can accept/delete |
+| `notifications`         | Users can read and mark only their own notifications                                     |
+| `course_rating_stats`   | Read-only access to aggregated data                                                      |
+| Any admin/service table | Never exposed to the browser client                                                      |
 
 Specifically test:
 
@@ -139,15 +139,11 @@ Specifically test:
 
 **Priority: P0**
 
-**Partially complete.** Profile-search escaping, query length bounds, rating ranges/lengths/course-code validation, shortlist deduplication/format/count bounds, and generic password-reset responses are implemented. Outstanding work:
+**Partially complete.** Profile-search escaping, query length bounds, rating ranges/lengths/course-code validation, shortlist deduplication/format/count bounds, generic password-reset responses, and mutation-boundary validation for profile fields are implemented. Outstanding work:
 
 #### Settings
 
-`src/routes/settings.tsx` currently normalizes usernames manually. Add explicit validation for:
-
-- Validate the normalized display name, username, academic year, major ID, and avatar ID at the mutation boundary rather than relying only on HTML controls.
-- Add a shared schema (Zod is already installed) if validation is expanded across more forms.
-- Add debounce to profile search if live querying becomes noisy.
+`src/routes/settings.tsx` still normalizes usernames in the UI, but `useUpdateProfile()` now validates display name, username, academic year, major ID, and avatar ID at the mutation boundary using a shared Zod schema. Add debounce to profile search if live querying becomes noisy.
 
 ---
 
@@ -824,18 +820,18 @@ This directly supports the Reddit, friends, and resume launch goals.
 ## Second release block
 
 7. Complete global SEO defaults and wire branded social preview assets.
-10. Improve mobile navigation and touch interactions.
+8. Improve mobile navigation and touch interactions.
 9. Replace random animation timing.
-12. Improve course-card focus, saved states, and mobile controls.
-13. Complete the accessibility audit.
+10. Improve course-card focus, saved states, and mobile controls.
+11. Complete the accessibility audit.
 
 ## Third release block
 
 12. Add UTM capture and privacy-conscious analytics.
-15. Optimize shortlist/query usage.
-16. Add onboarding.
-17. Add intelligent empty states.
-18. Improve sharing.
+13. Optimize shortlist/query usage.
+14. Add onboarding.
+15. Add intelligent empty states.
+16. Improve sharing.
 17. Update the README with architecture and portfolio documentation.
 18. Perform final production QA across mobile, tablet, desktop, slow network, keyboard navigation, and authenticated/unauthenticated flows.
 
