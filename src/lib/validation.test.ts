@@ -7,6 +7,7 @@ import {
 } from "./validation";
 import { getCourse } from "./courses";
 import { safeAuthRedirect } from "./auth-redirect";
+import { consumeLastCapturedError } from "./error-capture";
 
 const validRating = {
   course_code: "CSC108H5",
@@ -79,5 +80,15 @@ describe("safeAuthRedirect", () => {
     expect(safeAuthRedirect()).toBe("/");
     expect(safeAuthRedirect("https://example.com")).toBe("/");
     expect(safeAuthRedirect("//example.com")).toBe("/");
+  });
+});
+
+describe("error capture", () => {
+  it("deduplicates repeated errors within the short TTL window", () => {
+    const error = new Error("duplicate test");
+    console.error(error);
+    console.error(error);
+    expect(consumeLastCapturedError()).toBe(error);
+    expect(consumeLastCapturedError()).toBeUndefined();
   });
 });
