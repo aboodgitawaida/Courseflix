@@ -45,8 +45,8 @@ without leaking sensitive details.
 - [ ] Check contrast for muted text, red-on-dark text, glass controls, and badges.
 - [ ] Verify focus trapping/restoration in the preview modal, command palette, compare drawer, and
       dropdown menus.
-- [ ] Add announcements for shortlist changes, comparison changes, loading completion, result
-      counts, and form errors where missing.
+- [ ] Add announcements for shortlist changes, comparison changes, and loading completion where
+      missing. Result counts and query errors now expose live accessible announcements.
 - [ ] Confirm long usernames/program names and sticky `#creator` navigation on physical devices.
 
 ## Optional post-launch improvements

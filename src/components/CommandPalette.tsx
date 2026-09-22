@@ -41,6 +41,9 @@ export function CommandPalette() {
         placeholder="Search courses, codes, departments or tags — e.g. ANT222H5"
       />
       <CommandList>
+        <p className="sr-only" role="status" aria-live="polite">
+          {q.trim() ? `${results.length} course search results` : "Popular courses loaded"}
+        </p>
         <CommandEmpty>
           <div className="space-y-2 px-3 py-2">
             <p>No courses matched.</p>

@@ -8,7 +8,11 @@ export function QueryErrorState({
   onRetry,
 }: QueryErrorStateProps) {
   return (
-    <div className="rounded-2xl border border-destructive/30 bg-destructive/5 p-5 text-sm">
+    <div
+      role="alert"
+      aria-live="assertive"
+      className="rounded-2xl border border-destructive/30 bg-destructive/5 p-5 text-sm"
+    >
       <p className="text-destructive">{message}</p>
       <button
         type="button"
