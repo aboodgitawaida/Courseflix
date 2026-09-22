@@ -170,7 +170,7 @@ export function RatingSection({ code }: { code: string }) {
         )}
         {reviews.length === 0 && (
           <div className="rounded-2xl bg-surface border border-border/40 p-5 text-muted-foreground text-sm">
-            <p>No student ratings for {code} yet. Be the first — it takes 15 seconds.</p>
+            <div className="h-4 w-2/3 animate-pulse rounded bg-primary/10" />
             {signedIn && !open && (
               <button
                 type="button"

@@ -114,7 +114,12 @@ function FriendsPage() {
 
             {query.trim().length >= 2 && (
               <section className="mt-4 space-y-2">
-                {isFetching && <p className="text-xs text-muted-foreground">Searching…</p>}
+                {isFetching && (
+                  <div className="space-y-2">
+                    <div className="h-12 animate-pulse rounded-xl bg-primary/10" />
+                    <div className="h-12 animate-pulse rounded-xl bg-primary/10" />
+                  </div>
+                )}
                 {!isFetching && results.length === 0 && (
                   <p className="text-xs text-muted-foreground">No students matched that.</p>
                 )}
@@ -185,7 +190,12 @@ function FriendsPage() {
                   />
                 </div>
               )}
-              {isLoading && <p className="mt-2 text-xs text-muted-foreground">Loading…</p>}
+              {isLoading && (
+                <div className="mt-3 space-y-3">
+                  <div className="h-20 animate-pulse rounded-xl bg-primary/10" />
+                  <div className="h-20 animate-pulse rounded-xl bg-primary/10" />
+                </div>
+              )}
               {!isLoading && (data?.accepted.length ?? 0) === 0 && (
                 <div className="mt-2 flex flex-wrap items-center gap-3">
                   <p className="text-sm text-muted-foreground">No friends yet — find a classmate to get started.</p>

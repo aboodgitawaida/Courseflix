@@ -71,7 +71,7 @@ without leaking sensitive details.
 - [x] Add contextual actions to empty shortlist, friends, notifications, and ratings states.
 - [x] Add a direct action to the command-palette no-results state to return to course browsing.
 - [x] Explain skipped invalid, unavailable, or duplicate courses in shared shortlists.
-- [ ] Add missing skeletons for course ratings, friends, settings, notifications, shortlist, and
+- [x] Add missing skeletons for course ratings, friends, settings, notifications, shortlist, and
       search results.
 
 ## Optional post-launch improvements

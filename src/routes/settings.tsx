@@ -113,6 +113,14 @@ function SettingsPage() {
           </div>
         )}
 
+        {signedIn && isLoading && (
+          <div className="mt-8 space-y-4">
+            <div className="h-32 animate-pulse rounded-2xl bg-primary/10" />
+            <div className="h-32 animate-pulse rounded-2xl bg-primary/10" />
+            <div className="h-32 animate-pulse rounded-2xl bg-primary/10" />
+          </div>
+        )}
+
         {signedIn && !isLoading && profile && (
           <>
             <section className="mt-8 rounded-2xl border border-border/50 bg-surface p-6">

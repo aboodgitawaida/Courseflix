@@ -141,6 +141,13 @@ function ListPage() {
           </div>
         )}
 
+        {!shared && signedIn && isLoading && (
+          <div className="mt-8 space-y-4">
+            <div className="h-28 animate-pulse rounded-2xl bg-primary/10" />
+            <div className="h-28 animate-pulse rounded-2xl bg-primary/10" />
+          </div>
+        )}
+
         {!shared && signedIn && !isLoading && courses.length === 0 && (
           shortlistError ? (
             <QueryErrorState
