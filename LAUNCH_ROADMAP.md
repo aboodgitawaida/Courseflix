@@ -1,6 +1,6 @@
 # CourseFlix Launch Readiness Roadmap
 
-I reviewed the repository structure, route configuration, core UI components, Supabase integrations, authentication flows, metadata, and the main data-access modules. The application already has a strong foundation: TanStack Start/Router, React 19, Tailwind, Radix UI, Supabase authentication, React Query, course rails, shortlist sharing, ratings, friends, comparison, notifications, and route-level metadata.
+I reviewed the repository structure, route configuration, core UI components, Supabase integrations, authentication flows, metadata, and the main damta-access modules. The application already has a strong foundation: TanStack Start/Router, React 19, Tailwind, Radix UI, Supabase authentication, React Query, course rails, shortlist sharing, ratings, friends, comparison, notifications, and route-level metadata.
 
 The highest-priority work is not a major rewrite. It is consistency, security validation, mobile polish, production metadata, error/loading quality, and removing a few launch-visible rough edges.
 
@@ -184,7 +184,7 @@ Specifically test:
 
 The package scripts currently include development, build, lint, formatting, and preview commands, but no obvious automated test suite.
 
-**Partially complete.** The production build, targeted lint, and new TypeScript typecheck now pass. The full repository lint still has broad pre-existing formatting/generated-code errors. Remaining work:
+**Partially complete.** The production build, targeted lint, and TypeScript typecheck pass. The five concrete lint errors found in the baseline were fixed, but full-repository lint still fails on broad legacy formatting errors. Remaining work:
 
 1. Resolve the existing full-repository lint errors and rerun `npm run lint`.
 2. Add at least smoke tests for:
@@ -486,7 +486,7 @@ The routes already define route-level titles and descriptions, especially:
 
 The next step is making metadata complete and consistent.
 
-**Partially complete.** Route-level titles/descriptions, canonical URL centralization, global title/description/robots defaults, and default social metadata now exist. Social images, structured data, and a tested branded preview asset do not.
+**Partially complete.** Route-level titles/descriptions, canonical URL centralization, global title/description/robots defaults, and branded global OG/Twitter image metadata now exist through `public/og-image.svg`. Structured data, route-specific preview variants, and testing the preview on Reddit/iMessage remain.
 
 ### Global metadata
 
@@ -579,7 +579,7 @@ Do not store personally identifiable information in analytics events.
 Examples:
 
 ```text
-Reddit:
+bbReddit:
 https://courseflix.ca/?utm_source=reddit&utm_medium=social&utm_campaign=launch
 
 Resume:

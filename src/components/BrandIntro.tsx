@@ -19,7 +19,9 @@ export function BrandIntro() {
     setVisible(true);
     try {
       sessionStorage.setItem(SESSION_KEY, "1");
-    } catch {}
+    } catch {
+      // Storage may be unavailable in privacy-restricted browsers.
+    }
 
     const audio = new Audio(tudum.url);
     audio.volume = 0.55;
