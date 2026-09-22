@@ -4,15 +4,25 @@ import { COURSES, type Rail } from "@/lib/courses";
 import { CourseCard } from "./CourseCard";
 import { CourseCardSkeleton } from "./CourseCardSkeleton";
 
-export function CourseRail({ rail, loading = false }: { rail: Rail; loading?: boolean }) {
+export function CourseRail({
+  rail,
+  loading = false,
+  index = 0,
+}: {
+  rail: Rail;
+  loading?: boolean;
+  index?: number;
+}) {
   const ref = useRef<HTMLDivElement>(null);
   const [hover, setHover] = useState(false);
   const scroll = (dir: 1 | -1) => {
     ref.current?.scrollBy({ left: dir * 320, behavior: "smooth" });
   };
-  const courses = rail.codes.map((c) => COURSES.find((x) => x.code === c)).filter(Boolean) as typeof COURSES;
+  const courses = rail.codes
+    .map((c) => COURSES.find((x) => x.code === c))
+    .filter(Boolean) as typeof COURSES;
 
-  const animationDelay = Math.random() * 0.2;
+  const animationDelay = Math.min(index * 0.04, 0.2);
 
   return (
     <section
@@ -23,7 +33,9 @@ export function CourseRail({ rail, loading = false }: { rail: Rail; loading?: bo
     >
       <div className="mb-2 flex items-end justify-between px-6 md:px-10">
         <div>
-          <h2 className="font-display text-xl font-bold md:text-2xl text-white tracking-tight">{rail.title}</h2>
+          <h2 className="font-display text-xl font-bold md:text-2xl text-white tracking-tight">
+            {rail.title}
+          </h2>
           {rail.blurb && <p className="mt-0.5 text-sm text-neutral-500">{rail.blurb}</p>}
         </div>
       </div>
@@ -50,8 +62,7 @@ export function CourseRail({ rail, loading = false }: { rail: Rail; loading?: bo
         >
           {loading
             ? Array.from({ length: 6 }).map((_, i) => <CourseCardSkeleton key={`skeleton-${i}`} />)
-            : courses.map((c) => <CourseCard key={c.code} course={c} />)
-          }
+            : courses.map((c) => <CourseCard key={c.code} course={c} />)}
         </div>
       </div>
     </section>

@@ -107,8 +107,8 @@ function Home() {
             No courses match this filter for your program yet — try another chip.
           </p>
         )}
-        {rails.map((r) => (
-          <CourseRail key={r.title} rail={r} />
+        {rails.map((r, index) => (
+          <CourseRail key={r.title} rail={r} index={index} />
         ))}
       </main>
 

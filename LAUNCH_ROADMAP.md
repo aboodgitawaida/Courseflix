@@ -169,14 +169,7 @@ Specifically test:
 
 ### Hero “My list” button
 
-`src/components/Hero.tsx` renders a “My list” button but does not currently connect it to shortlist behavior.
-
-**Not done.** Actions:
-
-- Make it use the same shortlist mutation as `CourseCard`.
-- Redirect unauthenticated users to authentication with a safe return path.
-- Show saved/unsaved state.
-- Provide a toast or inline confirmation.
+`src/components/Hero.tsx` now uses the same shortlist query/mutation as `CourseCard`, redirects unauthenticated users to authentication with a safe return path, shows saved state, and provides toast confirmation.
 
 ### Error boundaries
 
@@ -267,7 +260,7 @@ This will create the “Apple/Google” precision the application currently lack
 
 `src/components/Hero.tsx` already establishes the featured-course experience with gradients, atmospheric glows, typography, and metadata.
 
-**Partially complete.** The visual hero and course-information CTA exist, but the My list action is still disconnected and the remaining motion/accessibility work is outstanding.
+**Partially complete.** The visual hero and course-information CTA, including a working My list action, exist. The remaining motion/accessibility work is outstanding.
 
 Enhancements:
 
@@ -294,9 +287,7 @@ Enhancements:
 const animationDelay = Math.random() * 0.2;
 ```
 
-Replace random animation timing with deterministic timing based on rail index. Random render-time animation can cause inconsistent visual output and hydration mismatch risk.
-
-**Not done.** `Math.random()` is still used in `CourseRail.tsx`.
+`CourseRail.tsx` now uses deterministic animation timing based on the rail index, avoiding random render-time animation and hydration mismatch risk.
 
 ---
 
@@ -827,9 +818,8 @@ This directly supports the Reddit, friends, and resume launch goals.
 1. Finish canonical-domain deployment checks, Supabase redirect configuration, and social preview assets.
 2. Complete live multi-account RLS tests.
 3. Add settings validation, password-reset rate limiting, and structured redacted logging.
-4. Fix the Hero “My list” button.
-5. Resolve full-repository lint failures and add smoke/type/accessibility verification.
-6. Add route-level error and loading states where currently missing.
+4. Resolve full-repository lint failures and add smoke/type/accessibility verification.
+5. Add route-level error and loading states where currently missing.
 
 ## Second release block
 
@@ -856,7 +846,7 @@ Before posting publicly, CourseFlix should satisfy:
 - One canonical production domain everywhere (code centralized; deployment/config verification remains)
 - No debug or sensitive logs (reset-password diagnostics removed; structured logging audit remains)
 - Verified RLS policies
-- No obvious dead buttons or broken flows (Hero “My list” remains a known dead button)
+- No obvious dead buttons or broken flows
 - Complete OG/Twitter metadata with a tested preview image
 - Mobile navigation usable at narrow widths
 - Keyboard navigation works throughout the core experience
