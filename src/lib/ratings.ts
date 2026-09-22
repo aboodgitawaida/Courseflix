@@ -30,7 +30,9 @@ export function useCourseRatings(code: string) {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("course_ratings")
-        .select("*")
+        .select(
+          "id, user_id, course_code, rating, difficulty, workload, would_take_again, prof_name, comment, created_at",
+        )
         .eq("course_code", code)
         .order("created_at", { ascending: false });
       if (error) throw new Error(`Could not load ratings: ${error.message}`);
