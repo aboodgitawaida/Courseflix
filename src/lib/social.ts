@@ -56,7 +56,7 @@ export function useFriendships() {
 
       const { data, error } = await supabase
         .from("friendships")
-        .select("*")
+        .select("id, requester_id, addressee_id, status, created_at")
         .order("created_at", { ascending: false });
       if (error) throw new Error(`Could not load friendships: ${error.message}`);
 
@@ -179,7 +179,7 @@ export function useNotifications() {
 
       const { data, error } = await supabase
         .from("notifications")
-        .select("*")
+        .select("id, user_id, actor_id, kind, course_code, read, created_at")
         .order("created_at", { ascending: false })
         .limit(30);
       if (error) throw new Error(`Could not load notifications: ${error.message}`);
