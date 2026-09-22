@@ -41,7 +41,6 @@ without leaking sensitive details.
 
 ### 4. Finish accessibility and touch review
 
-- [ ] Check contrast for muted text, red-on-dark text, glass controls, and badges.
 - [ ] Confirm long usernames/program names and sticky `#creator` navigation on physical devices.
 
 ## Optional post-launch improvements
