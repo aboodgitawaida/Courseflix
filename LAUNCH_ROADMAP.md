@@ -557,7 +557,13 @@ The image should communicate:
 
 **Priority: P1**
 
-Use a lightweight privacy-conscious analytics approach.
+**Code-complete for first-touch attribution.** `src/lib/attribution.ts` captures the
+allowlisted UTM parameters, a query-free referrer, the landing path, and the first-visit
+timestamp once per browser in local storage. The root shell initializes it for every entry route.
+No analytics vendor or personally identifying event data is collected.
+
+The remaining work is optional product analytics and manual validation of launch links in the
+deployed environment.
 
 ### Capture on first landing
 
