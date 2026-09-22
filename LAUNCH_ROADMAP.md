@@ -353,28 +353,13 @@ Enhancements:
 
 **Priority: P1**
 
-`src/components/TopNav.tsx` has a good desktop structure, but the mobile header is compressed and hides several destinations.
+**Code-complete for the launch navigation.** `src/components/TopNav.tsx` now provides an
+accessible mobile menu with Browse, Shortlist, Friends, Settings, Help, and Creator links,
+current-route styling via `aria-current`, a labeled brand link, and visible keyboard focus states.
+The menu closes after navigation and the desktop navigation remains unchanged.
 
-Review:
-
-- Browse
-- Shortlist
-- Search
-- Friends
-- Settings
-- Help
-- Authentication state
-- Program selection
-
-Actions:
-
-1. Add a mobile menu or bottom navigation.
-2. Ensure Friends, Settings, and Help are reachable without opening the profile menu.
-3. Add current-route styling using `aria-current`.
-4. Make the brand wordmark link have an accessible label.
-5. Ensure the mobile search button has a visible focus state.
-6. Test long usernames and long program names.
-7. Ensure sticky navigation does not cover anchor targets such as `#creator`.
+Manual follow-up remains limited to testing long usernames/program names and confirming sticky
+navigation does not cover `#creator` on physical devices.
 
 ---
 
