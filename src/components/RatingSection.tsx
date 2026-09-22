@@ -1,10 +1,11 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { Star } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
 import { useCourseRatings, useCourseStats, useSubmitRating } from "@/lib/ratings";
 import { toast } from "sonner";
 import { QueryErrorState } from "@/components/QueryErrorState";
+import { announce } from "@/lib/a11y";
 
 function Stars({ value, onChange }: { value: number; onChange: (n: number) => void }) {
   return (
@@ -64,6 +65,12 @@ export function RatingSection({ code }: { code: string }) {
   const [again, setAgain] = useState(mine?.would_take_again ?? true);
   const [prof, setProf] = useState(mine?.prof_name ?? "");
   const [comment, setComment] = useState(mine?.comment ?? "");
+
+  useEffect(() => {
+    if (!reviewsError && !statsError) {
+      announce(`${reviews.length} student rating${reviews.length === 1 ? "" : "s"} loaded.`);
+    }
+  }, [reviews.length, reviewsError, statsError]);
 
   async function save() {
     if (rating < 1) {

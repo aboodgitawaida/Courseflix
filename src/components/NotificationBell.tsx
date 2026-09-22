@@ -1,8 +1,10 @@
 import { Link } from "@tanstack/react-router";
+import { useEffect } from "react";
 import { Bell } from "lucide-react";
 import { avatarSrc } from "@/lib/profile";
 import { useMarkNotificationsRead, useNotifications } from "@/lib/social";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { announce } from "@/lib/a11y";
 
 function line(kind: string, name: string, code: string | null) {
   if (kind === "friend_request") return `${name} sent you a friend request`;
@@ -17,6 +19,9 @@ export function NotificationBell() {
   const rows = data?.rows ?? [];
   const people = data?.people;
   const unread = rows.filter((r) => !r.read).length;
+  useEffect(() => {
+    if (!isLoading && !error) announce(`${rows.length} notification${rows.length === 1 ? "" : "s"} loaded.`);
+  }, [error, isLoading, rows.length]);
   return <DropdownMenu onOpenChange={(open) => { if (open && unread > 0) void markRead.mutateAsync(); }}>
     <DropdownMenuTrigger aria-label={unread > 0 ? `Notifications, ${unread} unread` : "Notifications"} className="relative grid h-9 w-9 shrink-0 place-items-center rounded-full transition hover:bg-foreground/10"><Bell className="h-4 w-4" />{unread > 0 && <span className="absolute right-1 top-1 grid h-4 min-w-4 place-items-center rounded-full bg-brand px-1 text-[10px] font-bold text-primary-foreground">{unread > 9 ? "9+" : unread}</span>}</DropdownMenuTrigger>
     <DropdownMenuContent align="end" className="w-80"><DropdownMenuLabel>Activity</DropdownMenuLabel><DropdownMenuSeparator />
