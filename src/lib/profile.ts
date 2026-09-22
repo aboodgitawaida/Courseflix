@@ -100,7 +100,8 @@ export function useUpdateProfile() {
     mutationFn: async (patch: Partial<Omit<Profile, "id">>) => {
       const validatedPatch = profilePatchSchema.parse(patch);
       const { data: auth } = await supabase.auth.getUser();
-      const uid = auth.user?.id;
+      const user = auth.user;
+      const uid = user?.id;
       if (!uid) throw new Error("You need to sign in first.");
 
       // Only send fields being changed. Sending fallback defaults here used to
@@ -125,9 +126,7 @@ export function useUpdateProfile() {
         .insert({
           id: uid,
           display_name:
-            auth.user.user_metadata?.display_name ??
-            auth.user.email?.split("@")[0] ??
-            "UTM student",
+            user.user_metadata?.display_name ?? user.email?.split("@")[0] ?? "UTM student",
           avatar_id: "hmalc",
           is_private: false,
           ...validatedPatch,

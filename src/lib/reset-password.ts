@@ -2,11 +2,41 @@ import { createServerFn } from "@tanstack/react-start";
 import { createClient } from "@supabase/supabase-js";
 import { Resend } from "resend";
 import { SITE_URL } from "./site";
+import { serverLog } from "./server-log";
+
+const RESET_WINDOW_MS = 15 * 60 * 1_000;
+const MAX_RESETS_PER_WINDOW = 3;
+const resetAttempts = new Map<string, number[]>();
+
+function isRateLimited(email: string) {
+  const now = Date.now();
+  const recent = (resetAttempts.get(email) ?? []).filter(
+    (timestamp) => now - timestamp < RESET_WINDOW_MS,
+  );
+  if (recent.length >= MAX_RESETS_PER_WINDOW) {
+    resetAttempts.set(email, recent);
+    return true;
+  }
+  recent.push(now);
+  resetAttempts.set(email, recent);
+  return false;
+}
 
 export const resetPassword = createServerFn()
-  .validator((email: string) => email.trim())
+  .validator((email: string) => {
+    const normalized = email.trim().toLowerCase();
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(normalized) || normalized.length > 254) {
+      throw new Error("Enter a valid email address.");
+    }
+    return normalized;
+  })
   .handler(async ({ data: email }) => {
     try {
+      if (isRateLimited(email)) {
+        serverLog.warn("password_reset_rate_limited");
+        return { error: "If an account exists for that email, a reset message has been sent." };
+      }
+
       const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
       const resendApiKey = process.env.RESEND_API_KEY;
       const supabaseUrl =
@@ -15,7 +45,7 @@ export const resetPassword = createServerFn()
         process.env.NEXT_PUBLIC_SUPABASE_URL;
 
       if (!serviceRoleKey || !resendApiKey || !supabaseUrl) {
-        console.error("Missing environment variables");
+        serverLog.error("password_reset_configuration_missing");
         return { error: "Password reset is temporarily unavailable. Please try again later." };
       }
 
@@ -31,7 +61,7 @@ export const resetPassword = createServerFn()
       });
 
       if (error || !data.properties?.action_link) {
-        console.error("Failed to generate password reset link:", error);
+        serverLog.error("password_reset_link_failed", { provider_code: error?.code ?? null });
         return { error: "If an account exists for that email, a reset message has been sent." };
       }
 
@@ -50,13 +80,15 @@ export const resetPassword = createServerFn()
       });
 
       if (emailResult.error) {
-        console.error("Resend error:", emailResult.error);
+        serverLog.error("password_reset_email_failed", { provider_name: "resend" });
         return { error: "Password reset is temporarily unavailable. Please try again later." };
       }
 
       return { success: true };
     } catch (err: unknown) {
-      console.error("Reset password error:", err);
+      serverLog.error("password_reset_unexpected_failure", {
+        error_type: err instanceof Error ? err.name : typeof err,
+      });
       return {
         error: "Password reset is temporarily unavailable. Please try again later.",
       };
