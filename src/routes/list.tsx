@@ -8,7 +8,7 @@ import { getCourse } from "@/lib/courses";
 import { useAuth } from "@/hooks/use-auth";
 import { useShortlist, useToggleShortlist } from "@/lib/ratings";
 import { siteUrl } from "@/lib/site";
-import { parseShortlistCodes, parseShortlistSearch } from "@/lib/validation";
+import { parseShortlistCodesWithStats, parseShortlistSearch } from "@/lib/validation";
 import { QueryErrorState } from "@/components/QueryErrorState";
 
 export const Route = createFileRoute("/list")({
@@ -43,9 +43,9 @@ function ListPage() {
   const toggle = useToggleShortlist();
 
   const shared = !!ids;
-  const codes = useMemo(() => {
+  const { codes, skipped: skippedCount } = useMemo(() => {
     const raw: string[] = shared ? ids!.split(",") : (saved as string[]);
-    return parseShortlistCodes(raw, (code) => Boolean(getCourse(code)));
+    return parseShortlistCodesWithStats(raw, (code) => Boolean(getCourse(code)));
   }, [shared, ids, saved]);
 
   const courses = codes.map((c) => getCourse(c)).filter(Boolean) as NonNullable<
@@ -77,6 +77,12 @@ function ListPage() {
           {courses.length} course{courses.length === 1 ? "" : "s"}
           {shared ? " · shared link" : " saved"}
         </p>
+        {shared && skippedCount > 0 && (
+          <p className="mt-3 max-w-2xl text-xs text-amber-200/80">
+            {skippedCount} shared entr{skippedCount === 1 ? "y was" : "ies were"} skipped because
+            {skippedCount === 1 ? " it was" : " they were"} invalid, unavailable, or duplicated.
+          </p>
+        )}
 
         {courses.length > 0 && (
           <div className="mt-6 flex flex-wrap gap-2">
