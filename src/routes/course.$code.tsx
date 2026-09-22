@@ -254,7 +254,7 @@ function CoursePage() {
                   key={l.label}
                   href={l.href}
                   target="_blank"
-                  rel="noreferrer"
+                  rel="noopener noreferrer"
                   className="flex items-center justify-between gap-2 rounded-xl bg-surface border border-border/40 p-3.5 text-sm font-medium hover:border-brand/50 hover:text-brand transition"
                 >
                   {l.label}

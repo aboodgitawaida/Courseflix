@@ -97,7 +97,7 @@ function HelpPage() {
           <a
             href={UTM_LINKS.calendar}
             target="_blank"
-            rel="noreferrer"
+            rel="noopener noreferrer"
             className="rounded-full border border-border/60 bg-surface-2 px-4 py-2 font-semibold transition hover:border-brand/50"
           >
             UTM Academic Calendar
@@ -105,7 +105,7 @@ function HelpPage() {
           <a
             href={UTM_LINKS.timetable}
             target="_blank"
-            rel="noreferrer"
+            rel="noopener noreferrer"
             className="rounded-full border border-border/60 bg-surface-2 px-4 py-2 font-semibold transition hover:border-brand/50"
           >
             Timetable Builder
@@ -113,7 +113,7 @@ function HelpPage() {
           <a
             href={UTM_LINKS.reddit}
             target="_blank"
-            rel="noreferrer"
+            rel="noopener noreferrer"
             className="inline-flex items-center gap-2 rounded-full border border-border/60 bg-surface-2 px-4 py-2 font-semibold transition hover:border-brand/50"
           >
             <MessageCircle className="h-4 w-4" /> r/UTM
