@@ -9,7 +9,6 @@ that require access to the deployed Vercel/Supabase environments.
 ### 1. Verify production configuration
 
 - [ ] Confirm Vercel environment variables are present and use the production Supabase project.
-- [ ] Confirm the Supabase service-role key is server-only and is not exposed to browser code.
 - [ ] Confirm `https://courseflix.ca` is configured as the Supabase site URL and redirect URL.
 - [ ] Verify OAuth callback and password-reset redirects on the deployed build.
 - [ ] Verify canonical URLs, social previews, and the `/og-image.svg` asset on production.
