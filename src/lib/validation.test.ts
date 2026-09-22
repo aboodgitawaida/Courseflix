@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { parseShortlistCodes, validateRatingInput } from "./validation";
+import { safeAuthRedirect } from "./auth-redirect";
 
 const validRating = {
   course_code: "CSC108H5",
@@ -38,5 +39,18 @@ describe("validateRatingInput", () => {
 
   it("rejects malformed course codes", () => {
     expect(validateRatingInput({ ...validRating, course_code: "CSC108" })).toContain("course code");
+  });
+});
+
+describe("safeAuthRedirect", () => {
+  it("allows internal paths", () => {
+    expect(safeAuthRedirect("/settings")).toBe("/settings");
+    expect(safeAuthRedirect("/course/CSC108H5")).toBe("/course/CSC108H5");
+  });
+
+  it("blocks missing and external redirect targets", () => {
+    expect(safeAuthRedirect()).toBe("/");
+    expect(safeAuthRedirect("https://example.com")).toBe("/");
+    expect(safeAuthRedirect("//example.com")).toBe("/");
   });
 });
