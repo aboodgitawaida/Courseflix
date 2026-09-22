@@ -52,6 +52,7 @@
   --popover: #1c1c21;
   --popover-foreground: oklch(0.98 0 0);
   --brand: #E50914;
+  --brand-text: #ff6870;
   --brand-glow: #ff1f2b;
   --primary: #E50914;
   --primary-foreground: oklch(0.99 0 0);
@@ -79,6 +80,7 @@
   --popover: #ffffff;
   --popover-foreground: #111827;
   --brand: #c1121f;
+  --brand-text: #b1121f;
   --brand-glow: #e11d2e;
   --primary: #c1121f;
   --primary-foreground: #ffffff;
@@ -123,7 +125,8 @@
 }
 
 @utility brand-glow { box-shadow: 0 0 34px -8px oklch(0.55 0.23 28 / 0.8); }
-@utility text-brand { color: var(--brand); }
+@utility text-brand { color: var(--brand-text); }
+@utility text-neutral-500 { color: var(--muted-foreground); }
 @utility wordmark {
   font-family: "Bebas Neue", ui-sans-serif, system-ui, sans-serif;
   letter-spacing: 0.06em;
