@@ -17,6 +17,17 @@ GRANT SELECT, INSERT, UPDATE, DELETE ON public.friendships TO authenticated;
 GRANT ALL ON public.friendships TO service_role;
 ALTER TABLE public.friendships ENABLE ROW LEVEL SECURITY;
 
+CREATE OR REPLACE FUNCTION public.set_updated_at()
+RETURNS trigger
+LANGUAGE plpgsql
+SET search_path = public
+AS $$
+BEGIN
+  NEW.updated_at = now();
+  RETURN NEW;
+END;
+$$;
+
 DROP POLICY IF EXISTS "Participants read friendships" ON public.friendships;
 CREATE POLICY "Participants read friendships" ON public.friendships
   FOR SELECT TO authenticated
