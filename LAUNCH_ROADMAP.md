@@ -21,8 +21,6 @@ client filters, enforce these rules:
 | Area | Required result |
 | --- | --- |
 | Profiles | Private profile data is not exposed to unauthorized users. |
-| Shortlists | Users can manage only their own list; private lists stay private. |
-| Ratings | Users cannot modify another person's rating. |
 | Friendships | Only request participants can accept, update, or delete a friendship. |
 | Notifications | Users can read or mark only their own notifications. |
 | Aggregates | Course rating statistics are readable but not writable. |
@@ -58,7 +56,7 @@ These are valuable but should not block the initial public launch:
 ## Launch acceptance checklist
 
 - [ ] Production redirects and environment configuration verified.
-- [ ] Live RLS matrix passes for both authenticated users and signed-out access.
+- [ ] Live RLS checks pass for profiles, friendships, notifications, aggregates, and signed-out access.
 - [ ] Password reset, OAuth, shortlist sharing, and core authenticated flows work in production.
 - [ ] Social preview tested on the intended sharing surfaces.
 - [ ] Mobile, keyboard, accessibility, and slow-network checks completed.
