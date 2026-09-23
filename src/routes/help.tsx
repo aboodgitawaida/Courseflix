@@ -31,7 +31,7 @@ const FAQ = [
   },
   {
     q: "Is my shortlist private?",
-    a: "You control it in Account settings. A private shortlist is visible only to accepted friends, while a public shortlist is visible to any signed-in student. Public does not auto-accept friend requests: students still send requests, and you choose whether to accept them. Shared links you generate yourself always work for anyone with the link.",
+    a: "You control it in Account settings. A private account means only accepted friends can see your shortlist. A public account means any signed-in student can. Shared links you generate yourself always work for anyone with the link.",
   },
   {
     q: "Why is a course missing?",
