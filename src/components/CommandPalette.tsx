@@ -9,6 +9,29 @@ import {
 } from "@/components/ui/command";
 import { searchCourses, COURSES } from "@/lib/courses";
 import { useCourseUI } from "@/hooks/use-course-ui";
+import { useCourseStats } from "@/lib/ratings";
+
+function SearchResult({
+  course,
+  onSelect,
+}: {
+  course: (typeof COURSES)[number];
+  onSelect: (code: string) => void;
+}) {
+  const { data: stats } = useCourseStats(course.code);
+  const displayRating = stats?.rating_count ? stats.avg_rating : course.rating;
+
+  return (
+    <CommandItem
+      value={`${course.code} ${course.title} ${course.subject} ${course.area} ${course.tags.join(" ")}`}
+      onSelect={() => onSelect(course.code)}
+    >
+      <span className="font-display text-base">{course.code}</span>
+      <span className="ml-2 flex-1 truncate text-sm text-muted-foreground">{course.title}</span>
+      <span className="ml-2 shrink-0 text-xs text-brand">{displayRating.toFixed(1)}</span>
+    </CommandItem>
+  );
+}
 
 export function CommandPalette() {
   const { searchOpen, setSearchOpen, openPreview } = useCourseUI();
@@ -62,19 +85,15 @@ export function CommandPalette() {
         </CommandEmpty>
         <CommandGroup heading={q.trim() ? "Results" : "Popular right now"}>
           {results.map((c) => (
-            <CommandItem
+            <SearchResult
               key={c.code}
-              value={`${c.code} ${c.title} ${c.subject} ${c.area} ${c.tags.join(" ")}`}
-              onSelect={() => {
+              course={c}
+              onSelect={(code) => {
                 setSearchOpen(false);
                 setQ("");
-                openPreview(c.code);
+                openPreview(code);
               }}
-            >
-              <span className="font-display text-base">{c.code}</span>
-              <span className="ml-2 flex-1 truncate text-sm text-muted-foreground">{c.title}</span>
-              <span className="ml-2 shrink-0 text-xs text-brand">{c.rating.toFixed(1)}</span>
-            </CommandItem>
+            />
           ))}
         </CommandGroup>
       </CommandList>

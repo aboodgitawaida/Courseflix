@@ -7,7 +7,7 @@ import { useCourseUI } from "@/hooks/use-course-ui";
 import { useMajor } from "@/hooks/use-major";
 import { getMajor } from "@/lib/majors";
 import { useAuth } from "@/hooks/use-auth";
-import { useShortlist, useToggleShortlist } from "@/lib/ratings";
+import { useCourseStats, useShortlist, useToggleShortlist } from "@/lib/ratings";
 import { PrereqTree } from "./PrereqTree";
 
 export function CoursePreviewModal() {
@@ -18,10 +18,12 @@ export function CoursePreviewModal() {
   const toggle = useToggleShortlist();
 
   const course = previewCode ? getCourse(previewCode) : undefined;
+  const { data: stats } = useCourseStats(course?.code ?? "");
   const open = !!course;
   const art = getArt(course?.subject ?? "");
   const inList = course ? (saved as string[]).includes(course.code) : false;
   const match = course ? getMatchScore(course, major) : null;
+  const displayRating = stats?.rating_count ? stats.avg_rating : course?.rating ?? 0;
   const majorName = getMajor(major)?.name;
 
   async function onShortlist() {
@@ -59,7 +61,7 @@ export function CoursePreviewModal() {
                   <span className="rounded border border-white/15 bg-black/40 px-2 py-0.5">{course.area}</span>
                   <span className="text-white/70">{course.wouldTakeAgain}% would retake</span>
                   <span className="flex items-center gap-1 font-semibold text-brand">
-                    <Star className="h-3 w-3 fill-current" /> {course.rating.toFixed(1)}
+                    <Star className="h-3 w-3 fill-current" /> {displayRating.toFixed(1)}
                   </span>
                 </div>
               </div>
@@ -101,7 +103,7 @@ export function CoursePreviewModal() {
               <p className="text-sm leading-relaxed text-muted-foreground">{course.description}</p>
 
               <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
-                <Stat label="Rating" value={`${course.rating.toFixed(1)}/5`} />
+                <Stat label="Rating" value={`${displayRating.toFixed(1)}/5`} />
                 <Stat label="Difficulty" value={`${course.difficulty.toFixed(1)}/5`} />
                 <Stat label="Workload" value={`${course.workload.toFixed(1)}/5`} />
                 <Stat label="Exam weight" value={`${examWeight(course)}%`} />

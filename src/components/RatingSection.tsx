@@ -68,6 +68,16 @@ export function RatingSection({ code }: { code: string }) {
   const [comment, setComment] = useState(mine?.comment ?? "");
 
   useEffect(() => {
+    if (!mine) return;
+    setRating(mine.rating);
+    setDifficulty(mine.difficulty);
+    setWorkload(mine.workload);
+    setAgain(mine.would_take_again);
+    setProf(mine.prof_name ?? "");
+    setComment(mine.comment ?? "");
+  }, [mine]);
+
+  useEffect(() => {
     if (!reviewsError && !statsError) {
       announce(`${reviews.length} student rating${reviews.length === 1 ? "" : "s"} loaded.`);
     }
