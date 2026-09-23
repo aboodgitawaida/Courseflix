@@ -94,6 +94,24 @@ export function useProfile(userId?: string) {
   });
 }
 
+export function usePublicProfile(userId?: string) {
+  return useQuery({
+    queryKey: ["public-profile", userId ?? null],
+    enabled: Boolean(userId),
+    queryFn: async () => {
+      if (!userId) return null;
+      const { data, error } = await supabase
+        .from("profiles")
+        .select(PROFILE_COLUMNS)
+        .eq("id", userId)
+        .maybeSingle();
+      if (error) throw error;
+      return (data as Profile | null) ?? null;
+    },
+    retry: 1,
+  });
+}
+
 export function useUpdateProfile() {
   const qc = useQueryClient();
   return useMutation({
