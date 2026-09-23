@@ -206,13 +206,9 @@ function FriendsPage() {
               {!isLoading && (data?.accepted.length ?? 0) === 0 && (
                 <div className="mt-2 flex flex-wrap items-center gap-3">
                   <p className="text-sm text-muted-foreground">No friends yet — find a classmate to get started.</p>
-                  <button
-                    type="button"
-                    onClick={() => searchRef.current?.focus()}
-                    className="text-xs font-semibold text-brand underline underline-offset-4"
-                  >
-                    Search students
-                  </button>
+                  <p className="text-xs text-muted-foreground/80">
+                    Use the search bar above to find friends.
+                  </p>
                 </div>
               )}
               <div className="mt-3 space-y-3">
