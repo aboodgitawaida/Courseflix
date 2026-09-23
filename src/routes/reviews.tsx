@@ -5,7 +5,7 @@ import { toast } from "sonner";
 import { TopNav } from "@/components/TopNav";
 import { QueryErrorState } from "@/components/QueryErrorState";
 import { useAuth } from "@/hooks/use-auth";
-import { useDeleteRating, useMyRatings } from "@/lib/ratings";
+import { useDeleteRating, useMyRatings, useSubmitRating } from "@/lib/ratings";
 import { getCourse } from "@/lib/courses";
 
 export const Route = createFileRoute("/reviews")({
@@ -23,6 +23,17 @@ function ReviewsPage() {
   const { data: reviews = [], isLoading, error, refetch } = useMyRatings(user?.id);
   const remove = useDeleteRating();
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [draft, setDraft] = useState<{
+    courseCode: string;
+    rating: number;
+    difficulty: number;
+    workload: number;
+    wouldTakeAgain: boolean;
+    profName: string;
+    comment: string;
+  } | null>(null);
+  const submit = useSubmitRating(draft?.courseCode ?? "");
 
   async function deleteReview(id: string, courseCode: string) {
     if (!window.confirm(`Delete your review for ${courseCode}? This cannot be undone.`)) return;
@@ -34,6 +45,46 @@ function ReviewsPage() {
       toast.error(err instanceof Error ? err.message : "Could not delete your review");
     } finally {
       setDeletingId(null);
+    }
+  }
+
+  function startEditing(review: (typeof reviews)[number]) {
+      setEditingId(review.id);
+      setDraft({
+        courseCode: review.course_code,
+        rating: review.rating,
+        difficulty: review.difficulty,
+        workload: review.workload,
+        wouldTakeAgain: review.would_take_again,
+        profName: review.prof_name ?? "",
+        comment: review.comment ?? "",
+      });
+  }
+
+  function cancelEditing() {
+      setEditingId(null);
+      setDraft(null);
+  }
+
+  async function saveEdit() {
+      if (!draft || draft.rating < 1) {
+        toast.error("Pick a star rating first.");
+        return;
+      }
+      try {
+        await submit.mutateAsync({
+          course_code: draft.courseCode,
+          rating: draft.rating,
+          difficulty: draft.difficulty,
+          workload: draft.workload,
+          would_take_again: draft.wouldTakeAgain,
+          prof_name: draft.profName.trim().slice(0, 80) || null,
+          comment: draft.comment.trim().slice(0, 1000) || null,
+        });
+        toast.success("Your review was updated.");
+        cancelEditing();
+      } catch (err) {
+        toast.error(err instanceof Error ? err.message : "Could not update your review");
     }
   }
 
@@ -98,25 +149,112 @@ function ReviewsPage() {
                         {course?.title ?? "Course details unavailable"}
                       </p>
                     </div>
-                    <button
-                      type="button"
-                      onClick={() => void deleteReview(review.id, review.course_code)}
-                      disabled={deletingId === review.id}
-                      className="inline-flex items-center gap-2 rounded-full border border-red-400/30 px-3 py-1.5 text-xs font-semibold text-red-300 transition hover:bg-red-400/10 disabled:opacity-60"
-                    >
-                      <Trash2 className="h-3.5 w-3.5" />
-                      {deletingId === review.id ? "Deleting…" : "Delete review"}
-                    </button>
+                    <div className="flex flex-wrap gap-2">
+                      <button
+                        type="button"
+                        onClick={() => startEditing(review)}
+                        className="rounded-full border border-brand/40 px-3 py-1.5 text-xs font-semibold text-brand transition hover:bg-brand/10"
+                      >
+                        Edit review
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => void deleteReview(review.id, review.course_code)}
+                        disabled={deletingId === review.id}
+                        className="inline-flex items-center gap-2 rounded-full border border-red-400/30 px-3 py-1.5 text-xs font-semibold text-red-300 transition hover:bg-red-400/10 disabled:opacity-60"
+                      >
+                        <Trash2 className="h-3.5 w-3.5" />
+                        {deletingId === review.id ? "Deleting…" : "Delete review"}
+                      </button>
+                    </div>
                   </div>
-                  <div className="mt-4 flex flex-wrap items-center gap-3 text-sm">
-                    <span className="inline-flex items-center gap-1 font-semibold text-brand">
-                      <Star className="h-4 w-4 fill-current" /> {review.rating}/5
-                    </span>
-                    <span className="text-muted-foreground">
-                      Difficulty {review.difficulty}/5 · Workload {review.workload}/5
-                    </span>
-                  </div>
-                  {review.comment && <p className="mt-3 leading-relaxed text-foreground/90">{review.comment}</p>}
+                  {editingId === review.id && draft ? (
+                    <div className="mt-4 space-y-4 rounded-xl border border-brand/30 bg-surface-2 p-4">
+                      <div>
+                        <p className="mb-2 text-xs uppercase tracking-wider text-muted-foreground">Overall</p>
+                        <div className="flex gap-1">
+                          {[1, 2, 3, 4, 5].map((value) => (
+                            <button
+                              key={value}
+                              type="button"
+                              aria-label={`${value} star`}
+                              onClick={() => setDraft({ ...draft, rating: value })}
+                              className={`text-xl ${value <= draft.rating ? "text-brand" : "text-muted-foreground"}`}
+                            >
+                              ★
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                      <div className="grid grid-cols-2 gap-4">
+                        {(["difficulty", "workload"] as const).map((field) => (
+                          <label key={field} className="text-xs uppercase tracking-wider text-muted-foreground">
+                            {field}
+                            <select
+                              value={draft[field]}
+                              onChange={(event) => setDraft({ ...draft, [field]: Number(event.target.value) })}
+                              className="mt-1 block h-9 w-full rounded-lg border border-border/50 bg-background px-2 text-sm text-foreground"
+                            >
+                              {[1, 2, 3, 4, 5].map((value) => <option key={value} value={value}>{value}/5</option>)}
+                            </select>
+                          </label>
+                        ))}
+                      </div>
+                      <label className="flex items-center gap-2 text-sm">
+                        <input
+                          type="checkbox"
+                          checked={draft.wouldTakeAgain}
+                          onChange={(event) => setDraft({ ...draft, wouldTakeAgain: event.target.checked })}
+                          className="accent-brand"
+                        />
+                        I’d take this course again
+                      </label>
+                      <input
+                        value={draft.profName}
+                        onChange={(event) => setDraft({ ...draft, profName: event.target.value })}
+                        maxLength={80}
+                        placeholder="Prof you had (optional)"
+                        className="h-10 w-full rounded-xl border border-border/50 bg-background px-3 text-sm outline-none focus:border-brand/60"
+                      />
+                      <textarea
+                        value={draft.comment}
+                        onChange={(event) => setDraft({ ...draft, comment: event.target.value })}
+                        maxLength={1000}
+                        rows={3}
+                        placeholder="What was it actually like? (optional)"
+                        className="w-full rounded-xl border border-border/50 bg-background px-3 py-2 text-sm outline-none focus:border-brand/60"
+                      />
+                      <div className="flex gap-2">
+                        <button
+                          type="button"
+                          onClick={() => void saveEdit()}
+                          disabled={submit.isPending}
+                          className="rounded-full bg-brand px-5 py-2 text-sm font-semibold text-primary-foreground transition hover:bg-brand-glow disabled:opacity-60"
+                        >
+                          {submit.isPending ? "Saving…" : "Save changes"}
+                        </button>
+                        <button
+                          type="button"
+                          onClick={cancelEditing}
+                          className="rounded-full px-5 py-2 text-sm font-semibold text-muted-foreground transition hover:text-foreground"
+                        >
+                          Cancel
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
+                    <>
+                      <div className="mt-4 flex flex-wrap items-center gap-3 text-sm">
+                        <span className="inline-flex items-center gap-1 font-semibold text-brand">
+                          <Star className="h-4 w-4 fill-current" /> {review.rating}/5
+                        </span>
+                        <span className="text-muted-foreground">
+                          Difficulty {review.difficulty}/5 · Workload {review.workload}/5
+                        </span>
+                      </div>
+                      {review.comment && <p className="mt-3 leading-relaxed text-foreground/90">{review.comment}</p>}
+                    </>
+                  )}
                 </article>
               );
             })}
