@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { Star } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
-import { useCourseRatings, useCourseStats, useSubmitRating } from "@/lib/ratings";
+import { useCourseRatings, useCourseStats, useDeleteRating, useSubmitRating } from "@/lib/ratings";
 import { toast } from "sonner";
 import { QueryErrorState } from "@/components/QueryErrorState";
 import { announce } from "@/lib/a11y";
@@ -56,6 +56,7 @@ export function RatingSection({ code }: { code: string }) {
   const { data: reviews = [], error: reviewsError, refetch: refetchReviews } = useCourseRatings(code);
   const { data: stats, error: statsError, refetch: refetchStats } = useCourseStats(code);
   const submit = useSubmitRating(code);
+  const remove = useDeleteRating();
 
   const mine = reviews.find((r) => r.user_id === user?.id);
   const [open, setOpen] = useState(false);
@@ -91,6 +92,17 @@ export function RatingSection({ code }: { code: string }) {
       setOpen(false);
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Could not save your rating");
+    }
+  }
+
+  async function deleteReview() {
+    if (!mine || !window.confirm("Delete your review? This cannot be undone.")) return;
+    try {
+      await remove.mutateAsync({ id: mine.id, courseCode: code });
+      setOpen(false);
+      toast.success("Your review was deleted.");
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Could not delete your review");
     }
   }
 
@@ -161,6 +173,15 @@ export function RatingSection({ code }: { code: string }) {
             <button onClick={() => setOpen(false)} className="rounded-full px-5 py-2 text-sm font-semibold text-muted-foreground hover:text-foreground">
               Cancel
             </button>
+            {mine && (
+              <button
+                onClick={deleteReview}
+                disabled={remove.isPending}
+                className="ml-auto rounded-full px-4 py-2 text-sm font-semibold text-red-300 transition hover:text-red-200 disabled:opacity-60"
+              >
+                {remove.isPending ? "Deleting…" : "Delete review"}
+              </button>
+            )}
           </div>
         </div>
       )}

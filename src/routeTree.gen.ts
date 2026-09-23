@@ -14,6 +14,7 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as FriendsRouteImport } from './routes/friends'
 import { Route as HelpRouteImport } from './routes/help'
 import { Route as ListRouteImport } from './routes/list'
+import { Route as ReviewsRouteImport } from './routes/reviews'
 import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as AuthResetPasswordRouteImport } from './routes/auth.reset-password'
 import { Route as CourseCodeRouteImport } from './routes/course.$code'
@@ -43,6 +44,11 @@ const ListRoute = ListRouteImport.update({
   path: '/list',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ReviewsRoute = ReviewsRouteImport.update({
+  id: '/reviews',
+  path: '/reviews',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SettingsRoute = SettingsRouteImport.update({
   id: '/settings',
   path: '/settings',
@@ -65,6 +71,7 @@ export interface FileRoutesByFullPath {
   '/friends': typeof FriendsRoute
   '/help': typeof HelpRoute
   '/list': typeof ListRoute
+  '/reviews': typeof ReviewsRoute
   '/settings': typeof SettingsRoute
   '/auth/reset-password': typeof AuthResetPasswordRoute
   '/course/$code': typeof CourseCodeRoute
@@ -75,6 +82,7 @@ export interface FileRoutesByTo {
   '/friends': typeof FriendsRoute
   '/help': typeof HelpRoute
   '/list': typeof ListRoute
+  '/reviews': typeof ReviewsRoute
   '/settings': typeof SettingsRoute
   '/auth/reset-password': typeof AuthResetPasswordRoute
   '/course/$code': typeof CourseCodeRoute
@@ -86,6 +94,7 @@ export interface FileRoutesById {
   '/friends': typeof FriendsRoute
   '/help': typeof HelpRoute
   '/list': typeof ListRoute
+  '/reviews': typeof ReviewsRoute
   '/settings': typeof SettingsRoute
   '/auth/reset-password': typeof AuthResetPasswordRoute
   '/course/$code': typeof CourseCodeRoute
@@ -98,6 +107,7 @@ export interface FileRouteTypes {
     | '/friends'
     | '/help'
     | '/list'
+    | '/reviews'
     | '/settings'
     | '/auth/reset-password'
     | '/course/$code'
@@ -108,6 +118,7 @@ export interface FileRouteTypes {
     | '/friends'
     | '/help'
     | '/list'
+    | '/reviews'
     | '/settings'
     | '/auth/reset-password'
     | '/course/$code'
@@ -118,6 +129,7 @@ export interface FileRouteTypes {
     | '/friends'
     | '/help'
     | '/list'
+    | '/reviews'
     | '/settings'
     | '/auth/reset-password'
     | '/course/$code'
@@ -129,6 +141,7 @@ export interface RootRouteChildren {
   FriendsRoute: typeof FriendsRoute
   HelpRoute: typeof HelpRoute
   ListRoute: typeof ListRoute
+  ReviewsRoute: typeof ReviewsRoute
   SettingsRoute: typeof SettingsRoute
   CourseCodeRoute: typeof CourseCodeRoute
 }
@@ -168,6 +181,13 @@ declare module '@tanstack/react-router' {
       path: '/list'
       fullPath: '/list'
       preLoaderRoute: typeof ListRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/reviews': {
+      id: '/reviews'
+      path: '/reviews'
+      fullPath: '/reviews'
+      preLoaderRoute: typeof ReviewsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/settings': {
@@ -210,6 +230,7 @@ const rootRouteChildren: RootRouteChildren = {
   FriendsRoute: FriendsRoute,
   HelpRoute: HelpRoute,
   ListRoute: ListRoute,
+  ReviewsRoute: ReviewsRoute,
   SettingsRoute: SettingsRoute,
   CourseCodeRoute: CourseCodeRoute,
 }
