@@ -257,17 +257,11 @@ function FriendsPage() {
                   return (
                     <div key={r.id} className="rounded-xl border border-border/50 bg-surface p-4">
                       <div className="flex items-center gap-3">
-                        <Link
-                          to="/profile/$userId"
-                          params={{ userId: id }}
-                          className="flex min-w-0 flex-1 items-center gap-3 rounded-lg text-left transition hover:text-brand focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/50"
-                        >
-                          <img src={avatarSrc(p?.avatar_id)} alt="" width={40} height={40} className="h-10 w-10 rounded-full object-contain" />
-                          <span className="min-w-0">
-                            <span className="block truncate text-sm font-semibold">{name}</span>
-                            <span className="block truncate text-xs text-muted-foreground">{p?.username ? `@${p.username}` : ""}</span>
-                          </span>
-                        </Link>
+                        <img src={avatarSrc(p?.avatar_id)} alt="" width={40} height={40} className="h-10 w-10 rounded-full object-contain" />
+                        <div className="min-w-0 flex-1">
+                          <div className="truncate text-sm font-semibold">{name}</div>
+                          <div className="truncate text-xs text-muted-foreground">{p?.username ? `@${p.username}` : ""}</div>
+                        </div>
                         <button
                           disabled={remove.isPending}
                           onClick={() => remove.mutate(r.id)}
