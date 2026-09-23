@@ -65,6 +65,7 @@ export function useMyRatings(userId: string | undefined) {
 export function useCourseStats(code: string) {
   return useQuery({
     queryKey: ["rating-stats", code],
+    enabled: Boolean(code),
     queryFn: async () => {
       const { data, error } = await supabase
         .from("course_rating_stats")
