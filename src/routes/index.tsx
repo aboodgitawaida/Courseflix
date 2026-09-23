@@ -4,6 +4,7 @@ import { Hero } from "@/components/Hero";
 import { CourseRail } from "@/components/CourseRail";
 import { MajorPicker } from "@/components/MajorPicker";
 import { CreatorSection } from "@/components/CreatorSection";
+import { MemorialSection } from "@/components/MemorialSection";
 import { FilterChips } from "@/components/FilterChips";
 import { CinematicIntro } from "@/components/CinematicIntro";
 import { getRailsForMajor, getFeaturedForMajor, type FilterId } from "@/lib/courses";
@@ -113,6 +114,7 @@ export function Home() {
       </main>
 
       <CreatorSection />
+      <MemorialSection />
 
       <footer className="border-t border-white/[0.08] px-6 md:px-10 py-8 text-xs text-neutral-500 flex flex-wrap gap-2 justify-between">
         <span>Courseflix · unofficial · built by Abood Awaida</span>
