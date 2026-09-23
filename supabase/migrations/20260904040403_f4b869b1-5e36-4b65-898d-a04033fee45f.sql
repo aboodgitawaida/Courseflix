@@ -32,5 +32,11 @@ DROP POLICY IF EXISTS "Visible shortlists are readable" ON public.shortlists;
 CREATE POLICY "Visible shortlists are readable" ON public.shortlists
 FOR SELECT TO authenticated USING (private.can_view_shortlist(user_id));
 
+DROP POLICY IF EXISTS "Users manage own shortlist" ON public.shortlists;
+CREATE POLICY "Users manage own shortlist" ON public.shortlists
+FOR ALL TO authenticated
+USING (auth.uid() = user_id)
+WITH CHECK (auth.uid() = user_id);
+
 DROP FUNCTION IF EXISTS public.can_view_shortlist(uuid);
 DROP FUNCTION IF EXISTS public.are_friends(uuid, uuid);
