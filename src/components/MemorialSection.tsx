@@ -8,7 +8,7 @@ export function MemorialSection() {
             <img
               src="/memorial-grandfather-focused.jpg"
               alt="Engineer Mohammad Ali Awaida seated in a blue jacket at a family gathering"
-              className="h-72 w-52 rounded-xl object-cover object-center md:h-80 md:w-60"
+              className="h-72 w-52 rounded-xl object-cover object-center grayscale-[0.8] contrast-[0.95] md:h-80 md:w-60"
             />
           </div>
           <div className="relative text-center md:text-left">
