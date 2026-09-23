@@ -151,6 +151,7 @@ export function useShortlist() {
       const { data, error } = await supabase
         .from("shortlists")
         .select("course_code")
+        .eq("user_id", auth.user.id)
         .order("created_at", { ascending: false });
       if (error) throw new Error(`Could not load shortlist: ${error.message}`);
       return (data ?? []).map((row) => row.course_code as string);
