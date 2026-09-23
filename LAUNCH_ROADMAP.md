@@ -6,14 +6,7 @@ that require access to the deployed Vercel/Supabase environments.
 
 ## P0 — Must complete before public sharing
 
-### 1. Verify production configuration
-
-- [ ] Confirm Vercel environment variables are present and use the production Supabase project.
-- [ ] Confirm `https://courseflix.ca` is configured as the Supabase site URL and redirect URL.
-- [ ] Verify OAuth callback and password-reset redirects on the deployed build.
-- [ ] Verify canonical URLs, social previews, and the `/og-image.png` asset on production.
-
-### 2. Complete the live Supabase RLS test matrix
+### 1. Complete the live Supabase RLS test matrix
 
 Run with two accounts and a signed-out session. Confirm that the deployed policies, not just the
 client filters, enforce these rules:
@@ -30,14 +23,14 @@ without leaking sensitive details.
 
 ## P1 — Complete before or immediately after launch
 
-### 3. Finish the verification baseline
+### 2. Finish the verification baseline
 
 - [ ] Run Lighthouse, axe, keyboard-only navigation, 200% zoom, reduced-motion, and screen-reader
       checks.
 - [ ] Validate the deployed site on narrow mobile, tablet, desktop, slow network, and landscape
       layouts.
 
-### 4. Finish accessibility and touch review
+### 3. Finish accessibility and touch review
 
 - [ ] Confirm long usernames/program names and sticky `#creator` navigation on physical devices.
 
@@ -55,7 +48,6 @@ These are valuable but should not block the initial public launch:
 
 ## Launch acceptance checklist
 
-- [ ] Production redirects and environment configuration verified.
 - [ ] Live RLS checks pass for profiles, friendships, notifications, aggregates, and signed-out access.
 - [ ] Password reset, OAuth, shortlist sharing, and core authenticated flows work in production.
 - [ ] Social preview tested on the intended sharing surfaces.
