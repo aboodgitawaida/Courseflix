@@ -6,7 +6,7 @@ export function MemorialSection() {
         <div className="relative mx-auto flex max-w-4xl flex-col items-center gap-8 md:flex-row md:gap-10">
           <div className="shrink-0 rounded-2xl border border-white/[0.12] bg-surface-2 p-2 shadow-card">
             <img
-              src="/memorial-grandfather.jpg"
+              src="/memorial-grandfather-focused.jpg"
               alt="Engineer Mohammad Ali Awaida seated in a blue jacket at a family gathering"
               className="h-72 w-52 rounded-xl object-cover object-center md:h-80 md:w-60"
             />
