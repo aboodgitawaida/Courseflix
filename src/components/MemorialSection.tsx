@@ -7,7 +7,7 @@ export function MemorialSection() {
           <div className="shrink-0 rounded-2xl border border-white/[0.12] bg-surface-2 p-2 shadow-card">
             <img
               src="/memorial-grandfather.jpg"
-              alt="A cherished family photo with Engineer Mohammad Ali Awaida"
+              alt="Engineer Mohammad Ali Awaida seated in a blue jacket at a family gathering"
               className="h-72 w-52 rounded-xl object-cover object-center md:h-80 md:w-60"
             />
           </div>
