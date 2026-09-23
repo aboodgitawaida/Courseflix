@@ -108,7 +108,9 @@ export function useSendFriendRequest() {
         .from("friendships")
         .insert({ requester_id: uid, addressee_id: addresseeId, status: "pending" });
       if (error) {
-        if (error.code === "23505") throw new Error("You already sent a request to this student.");
+        if (error.code === "23505") {
+          throw new Error("A friendship or pending request already exists with this student.");
+        }
         throw new Error(`Could not send friend request: ${error.message}`);
       }
     },

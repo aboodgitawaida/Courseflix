@@ -73,8 +73,27 @@ function FriendsPage() {
   const people = data?.people;
   const other = (r: { requester_id: string; addressee_id: string }) =>
     r.requester_id === uid ? r.addressee_id : r.requester_id;
+  const relationshipFor = (id: string) => {
+    if (data?.accepted.some((row) => other(row) === id)) return "friends" as const;
+    if (data?.outgoing.some((row) => row.addressee_id === id)) return "outgoing" as const;
+    if (data?.incoming.some((row) => row.requester_id === id)) return "incoming" as const;
+    return "none" as const;
+  };
 
   async function add(id: string) {
+    const relationship = relationshipFor(id);
+    if (relationship === "friends") {
+      toast.info("You are already friends with this student.");
+      return;
+    }
+    if (relationship === "outgoing") {
+      toast.info("Your friend request is still pending.");
+      return;
+    }
+    if (relationship === "incoming") {
+      toast.info("This student already sent you a request. Respond under Requests.");
+      return;
+    }
     try {
       await send.mutateAsync(id);
       toast.success("Friend request sent");
@@ -133,6 +152,18 @@ function FriendsPage() {
                 {results
                   .filter((p) => p.id !== uid)
                   .map((p) => (
+                    (() => {
+                      const relationship = relationshipFor(p.id);
+                      const disabled = relationship !== "none";
+                      const label =
+                        relationship === "friends"
+                          ? "Friends"
+                          : relationship === "outgoing"
+                            ? "Request pending"
+                            : relationship === "incoming"
+                              ? "Respond in Requests"
+                              : "Add";
+                      return (
                     <div key={p.id} className="flex items-center gap-3 rounded-xl border border-border/50 bg-surface p-3">
                       <img src={avatarSrc(p.avatar_id)} alt="" width={40} height={40} className="h-10 w-10 rounded-full object-contain" />
                       <div className="min-w-0 flex-1">
@@ -143,11 +174,18 @@ function FriendsPage() {
                       </div>
                       <button
                         onClick={() => void add(p.id)}
-                        className="inline-flex items-center gap-1.5 rounded-full bg-brand px-3 py-1.5 text-xs font-semibold text-primary-foreground transition hover:bg-brand-glow"
+                        disabled={disabled}
+                        className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-semibold transition ${
+                          disabled
+                            ? "cursor-default border border-border/60 text-muted-foreground"
+                            : "bg-brand text-primary-foreground hover:bg-brand-glow"
+                        }`}
                       >
-                        <UserPlus className="h-3.5 w-3.5" /> Add
+                        {relationship === "none" && <UserPlus className="h-3.5 w-3.5" />} {label}
                       </button>
                     </div>
+                      );
+                    })()
                   ))}
               </section>
             )}
