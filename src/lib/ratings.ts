@@ -42,6 +42,26 @@ export function useCourseRatings(code: string) {
   });
 }
 
+export function useMyRatings(userId: string | undefined) {
+  return useQuery({
+    queryKey: ["my-ratings", userId],
+    enabled: Boolean(userId),
+    queryFn: async () => {
+      if (!userId) return [] as RatingRow[];
+      const { data, error } = await supabase
+        .from("course_ratings")
+        .select(
+          "id, user_id, course_code, rating, difficulty, workload, would_take_again, prof_name, comment, created_at",
+        )
+        .eq("user_id", userId)
+        .order("created_at", { ascending: false });
+      if (error) throw new Error(`Could not load your reviews: ${error.message}`);
+      return (data ?? []) as RatingRow[];
+    },
+    retry: 1,
+  });
+}
+
 export function useCourseStats(code: string) {
   return useQuery({
     queryKey: ["rating-stats", code],
@@ -97,6 +117,24 @@ export function useSubmitRating(code: string) {
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: ["ratings", code] });
       void queryClient.invalidateQueries({ queryKey: ["rating-stats", code] });
+    },
+  });
+}
+
+export function useDeleteRating() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({ id, courseCode }: { id: string; courseCode: string }) => {
+      const { error } = await supabase.from("course_ratings").delete().eq("id", id);
+      if (error) throw new Error(`Could not delete your review: ${error.message}`);
+      return courseCode;
+    },
+    onSuccess: (courseCode) => {
+      void queryClient.invalidateQueries({ queryKey: ["my-ratings"] });
+      void queryClient.invalidateQueries({ queryKey: ["ratings", courseCode] });
+      void queryClient.invalidateQueries({ queryKey: ["rating-stats", courseCode] });
+      announce(`Your review for ${courseCode} was deleted.`);
     },
   });
 }

@@ -1,5 +1,5 @@
 import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
-import { Search, Bookmark, User, Menu, X, Users, Settings, LifeBuoy } from "lucide-react";
+import { Search, Bookmark, User, Menu, X, Users, Settings, LifeBuoy, Star } from "lucide-react";
 import { useState } from "react";
 import { useAuth } from "@/hooks/use-auth";
 import { useCourseUI } from "@/hooks/use-course-ui";
@@ -48,6 +48,11 @@ export function TopNav() {
           <Link to="/list" className="transition hover:text-foreground">
             My Shortlist
           </Link>
+          {signedIn && (
+            <Link to="/reviews" className="transition hover:text-foreground">
+              My Reviews
+            </Link>
+          )}
           <a
             href="/#creator"
             onClick={scrollToCreator}
@@ -166,6 +171,18 @@ export function TopNav() {
             >
               <Users className="mr-2 inline h-4 w-4" /> Friends
             </Link>
+            {signedIn && (
+              <Link
+                to="/reviews"
+                onClick={() => setMobileMenuOpen(false)}
+                className={`rounded-lg px-3 py-2.5 transition hover:bg-white/10 hover:text-foreground ${
+                  pathname === "/reviews" ? "bg-white/10 text-foreground" : "text-muted-foreground"
+                }`}
+                aria-current={pathname === "/reviews" ? "page" : undefined}
+              >
+                <Star className="mr-2 inline h-4 w-4" /> My reviews
+              </Link>
+            )}
             <Link
               to="/settings"
               onClick={() => setMobileMenuOpen(false)}
