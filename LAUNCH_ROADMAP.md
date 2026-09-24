@@ -13,7 +13,6 @@ client filters, enforce these rules:
 
 | Area | Required result |
 | --- | --- |
-| Friendships | Only request participants can accept, update, or delete a friendship. |
 | Aggregates | Course rating statistics are readable but not writable. |
 
 Also test unauthenticated access to each private data path and confirm expected errors are shown
@@ -46,7 +45,7 @@ These are valuable but should not block the initial public launch:
 
 ## Launch acceptance checklist
 
-- [ ] Live RLS checks pass for profiles, friendships, aggregates, and signed-out access.
+- [ ] Live RLS checks pass for aggregates and signed-out access.
 - [ ] OAuth and remaining core authenticated flows work in production.
 - [ ] Mobile, keyboard, accessibility, and slow-network checks completed.
 - [ ] Remaining launch-critical errors and loading states are covered.
