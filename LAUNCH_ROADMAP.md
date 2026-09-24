@@ -25,6 +25,7 @@ These are valuable but should not block the initial public launch:
 ## Launch acceptance checklist
 
 - [x] Live RLS checks passed for aggregates; live rating, difficulty, and workload updates verified.
-- [ ] OAuth and remaining core authenticated flows work in production.
+- [x] Google OAuth and remaining core authenticated flows work in production; Supabase
+      redirects and the production callback were verified.
 - [x] Mobile, keyboard, accessibility, and slow-network checks completed.
 - [x] Remaining launch-critical errors and loading states are covered.
