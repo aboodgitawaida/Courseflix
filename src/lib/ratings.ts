@@ -84,6 +84,8 @@ export function useCourseStats(code: string) {
         pct_would_take_again: Number(values["pct_would_take_again"] ?? 0),
       } as RatingStats;
     },
+    refetchInterval: 10_000,
+    refetchIntervalInBackground: true,
     retry: 1,
   });
 }
