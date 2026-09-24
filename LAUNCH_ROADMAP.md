@@ -13,7 +13,6 @@ client filters, enforce these rules:
 
 | Area | Required result |
 | --- | --- |
-| Aggregates | Course rating statistics are readable but not writable. |
 
 Also test unauthenticated access to each private data path and confirm expected errors are shown
 without leaking sensitive details.
@@ -45,7 +44,7 @@ These are valuable but should not block the initial public launch:
 
 ## Launch acceptance checklist
 
-- [ ] Live RLS checks pass for aggregates.
+- [x] Live RLS checks passed for aggregates; live rating, difficulty, and workload updates verified.
 - [ ] OAuth and remaining core authenticated flows work in production.
 - [ ] Mobile, keyboard, accessibility, and slow-network checks completed.
 - [ ] Remaining launch-critical errors and loading states are covered.
