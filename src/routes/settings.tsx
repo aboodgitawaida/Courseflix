@@ -9,6 +9,7 @@ import { useTheme } from "@/hooks/use-theme";
 import { useSound } from "@/hooks/use-sound";
 import { AVATARS, useProfile, useUpdateProfile } from "@/lib/profile";
 import { MAJORS } from "@/lib/majors";
+import { useMajor } from "@/hooks/use-major";
 import { announce } from "@/lib/a11y";
 
 export const Route = createFileRoute("/settings")({
@@ -22,6 +23,7 @@ function SettingsPage() {
   const update = useUpdateProfile();
   const { theme, toggleTheme } = useTheme();
   const { muted, toggleMuted, play } = useSound();
+  const { setMajor } = useMajor();
   const initializedUserId = useRef<string | null>(null);
 
   const [displayName, setDisplayName] = useState("");
@@ -64,6 +66,7 @@ function SettingsPage() {
         major_id: majorId || null,
         year: year ? Number(year) : null,
       });
+      setMajor(majorId || null);
       play("pop");
       toast.success("Profile saved");
     } catch (err) {
