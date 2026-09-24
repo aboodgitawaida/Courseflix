@@ -24,6 +24,8 @@ export function CoursePreviewModal() {
   const inList = course ? (saved as string[]).includes(course.code) : false;
   const match = course ? getMatchScore(course, major) : null;
   const displayRating = stats?.rating_count ? stats.avg_rating : course?.rating ?? 0;
+  const displayDifficulty = stats?.rating_count ? stats.avg_difficulty : course?.difficulty ?? 0;
+  const displayWorkload = stats?.rating_count ? stats.avg_workload : course?.workload ?? 0;
   const majorName = getMajor(major)?.name;
 
   async function onShortlist() {
@@ -104,8 +106,8 @@ export function CoursePreviewModal() {
 
               <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
                 <Stat label="Rating" value={`${displayRating.toFixed(1)}/5`} />
-                <Stat label="Difficulty" value={`${course.difficulty.toFixed(1)}/5`} />
-                <Stat label="Workload" value={`${course.workload.toFixed(1)}/5`} />
+                <Stat label="Difficulty" value={`${displayDifficulty.toFixed(1)}/5`} />
+                <Stat label="Workload" value={`${displayWorkload.toFixed(1)}/5`} />
                 <Stat label="Exam weight" value={`${examWeight(course)}%`} />
               </div>
 
