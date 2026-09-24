@@ -2,7 +2,6 @@ import { createFileRoute } from "@tanstack/react-router";
 import { TopNav } from "@/components/TopNav";
 import { Hero } from "@/components/Hero";
 import { CourseRail } from "@/components/CourseRail";
-import { MajorPicker } from "@/components/MajorPicker";
 import { CreatorSection } from "@/components/CreatorSection";
 import { MemorialSection } from "@/components/MemorialSection";
 import { FilterChips } from "@/components/FilterChips";
@@ -57,10 +56,6 @@ export function Home() {
     }, 200);
     return () => clearTimeout(t);
   }, [hydrated, currentMajor]);
-
-  if (hydrated && !currentMajor) {
-    return <MajorPicker onPick={setMajor} />;
-  }
 
   const rails = getRailsForMajor(major, filter);
   const featured = getFeaturedForMajor(major);
