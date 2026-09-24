@@ -73,6 +73,8 @@ export function useFriendships() {
         people,
       };
     },
+    refetchInterval: 5_000,
+    refetchIntervalInBackground: true,
     retry: 1,
   });
 }
@@ -194,7 +196,8 @@ export function useNotifications() {
       ]);
       return { rows, people };
     },
-    refetchInterval: 60_000,
+    refetchInterval: 10_000,
+    refetchIntervalInBackground: true,
     staleTime: 15_000,
     retry: 1,
   });
