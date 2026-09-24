@@ -222,3 +222,22 @@ export function useMarkNotificationsRead() {
     },
   });
 }
+
+export function useClearNotifications() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async () => {
+      const uid = await currentUserId();
+      if (!uid) return;
+
+      const { error } = await supabase
+        .from("notifications")
+        .delete()
+        .eq("user_id", uid);
+      if (error) throw new Error(`Could not clear notifications: ${error.message}`);
+    },
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: ["notifications"] });
+    },
+  });
+}

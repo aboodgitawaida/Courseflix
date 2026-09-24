@@ -2,7 +2,7 @@ import { Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { Bell } from "lucide-react";
 import { avatarSrc } from "@/lib/profile";
-import { useMarkNotificationsRead, useNotifications } from "@/lib/social";
+import { useClearNotifications, useMarkNotificationsRead, useNotifications } from "@/lib/social";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { announce } from "@/lib/a11y";
 
@@ -23,6 +23,7 @@ export function NotificationBell() {
   const [now, setNow] = useState(() => Date.now());
   const { data, isLoading, error, refetch } = useNotifications();
   const markRead = useMarkNotificationsRead();
+  const clearNotifications = useClearNotifications();
   const rows = data?.rows ?? [];
   const people = data?.people;
   const unread = rows.filter((r) => !r.read).length;
@@ -35,7 +36,7 @@ export function NotificationBell() {
   }, []);
   return <DropdownMenu onOpenChange={(open) => { if (open && unread > 0) void markRead.mutateAsync(); }}>
     <DropdownMenuTrigger aria-label={unread > 0 ? `Notifications, ${unread} unread` : "Notifications"} className="relative grid h-9 w-9 shrink-0 place-items-center rounded-full transition hover:bg-foreground/10"><Bell className="h-4 w-4" />{unread > 0 && <span className="absolute right-1 top-1 grid h-4 min-w-4 place-items-center rounded-full bg-brand px-1 text-[10px] font-bold text-primary-foreground">{unread > 9 ? "9+" : unread}</span>}</DropdownMenuTrigger>
-    <DropdownMenuContent align="end" className="w-80"><DropdownMenuLabel>Activity</DropdownMenuLabel><DropdownMenuSeparator />
+    <DropdownMenuContent align="end" className="w-80"><div className="flex items-center justify-between px-2"><DropdownMenuLabel className="px-0">Activity</DropdownMenuLabel>{rows.length > 0 && <button type="button" disabled={clearNotifications.isPending} onClick={() => void clearNotifications.mutateAsync()} className="text-[11px] font-semibold text-muted-foreground transition hover:text-brand disabled:opacity-60">{clearNotifications.isPending ? "Clearing…" : "Clear notifications"}</button>}</div><DropdownMenuSeparator />
       {isLoading && (
         <div className="space-y-2 px-2 py-4">
           <div className="h-10 animate-pulse rounded-xl bg-primary/10" />
