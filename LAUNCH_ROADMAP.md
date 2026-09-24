@@ -13,7 +13,6 @@ client filters, enforce these rules:
 
 | Area | Required result |
 | --- | --- |
-| Profiles | Private profile data is not exposed to unauthorized users. |
 | Friendships | Only request participants can accept, update, or delete a friendship. |
 | Aggregates | Course rating statistics are readable but not writable. |
 
