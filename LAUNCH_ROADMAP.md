@@ -48,7 +48,6 @@ These are valuable but should not block the initial public launch:
 ## Launch acceptance checklist
 
 - [ ] Live RLS checks pass for profiles, friendships, aggregates, and signed-out access.
-- [ ] Password reset, OAuth, and core authenticated flows work in production.
-- [ ] Social preview tested on the intended sharing surfaces.
+- [ ] OAuth and remaining core authenticated flows work in production.
 - [ ] Mobile, keyboard, accessibility, and slow-network checks completed.
 - [ ] Remaining launch-critical errors and loading states are covered.
