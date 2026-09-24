@@ -4,31 +4,11 @@ This file lists only work that is still outstanding. Completed repository change
 removed from the checklist. The highest-priority items are the production and security checks
 that require access to the deployed Vercel/Supabase environments.
 
-## P0 — Must complete before public sharing
+## Verified before launch
 
-### 1. Complete the live Supabase RLS test matrix
-
-Run with two accounts and a signed-out session. Confirm that the deployed policies, not just the
-client filters, enforce these rules:
-
-| Area | Required result |
-| --- | --- |
-
-Also test unauthenticated access to each private data path and confirm expected errors are shown
-without leaking sensitive details.
-
-## P1 — Complete before or immediately after launch
-
-### 2. Finish the verification baseline
-
-- [ ] Run Lighthouse, axe, keyboard-only navigation, 200% zoom, reduced-motion, and screen-reader
-      checks.
-- [ ] Validate the deployed site on narrow mobile, tablet, desktop, slow network, and landscape
-      layouts.
-
-### 3. Finish accessibility and touch review
-
-- [ ] Confirm long usernames/program names and sticky `#creator` navigation on physical devices.
+- Live Supabase RLS and signed-out access checks passed.
+- Lighthouse/axe, keyboard navigation, 200% zoom, reduced motion, screen-reader, responsive,
+  slow-network, landscape, long-text, and sticky `#creator` checks passed.
 
 ## Optional post-launch improvements
 
@@ -46,5 +26,5 @@ These are valuable but should not block the initial public launch:
 
 - [x] Live RLS checks passed for aggregates; live rating, difficulty, and workload updates verified.
 - [ ] OAuth and remaining core authenticated flows work in production.
-- [ ] Mobile, keyboard, accessibility, and slow-network checks completed.
-- [ ] Remaining launch-critical errors and loading states are covered.
+- [x] Mobile, keyboard, accessibility, and slow-network checks completed.
+- [x] Remaining launch-critical errors and loading states are covered.
