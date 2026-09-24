@@ -11,7 +11,7 @@ export function MemorialSection() {
               className="h-72 w-52 rounded-xl object-cover object-center grayscale-[0.8] contrast-[0.95] md:h-80 md:w-60"
             />
           </div>
-          <div className="relative text-center md:text-left">
+          <div className="relative flex flex-col text-center md:self-stretch md:text-left">
             <p className="text-xs font-semibold uppercase tracking-[0.3em] text-brand">
               In Loving Memory
             </p>
@@ -25,7 +25,7 @@ export function MemorialSection() {
             <p className="mt-3 text-xl text-neutral-300 md:text-2xl" lang="ar" dir="rtl">
               المهندس محمد علي عُويضه السكافي
             </p>
-            <p className="mt-5 text-sm text-neutral-500">September 20, 2026</p>
+            <p className="mt-8 text-sm text-neutral-500 md:mt-auto">September 20, 2026</p>
           </div>
         </div>
       </div>
