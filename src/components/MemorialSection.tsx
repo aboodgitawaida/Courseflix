@@ -25,7 +25,7 @@ export function MemorialSection() {
             <p className="mt-3 text-xl text-neutral-300 md:text-2xl" lang="ar" dir="rtl">
               المهندس محمد علي عُويضه السكافي
             </p>
-            <p className="mt-3 text-sm text-neutral-500">September 20, 2026</p>
+            <p className="mt-5 text-sm text-neutral-500">September 20, 2026</p>
           </div>
         </div>
       </div>
