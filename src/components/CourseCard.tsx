@@ -1,5 +1,6 @@
 import { Star, Plus, Check, GitCompare } from "lucide-react";
 import { toast } from "sonner";
+import { memo } from "react";
 import { getArt, getBadges, getMatchScore, type Course } from "@/lib/courses";
 import { subjectPhoto } from "@/lib/subject-photo";
 import { useCourseUI } from "@/hooks/use-course-ui";
@@ -80,7 +81,7 @@ function Motif({ motif, accent }: { motif: string; accent: string }) {
   );
 }
 
-export function CourseCard({ course, size = "md" }: { course: Course; size?: "md" | "lg" }) {
+export const CourseCard = memo(function CourseCard({ course, size = "md" }: { course: Course; size?: "md" | "lg" }) {
   const w = size === "lg" ? "w-[300px] md:w-[340px]" : "w-[240px] md:w-[280px]";
   const art = getArt(course.subject);
   const subjectImage = subjectPhoto(course.subject);
@@ -192,4 +193,4 @@ export function CourseCard({ course, size = "md" }: { course: Course; size?: "md
       </div>
     </article>
   );
-}
+});
