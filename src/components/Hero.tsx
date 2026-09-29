@@ -1,5 +1,6 @@
 import { Link, useNavigate } from "@tanstack/react-router";
 import type { Course } from "@/lib/courses";
+import { subjectPhoto } from "@/lib/subject-photo";
 import { Play, Plus, Star } from "lucide-react";
 import { toast } from "sonner";
 import { useAuth } from "@/hooks/use-auth";
@@ -8,6 +9,7 @@ import { useShortlist, useToggleShortlist } from "@/lib/ratings";
 export function Hero({ featured, major }: { featured: Course; major: string }) {
   const feat = featured;
   const [c1, c2] = feat.poster;
+  const subjectImage = subjectPhoto(feat.subject);
   const navigate = useNavigate();
   const { signedIn } = useAuth();
   const { data: saved = [] } = useShortlist();
@@ -35,12 +37,18 @@ export function Hero({ featured, major }: { featured: Course; major: string }) {
   return (
     <section className="relative overflow-hidden animate-fade-in-up">
       <div
-        className="absolute inset-0"
+        className="absolute inset-0 bg-cover bg-center"
         style={{
-          background: `radial-gradient(ellipse at 70% 40%, ${c2} 0%, ${c1} 40%, var(--background) 90%)`,
+          backgroundImage: `url(${subjectImage})`,
         }}
       />
-      <div className="absolute inset-0 bg-gradient-to-t from-background via-background/40 to-transparent" />
+      <div className="absolute inset-0 bg-gradient-to-t from-background via-background/60 to-background/30" />
+      <div
+        className="absolute inset-0"
+        style={{
+          background: `radial-gradient(ellipse at 70% 40%, ${c2}33 0%, ${c1}33 40%, transparent 70%)`,
+        }}
+      />
       <div className="absolute -top-40 -right-40 h-[500px] w-[500px] rounded-full bg-brand/15 blur-3xl" />
       <div className="absolute -bottom-40 -left-40 h-[400px] w-[400px] rounded-full bg-brand/10 blur-3xl" />
 
