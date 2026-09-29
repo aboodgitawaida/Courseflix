@@ -1,10 +1,10 @@
-import { useRef, useState } from "react";
+import { useRef, useState, memo, useMemo } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { COURSES, type Rail } from "@/lib/courses";
 import { CourseCard } from "./CourseCard";
 import { CourseCardSkeleton } from "./CourseCardSkeleton";
 
-export function CourseRail({
+export const CourseRail = memo(function CourseRail({
   rail,
   loading = false,
   index = 0,
@@ -18,9 +18,9 @@ export function CourseRail({
   const scroll = (dir: 1 | -1) => {
     ref.current?.scrollBy({ left: dir * 320, behavior: "smooth" });
   };
-  const courses = rail.codes
+  const courses = useMemo(() => rail.codes
     .map((c) => COURSES.find((x) => x.code === c))
-    .filter(Boolean) as typeof COURSES;
+    .filter(Boolean) as typeof COURSES, [rail.codes]);
 
   const animationDelay = Math.min(index * 0.04, 0.2);
 
@@ -67,4 +67,4 @@ export function CourseRail({
       </div>
     </section>
   );
-}
+});
