@@ -10,7 +10,7 @@ import { getRailsForMajor, getFeaturedForMajor, type FilterId } from "@/lib/cour
 import { getMajor } from "@/lib/majors";
 import { siteUrl } from "@/lib/site";
 import { useMajor } from "@/hooks/use-major";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -57,9 +57,9 @@ export function Home() {
     return () => clearTimeout(t);
   }, [hydrated, currentMajor]);
 
-  const rails = getRailsForMajor(major, filter);
-  const featured = getFeaturedForMajor(major);
-  const inMajorCount = getRailsForMajor(major)[0]?.codes.length ?? 0;
+  const rails = useMemo(() => getRailsForMajor(major, filter), [major, filter]);
+  const featured = useMemo(() => getFeaturedForMajor(major), [major]);
+  const inMajorCount = rails[0]?.codes.length ?? 0;
 
   return (
     <div className="min-h-screen bg-background text-foreground relative">
