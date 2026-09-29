@@ -38,10 +38,6 @@ vi.mock("@/components/CourseRail", () => ({
   CourseRail: ({ rail }: { rail: { title: string } }) => <section>{rail.title}</section>,
 }));
 
-vi.mock("@/components/MajorPicker", () => ({
-  MajorPicker: () => <div>Select a major</div>,
-}));
-
 vi.mock("@/components/CreatorSection", () => ({
   CreatorSection: () => <section>Creator</section>,
 }));
