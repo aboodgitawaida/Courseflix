@@ -1,6 +1,5 @@
 import { Link, useNavigate } from "@tanstack/react-router";
 import type { Course } from "@/lib/courses";
-import { subjectPhoto } from "@/lib/subject-photo";
 import { Play, Plus, Star } from "lucide-react";
 import { toast } from "sonner";
 import { useAuth } from "@/hooks/use-auth";
@@ -9,7 +8,6 @@ import { useShortlist, useToggleShortlist } from "@/lib/ratings";
 export function Hero({ featured, major }: { featured: Course; major: string }) {
   const feat = featured;
   const [c1, c2] = feat.poster;
-  const subjectImage = subjectPhoto(feat.subject);
   const navigate = useNavigate();
   const { signedIn } = useAuth();
   const { data: saved = [] } = useShortlist();
@@ -36,12 +34,6 @@ export function Hero({ featured, major }: { featured: Course; major: string }) {
 
   return (
     <section className="relative overflow-hidden animate-fade-in-up">
-      <div
-        className="absolute inset-0 bg-cover bg-center"
-        style={{
-          backgroundImage: `url(${subjectImage})`,
-        }}
-      />
       <div className="absolute inset-0 bg-gradient-to-t from-background via-background/60 to-background/30" />
       <div
         className="absolute inset-0"
