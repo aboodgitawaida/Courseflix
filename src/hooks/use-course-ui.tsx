@@ -27,11 +27,14 @@ export function CourseUIProvider({ children }: { children: ReactNode }) {
         setPreviewCode(code);
         window.dispatchEvent(
           new CustomEvent("study-eagle-summarize", {
-            detail: { course: getCourse(code) },
+            detail: { course: getCourse(code), context: "preview" },
           }),
         );
       },
-      closePreview: () => setPreviewCode(null),
+      closePreview: () => {
+        setPreviewCode(null);
+        window.dispatchEvent(new CustomEvent("study-eagle-clear"));
+      },
       compare,
       toggleCompare: (code) =>
         setCompare((prev) => {
