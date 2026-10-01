@@ -2,7 +2,7 @@ import { Link } from "@tanstack/react-router";
 import { toast } from "sonner";
 import { Check, Copy, ExternalLink, Plus, Star } from "lucide-react";
 import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog";
-import { getArt, getBadges, getCourse, getMatchScore } from "@/lib/courses";
+import { getArt, getBadges, getCourse, getProgramMatch } from "@/lib/courses";
 import { useCourseUI } from "@/hooks/use-course-ui";
 import { useMajor } from "@/hooks/use-major";
 import { getMajor } from "@/lib/majors";
@@ -25,7 +25,7 @@ export function CoursePreviewModal() {
   const art = getArt(course?.subject ?? "");
   const [imageSrc, setImageSrc] = useState(() => getCourseImage(course?.subject ?? ""));
   const inList = course ? (saved as string[]).includes(course.code) : false;
-  const match = course ? getMatchScore(course, major) : null;
+  const match = course ? getProgramMatch(course, major) : null;
   const hasStudentData = Boolean(stats?.rating_count);
   const displayRating = hasStudentData ? stats!.avg_rating.toFixed(1) : "—";
   const displayDifficulty = hasStudentData ? stats!.avg_difficulty.toFixed(1) : "—";
@@ -73,7 +73,7 @@ export function CoursePreviewModal() {
                 <div className="mt-3 flex flex-wrap items-center gap-3 text-xs">
                   {match !== null && (
                     <span className="font-semibold text-emerald-400">
-                      {match}% match{majorName ? ` for ${majorName}` : ""}
+                      {match}{majorName ? ` · ${majorName}` : ""}
                     </span>
                   )}
                   <span className="rounded border border-white/15 bg-black/40 px-2 py-0.5">{course.area}</span>

@@ -1,7 +1,7 @@
 import { Star, Plus, Check, GitCompare } from "lucide-react";
 import { toast } from "sonner";
 import { memo, useState } from "react";
-import { getArt, getBadges, getMatchScore, type Course } from "@/lib/courses";
+import { getArt, getBadges, getProgramMatch, type Course } from "@/lib/courses";
 import { FALLBACK_SUBJECT_IMAGE, getCourseImage } from "@/lib/subject-images";
 import { useCourseUI } from "@/hooks/use-course-ui";
 import { useMajor } from "@/hooks/use-major";
@@ -88,7 +88,7 @@ export const CourseCard = memo(function CourseCard({ course, size = "md" }: { co
   const badges = getBadges(course);
   const { openPreview, compare, toggleCompare } = useCourseUI();
   const { major } = useMajor();
-  const match = getMatchScore(course, major);
+  const match = getProgramMatch(course, major);
   const { signedIn } = useAuth();
   const { data: saved = [] } = useShortlist();
   const toggle = useToggleShortlist();
@@ -174,7 +174,7 @@ export const CourseCard = memo(function CourseCard({ course, size = "md" }: { co
           <Star className="h-3 w-3 fill-current" /> {displayRating === null ? "—" : displayRating.toFixed(1)}
         </span>
         {match !== null && (
-          <span className="rounded-lg border border-white/[0.12] bg-white/[0.08] backdrop-blur-md px-1.5 py-0.5 text-[10px] font-semibold text-emerald-400">{match}% match</span>
+          <span className="rounded-lg border border-white/[0.12] bg-white/[0.08] backdrop-blur-md px-1.5 py-0.5 text-[10px] font-semibold text-emerald-400">{match}</span>
         )}
         <span className="rounded-lg border border-white/[0.12] bg-white/[0.08] backdrop-blur-md px-1.5 py-0.5 text-[10px] text-muted-foreground">{course.credits} cr</span>
       </div>
