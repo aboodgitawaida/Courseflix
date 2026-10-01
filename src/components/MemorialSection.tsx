@@ -1,4 +1,8 @@
+const MEMORIAL_SECTION_ENABLED = false;
+
 export function MemorialSection() {
+  if (!MEMORIAL_SECTION_ENABLED) return null;
+
   return (
     <section aria-labelledby="memorial-title" className="px-6 pb-20 md:px-10">
       <div className="relative overflow-hidden rounded-3xl border border-white/[0.1] bg-surface px-7 py-8 md:px-10 md:py-10">
