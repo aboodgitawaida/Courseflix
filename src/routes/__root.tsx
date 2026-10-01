@@ -19,6 +19,7 @@ import { ThemeProvider } from "@/hooks/use-theme";
 import { CommandPalette } from "@/components/CommandPalette";
 import { CoursePreviewModal } from "@/components/CoursePreviewModal";
 import { CompareDrawer } from "@/components/CompareDrawer";
+import { StudyEagle } from "@/components/StudyEagle";
 import { NetworkStatusBanner } from "@/components/NetworkStatusBanner";
 import { supabase } from "@/integrations/supabase/client";
 import { captureFirstTouchAttribution } from "@/lib/attribution";
@@ -192,6 +193,7 @@ function RootComponent() {
             <CommandPalette />
             <CoursePreviewModal />
             <CompareDrawer />
+            <StudyEagle />
             <Toaster position="top-center" />
           </CourseUIProvider>
         </SoundProvider>
