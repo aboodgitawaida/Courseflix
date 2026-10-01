@@ -4,14 +4,10 @@ import { Play, Plus, Star } from "lucide-react";
 import { toast } from "sonner";
 import { useAuth } from "@/hooks/use-auth";
 import { useShortlist, useToggleShortlist } from "@/lib/ratings";
-import { useState } from "react";
-import { FALLBACK_MAJOR_IMAGE } from "@/lib/major-images";
-import { getCourseImage } from "@/lib/course-images";
 
 export function Hero({ featured, major }: { featured: Course; major: string }) {
   const feat = featured;
   const [c1, c2] = feat.poster;
-  const [imageSrc, setImageSrc] = useState(() => getCourseImage(feat.subject));
   const navigate = useNavigate();
   const { signedIn } = useAuth();
   const { data: saved = [] } = useShortlist();
@@ -43,17 +39,6 @@ export function Hero({ featured, major }: { featured: Course; major: string }) {
         className="absolute inset-0"
         style={{
           background: `radial-gradient(ellipse at 70% 40%, ${c2}33 0%, ${c1}33 40%, transparent 70%)`,
-        }}
-      />
-      <img
-        src={imageSrc}
-        alt=""
-        decoding="async"
-        width={1200}
-        height={675}
-        className="absolute inset-0 h-full w-full object-cover opacity-35"
-        onError={() => {
-          if (imageSrc !== FALLBACK_MAJOR_IMAGE) setImageSrc(FALLBACK_MAJOR_IMAGE);
         }}
       />
       <div className="absolute -top-40 -right-40 h-[500px] w-[500px] rounded-full bg-brand/15 blur-3xl" />
