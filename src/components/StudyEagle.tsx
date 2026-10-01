@@ -4,6 +4,7 @@ import { useRouterState } from "@tanstack/react-router";
 import { getCourse, type Course } from "@/lib/courses";
 
 type Position = { x: number; y: number };
+type Direction = "down" | "up" | "left" | "right";
 
 const EAGLE_REPLIES = [
   "Try the course preview first, then shortlist anything that still feels like a good fit.",
@@ -19,8 +20,12 @@ export function StudyEagle() {
   const [reply, setReply] = useState(EAGLE_REPLIES[0]);
   const [petCount, setPetCount] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
+  const [isReturning, setIsReturning] = useState(false);
+  const [direction, setDirection] = useState<Direction>("down");
   const dragOffset = useRef<Position>({ x: 0, y: 0 });
+  const lastPointer = useRef<Position>({ x: 0, y: 0 });
   const didDrag = useRef(false);
+  const returnFrame = useRef<number | null>(null);
   const pathname = useRouterState({ select: (state) => state.location.pathname });
   const course = getCurrentCourse(pathname);
 
@@ -29,15 +34,24 @@ export function StudyEagle() {
   }, []);
 
   useEffect(() => {
-    if (paused || isDragging) return;
+    if (paused || (!isDragging && !isReturning)) return;
     const timer = window.setInterval(() => setFrame((current) => (current + 1) % 3), 220);
     return () => window.clearInterval(timer);
-  }, [isDragging, paused]);
+  }, [isDragging, isReturning, paused]);
+
+  useEffect(() => {
+    return () => {
+      if (returnFrame.current !== null) cancelAnimationFrame(returnFrame.current);
+    };
+  }, []);
 
   function onPointerDown(event: ReactPointerEvent<HTMLButtonElement>) {
     if (!position) return;
     event.currentTarget.setPointerCapture(event.pointerId);
+    if (returnFrame.current !== null) cancelAnimationFrame(returnFrame.current);
+    setIsReturning(false);
     dragOffset.current = { x: event.clientX - position.x, y: event.clientY - position.y };
+    lastPointer.current = { x: event.clientX, y: event.clientY };
     didDrag.current = false;
     setIsDragging(true);
   }
@@ -45,6 +59,12 @@ export function StudyEagle() {
   function onPointerMove(event: ReactPointerEvent<HTMLButtonElement>) {
     if (!isDragging) return;
     didDrag.current = true;
+    const deltaX = event.clientX - lastPointer.current.x;
+    const deltaY = event.clientY - lastPointer.current.y;
+    if (Math.abs(deltaX) > 2 || Math.abs(deltaY) > 2) {
+      setDirection(Math.abs(deltaX) > Math.abs(deltaY) ? (deltaX > 0 ? "right" : "left") : deltaY > 0 ? "down" : "up");
+    }
+    lastPointer.current = { x: event.clientX, y: event.clientY };
     setPosition({
       x: clamp(event.clientX - dragOffset.current.x, 8, window.innerWidth - 104),
       y: clamp(event.clientY - dragOffset.current.y, 72, window.innerHeight - 112),
@@ -53,6 +73,12 @@ export function StudyEagle() {
 
   function onPointerUp() {
     setIsDragging(false);
+    if (didDrag.current) {
+      startReturnFlight();
+      window.setTimeout(() => {
+        didDrag.current = false;
+      }, 0);
+    }
   }
 
   function petEagle() {
@@ -62,7 +88,39 @@ export function StudyEagle() {
   }
 
   function resetPosition() {
-    setPosition({ x: window.innerWidth - 132, y: window.innerHeight - 150 });
+    startReturnFlight();
+  }
+
+  function startReturnFlight() {
+    if (!position) return;
+    if (returnFrame.current !== null) cancelAnimationFrame(returnFrame.current);
+    setIsReturning(true);
+    const target = getPerchPosition();
+    const start = position;
+    const startedAt = performance.now();
+    const verticalDuration = Math.max(220, Math.abs(target.y - start.y) * 2.2);
+    const horizontalDuration = Math.max(220, Math.abs(target.x - start.x) * 2.2);
+    const totalDuration = verticalDuration + horizontalDuration;
+
+    const step = (now: number) => {
+      const elapsed = Math.min(now - startedAt, totalDuration);
+      if (elapsed < verticalDuration) {
+        setDirection(elapsed < verticalDuration / 2 ? (target.y > start.y ? "down" : "up") : "down");
+        setPosition({ x: start.x, y: lerp(start.y, target.y, elapsed / verticalDuration) });
+      } else {
+        setDirection("right");
+        setPosition({ x: lerp(start.x, target.x, (elapsed - verticalDuration) / horizontalDuration), y: target.y });
+      }
+      if (elapsed < totalDuration) {
+        returnFrame.current = requestAnimationFrame(step);
+      } else {
+        returnFrame.current = null;
+        setIsReturning(false);
+        setDirection("down");
+        setPosition(target);
+      }
+    };
+    returnFrame.current = requestAnimationFrame(step);
   }
 
   if (!position) return null;
@@ -109,7 +167,12 @@ export function StudyEagle() {
           onPointerCancel={onPointerUp}
           className="study-eagle-button"
         >
-          <span className="study-eagle-sprite" style={{ backgroundPosition: `${frame * 50}% 0%` }} />
+          <span
+            className="study-eagle-sprite"
+            style={{
+              backgroundPosition: `${frame * 50}% ${direction === "down" ? "0%" : direction === "up" ? "100%" : direction === "left" ? "33.333%" : "66.666%"}`,
+            }}
+          />
         </button>
         <div className="study-eagle-shadow" aria-hidden="true" />
         <div className="study-eagle-controls">
@@ -124,6 +187,15 @@ export function StudyEagle() {
 
 function clamp(value: number, min: number, max: number) {
   return Math.max(min, Math.min(max, value));
+}
+
+function lerp(start: number, end: number, progress: number) {
+  const eased = 1 - (1 - Math.max(0, Math.min(1, progress))) ** 3;
+  return start + (end - start) * eased;
+}
+
+function getPerchPosition(): Position {
+  return { x: window.innerWidth - 132, y: window.innerHeight - 150 };
 }
 
 function getCurrentCourse(pathname: string): Course | undefined {
