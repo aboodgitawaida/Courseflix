@@ -6,8 +6,10 @@ import { PrereqTree } from "@/components/PrereqTree";
 import { COURSES, getCourse } from "@/lib/courses";
 import { useAuth } from "@/hooks/use-auth";
 import { useCourseStats, useShortlist, useToggleShortlist } from "@/lib/ratings";
+import { FALLBACK_SUBJECT_IMAGE, getCourseImage } from "@/lib/subject-images";
 import { toast } from "sonner";
 import { ArrowLeft, Plus, Check, Share2, Star, GraduationCap, ExternalLink } from "lucide-react";
+import { useState } from "react";
 import { siteUrl } from "@/lib/site";
 
 export const Route = createFileRoute("/course/$code")({
@@ -59,6 +61,7 @@ export const Route = createFileRoute("/course/$code")({
 function CoursePage() {
   const { course } = Route.useLoaderData() as { course: import("@/lib/courses").Course };
   const [c1, c2] = course.poster;
+  const [imageSrc, setImageSrc] = useState(() => getCourseImage(course.subject));
   const related = COURSES.filter((c) => c.area === course.area && c.code !== course.code).slice(
     0,
     6,
@@ -94,7 +97,15 @@ function CoursePage() {
           className="absolute inset-0"
           style={{ background: `linear-gradient(135deg, ${c1} 0%, ${c2} 100%)` }}
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-background via-background/70 to-background/20" />
+        <img
+          src={imageSrc}
+          alt=""
+          aria-hidden="true"
+          onError={() => setImageSrc(FALLBACK_SUBJECT_IMAGE)}
+          className="absolute inset-0 h-full w-full object-cover opacity-55 mix-blend-screen"
+        />
+        <div className="absolute inset-0 bg-gradient-to-r from-background/95 via-background/75 to-background/35" />
+        <div className="absolute inset-0 bg-gradient-to-t from-background via-background/65 to-background/15" />
 
         <div className="relative px-6 md:px-10 pt-8 pb-14 max-w-6xl">
           <Link
