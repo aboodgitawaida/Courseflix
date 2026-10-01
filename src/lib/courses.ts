@@ -261,9 +261,7 @@ export function getFeaturedForMajor(majorId: string | null): Course {
   const major = MAJORS.find((m) => m.id === majorId);
   const pool = coursesFor(major, "core");
   const list = pool.length ? pool : COURSES;
-  return (
-    [...list].sort((a, b) => b.rating - a.rating || a.code.localeCompare(b.code))[0] ?? COURSES[0]!
-  );
+  return [...list].sort((a, b) => a.code.localeCompare(b.code))[0] ?? COURSES[0]!;
 }
 
 export function getMatchScore(course: Course, majorId: string | null): number | null {
@@ -350,7 +348,7 @@ export function searchCourses(query: string, limit = 30): Course[] {
     if (score) scored.push({ c, score });
   }
   return scored
-    .sort((a, b) => b.score - a.score || b.c.rating - a.c.rating || a.c.code.localeCompare(b.c.code))
+    .sort((a, b) => b.score - a.score || a.c.code.localeCompare(b.c.code))
     .slice(0, limit)
     .map((x) => x.c);
 }
@@ -361,7 +359,7 @@ export function getRailsForMajor(majorId: string | null, filter: FilterId = "all
   const core = keep(coursesFor(major, "core"));
   const support = keep(coursesFor(major, "support"));
   const codes = (list: Course[], n = 14) => uniq(list.slice(0, n).map((c) => c.code));
-  const byRating = (l: Course[]) => [...l].sort((a, b) => b.rating - a.rating || a.code.localeCompare(b.code));
+  const byRating = (l: Course[]) => [...l].sort((a, b) => a.code.localeCompare(b.code));
 
   const scope = core.concat(support);
   const pool = scope.length >= 10 ? scope : keep(COURSES);
