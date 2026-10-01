@@ -60,6 +60,9 @@ export function TopNav() {
           >
             Creator
           </a>
+          <Link to="/terms" className="transition hover:text-foreground">
+            Terms
+          </Link>
         </nav>
 
         <button
@@ -202,6 +205,16 @@ export function TopNav() {
               aria-current={pathname === "/help" ? "page" : undefined}
             >
               <LifeBuoy className="mr-2 inline h-4 w-4" /> Help
+            </Link>
+            <Link
+              to="/terms"
+              onClick={() => setMobileMenuOpen(false)}
+              className={`rounded-lg px-3 py-2.5 transition hover:bg-white/10 hover:text-foreground ${
+                pathname === "/terms" ? "bg-white/10 text-foreground" : "text-muted-foreground"
+              }`}
+              aria-current={pathname === "/terms" ? "page" : undefined}
+            >
+              Terms of use
             </Link>
             <a
               href="/#creator"
