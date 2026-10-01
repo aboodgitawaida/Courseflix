@@ -247,13 +247,23 @@ function makeCourseSummary(course: Course) {
     .replace(/\s*(?:\.\.\.|…)\s*$/, "")
     .trim();
   const lead = description.split(/(?<=[.!?])\s+/)[0] ?? description;
-  const summary = lead
+  const cleanedLead = lead
     .replace(/^this course (?:will )?(?:introduces?|explores?|examines?|surveys?)\s+(?:students to\s+)?/i, "")
     .replace(/^(?:an?|the)\s+introduction to\s+/i, "")
     .replace(/^topics include\s+/i, "")
     .replace(/^this is\s+/i, "")
     .replace(/[.!?]+$/, "")
     .trim();
+  const introFocus = course.title
+    .replace(/^(?:an?|the)\s+/i, "")
+    .replace(/^introduction to\s+/i, "")
+    .replace(/^topics in\s+/i, "")
+    .replace(/\s+/g, " ")
+    .trim()
+    .replace(/[.!?]+$/, "");
+  const summary = /^anthropology is the global and holistic study of human biology and behaviour/i.test(lead)
+    ? `Students will explore ${introFocus.toLowerCase()}, including human biology, behaviour, and the study of human societies`
+    : cleanedLead;
   if (!summary) return "Course details are available on the course page.";
 
   const maxLength = 180;
