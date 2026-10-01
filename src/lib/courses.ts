@@ -259,14 +259,12 @@ export function getFeaturedForMajor(majorId: string | null): Course {
   return [...list].sort((a, b) => a.code.localeCompare(b.code))[0] ?? COURSES[0]!;
 }
 
-export function getMatchScore(course: Course, majorId: string | null): number | null {
+export function getProgramMatch(course: Course, majorId: string | null): "Core program subject" | "Program support subject" | "Outside selected program" | null {
   const major = MAJORS.find((m) => m.id === majorId);
   if (!major) return null;
-  const h = hash(course.code + major.id) % 6;
-  if (major.core.includes(course.subject)) return Math.min(99, 90 + h);
-  if (major.support.includes(course.subject)) return 74 + h;
-  if (course.level <= 200) return 52 + h;
-  return 38 + h;
+  if (major.core.includes(course.subject)) return "Core program subject";
+  if (major.support.includes(course.subject)) return "Program support subject";
+  return "Outside selected program";
 }
 
 export type Badge = { label: string; emoji: string; tone: "bird" | "essay" | "exam" | "project" };
