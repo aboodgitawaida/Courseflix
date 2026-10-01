@@ -169,6 +169,10 @@
 .study-eagle-chip:hover { background: rgb(180 83 9 / 0.35); color: white; }
 .study-eagle-spark { position: absolute; top: -2px; right: 5px; color: rgb(253 230 138 / 0); font-size: 16px; transform: scale(0.4); transition: color 150ms ease, transform 300ms ease; }
 .study-eagle-spark-visible { color: rgb(253 230 138 / 0.95); transform: scale(1.2) translateY(-9px); }
+.study-eagle-celebrating .study-eagle-button { animation: eagle-celebrate 1.8s cubic-bezier(0.22, 1, 0.36, 1); }
+.study-eagle-confetti { position: absolute; top: -18px; left: -34px; width: 170px; color: #fbbf24; font-size: 18px; letter-spacing: 8px; white-space: nowrap; animation: eagle-confetti 1.8s ease-out forwards; pointer-events: none; }
+@keyframes eagle-celebrate { 0% { transform: translateY(0) rotate(0); } 25% { transform: translateY(-34px) rotate(-8deg) scale(1.12); } 55% { transform: translateY(-18px) rotate(8deg) scale(1.08); } 100% { transform: translateY(0) rotate(0); } }
+@keyframes eagle-confetti { 0% { opacity: 0; transform: translateY(16px) scale(0.5); } 20% { opacity: 1; } 100% { opacity: 0; transform: translateY(-52px) scale(1.25); } }
 @media (prefers-reduced-motion: reduce) {
-  .study-eagle-button, .study-eagle-controls, .study-eagle-spark { transition: none; }
+  .study-eagle-button, .study-eagle-controls, .study-eagle-spark, .study-eagle-celebrating .study-eagle-button, .study-eagle-confetti { animation: none; transition: none; }
 }

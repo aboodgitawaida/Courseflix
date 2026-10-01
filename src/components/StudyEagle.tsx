@@ -1,4 +1,4 @@
-import { MessageCircle, Pause, Play, RotateCcw, Sparkles, X } from "lucide-react";
+import { MessageCircle, Sparkles, X } from "lucide-react";
 import { useEffect, useRef, useState, type PointerEvent as ReactPointerEvent } from "react";
 import { useRouterState } from "@tanstack/react-router";
 import { getCourse, type Course } from "@/lib/courses";
@@ -15,12 +15,12 @@ const EAGLE_REPLIES = [
 export function StudyEagle() {
   const [position, setPosition] = useState<Position | null>(null);
   const [frame, setFrame] = useState(0);
-  const [paused, setPaused] = useState(false);
   const [chatOpen, setChatOpen] = useState(false);
   const [reply, setReply] = useState(EAGLE_REPLIES[0]);
   const [petCount, setPetCount] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
   const [isReturning, setIsReturning] = useState(false);
+  const [celebrating, setCelebrating] = useState(false);
   const [direction, setDirection] = useState<Direction>("down");
   const dragOffset = useRef<Position>({ x: 0, y: 0 });
   const lastPointer = useRef<Position>({ x: 0, y: 0 });
@@ -34,10 +34,32 @@ export function StudyEagle() {
   }, []);
 
   useEffect(() => {
-    if (paused) return;
     const timer = window.setInterval(() => setFrame((current) => (current + 1) % 3), 220);
     return () => window.clearInterval(timer);
-  }, [paused]);
+  }, []);
+
+  useEffect(() => {
+    const onSummary = (event: Event) => {
+      const { course } = (event as CustomEvent<{ course?: Course }>).detail ?? {};
+      if (!course) return;
+      setReply(`Here’s the short version: ${makeCourseSummary(course)}`);
+      setChatOpen(true);
+    };
+    const onCelebration = () => {
+      setCelebrating(true);
+      setDirection("up");
+      window.setTimeout(() => {
+        setCelebrating(false);
+        setDirection("down");
+      }, 1800);
+    };
+    window.addEventListener("study-eagle-summarize", onSummary);
+    window.addEventListener("study-eagle-celebrate", onCelebration);
+    return () => {
+      window.removeEventListener("study-eagle-summarize", onSummary);
+      window.removeEventListener("study-eagle-celebrate", onCelebration);
+    };
+  }, []);
 
   useEffect(() => {
     return () => {
@@ -85,10 +107,6 @@ export function StudyEagle() {
     if (isDragging || didDrag.current) return;
     setPetCount((count) => count + 1);
     setReply(petCount % 2 === 0 ? "Krrr! That tickles. You have got this." : EAGLE_REPLIES[petCount % EAGLE_REPLIES.length]);
-  }
-
-  function resetPosition() {
-    startReturnFlight();
   }
 
   function startReturnFlight() {
@@ -154,8 +172,9 @@ export function StudyEagle() {
         </div>
       )}
 
-      <div className="relative">
+      <div className={`relative ${celebrating ? "study-eagle-celebrating" : ""}`}>
         <div className={`study-eagle-spark ${petCount ? "study-eagle-spark-visible" : ""}`} aria-hidden="true">✦</div>
+        {celebrating && <div className="study-eagle-confetti" aria-hidden="true">✦ · ✧ ✦ · ✧</div>}
         <button
           type="button"
           aria-label="Study Eagle. Click to pet, drag to fly."
@@ -177,8 +196,6 @@ export function StudyEagle() {
         <div className="study-eagle-shadow" aria-hidden="true" />
         <div className="study-eagle-controls">
           <button type="button" onClick={() => setChatOpen((open) => !open)} aria-label="Chat with Study Eagle" title="Chat with Study Eagle"><MessageCircle className="h-3.5 w-3.5" /></button>
-          <button type="button" onClick={() => setPaused((value) => !value)} aria-label={paused ? "Play eagle animation" : "Pause eagle animation"} title={paused ? "Play" : "Pause"}>{paused ? <Play className="h-3.5 w-3.5" /> : <Pause className="h-3.5 w-3.5" />}</button>
-          <button type="button" onClick={resetPosition} aria-label="Reset eagle position" title="Reset position"><RotateCcw className="h-3.5 w-3.5" /></button>
         </div>
       </div>
     </div>
@@ -196,6 +213,12 @@ function lerp(start: number, end: number, progress: number) {
 
 function getPerchPosition(): Position {
   return { x: window.innerWidth - 132, y: window.innerHeight - 150 };
+}
+
+function makeCourseSummary(course: Course) {
+  const description = course.description.replace(/\s+/g, " ").trim();
+  const sentence = description.split(/(?<=[.!?])\s+/)[0] ?? description;
+  return `${sentence.slice(0, 190)}${sentence.length > 190 ? "…" : ""} It is a ${course.credits}-credit ${course.area.toLowerCase()} course.`;
 }
 
 function getCurrentCourse(pathname: string): Course | undefined {

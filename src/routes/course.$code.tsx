@@ -9,7 +9,7 @@ import { useCourseStats, useShortlist, useToggleShortlist } from "@/lib/ratings"
 import { FALLBACK_SUBJECT_IMAGE, getCourseImage } from "@/lib/subject-images";
 import { toast } from "sonner";
 import { ArrowLeft, Plus, Check, Share2, Star, GraduationCap, ExternalLink } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { siteUrl } from "@/lib/site";
 
 export const Route = createFileRoute("/course/$code")({
@@ -74,6 +74,10 @@ function CoursePage() {
   const toggle = useToggleShortlist();
   const saved = shortlist.includes(course.code);
   const hasReal = !!stats && stats.rating_count > 0;
+
+  useEffect(() => {
+    window.dispatchEvent(new CustomEvent("study-eagle-summarize", { detail: { course } }));
+  }, [course]);
 
   async function onShortlist() {
     if (!signedIn) {

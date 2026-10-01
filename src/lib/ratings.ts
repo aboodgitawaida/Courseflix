@@ -206,6 +206,7 @@ export function useToggleShortlist() {
     },
     onSuccess: (_data, { code, saved }) => {
       announce(saved ? `${code} removed from your shortlist.` : `${code} added to your shortlist.`);
+      if (!saved) window.dispatchEvent(new CustomEvent("study-eagle-celebrate", { detail: { code } }));
     },
     onSettled: () => {
       void queryClient.invalidateQueries({ queryKey: ["shortlist"] });
