@@ -23,6 +23,7 @@ export function StudyEagle() {
   const [celebrating, setCelebrating] = useState(false);
   const [summaryCourseCode, setSummaryCourseCode] = useState<string | null>(null);
   const [summaryContext, setSummaryContext] = useState<"preview" | "page" | null>(null);
+  const [summaryText, setSummaryText] = useState<string | null>(null);
   const [direction, setDirection] = useState<Direction>("down");
   const dragOffset = useRef<Position>({ x: 0, y: 0 });
   const lastPointer = useRef<Position>({ x: 0, y: 0 });
@@ -35,6 +36,7 @@ export function StudyEagle() {
     if (!course && summaryCourseCode && summaryContext === "page") {
       setSummaryCourseCode(null);
       setSummaryContext(null);
+      setSummaryText(null);
       setReply(EAGLE_REPLIES[0]);
     }
   }, [course, summaryContext, summaryCourseCode]);
@@ -55,7 +57,8 @@ export function StudyEagle() {
       if (!course) return;
       setSummaryCourseCode(course.code);
       setSummaryContext(context ?? "preview");
-      setReply(`${course.code}: ${makeCourseSummary(course)}`);
+      setSummaryText(makeCourseSummary(course));
+      setReply("");
       setChatOpen(true);
     };
     const onCelebration = () => {
@@ -70,6 +73,7 @@ export function StudyEagle() {
     const onClearSummary = () => {
       setSummaryCourseCode(null);
       setSummaryContext(null);
+      setSummaryText(null);
       setReply(EAGLE_REPLIES[0]);
     };
     window.addEventListener("study-eagle-clear", onClearSummary);
@@ -127,6 +131,7 @@ export function StudyEagle() {
     if (isDragging || didDrag.current) return;
     setPetCount((count) => count + 1);
     setSummaryCourseCode(null);
+    setSummaryText(null);
     setReply(petCount % 2 === 0 ? "Krrr! That tickles. You have got this." : EAGLE_REPLIES[petCount % EAGLE_REPLIES.length]);
   }
 
@@ -183,7 +188,7 @@ export function StudyEagle() {
             </button>
           </div>
           <div className="mt-3 rounded-xl border border-white/10 bg-black/20 p-3 text-sm leading-relaxed text-white/80">
-            {reply}
+            {summaryCourseCode && summaryText ? `${summaryCourseCode}: ${summaryText}` : reply}
           </div>
           <div className="mt-3 flex flex-wrap gap-2">
             <button onClick={() => setReply(EAGLE_REPLIES[0])} className="study-eagle-chip">Study tip</button>
