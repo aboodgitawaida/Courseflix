@@ -242,14 +242,17 @@ function getPerchPosition(): Position {
 }
 
 function makeCourseSummary(course: Course) {
-  const description = course.description.replace(/\s+/g, " ").trim();
-  const sentence = description.split(/(?<=[.!?])\s+/)[0] ?? description;
-  const courseType = `${course.credits}-credit ${course.area.toLowerCase()} course`;
-  const maxLength = 118 - courseType.length;
-  const concise = sentence.length > maxLength
-    ? `${sentence.slice(0, Math.max(40, maxLength - 1)).replace(/\s+\S*$/, "")}…`
-    : sentence;
-  return `${concise} ${courseType}.`;
+  const focus = course.title
+    .replace(/^(an?|the)\s+(introduction to|study of)\s+/i, "")
+    .replace(/^introduction to\s+/i, "")
+    .replace(/^topics in\s+/i, "")
+    .replace(/\s+/g, " ")
+    .trim()
+    .replace(/[.!?]+$/, "");
+  const summary = `Explore ${focus.charAt(0).toLowerCase()}${focus.slice(1)}.`;
+  return summary.length > 92
+    ? `${summary.slice(0, 89).replace(/\s+\S*$/, "")}…`
+    : summary;
 }
 
 function getCurrentCourse(pathname: string): Course | undefined {
