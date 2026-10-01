@@ -44,7 +44,7 @@ export function StudyEagle() {
   }, [course, summaryContext, summaryCourseCode]);
 
   useEffect(() => {
-    setPosition(getPerchPosition());
+    setPosition(getNormalPerchPosition());
   }, []);
 
   useEffect(() => {
@@ -59,7 +59,7 @@ export function StudyEagle() {
   useEffect(() => {
     if (animation === "sleeping" || isReturning) return;
     const timer = window.setTimeout(() => {
-      startReturnFlight(() => setAnimation("sleeping"));
+      startFlight(getSleepPerchPosition(), () => setAnimation("sleeping"));
     }, 2_000);
     return () => window.clearTimeout(timer);
   }, [animation, chatOpen, isDragging, isReturning]);
@@ -107,10 +107,12 @@ export function StudyEagle() {
 
   function onPointerDown(event: ReactPointerEvent<HTMLButtonElement>) {
     if (!position) return;
+    const wasSleeping = animation === "sleeping";
     setAnimation("idle");
     event.currentTarget.setPointerCapture(event.pointerId);
     if (returnFrame.current !== null) cancelAnimationFrame(returnFrame.current);
     setIsReturning(false);
+    if (wasSleeping) startFlight(getNormalPerchPosition());
     dragOffset.current = { x: event.clientX - position.x, y: event.clientY - position.y };
     lastPointer.current = { x: event.clientX, y: event.clientY };
     didDrag.current = false;
@@ -135,7 +137,7 @@ export function StudyEagle() {
   function onPointerUp() {
     setIsDragging(false);
     if (didDrag.current) {
-      startReturnFlight();
+      startFlight(getNormalPerchPosition());
       window.setTimeout(() => {
         didDrag.current = false;
       }, 0);
@@ -150,11 +152,10 @@ export function StudyEagle() {
     setReply(petCount % 2 === 0 ? "Krrr! That tickles. You have got this." : EAGLE_REPLIES[petCount % EAGLE_REPLIES.length]);
   }
 
-  function startReturnFlight(onArrive?: () => void) {
+  function startFlight(target: Position, onArrive?: () => void) {
     if (!position) return;
     if (returnFrame.current !== null) cancelAnimationFrame(returnFrame.current);
     setIsReturning(true);
-    const target = getPerchPosition();
     const start = position;
     if (Math.abs(target.x - start.x) < 1 && Math.abs(target.y - start.y) < 1) {
       setIsReturning(false);
@@ -262,8 +263,12 @@ function lerp(start: number, end: number, progress: number) {
   return start + (end - start) * eased;
 }
 
-function getPerchPosition(): Position {
-  return { x: window.innerWidth - 132, y: window.innerHeight - 96 };
+function getNormalPerchPosition(): Position {
+  return { x: window.innerWidth - 132, y: window.innerHeight - 150 };
+}
+
+function getSleepPerchPosition(): Position {
+  return { x: window.innerWidth - 132, y: window.innerHeight - 72 };
 }
 
 function makeCourseSummary(course: Course) {
