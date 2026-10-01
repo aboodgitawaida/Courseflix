@@ -1,14 +1,14 @@
 import { X } from "lucide-react";
-import { getCourse, examWeight, isBird, type Course } from "@/lib/courses";
+import { getCourse, isBird, type Course } from "@/lib/courses";
 import { useCourseUI } from "@/hooks/use-course-ui";
 
 const ROWS: Array<{ label: string; render: (c: Course) => string }> = [
   { label: "Course", render: (c) => c.title },
   { label: "Distribution", render: (c) => c.area },
-  { label: "Bird rating", render: (c) => (isBird(c) ? "🦅 Bird course" : `${c.difficulty.toFixed(1)}/5 difficulty`) },
-  { label: "Exam weight", render: (c) => `${examWeight(c)}%` },
-  { label: "Workload", render: (c) => `${c.workload.toFixed(1)}/5 · ${c.hours || "hours n/a"}` },
-  { label: "Satisfaction", render: (c) => `${c.wouldTakeAgain}% would retake` },
+  { label: "Workload signal", render: (c) => (isBird(c) ? "Light estimate" : "No verified estimate") },
+  { label: "Assessment data", render: () => "Not verified" },
+  { label: "Contact hours", render: (c) => c.hours || "Not listed" },
+  { label: "Student data", render: () => "Open course page to see reviews" },
 ];
 
 export function CompareDrawer() {

@@ -287,9 +287,9 @@ export function isBird(c: Course) {
 
 export function getBadges(c: Course): Badge[] {
   const out: Badge[] = [];
-  if (isBird(c)) out.push({ label: "Bird Course", emoji: "🦅", tone: "bird" });
-  if (c.tags.includes("Exam-Heavy") || c.tags.includes("Heavy") || c.difficulty >= 4)
-    out.push({ label: "Exam Heavy", emoji: "📊", tone: "exam" });
+  if (isBird(c)) out.push({ label: "Light workload estimate", emoji: "🦅", tone: "bird" });
+  if (c.tags.includes("Exam-Heavy"))
+    out.push({ label: "Exam signal (unverified)", emoji: "📊", tone: "exam" });
   if (c.tags.includes("Essay-Heavy")) out.push({ label: "Essay Heavy", emoji: "📝", tone: "essay" });
   if (c.tags.includes("Project") || c.tags.includes("Lab-Heavy"))
     out.push({ label: "Group Project", emoji: "💻", tone: "project" });
@@ -300,25 +300,16 @@ export function isCourseworkHeavy(c: Course) {
   return c.tags.includes("Project") || c.tags.includes("Lab-Heavy") || c.tags.includes("Seminar") || c.tags.includes("Discussion");
 }
 
-export function examWeight(c: Course) {
-  if (isCourseworkHeavy(c)) return 20;
-  if (c.tags.includes("Exam-Heavy")) return 60;
-  if (c.tags.includes("Math-Heavy")) return 50;
-  if (c.tags.includes("Essay-Heavy")) return 25;
-  return 40;
-}
-
-export type FilterId = "all" | "bird" | "science" | "social" | "humanities" | "l100" | "l200" | "noexam";
+export type FilterId = "all" | "bird" | "science" | "social" | "humanities" | "l100" | "l200";
 
 export const FILTERS: Array<{ id: FilterId; label: string }> = [
   { id: "all", label: "All" },
-  { id: "bird", label: "🦅 Bird Courses" },
+  { id: "bird", label: "🦅 Light workload estimates" },
   { id: "science", label: "🧪 Science" },
   { id: "social", label: "⚖️ Social Science" },
   { id: "humanities", label: "🎨 Humanities" },
   { id: "l100", label: "100-Level" },
   { id: "l200", label: "200-Level" },
-  { id: "noexam", label: "⚡ No Exam" },
 ];
 
 export function matchesFilter(c: Course, f: FilterId) {
@@ -335,8 +326,6 @@ export function matchesFilter(c: Course, f: FilterId) {
       return c.level === 100;
     case "l200":
       return c.level === 200;
-    case "noexam":
-      return isCourseworkHeavy(c);
     default:
       return true;
   }

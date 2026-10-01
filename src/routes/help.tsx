@@ -27,7 +27,7 @@ export const Route = createFileRoute("/help")({
 const FAQ = [
   {
     q: "Where do the ratings come from?",
-    a: "Course info comes straight from the UTM Academic Calendar. Star ratings start as estimates based on course level, workload and what students commonly say on r/UTM and RateMyProfessors. As soon as real students rate a course here, their ratings take over from the estimate.",
+    a: "Course titles, descriptions, prerequisites and listed hours come from the UTM Academic Calendar. Until students review a course on Courseflix, ratings and workload signals are estimates based on catalogue metadata only; they are not collected from Reddit or RateMyProfessors. Student reviews are shown separately once submitted.",
   },
   {
     q: "Is my shortlist private?",

@@ -2,7 +2,7 @@ import { Link } from "@tanstack/react-router";
 import { toast } from "sonner";
 import { Check, Copy, ExternalLink, Plus, Star } from "lucide-react";
 import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog";
-import { getArt, getBadges, getCourse, getMatchScore, examWeight } from "@/lib/courses";
+import { getArt, getBadges, getCourse, getMatchScore } from "@/lib/courses";
 import { useCourseUI } from "@/hooks/use-course-ui";
 import { useMajor } from "@/hooks/use-major";
 import { getMajor } from "@/lib/majors";
@@ -76,7 +76,9 @@ export function CoursePreviewModal() {
                     </span>
                   )}
                   <span className="rounded border border-white/15 bg-black/40 px-2 py-0.5">{course.area}</span>
-                  <span className="text-white/70">{course.wouldTakeAgain}% would retake</span>
+                  <span className="text-white/70">
+                    {stats?.rating_count ? `${stats.pct_would_take_again}% would retake` : "No student data yet"}
+                  </span>
                   <span className="flex items-center gap-1 font-semibold text-brand">
                     <Star className="h-3 w-3 fill-current" /> {displayRating.toFixed(1)}
                   </span>
@@ -123,7 +125,7 @@ export function CoursePreviewModal() {
                 <Stat label="Rating" value={`${displayRating.toFixed(1)}/5`} />
                 <Stat label="Difficulty" value={`${displayDifficulty.toFixed(1)}/5`} />
                 <Stat label="Workload" value={`${displayWorkload.toFixed(1)}/5`} />
-                <Stat label="Exam weight" value={`${examWeight(course)}%`} />
+                <Stat label="Assessment data" value="Not verified" />
               </div>
 
               <div>

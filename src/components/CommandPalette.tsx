@@ -19,7 +19,7 @@ function SearchResult({
   onSelect: (code: string) => void;
 }) {
   const { data: stats } = useCourseStats(course.code);
-  const displayRating = stats?.rating_count ? stats.avg_rating : course.rating;
+  const displayRating = stats?.rating_count ? stats.avg_rating : null;
 
   return (
     <CommandItem
@@ -28,7 +28,9 @@ function SearchResult({
     >
       <span className="font-display text-base">{course.code}</span>
       <span className="ml-2 flex-1 truncate text-sm text-muted-foreground">{course.title}</span>
-      <span className="ml-2 shrink-0 text-xs text-brand">{displayRating.toFixed(1)}</span>
+      <span className="ml-2 shrink-0 text-xs text-brand">
+        {displayRating === null ? "No rating" : displayRating.toFixed(1)}
+      </span>
     </CommandItem>
   );
 }

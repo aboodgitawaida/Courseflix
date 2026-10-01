@@ -93,7 +93,7 @@ export const CourseCard = memo(function CourseCard({ course, size = "md" }: { co
   const { data: saved = [] } = useShortlist();
   const toggle = useToggleShortlist();
   const { data: stats } = useCourseStats(course.code);
-  const displayRating = stats?.rating_count ? stats.avg_rating : course.rating;
+  const displayRating = stats?.rating_count ? stats.avg_rating : null;
   const inList = (saved as string[]).includes(course.code);
   const inCompare = compare.includes(course.code);
 
@@ -115,7 +115,7 @@ export const CourseCard = memo(function CourseCard({ course, size = "md" }: { co
     <article
       role="button"
       tabIndex={0}
-      aria-label={`${course.code}, ${course.title}, rated ${displayRating.toFixed(1)} out of 5`}
+      aria-label={`${course.code}, ${course.title}${displayRating === null ? ", no student rating yet" : `, rated ${displayRating.toFixed(1)} out of 5`}`}
       onClick={() => openPreview(course.code)}
       onKeyDown={(e) => {
         if (e.key === "Enter" || e.key === " ") {
@@ -171,7 +171,7 @@ export const CourseCard = memo(function CourseCard({ course, size = "md" }: { co
 
       <div className="flex items-center justify-between gap-2 px-3 py-2">
         <span className="flex items-center gap-1 text-xs font-semibold text-brand">
-          <Star className="h-3 w-3 fill-current" /> {displayRating.toFixed(1)}
+          <Star className="h-3 w-3 fill-current" /> {displayRating === null ? "—" : displayRating.toFixed(1)}
         </span>
         {match !== null && (
           <span className="rounded-lg border border-white/[0.12] bg-white/[0.08] backdrop-blur-md px-1.5 py-0.5 text-[10px] font-semibold text-emerald-400">{match}% match</span>
