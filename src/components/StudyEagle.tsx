@@ -31,6 +31,7 @@ export function StudyEagle() {
   const lastPointer = useRef<Position>({ x: 0, y: 0 });
   const didDrag = useRef(false);
   const returnFrame = useRef<number | null>(null);
+  const isReturningRef = useRef(false);
   const pathname = useRouterState({ select: (state) => state.location.pathname });
   const course = getCurrentCourse(pathname);
 
@@ -57,12 +58,13 @@ export function StudyEagle() {
   }, [animation]);
 
   useEffect(() => {
-    if (animation === "sleeping" || isReturning) return;
+    if (animation === "sleeping") return;
     const timer = window.setTimeout(() => {
+      if (isReturningRef.current) return;
       startFlight(getSleepPerchPosition(), () => setAnimation("sleeping"));
     }, 2_000);
     return () => window.clearTimeout(timer);
-  }, [animation, chatOpen, isDragging, isReturning]);
+  }, [animation, chatOpen, isDragging]);
 
   useEffect(() => {
     const onSummary = (event: Event) => {
@@ -111,6 +113,7 @@ export function StudyEagle() {
     setAnimation("idle");
     event.currentTarget.setPointerCapture(event.pointerId);
     if (returnFrame.current !== null) cancelAnimationFrame(returnFrame.current);
+    isReturningRef.current = false;
     setIsReturning(false);
     if (wasSleeping) startFlight(getNormalPerchPosition());
     dragOffset.current = { x: event.clientX - position.x, y: event.clientY - position.y };
@@ -155,10 +158,12 @@ export function StudyEagle() {
   function startFlight(target: Position, onArrive?: () => void) {
     if (!position) return;
     if (returnFrame.current !== null) cancelAnimationFrame(returnFrame.current);
+    isReturningRef.current = true;
     setIsReturning(true);
     const start = position;
     if (Math.abs(target.x - start.x) < 1 && Math.abs(target.y - start.y) < 1) {
       setIsReturning(false);
+      isReturningRef.current = false;
       setDirection("down");
       onArrive?.();
       return;
@@ -182,6 +187,7 @@ export function StudyEagle() {
       } else {
         returnFrame.current = null;
         setIsReturning(false);
+        isReturningRef.current = false;
         setDirection("down");
         setPosition(target);
         onArrive?.();
