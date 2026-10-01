@@ -242,30 +242,25 @@ function getPerchPosition(): Position {
 }
 
 function makeCourseSummary(course: Course) {
-  const title = course.title
-    .replace(/^(an?|the)\s+/i, "")
-    .replace(/^introduction to\s+/i, "")
-    .replace(/^topics in\s+/i, "")
-    .replace(/\s+/g, " ")
-    .trim()
-    .replace(/[.!?]+$/, "");
   const description = course.description
     .replace(/\s+/g, " ")
-    .replace(/\.\.\.$/, "")
+    .replace(/\s*(?:\.\.\.|…)\s*$/, "")
     .trim();
   const lead = description.split(/(?<=[.!?])\s+/)[0] ?? description;
-  const cleanedLead = lead
+  const summary = lead
     .replace(/^this course (?:will )?(?:introduces?|explores?|examines?|surveys?)\s+(?:students to\s+)?/i, "")
-    .replace(/^introduction to\s+/i, "")
-    .replace(/^the study of\s+/i, "")
+    .replace(/^(?:an?|the)\s+introduction to\s+/i, "")
     .replace(/^topics include\s+/i, "")
     .replace(/^this is\s+/i, "")
     .replace(/[.!?]+$/, "")
     .trim();
-  const vibe = cleanedLead
-    ? `${title}: ${lowercaseFirst(cleanedLead)}.`
-    : `A hands-on look at ${lowercaseFirst(title)}.`;
-  return vibe.length > 190 ? `${vibe.slice(0, 187).replace(/\s+\S*$/, "")}…` : vibe;
+  if (!summary) return "Course details are available on the course page.";
+
+  const maxLength = 180;
+  const compact = summary.length > maxLength
+    ? summary.slice(0, maxLength).replace(/\s+\S*$/, "")
+    : summary;
+  return `${lowercaseFirst(compact).replace(/[.!?]+$/, "")}.`;
 }
 
 function lowercaseFirst(value: string) {
