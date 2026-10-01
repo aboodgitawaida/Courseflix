@@ -23,7 +23,6 @@ import { NetworkStatusBanner } from "@/components/NetworkStatusBanner";
 import { supabase } from "@/integrations/supabase/client";
 import { captureFirstTouchAttribution } from "@/lib/attribution";
 import { A11Y_ANNOUNCE_EVENT } from "@/lib/a11y";
-import { SmoothScroll } from "@/components/SmoothScroll";
 
 function NotFoundComponent() {
   return (
@@ -184,7 +183,6 @@ function RootComponent() {
       <ThemeProvider>
         <SoundProvider>
           <CourseUIProvider>
-            <SmoothScroll />
             <BrandIntro />
             <NetworkStatusBanner />
             <p className="sr-only" role="status" aria-live="polite" aria-atomic="true">
