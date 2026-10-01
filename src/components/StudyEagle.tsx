@@ -48,12 +48,18 @@ export function StudyEagle() {
   }, []);
 
   useEffect(() => {
-    const timer = window.setInterval(() => setFrame((current) => (current + 1) % 3), 220);
+    const timer = window.setInterval(
+      () => setFrame((current) => (current + 1) % (animation === "sleeping" ? 4 : 3)),
+      220,
+    );
     return () => window.clearInterval(timer);
-  }, []);
+  }, [animation]);
 
   useEffect(() => {
-    const timer = window.setTimeout(() => setAnimation("sleeping"), 2_000);
+    if (animation === "sleeping" || isReturning) return;
+    const timer = window.setTimeout(() => {
+      startReturnFlight(() => setAnimation("sleeping"));
+    }, 2_000);
     return () => window.clearTimeout(timer);
   }, [animation, chatOpen, isDragging, isReturning]);
 
@@ -143,7 +149,7 @@ export function StudyEagle() {
     setReply(petCount % 2 === 0 ? "Krrr! That tickles. You have got this." : EAGLE_REPLIES[petCount % EAGLE_REPLIES.length]);
   }
 
-  function startReturnFlight() {
+  function startReturnFlight(onArrive?: () => void) {
     if (!position) return;
     if (returnFrame.current !== null) cancelAnimationFrame(returnFrame.current);
     setIsReturning(true);
@@ -170,6 +176,7 @@ export function StudyEagle() {
         setIsReturning(false);
         setDirection("down");
         setPosition(target);
+        onArrive?.();
       }
     };
     returnFrame.current = requestAnimationFrame(step);
