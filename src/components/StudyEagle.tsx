@@ -221,9 +221,12 @@ export function StudyEagle() {
           className="study-eagle-button"
         >
           <span
-            className="study-eagle-sprite"
+            className={`study-eagle-sprite ${animation === "sleeping" ? "study-eagle-sprite-sleeping" : ""}`}
             style={{
-              backgroundPosition: `${frame * 50}% ${direction === "down" ? "0%" : direction === "up" ? "100%" : direction === "left" ? "33.333%" : "66.666%"}`,
+              backgroundPosition:
+                animation === "sleeping"
+                  ? `${frame * 33.333}% 0%`
+                  : `${frame * 50}% ${direction === "down" ? "0%" : direction === "up" ? "100%" : direction === "left" ? "33.333%" : "66.666%"}`,
             }}
           />
         </button>

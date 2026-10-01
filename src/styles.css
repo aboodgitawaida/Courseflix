@@ -160,6 +160,7 @@
 .study-eagle-button:hover { transform: translateY(-4px) scale(1.04); filter: drop-shadow(0 13px 6px rgb(0 0 0 / 0.4)); }
 .study-eagle-dragging .study-eagle-button { cursor: grabbing; transform: scale(1.08) rotate(-3deg); }
 .study-eagle-sprite { display: block; width: 78px; height: 78px; background-image: url("/eagle-spritesheet.png"); background-size: 300% 400%; background-repeat: no-repeat; image-rendering: pixelated; }
+.study-eagle-sprite-sleeping { background-image: url("/eagle-sleeping-spritesheet.png"); background-size: 400% 100%; }
 .study-eagle-sleeping .study-eagle-button { animation: eagle-sleep 2.4s steps(2, end) infinite; }
 .study-eagle-sleeping::after { content: "z  z"; position: absolute; top: -28px; right: 9px; color: rgb(253 230 138 / 0.8); font: 700 12px/1 monospace; letter-spacing: 4px; animation: eagle-zzz 2.4s steps(3, end) infinite; pointer-events: none; }
 .study-eagle-shadow { position: absolute; z-index: -1; bottom: -1px; left: 19px; width: 58px; height: 10px; border-radius: 50%; background: rgb(0 0 0 / 0.4); filter: blur(3px); }
