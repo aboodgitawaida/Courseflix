@@ -1,6 +1,6 @@
 import { Link, useNavigate } from "@tanstack/react-router";
 import type { Course } from "@/lib/courses";
-import { Play, Plus, Star } from "lucide-react";
+import { Play, Plus } from "lucide-react";
 import { toast } from "sonner";
 import { useAuth } from "@/hooks/use-auth";
 import { useShortlist, useToggleShortlist } from "@/lib/ratings";
@@ -74,13 +74,7 @@ export function Hero({ featured, major }: { featured: Course; major: string }) {
           {feat.description}
         </p>
         <div className="mt-4 flex items-center gap-4 text-sm text-foreground/80">
-          <span className="flex items-center gap-1 font-semibold">
-            <Star className="h-4 w-4 fill-brand text-brand" /> {feat.rating.toFixed(1)}
-          </span>
-          <span>·</span>
-          <span>{feat.wouldTakeAgain}% would retake</span>
-          <span>·</span>
-          <span className="text-muted-foreground">Sample rating</span>
+          <span className="text-muted-foreground">No student ratings yet</span>
         </div>
         <div className="mt-8 flex flex-wrap items-center gap-3">
           <Link

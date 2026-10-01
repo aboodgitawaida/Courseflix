@@ -170,30 +170,30 @@ function CoursePage() {
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
           <StatCard
             label="Overall"
-            value={hasReal ? stats!.avg_rating : course.rating}
+            value={hasReal ? stats!.avg_rating : 0}
             suffix="/5"
             accent
           />
           <StatCard
             label="Difficulty"
-            value={hasReal ? stats!.avg_difficulty : course.difficulty}
+            value={hasReal ? stats!.avg_difficulty : 0}
             suffix="/5"
           />
           <StatCard
             label="Workload"
-            value={hasReal ? stats!.avg_workload : course.workload}
+            value={hasReal ? stats!.avg_workload : 0}
             suffix="/5"
           />
           <StatCard
             label="Would take again"
-            value={hasReal ? stats!.pct_would_take_again : course.wouldTakeAgain}
+            value={hasReal ? stats!.pct_would_take_again : 0}
             suffix="%"
           />
         </div>
         <p className="text-xs text-muted-foreground mt-2">
           {hasReal
             ? `From ${stats!.rating_count} student rating${stats!.rating_count === 1 ? "" : "s"}.`
-            : "Estimated from course level and contact hours — no student ratings yet. Add yours below."}
+            : "No student ratings yet. These metrics will appear after students submit reviews."}
         </p>
       </section>
 
@@ -325,7 +325,7 @@ function StatCard({
   accent,
 }: {
   label: string;
-  value: number;
+  value: number | string;
   suffix: string;
   accent?: boolean;
 }) {
