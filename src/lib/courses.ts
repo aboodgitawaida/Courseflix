@@ -148,8 +148,6 @@ const BIRD_BLOCKLIST = new Set([
   "ECO200Y5",
 ]);
 
-const EXAM_HEAVY_FORCE = new Set(["CSC263H5", "CSC236H5", "STA256H5", "STA260H5", "MAT102H5", "ECO200Y5"]);
-
 const HARD_SUBJECTS = ["MAT", "STA", "CSC", "PHY", "AST", "CHM"];
 
 function sampleRating(code: string, level: number, subject: string) {
@@ -194,14 +192,11 @@ function buildCourse(row: (typeof CATALOG)[number]): Course {
   if (/seminar|discussion/i.test(description)) tags.push("Discussion");
   if (/project|studio|practicum|field/i.test(description)) tags.push("Project");
   if (load >= 70) tags.push("Heavy");
-  else if (load <= 40 && level <= 200 && !BIRD_BLOCKLIST.has(code)) tags.push("Easy");
 
   if (subject === "CSC" && level >= 200) {
     if (!tags.includes("Upper-year")) tags.push("Upper-year");
     tags.push("Core CS");
   }
-  if (EXAM_HEAVY_FORCE.has(code)) tags.push("Exam-Heavy");
-
   const difficulty = Math.min(5, Math.max(1.5, level / 130 + (h % 7) / 8));
   const workload = Math.min(5, Math.max(1.5, load / 22 + (h % 5) / 8));
   const rating = sampleRating(code, level, subject);
@@ -285,12 +280,10 @@ export function isBird(c: Course) {
 
 export function getBadges(c: Course): Badge[] {
   const out: Badge[] = [];
-  if (isBird(c)) out.push({ label: "Light workload estimate", emoji: "🦅", tone: "bird" });
-  if (c.tags.includes("Exam-Heavy"))
-    out.push({ label: "Exam signal (unverified)", emoji: "📊", tone: "exam" });
-  if (c.tags.includes("Essay-Heavy")) out.push({ label: "Essay Heavy", emoji: "📝", tone: "essay" });
+  if (isBird(c)) out.push({ label: "Light workload signal", emoji: "🦅", tone: "bird" });
+  if (c.tags.includes("Essay-Heavy")) out.push({ label: "Essay signal", emoji: "📝", tone: "essay" });
   if (c.tags.includes("Project") || c.tags.includes("Lab-Heavy"))
-    out.push({ label: "Group Project", emoji: "💻", tone: "project" });
+    out.push({ label: "Project/lab signal", emoji: "💻", tone: "project" });
   return out.slice(0, 2);
 }
 
@@ -302,7 +295,7 @@ export type FilterId = "all" | "bird" | "science" | "social" | "humanities" | "l
 
 export const FILTERS: Array<{ id: FilterId; label: string }> = [
   { id: "all", label: "All" },
-  { id: "bird", label: "🦅 Light workload estimates" },
+  { id: "bird", label: "🦅 Light workload signals" },
   { id: "science", label: "🧪 Science" },
   { id: "social", label: "⚖️ Social Science" },
   { id: "humanities", label: "🎨 Humanities" },
@@ -371,7 +364,6 @@ export function getRailsForMajor(majorId: string | null, filter: FilterId = "all
   const trending = byRating(pool.filter((c) => c.level <= 300)).slice(0, 40);
   const birds = byRating(pool.filter(isBird));
   const coursework = byRating(pool.filter(isCourseworkHeavy));
-  const firstYearTop = byRating(pool.filter((c) => c.level === 100));
   const prereqCounts = new Map<string, number>();
   for (const c of COURSES) for (const p of c.prereqs) prereqCounts.set(p, (prereqCounts.get(p) ?? 0) + 1);
   const gateways = pool
@@ -381,9 +373,8 @@ export function getRailsForMajor(majorId: string | null, filter: FilterId = "all
   const rails: Rail[] = [
     { title: "🔥 Trending at UTM", blurb: "What students are browsing most right now", codes: codes(trending) },
     { title: "🎯 Start here", blurb: `First- and second-year ${major?.name ?? "UTM"} courses`, codes: codes(first) },
-    { title: "🦅 Easiest distribution requirements", blurb: "Lighter contact hours, intro level — classic bird picks", codes: codes(birds) },
-    { title: "⚡ No final exam / coursework heavy", blurb: "Projects, labs and seminars instead of one big exam", codes: codes(coursework) },
-    { title: "⭐ Top rated first-year courses", blurb: "100-level courses students rate highest", codes: codes(firstYearTop) },
+    { title: "🦅 Lighter workload signals", blurb: "Intro courses with lighter listed contact-hour signals — verify the workload yourself", codes: codes(birds) },
+    { title: "🧪 Coursework signals", blurb: "Descriptions mention projects, labs, seminars, or discussion; assessment details are not verified", codes: codes(coursework) },
     { title: "📚 Popular program prerequisites", blurb: "Courses that unlock the most upper-year options", codes: codes(gateways) },
     { title: "🧩 Required support courses", blurb: "The other subjects your program needs", codes: codes(byRating(support)) },
     { title: "🚀 Upper-year picks", blurb: "Once you've cleared the prereqs", codes: codes(upper) },

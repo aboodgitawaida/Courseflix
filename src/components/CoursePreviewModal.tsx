@@ -26,9 +26,10 @@ export function CoursePreviewModal() {
   const [imageSrc, setImageSrc] = useState(() => getCourseImage(course?.subject ?? ""));
   const inList = course ? (saved as string[]).includes(course.code) : false;
   const match = course ? getMatchScore(course, major) : null;
-  const displayRating = stats?.rating_count ? stats.avg_rating : course?.rating ?? 0;
-  const displayDifficulty = stats?.rating_count ? stats.avg_difficulty : course?.difficulty ?? 0;
-  const displayWorkload = stats?.rating_count ? stats.avg_workload : course?.workload ?? 0;
+  const hasStudentData = Boolean(stats?.rating_count);
+  const displayRating = hasStudentData ? stats!.avg_rating.toFixed(1) : "—";
+  const displayDifficulty = hasStudentData ? stats!.avg_difficulty.toFixed(1) : "—";
+  const displayWorkload = hasStudentData ? stats!.avg_workload.toFixed(1) : "—";
   const majorName = getMajor(major)?.name;
 
   useEffect(() => {
@@ -77,10 +78,10 @@ export function CoursePreviewModal() {
                   )}
                   <span className="rounded border border-white/15 bg-black/40 px-2 py-0.5">{course.area}</span>
                   <span className="text-white/70">
-                    {stats?.rating_count ? `${stats.pct_would_take_again}% would retake` : "No student data yet"}
+                    {hasStudentData ? `${stats!.pct_would_take_again}% would retake` : "No student data yet"}
                   </span>
                   <span className="flex items-center gap-1 font-semibold text-brand">
-                    <Star className="h-3 w-3 fill-current" /> {displayRating.toFixed(1)}
+                    <Star className="h-3 w-3 fill-current" /> {displayRating}
                   </span>
                 </div>
               </div>
@@ -122,9 +123,9 @@ export function CoursePreviewModal() {
               <p className="text-sm leading-relaxed text-muted-foreground">{course.description}</p>
 
               <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
-                <Stat label="Rating" value={`${displayRating.toFixed(1)}/5`} />
-                <Stat label="Difficulty" value={`${displayDifficulty.toFixed(1)}/5`} />
-                <Stat label="Workload" value={`${displayWorkload.toFixed(1)}/5`} />
+                <Stat label="Rating" value={hasStudentData ? `${displayRating}/5` : "No data"} />
+                <Stat label="Difficulty" value={hasStudentData ? `${displayDifficulty}/5` : "No data"} />
+                <Stat label="Workload" value={hasStudentData ? `${displayWorkload}/5` : "No data"} />
                 <Stat label="Assessment data" value="Not verified" />
               </div>
 

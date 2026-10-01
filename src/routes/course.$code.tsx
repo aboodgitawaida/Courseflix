@@ -170,24 +170,24 @@ function CoursePage() {
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
           <StatCard
             label="Overall"
-            value={hasReal ? stats!.avg_rating : 0}
-            suffix="/5"
+            value={hasReal ? stats!.avg_rating.toFixed(1) : "No data"}
+            suffix={hasReal ? "/5" : ""}
             accent
           />
           <StatCard
             label="Difficulty"
-            value={hasReal ? stats!.avg_difficulty : 0}
-            suffix="/5"
+            value={hasReal ? stats!.avg_difficulty.toFixed(1) : "No data"}
+            suffix={hasReal ? "/5" : ""}
           />
           <StatCard
             label="Workload"
-            value={hasReal ? stats!.avg_workload : 0}
-            suffix="/5"
+            value={hasReal ? stats!.avg_workload.toFixed(1) : "No data"}
+            suffix={hasReal ? "/5" : ""}
           />
           <StatCard
             label="Would take again"
-            value={hasReal ? stats!.pct_would_take_again : 0}
-            suffix="%"
+            value={hasReal ? stats!.pct_would_take_again : "No data"}
+            suffix={hasReal ? "%" : ""}
           />
         </div>
         <p className="text-xs text-muted-foreground mt-2">
