@@ -115,7 +115,7 @@ export const SUBJECT_IMAGES: Record<string, string> = {
   VST: `https://images.unsplash.com/photo-1547891654-e66ed7ebb968${UNSPLASH_PARAMS}`,
   EDS: `https://images.unsplash.com/photo-1503676260728-1c00da094a0b${UNSPLASH_PARAMS}`,
   FSC: `https://images.unsplash.com/photo-1576091160399-112ba8d25d1d${UNSPLASH_PARAMS}`,
-  ARA: `https://images.unsplash.com/photo-1548625149-fc4a29cf7092${UNSPLASH_PARAMS}`,
+  ARA: `https://images.unsplash.com/photo-1603801571246-be066de0c73b${UNSPLASH_PARAMS}`,
   CBJ: `https://images.unsplash.com/photo-1472214103451-9374bd1c798e${UNSPLASH_PARAMS}`,
   CHI: `https://images.unsplash.com/photo-1547981609-4b6bf67e5c9d${UNSPLASH_PARAMS}`,
   CPS: `https://images.unsplash.com/photo-1516321318423-f06f85e504b3${UNSPLASH_PARAMS}`,
