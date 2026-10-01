@@ -245,6 +245,7 @@ function makeCourseSummary(course: Course) {
   const description = course.description
     .replace(/\s+/g, " ")
     .replace(/\s*(?:\.\.\.|…)\s*$/, "")
+    .replace(/^\([^)]*\)\s*/i, "")
     .trim();
   const lead = description.split(/(?<=[.!?])\s+/)[0] ?? description;
   const cleanedLead = lead
@@ -266,11 +267,20 @@ function makeCourseSummary(course: Course) {
     : cleanedLead;
   if (!summary) return "Course details are available on the course page.";
 
-  const maxLength = 180;
-  const compact = summary.length > maxLength
-    ? summary.slice(0, maxLength).replace(/\s+\S*$/, "")
-    : summary;
-  return `${lowercaseFirst(compact).replace(/[.!?]+$/, "")}.`;
+  // Use a complete thought only. A shorter title-based sentence is more useful
+  // than cutting a catalog sentence off mid-idea.
+  const maxLength = 150;
+  const firstFocus = cleanedLead
+    .split(/[,;:]/)[0]
+    .replace(/^(?:the elements of|the study of)\s+/i, "")
+    .trim();
+  const focusedSummary = `Students will explore ${lowercaseFirst(firstFocus)}`;
+  const completeSummary = summary.length <= maxLength
+    ? summary
+    : focusedSummary.length <= maxLength
+      ? focusedSummary
+      : `Students will explore ${introFocus.toLowerCase()}`;
+  return `${lowercaseFirst(completeSummary).replace(/[.!?]+$/, "")}.`;
 }
 
 function lowercaseFirst(value: string) {
