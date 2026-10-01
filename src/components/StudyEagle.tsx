@@ -44,13 +44,14 @@ export function StudyEagle() {
   }, [course, summaryContext, summaryCourseCode]);
 
   useEffect(() => {
-    setPosition({ x: window.innerWidth - 132, y: window.innerHeight - 150 });
+    setPosition(getPerchPosition());
   }, []);
 
   useEffect(() => {
+    const frameDuration = animation === "sleeping" ? 900 : 220;
     const timer = window.setInterval(
       () => setFrame((current) => (current + 1) % (animation === "sleeping" ? 4 : 3)),
-      220,
+      frameDuration,
     );
     return () => window.clearInterval(timer);
   }, [animation]);
@@ -262,7 +263,7 @@ function lerp(start: number, end: number, progress: number) {
 }
 
 function getPerchPosition(): Position {
-  return { x: window.innerWidth - 132, y: window.innerHeight - 150 };
+  return { x: window.innerWidth - 132, y: window.innerHeight - 96 };
 }
 
 function makeCourseSummary(course: Course) {
