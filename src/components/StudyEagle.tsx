@@ -5,6 +5,7 @@ import { getCourse, type Course } from "@/lib/courses";
 
 type Position = { x: number; y: number };
 type Direction = "down" | "up" | "left" | "right";
+type EagleAnimation = "idle" | "sleeping" | "backflip";
 
 const EAGLE_REPLIES = [
   "Try the course preview first, then shortlist anything that still feels like a good fit.",
@@ -25,6 +26,7 @@ export function StudyEagle() {
   const [summaryContext, setSummaryContext] = useState<"preview" | "page" | null>(null);
   const [summaryText, setSummaryText] = useState<string | null>(null);
   const [direction, setDirection] = useState<Direction>("down");
+  const [animation, setAnimation] = useState<EagleAnimation>("idle");
   const dragOffset = useRef<Position>({ x: 0, y: 0 });
   const lastPointer = useRef<Position>({ x: 0, y: 0 });
   const didDrag = useRef(false);
@@ -49,6 +51,11 @@ export function StudyEagle() {
     const timer = window.setInterval(() => setFrame((current) => (current + 1) % 3), 220);
     return () => window.clearInterval(timer);
   }, []);
+
+  useEffect(() => {
+    const timer = window.setTimeout(() => setAnimation("sleeping"), 18_000);
+    return () => window.clearTimeout(timer);
+  }, [animation, chatOpen, isDragging, isReturning]);
 
   useEffect(() => {
     const onSummary = (event: Event) => {
@@ -93,6 +100,7 @@ export function StudyEagle() {
 
   function onPointerDown(event: ReactPointerEvent<HTMLButtonElement>) {
     if (!position) return;
+    setAnimation("idle");
     event.currentTarget.setPointerCapture(event.pointerId);
     if (returnFrame.current !== null) cancelAnimationFrame(returnFrame.current);
     setIsReturning(false);
@@ -130,9 +138,11 @@ export function StudyEagle() {
   function petEagle() {
     if (isDragging || didDrag.current) return;
     setPetCount((count) => count + 1);
+    setAnimation("backflip");
     setSummaryCourseCode(null);
     setSummaryText(null);
     setReply(petCount % 2 === 0 ? "Krrr! That tickles. You have got this." : EAGLE_REPLIES[petCount % EAGLE_REPLIES.length]);
+    window.setTimeout(() => setAnimation("idle"), 720);
   }
 
   function startReturnFlight() {
@@ -198,12 +208,12 @@ export function StudyEagle() {
         </div>
       )}
 
-      <div className={`relative ${celebrating ? "study-eagle-celebrating" : ""}`}>
+      <div className={`relative ${celebrating ? "study-eagle-celebrating" : ""} study-eagle-${animation}`}>
         <div className={`study-eagle-spark ${petCount ? "study-eagle-spark-visible" : ""}`} aria-hidden="true">✦</div>
         {celebrating && <div className="study-eagle-confetti" aria-hidden="true">✦ · ✧ ✦ · ✧</div>}
         <button
           type="button"
-          aria-label="Study Eagle. Click to pet, drag to fly."
+          aria-label={`Study Eagle. ${animation === "sleeping" ? "Sleeping. " : ""}Click to pet, drag to fly.`}
           title="Click to pet · drag to fly"
           onClick={petEagle}
           onPointerDown={onPointerDown}
@@ -213,7 +223,7 @@ export function StudyEagle() {
           className="study-eagle-button"
         >
           <span
-            className="study-eagle-sprite"
+            className={`study-eagle-sprite ${animation === "sleeping" ? "study-eagle-sprite-sleeping" : ""}`}
             style={{
               backgroundPosition: `${frame * 50}% ${direction === "down" ? "0%" : direction === "up" ? "100%" : direction === "left" ? "33.333%" : "66.666%"}`,
             }}
