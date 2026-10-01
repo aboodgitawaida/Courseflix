@@ -4,6 +4,8 @@ import { Play, Plus, Star } from "lucide-react";
 import { toast } from "sonner";
 import { useAuth } from "@/hooks/use-auth";
 import { useShortlist, useToggleShortlist } from "@/lib/ratings";
+import { FALLBACK_SUBJECT_IMAGE, getCourseImage } from "@/lib/subject-images";
+import { useEffect, useState } from "react";
 
 export function Hero({ featured, major }: { featured: Course; major: string }) {
   const feat = featured;
@@ -13,6 +15,11 @@ export function Hero({ featured, major }: { featured: Course; major: string }) {
   const { data: saved = [] } = useShortlist();
   const toggle = useToggleShortlist();
   const inList = saved.includes(feat.code);
+  const [imageSrc, setImageSrc] = useState(() => getCourseImage(feat.subject));
+
+  useEffect(() => {
+    setImageSrc(getCourseImage(feat.subject));
+  }, [feat.subject]);
 
   async function onToggleList() {
     if (!signedIn) {
@@ -34,6 +41,15 @@ export function Hero({ featured, major }: { featured: Course; major: string }) {
 
   return (
     <section className="relative overflow-hidden animate-fade-in-up">
+      <img
+        src={imageSrc}
+        alt=""
+        aria-hidden="true"
+        loading="eager"
+        decoding="async"
+        onError={() => setImageSrc(FALLBACK_SUBJECT_IMAGE)}
+        className="absolute inset-0 h-full w-full object-cover opacity-25"
+      />
       <div className="absolute inset-0 bg-gradient-to-t from-background via-background/60 to-background/30" />
       <div
         className="absolute inset-0"
