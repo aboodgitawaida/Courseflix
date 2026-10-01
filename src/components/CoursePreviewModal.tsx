@@ -8,7 +8,9 @@ import { useMajor } from "@/hooks/use-major";
 import { getMajor } from "@/lib/majors";
 import { useAuth } from "@/hooks/use-auth";
 import { useCourseStats, useShortlist, useToggleShortlist } from "@/lib/ratings";
+import { FALLBACK_SUBJECT_IMAGE, getCourseImage } from "@/lib/subject-images";
 import { PrereqTree } from "./PrereqTree";
+import { useEffect, useState } from "react";
 
 export function CoursePreviewModal() {
   const { previewCode, closePreview } = useCourseUI();
@@ -21,12 +23,17 @@ export function CoursePreviewModal() {
   const { data: stats } = useCourseStats(course?.code ?? "");
   const open = !!course;
   const art = getArt(course?.subject ?? "");
+  const [imageSrc, setImageSrc] = useState(() => getCourseImage(course?.subject ?? ""));
   const inList = course ? (saved as string[]).includes(course.code) : false;
   const match = course ? getMatchScore(course, major) : null;
   const displayRating = stats?.rating_count ? stats.avg_rating : course?.rating ?? 0;
   const displayDifficulty = stats?.rating_count ? stats.avg_difficulty : course?.difficulty ?? 0;
   const displayWorkload = stats?.rating_count ? stats.avg_workload : course?.workload ?? 0;
   const majorName = getMajor(major)?.name;
+
+  useEffect(() => {
+    setImageSrc(getCourseImage(course?.subject ?? ""));
+  }, [course?.subject]);
 
   async function onShortlist() {
     if (!course) return;
@@ -48,6 +55,14 @@ export function CoursePreviewModal() {
         {course && (
           <div className="max-h-[85vh] overflow-y-auto">
             <div className={`relative aspect-[16/7] bg-gradient-to-br ${art.gradient}`}>
+              <img
+                src={imageSrc}
+                alt={`${course.subject} department`}
+                loading="lazy"
+                decoding="async"
+                onError={() => setImageSrc(FALLBACK_SUBJECT_IMAGE)}
+                className="absolute inset-0 h-full w-full object-cover opacity-35"
+              />
               <div className="absolute inset-x-0 bottom-0 h-2/3 bg-gradient-to-t from-[#121216] via-[#121216]/70 to-transparent" />
               <div className="absolute inset-x-0 bottom-0 p-6">
                 <DialogTitle className="font-display text-4xl font-black md:text-5xl">{course.code}</DialogTitle>
