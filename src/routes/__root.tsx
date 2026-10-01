@@ -25,6 +25,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { captureFirstTouchAttribution } from "@/lib/attribution";
 import { A11Y_ANNOUNCE_EVENT } from "@/lib/a11y";
 
+const TERMS_NOTICE_ENABLED = false;
+
 function NotFoundComponent() {
   return (
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
@@ -161,7 +163,11 @@ function RootComponent() {
 
   useEffect(() => {
     captureFirstTouchAttribution();
-    setTermsAccepted(window.localStorage.getItem("courseflix-terms-accepted") === "2026-10-01");
+    if (TERMS_NOTICE_ENABLED) {
+      setTermsAccepted(window.localStorage.getItem("courseflix-terms-accepted") === "2026-10-01");
+    } else {
+      setTermsAccepted(true);
+    }
   }, []);
 
   function acceptTerms() {
