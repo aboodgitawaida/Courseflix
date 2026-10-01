@@ -34,10 +34,10 @@ export function StudyEagle() {
   }, []);
 
   useEffect(() => {
-    if (paused || (!isDragging && !isReturning)) return;
+    if (paused) return;
     const timer = window.setInterval(() => setFrame((current) => (current + 1) % 3), 220);
     return () => window.clearInterval(timer);
-  }, [isDragging, isReturning, paused]);
+  }, [paused]);
 
   useEffect(() => {
     return () => {
