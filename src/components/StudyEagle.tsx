@@ -5,7 +5,7 @@ import { getCourse, type Course } from "@/lib/courses";
 
 type Position = { x: number; y: number };
 type Direction = "down" | "up" | "left" | "right";
-type EagleAnimation = "idle" | "sleeping" | "backflip";
+type EagleAnimation = "idle" | "sleeping";
 
 const EAGLE_REPLIES = [
   "Try the course preview first, then shortlist anything that still feels like a good fit.",
@@ -53,7 +53,7 @@ export function StudyEagle() {
   }, []);
 
   useEffect(() => {
-    const timer = window.setTimeout(() => setAnimation("sleeping"), 18_000);
+    const timer = window.setTimeout(() => setAnimation("sleeping"), 2_000);
     return () => window.clearTimeout(timer);
   }, [animation, chatOpen, isDragging, isReturning]);
 
@@ -138,11 +138,9 @@ export function StudyEagle() {
   function petEagle() {
     if (isDragging || didDrag.current) return;
     setPetCount((count) => count + 1);
-    setAnimation("backflip");
     setSummaryCourseCode(null);
     setSummaryText(null);
     setReply(petCount % 2 === 0 ? "Krrr! That tickles. You have got this." : EAGLE_REPLIES[petCount % EAGLE_REPLIES.length]);
-    window.setTimeout(() => setAnimation("idle"), 720);
   }
 
   function startReturnFlight() {
@@ -223,7 +221,7 @@ export function StudyEagle() {
           className="study-eagle-button"
         >
           <span
-            className={`study-eagle-sprite ${animation === "sleeping" ? "study-eagle-sprite-sleeping" : ""}`}
+            className="study-eagle-sprite"
             style={{
               backgroundPosition: `${frame * 50}% ${direction === "down" ? "0%" : direction === "up" ? "100%" : direction === "left" ? "33.333%" : "66.666%"}`,
             }}
