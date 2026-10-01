@@ -36,7 +36,41 @@ export type SubjectCode =
   | "FAS"
   | "VST"
   | "EDS"
-  | "FSC";
+  | "ARA"
+  | "CBJ"
+  | "CHI"
+  | "CPS"
+  | "DRS"
+  | "DTS"
+  | "FSL"
+  | "GER"
+  | "GLB"
+  | "GRK"
+  | "HIN"
+  | "HSC"
+  | "IMI"
+  | "ISP"
+  | "ITA"
+  | "JAL"
+  | "JBC"
+  | "JBH"
+  | "JCB"
+  | "JCP"
+  | "JEG"
+  | "JFL"
+  | "JGE"
+  | "JLP"
+  | "JPE"
+  | "LAT"
+  | "LTL"
+  | "MGD"
+  | "PRS"
+  | "PUN"
+  | "SAH"
+  | "SAN"
+  | "SPA"
+  | "URD"
+  | "UTM";
 
 const UNSPLASH_PARAMS = "?auto=format&fit=crop&w=400&q=80";
 
@@ -48,7 +82,7 @@ export const SUBJECT_IMAGES: Record<string, string> = {
   MAT: `https://images.unsplash.com/photo-1635070041078-e363dbe005cb${UNSPLASH_PARAMS}`,
   MATH: `https://images.unsplash.com/photo-1509228468518-180dd4864904${UNSPLASH_PARAMS}`,
   STA: `https://images.unsplash.com/photo-1551288049-bebda4e38f71${UNSPLASH_PARAMS}`,
-  ANT: `https://images.unsplash.com/photo-1591110316205-0f855d04f53f${UNSPLASH_PARAMS}`,
+  ANT: `https://images.unsplash.com/photo-1461360370896-922624d12aa1${UNSPLASH_PARAMS}`,
   POL: `https://images.unsplash.com/photo-1573164713988-8665fc963095${UNSPLASH_PARAMS}`,
   HIS: `https://images.unsplash.com/photo-1461360370896-922624d12aa1${UNSPLASH_PARAMS}`,
   BIO: `https://images.unsplash.com/photo-1532094349884-543bc11b234d${UNSPLASH_PARAMS}`,
@@ -81,6 +115,41 @@ export const SUBJECT_IMAGES: Record<string, string> = {
   VST: `https://images.unsplash.com/photo-1547891654-e66ed7ebb968${UNSPLASH_PARAMS}`,
   EDS: `https://images.unsplash.com/photo-1503676260728-1c00da094a0b${UNSPLASH_PARAMS}`,
   FSC: `https://images.unsplash.com/photo-1576091160399-112ba8d25d1d${UNSPLASH_PARAMS}`,
+  ARA: `https://images.unsplash.com/photo-1604608671912-2630ce6e9c56${UNSPLASH_PARAMS}`,
+  CBJ: `https://images.unsplash.com/photo-1472214103451-9374bd1c798e${UNSPLASH_PARAMS}`,
+  CHI: `https://images.unsplash.com/photo-1547981609-4b6bf67e5c9d${UNSPLASH_PARAMS}`,
+  CPS: `https://images.unsplash.com/photo-1516321318423-f06f85e504b3${UNSPLASH_PARAMS}`,
+  DRS: `https://images.unsplash.com/photo-1503095396549-807759245b35${UNSPLASH_PARAMS}`,
+  DTS: `https://images.unsplash.com/photo-1529156069898-49953e39b3ac${UNSPLASH_PARAMS}`,
+  FSL: `https://images.unsplash.com/photo-1502602898657-3e91760cbb34${UNSPLASH_PARAMS}`,
+  GER: `https://images.unsplash.com/photo-1467269204594-9661b134dd2b${UNSPLASH_PARAMS}`,
+  GLB: `https://images.unsplash.com/photo-1521292270410-a8c4d716d518${UNSPLASH_PARAMS}`,
+  GRK: `https://images.unsplash.com/photo-1554244593-8f8735377b21${UNSPLASH_PARAMS}`,
+  HIN: `https://images.unsplash.com/photo-1604608671912-2630ce6e9c56${UNSPLASH_PARAMS}`,
+  HSC: `https://images.unsplash.com/photo-1576091160399-112ba8d25d1d${UNSPLASH_PARAMS}`,
+  IMI: `https://images.unsplash.com/photo-1576091160399-112ba8d25d1d${UNSPLASH_PARAMS}`,
+  ISP: `https://images.unsplash.com/photo-1517694712202-14dd9538aa97${UNSPLASH_PARAMS}`,
+  ITA: `https://images.unsplash.com/photo-1523531294919-4bcd7c65e216${UNSPLASH_PARAMS}`,
+  JAL: `https://images.unsplash.com/photo-1457369804613-52c61a468e7d${UNSPLASH_PARAMS}`,
+  JBC: `https://images.unsplash.com/photo-1457369804613-52c61a468e7d${UNSPLASH_PARAMS}`,
+  JBH: `https://images.unsplash.com/photo-1457369804613-52c61a468e7d${UNSPLASH_PARAMS}`,
+  JCB: `https://images.unsplash.com/photo-1457369804613-52c61a468e7d${UNSPLASH_PARAMS}`,
+  JCP: `https://images.unsplash.com/photo-1457369804613-52c61a468e7d${UNSPLASH_PARAMS}`,
+  JEG: `https://images.unsplash.com/photo-1457369804613-52c61a468e7d${UNSPLASH_PARAMS}`,
+  JFL: `https://images.unsplash.com/photo-1502602898657-3e91760cbb34${UNSPLASH_PARAMS}`,
+  JGE: `https://images.unsplash.com/photo-1457369804613-52c61a468e7d${UNSPLASH_PARAMS}`,
+  JLP: `https://images.unsplash.com/photo-1457369804613-52c61a468e7d${UNSPLASH_PARAMS}`,
+  JPE: `https://images.unsplash.com/photo-1457369804613-52c61a468e7d${UNSPLASH_PARAMS}`,
+  LAT: `https://images.unsplash.com/photo-1554244593-8f8735377b21${UNSPLASH_PARAMS}`,
+  LTL: `https://images.unsplash.com/photo-1457369804613-52c61a468e7d${UNSPLASH_PARAMS}`,
+  MGD: `https://images.unsplash.com/photo-1552664730-d307ca884978${UNSPLASH_PARAMS}`,
+  PRS: `https://images.unsplash.com/photo-1604608671912-2630ce6e9c56${UNSPLASH_PARAMS}`,
+  PUN: `https://images.unsplash.com/photo-1604608671912-2630ce6e9c56${UNSPLASH_PARAMS}`,
+  SAH: `https://images.unsplash.com/photo-1604608671912-2630ce6e9c56${UNSPLASH_PARAMS}`,
+  SAN: `https://images.unsplash.com/photo-1529156069898-49953e39b3ac${UNSPLASH_PARAMS}`,
+  SPA: `https://images.unsplash.com/photo-1768341396547-0b6584cc4d85${UNSPLASH_PARAMS}`,
+  URD: `https://images.unsplash.com/photo-1604608671912-2630ce6e9c56${UNSPLASH_PARAMS}`,
+  UTM: `https://images.unsplash.com/photo-1503676260728-1c00da094a0b${UNSPLASH_PARAMS}`,
 };
 
 export function getCourseImage(subjectCode: string): string {
