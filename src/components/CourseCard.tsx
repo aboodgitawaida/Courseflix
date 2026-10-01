@@ -1,7 +1,9 @@
 import { Star, Plus, Check, GitCompare } from "lucide-react";
 import { toast } from "sonner";
-import { memo } from "react";
+import { memo, useState } from "react";
 import { getArt, getBadges, getMatchScore, type Course } from "@/lib/courses";
+import { FALLBACK_MAJOR_IMAGE } from "@/lib/major-images";
+import { getCourseImage } from "@/lib/course-images";
 import { useCourseUI } from "@/hooks/use-course-ui";
 import { useMajor } from "@/hooks/use-major";
 import { useAuth } from "@/hooks/use-auth";
@@ -83,6 +85,7 @@ function Motif({ motif, accent }: { motif: string; accent: string }) {
 export const CourseCard = memo(function CourseCard({ course, size = "md" }: { course: Course; size?: "md" | "lg" }) {
   const w = size === "lg" ? "w-[300px] md:w-[340px]" : "w-[240px] md:w-[280px]";
   const art = getArt(course.subject);
+  const [imageSrc, setImageSrc] = useState(() => getCourseImage(course.subject));
   const badges = getBadges(course);
   const { openPreview, compare, toggleCompare } = useCourseUI();
   const { major } = useMajor();
@@ -124,6 +127,19 @@ export const CourseCard = memo(function CourseCard({ course, size = "md" }: { co
       className={`group relative shrink-0 ${w} cursor-pointer rounded-2xl border border-white/[0.08] bg-surface overflow-hidden transition-all duration-300 ease-out hover:-translate-y-1 hover:shadow-2xl hover:shadow-red-900/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/30`}
     >
       <div className={`relative aspect-video bg-gradient-to-br ${art.gradient}`}>
+        <img
+          src={imageSrc}
+          alt=""
+          loading="lazy"
+          decoding="async"
+          width={800}
+          height={450}
+          className="absolute inset-0 h-full w-full object-cover opacity-75 transition-transform duration-500 group-hover:scale-105"
+          onError={() => {
+            if (imageSrc !== FALLBACK_MAJOR_IMAGE) setImageSrc(FALLBACK_MAJOR_IMAGE);
+          }}
+        />
+        <div className="absolute inset-0 bg-black/35" />
         <Motif motif={art.motif} accent={art.accent} />
         <div className="absolute inset-x-0 bottom-0 h-2/3 bg-gradient-to-t from-black/90 via-black/40 to-transparent" />
 
