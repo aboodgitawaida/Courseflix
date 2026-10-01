@@ -104,9 +104,11 @@ function TermsPage() {
             <p className="mt-2">
               Courseflix may process account details, profile settings, shortlists, reviews, and
               usage information needed to provide the service. We do not sell personal information.
-              Use of the service is also subject to any privacy notice made available by
-              Courseflix, which explains applicable collection, use, retention, and deletion
-              practices.
+              We handle personal information in accordance with applicable Canadian privacy laws,
+              which may include the federal Personal Information Protection and Electronic
+              Documents Act (PIPEDA) and applicable Ontario law. Use of the service is also subject
+              to any privacy notice made available by Courseflix, which explains applicable
+              collection, use, retention, and deletion practices.
             </p>
           </section>
 
@@ -121,7 +123,22 @@ function TermsPage() {
           </section>
 
           <section>
-            <h2 className="font-display text-2xl text-foreground">8. Changes and termination</h2>
+            <h2 className="font-display text-2xl text-foreground">8. Ontario law and disputes</h2>
+            <p className="mt-2">
+              These Terms are governed by the laws of the Province of Ontario and the federal laws
+              of Canada applicable in Ontario, without regard to conflict-of-law rules. Subject to
+              any mandatory rights you may have under applicable law, the courts located in Ontario
+              have exclusive jurisdiction over disputes arising from these Terms or your use of
+              Courseflix.
+            </p>
+            <p className="mt-2">
+              Nothing in these Terms limits a right or remedy that cannot lawfully be excluded or
+              limited under Ontario or Canadian law.
+            </p>
+          </section>
+
+          <section>
+            <h2 className="font-display text-2xl text-foreground">9. Changes and termination</h2>
             <p className="mt-2">
               We may update these Terms as Courseflix changes. The updated version will be posted
               here with a new “Last updated” date. Continued use after an update means you accept
@@ -130,7 +147,7 @@ function TermsPage() {
           </section>
 
           <section>
-            <h2 className="font-display text-2xl text-foreground">9. Contact</h2>
+            <h2 className="font-display text-2xl text-foreground">10. Contact</h2>
             <p className="mt-2">
               Questions about these Terms can be sent through the contact method provided in the
               Help centre.
