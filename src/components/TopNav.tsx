@@ -7,7 +7,6 @@ import { useMajor } from "@/hooks/use-major";
 import { MAJORS, getMajor } from "@/lib/majors";
 import { ProfileMenu } from "@/components/ProfileMenu";
 import { NotificationBell } from "@/components/NotificationBell";
-import { motion } from "framer-motion";
 
 export function TopNav() {
   const { signedIn } = useAuth();
@@ -34,7 +33,7 @@ export function TopNav() {
   }
 
   return (
-    <header className="sticky top-0 z-50 border-b border-white/10 bg-black/40 backdrop-blur-xl">
+    <header className="sticky top-0 z-50 border-b border-white/[0.08] bg-background/70 backdrop-blur-xl">
       <div className="flex h-16 items-center gap-3 px-4 md:gap-4 md:px-10">
         <Link to="/" aria-label="Courseflix home" className="shrink-0">
           <span className="wordmark font-display text-2xl leading-none md:text-3xl">
@@ -43,35 +42,14 @@ export function TopNav() {
         </Link>
 
         <nav className="hidden items-center gap-5 text-sm font-medium text-muted-foreground lg:flex">
-          <Link to="/" className="relative py-2 transition hover:text-foreground">
-            {pathname === "/" && (
-              <motion.span
-                layoutId="activeTab"
-                className="absolute inset-x-0 bottom-0 h-px bg-indigo-400"
-                transition={{ type: "spring", stiffness: 400, damping: 30 }}
-              />
-            )}
+          <Link to="/" className="transition hover:text-foreground">
             Browse
           </Link>
-          <Link to="/list" className="relative py-2 transition hover:text-foreground">
-            {pathname === "/list" && (
-              <motion.span
-                layoutId="activeTab"
-                className="absolute inset-x-0 bottom-0 h-px bg-indigo-400"
-                transition={{ type: "spring", stiffness: 400, damping: 30 }}
-              />
-            )}
+          <Link to="/list" className="transition hover:text-foreground">
             My Shortlist
           </Link>
           {signedIn && (
-            <Link to="/reviews" className="relative py-2 transition hover:text-foreground">
-              {pathname === "/reviews" && (
-                <motion.span
-                  layoutId="activeTab"
-                  className="absolute inset-x-0 bottom-0 h-px bg-indigo-400"
-                  transition={{ type: "spring", stiffness: 400, damping: 30 }}
-                />
-              )}
+            <Link to="/reviews" className="transition hover:text-foreground">
               My Reviews
             </Link>
           )}
