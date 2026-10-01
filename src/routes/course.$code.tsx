@@ -76,7 +76,9 @@ function CoursePage() {
   const hasReal = !!stats && stats.rating_count > 0;
 
   useEffect(() => {
-    window.dispatchEvent(new CustomEvent("study-eagle-summarize", { detail: { course } }));
+    window.dispatchEvent(
+      new CustomEvent("study-eagle-summarize", { detail: { course, context: "page" } }),
+    );
   }, [course]);
 
   async function onShortlist() {

@@ -21,6 +21,8 @@ export function StudyEagle() {
   const [isDragging, setIsDragging] = useState(false);
   const [isReturning, setIsReturning] = useState(false);
   const [celebrating, setCelebrating] = useState(false);
+  const [summaryCourseCode, setSummaryCourseCode] = useState<string | null>(null);
+  const [summaryContext, setSummaryContext] = useState<"preview" | "page" | null>(null);
   const [direction, setDirection] = useState<Direction>("down");
   const dragOffset = useRef<Position>({ x: 0, y: 0 });
   const lastPointer = useRef<Position>({ x: 0, y: 0 });
@@ -28,6 +30,14 @@ export function StudyEagle() {
   const returnFrame = useRef<number | null>(null);
   const pathname = useRouterState({ select: (state) => state.location.pathname });
   const course = getCurrentCourse(pathname);
+
+  useEffect(() => {
+    if (!course && summaryCourseCode && summaryContext === "page") {
+      setSummaryCourseCode(null);
+      setSummaryContext(null);
+      setReply(EAGLE_REPLIES[0]);
+    }
+  }, [course, summaryContext, summaryCourseCode]);
 
   useEffect(() => {
     setPosition({ x: window.innerWidth - 132, y: window.innerHeight - 150 });
@@ -40,9 +50,12 @@ export function StudyEagle() {
 
   useEffect(() => {
     const onSummary = (event: Event) => {
-      const { course } = (event as CustomEvent<{ course?: Course }>).detail ?? {};
+      const { course, context } =
+        (event as CustomEvent<{ course?: Course; context?: "preview" | "page" }>).detail ?? {};
       if (!course) return;
-      setReply(`Here’s the short version: ${makeCourseSummary(course)}`);
+      setSummaryCourseCode(course.code);
+      setSummaryContext(context ?? "preview");
+      setReply(`${course.code}: ${makeCourseSummary(course)}`);
       setChatOpen(true);
     };
     const onCelebration = () => {
@@ -54,9 +67,16 @@ export function StudyEagle() {
       }, 1800);
     };
     window.addEventListener("study-eagle-summarize", onSummary);
+    const onClearSummary = () => {
+      setSummaryCourseCode(null);
+      setSummaryContext(null);
+      setReply(EAGLE_REPLIES[0]);
+    };
+    window.addEventListener("study-eagle-clear", onClearSummary);
     window.addEventListener("study-eagle-celebrate", onCelebration);
     return () => {
       window.removeEventListener("study-eagle-summarize", onSummary);
+      window.removeEventListener("study-eagle-clear", onClearSummary);
       window.removeEventListener("study-eagle-celebrate", onCelebration);
     };
   }, []);
@@ -106,6 +126,7 @@ export function StudyEagle() {
   function petEagle() {
     if (isDragging || didDrag.current) return;
     setPetCount((count) => count + 1);
+    setSummaryCourseCode(null);
     setReply(petCount % 2 === 0 ? "Krrr! That tickles. You have got this." : EAGLE_REPLIES[petCount % EAGLE_REPLIES.length]);
   }
 
@@ -162,7 +183,7 @@ export function StudyEagle() {
             </button>
           </div>
           <div className="mt-3 rounded-xl border border-white/10 bg-black/20 p-3 text-sm leading-relaxed text-white/80">
-            {course ? `${course.code}: ${reply}` : reply}
+            {reply}
           </div>
           <div className="mt-3 flex flex-wrap gap-2">
             <button onClick={() => setReply(EAGLE_REPLIES[0])} className="study-eagle-chip">Study tip</button>
@@ -218,7 +239,12 @@ function getPerchPosition(): Position {
 function makeCourseSummary(course: Course) {
   const description = course.description.replace(/\s+/g, " ").trim();
   const sentence = description.split(/(?<=[.!?])\s+/)[0] ?? description;
-  return `${sentence.slice(0, 190)}${sentence.length > 190 ? "…" : ""} It is a ${course.credits}-credit ${course.area.toLowerCase()} course.`;
+  const courseType = `${course.credits}-credit ${course.area.toLowerCase()} course`;
+  const maxLength = 118 - courseType.length;
+  const concise = sentence.length > maxLength
+    ? `${sentence.slice(0, Math.max(40, maxLength - 1)).replace(/\s+\S*$/, "")}…`
+    : sentence;
+  return `${concise} ${courseType}.`;
 }
 
 function getCurrentCourse(pathname: string): Course | undefined {
