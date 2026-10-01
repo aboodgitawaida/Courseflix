@@ -12,8 +12,8 @@ export type Major = {
     | "Languages"
     | "Arts & Media";
   emoji: string;
-  core: readonly string[];
-  support: readonly string[];
+  core: string[];
+  support: string[];
 };
 
 export const MAJORS: Major[] = [
@@ -62,55 +62,6 @@ export const MAJORS: Major[] = [
   { id: "tech-coding", name: "Technology, Coding & Society", category: "Arts & Media", emoji: "💻", core: ["CCT"], support: ["SOC", "CSC"] },
   { id: "wgs", name: "Women, Gender and Sexuality Studies", category: "Social Sciences", emoji: "♀️", core: ["WGS"], support: ["SOC", "ENG", "HIS"] },
 ];
-
-const MAJOR_IDS = [
-  "anthropology",
-  "applied-mathematics",
-  "applied-statistics",
-  "art-art-history",
-  "art-history",
-  "astronomy",
-  "biology",
-  "biology-health-sciences",
-  "canadian-studies",
-  "chemistry",
-  "cinema",
-  "classics",
-  "commerce",
-  "ccit",
-  "computer-science",
-  "criminology",
-  "diaspora",
-  "dramaturgy",
-  "earth-science",
-  "economics",
-  "english",
-  "environmental-management",
-  "environmental-science",
-  "forensic-science",
-  "french",
-  "geospatial-data-science",
-  "geography",
-  "history",
-  "religion",
-  "italian",
-  "language-teaching-french",
-  "language-teaching-italian",
-  "linguistics",
-  "management",
-  "mathematical-sciences",
-  "paleontology",
-  "philosophy",
-  "physics",
-  "political-science",
-  "writing",
-  "psychology",
-  "sociology",
-  "tech-coding",
-  "wgs",
-] as const;
-
-export type MajorId = (typeof MAJOR_IDS)[number];
 
 export const MAJOR_CATEGORIES = [
   "Math, CS & Data",
