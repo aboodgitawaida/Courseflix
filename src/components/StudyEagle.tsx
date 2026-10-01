@@ -242,17 +242,34 @@ function getPerchPosition(): Position {
 }
 
 function makeCourseSummary(course: Course) {
-  const focus = course.title
-    .replace(/^(an?|the)\s+(introduction to|study of)\s+/i, "")
+  const title = course.title
+    .replace(/^(an?|the)\s+/i, "")
     .replace(/^introduction to\s+/i, "")
     .replace(/^topics in\s+/i, "")
     .replace(/\s+/g, " ")
     .trim()
     .replace(/[.!?]+$/, "");
-  const summary = `Explore ${focus.charAt(0).toLowerCase()}${focus.slice(1)}.`;
-  return summary.length > 92
-    ? `${summary.slice(0, 89).replace(/\s+\S*$/, "")}…`
-    : summary;
+  const description = course.description
+    .replace(/\s+/g, " ")
+    .replace(/\.\.\.$/, "")
+    .trim();
+  const lead = description.split(/(?<=[.!?])\s+/)[0] ?? description;
+  const cleanedLead = lead
+    .replace(/^this course (?:will )?(?:introduces?|explores?|examines?|surveys?)\s+(?:students to\s+)?/i, "")
+    .replace(/^introduction to\s+/i, "")
+    .replace(/^the study of\s+/i, "")
+    .replace(/^topics include\s+/i, "")
+    .replace(/^this is\s+/i, "")
+    .replace(/[.!?]+$/, "")
+    .trim();
+  const vibe = cleanedLead
+    ? `${title}: ${lowercaseFirst(cleanedLead)}.`
+    : `A hands-on look at ${lowercaseFirst(title)}.`;
+  return vibe.length > 190 ? `${vibe.slice(0, 187).replace(/\s+\S*$/, "")}…` : vibe;
+}
+
+function lowercaseFirst(value: string) {
+  return value.charAt(0).toLowerCase() + value.slice(1);
 }
 
 function getCurrentCourse(pathname: string): Course | undefined {
