@@ -75,12 +75,20 @@ function Motif({ motif, accent }: { motif: string; accent: string }) {
   return (
     <div
       className="absolute inset-0 opacity-30"
-      style={{ backgroundImage: `radial-gradient(circle at 30% 25%, ${accent}44, transparent 55%)` }}
+      style={{
+        backgroundImage: `radial-gradient(circle at 30% 25%, ${accent}44, transparent 55%)`,
+      }}
     />
   );
 }
 
-export const CourseCard = memo(function CourseCard({ course, size = "md" }: { course: Course; size?: "md" | "lg" }) {
+export const CourseCard = memo(function CourseCard({
+  course,
+  size = "md",
+}: {
+  course: Course;
+  size?: "md" | "lg";
+}) {
   const w = size === "lg" ? "w-[300px] md:w-[340px]" : "w-[240px] md:w-[280px]";
   const art = getArt(course.subject);
   const badges = getBadges(course);
@@ -95,6 +103,12 @@ export const CourseCard = memo(function CourseCard({ course, size = "md" }: { co
   const inList = (saved as string[]).includes(course.code);
   const inCompare = compare.includes(course.code);
 
+  function trackPointer(event: React.MouseEvent<HTMLElement>) {
+    const rect = event.currentTarget.getBoundingClientRect();
+    event.currentTarget.style.setProperty("--mouse-x", `${event.clientX - rect.left}px`);
+    event.currentTarget.style.setProperty("--mouse-y", `${event.clientY - rect.top}px`);
+  }
+
   async function onAdd(e: React.MouseEvent) {
     e.stopPropagation();
     if (!signedIn) {
@@ -103,7 +117,11 @@ export const CourseCard = memo(function CourseCard({ course, size = "md" }: { co
     }
     try {
       await toggle.mutateAsync({ code: course.code, saved: inList });
-      toast.success(inList ? `${course.code} removed from your shortlist` : `${course.code} added to your shortlist`);
+      toast.success(
+        inList
+          ? `${course.code} removed from your shortlist`
+          : `${course.code} added to your shortlist`,
+      );
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Could not update shortlist");
     }
@@ -115,13 +133,14 @@ export const CourseCard = memo(function CourseCard({ course, size = "md" }: { co
       tabIndex={0}
       aria-label={`${course.code}, ${course.title}, rated ${displayRating.toFixed(1)} out of 5`}
       onClick={() => openPreview(course.code)}
+      onMouseMove={trackPointer}
       onKeyDown={(e) => {
         if (e.key === "Enter" || e.key === " ") {
           e.preventDefault();
           openPreview(course.code);
         }
       }}
-      className={`group relative shrink-0 ${w} cursor-pointer rounded-2xl border border-white/[0.08] bg-surface overflow-hidden transition-all duration-300 ease-out hover:-translate-y-1 hover:shadow-2xl hover:shadow-red-900/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/30`}
+      className={`group relative isolate shrink-0 ${w} cursor-pointer overflow-hidden rounded-2xl border border-white/[0.08] bg-surface transition-all duration-300 ease-out before:pointer-events-none before:absolute before:inset-0 before:z-10 before:rounded-[inherit] before:opacity-0 before:transition-opacity before:duration-300 before:[background:radial-gradient(180px_circle_at_var(--mouse-x)_var(--mouse-y),rgba(99,102,241,0.28),transparent_70%)] group-hover:before:opacity-100 hover:-translate-y-1.5 hover:shadow-2xl hover:shadow-indigo-950/40 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500/50`}
     >
       <div className={`relative aspect-video bg-gradient-to-br ${art.gradient}`}>
         <Motif motif={art.motif} accent={art.accent} />
@@ -154,7 +173,9 @@ export const CourseCard = memo(function CourseCard({ course, size = "md" }: { co
         </div>
 
         <div className="absolute inset-x-0 bottom-0 p-3">
-          <div className="font-display text-2xl font-bold leading-none text-white">{course.code}</div>
+          <div className="font-display text-2xl font-bold leading-none text-white">
+            {course.code}
+          </div>
           <div className="mt-1 line-clamp-1 text-xs font-medium text-white/80">{course.title}</div>
         </div>
       </div>
@@ -164,20 +185,30 @@ export const CourseCard = memo(function CourseCard({ course, size = "md" }: { co
           <Star className="h-3 w-3 fill-current" /> {displayRating.toFixed(1)}
         </span>
         {match !== null && (
-          <span className="rounded-lg border border-white/[0.12] bg-white/[0.08] backdrop-blur-md px-1.5 py-0.5 text-[10px] font-semibold text-emerald-400">{match}% match</span>
+          <span className="rounded-lg border border-white/[0.12] bg-white/[0.08] backdrop-blur-md px-1.5 py-0.5 text-[10px] font-semibold text-emerald-400">
+            {match}% match
+          </span>
         )}
-        <span className="rounded-lg border border-white/[0.12] bg-white/[0.08] backdrop-blur-md px-1.5 py-0.5 text-[10px] text-muted-foreground">{course.credits} cr</span>
+        <span className="rounded-lg border border-white/[0.12] bg-white/[0.08] backdrop-blur-md px-1.5 py-0.5 text-[10px] text-muted-foreground">
+          {course.credits} cr
+        </span>
       </div>
 
       <div className="flex flex-wrap gap-1 px-3 pb-3">
         {badges.map((b) => (
-          <span key={b.label} className="rounded-lg border border-white/[0.12] bg-white/[0.08] backdrop-blur-md px-1.5 py-0.5 text-[10px] text-white/80">
+          <span
+            key={b.label}
+            className="rounded-lg border border-white/[0.12] bg-white/[0.08] backdrop-blur-md px-1.5 py-0.5 text-[10px] text-white/80"
+          >
             {b.emoji} {b.label}
           </span>
         ))}
         {badges.length === 0 &&
           course.tags.slice(0, 2).map((t) => (
-            <span key={t} className="rounded-lg border border-white/[0.12] bg-white/[0.08] backdrop-blur-md px-1.5 py-0.5 text-[10px] text-white/70">
+            <span
+              key={t}
+              className="rounded-lg border border-white/[0.12] bg-white/[0.08] backdrop-blur-md px-1.5 py-0.5 text-[10px] text-white/70"
+            >
               {t}
             </span>
           ))}
