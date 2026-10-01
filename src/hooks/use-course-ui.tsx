@@ -1,5 +1,6 @@
 import { createContext, useContext, useMemo, useState, type ReactNode } from "react";
 import { announce } from "@/lib/a11y";
+import { getCourse } from "@/lib/courses";
 
 type CourseUI = {
   previewCode: string | null;
@@ -22,7 +23,14 @@ export function CourseUIProvider({ children }: { children: ReactNode }) {
   const value = useMemo<CourseUI>(
     () => ({
       previewCode,
-      openPreview: (code) => setPreviewCode(code),
+      openPreview: (code) => {
+        setPreviewCode(code);
+        window.dispatchEvent(
+          new CustomEvent("study-eagle-summarize", {
+            detail: { course: getCourse(code) },
+          }),
+        );
+      },
       closePreview: () => setPreviewCode(null),
       compare,
       toggleCompare: (code) =>
