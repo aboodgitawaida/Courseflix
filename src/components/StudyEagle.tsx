@@ -274,7 +274,7 @@ function getNormalPerchPosition(): Position {
 }
 
 function getSleepPerchPosition(): Position {
-  return { x: window.innerWidth - 132, y: window.innerHeight - 84 };
+  return { x: window.innerWidth - 132, y: window.innerHeight - 78 };
 }
 
 function makeCourseSummary(course: Course) {
