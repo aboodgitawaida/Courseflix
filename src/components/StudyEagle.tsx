@@ -155,6 +155,12 @@ export function StudyEagle() {
     setIsReturning(true);
     const target = getPerchPosition();
     const start = position;
+    if (Math.abs(target.x - start.x) < 1 && Math.abs(target.y - start.y) < 1) {
+      setIsReturning(false);
+      setDirection("down");
+      onArrive?.();
+      return;
+    }
     const startedAt = performance.now();
     const verticalDuration = Math.max(220, Math.abs(target.y - start.y) * 2.2);
     const horizontalDuration = Math.max(220, Math.abs(target.x - start.x) * 2.2);
