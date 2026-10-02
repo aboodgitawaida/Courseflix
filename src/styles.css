@@ -124,7 +124,20 @@
 .light .border-amber-300\/25, .light .border-amber-300\/20 { border-color: rgb(190 24 93 / 0.25); }
 .light .border-white\/\[0\.1\], .light .border-white\/\[0\.12\] { border-color: var(--border); }
 .light .shadow-black\/50, .light .shadow-black\/60, .light .shadow-black\/70 { --tw-shadow-color: rgb(15 23 42 / 0.14); }
-.light .study-eagle-panel { color: var(--foreground); }
+.light .study-eagle-panel {
+  color: var(--foreground);
+  background: rgb(255 255 255 / 0.97);
+  border-color: rgb(190 24 93 / 0.22);
+  box-shadow: 0 20px 45px rgb(15 23 42 / 0.16);
+}
+.light .study-eagle-panel .text-amber-200,
+.light .study-eagle-panel .text-amber-100\/60 { color: #9f1239; }
+.light .study-eagle-panel .text-white\/50 { color: rgb(15 23 42 / 0.55); }
+.light .study-eagle-panel .text-white\/80 { color: #334155; }
+.light .study-eagle-panel .bg-black\/20 { background: rgb(241 245 249 / 0.92); }
+.light .study-eagle-panel .border-white\/10 { border-color: rgb(15 23 42 / 0.1); }
+.light .study-eagle-panel .study-eagle-chip { color: #9f1239; border-color: rgb(190 24 93 / 0.28); background: rgb(255 241 242 / 0.9); }
+.light .study-eagle-panel .study-eagle-chip:hover { color: #881337; background: rgb(254 205 211 / 0.7); }
 .light .hero-course-image { opacity: 0.42; }
 .light .hero-course-overlay { background-image: linear-gradient(to top, rgb(248 250 252 / 0.9), rgb(248 250 252 / 0.34) 52%, rgb(248 250 252 / 0.08)); }
 .light .course-card-art > img { opacity: 0.78; }
