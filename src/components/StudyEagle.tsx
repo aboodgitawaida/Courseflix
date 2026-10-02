@@ -5,7 +5,7 @@ import { getCourse, type Course } from "@/lib/courses";
 
 type Position = { x: number; y: number };
 type Direction = "down" | "up" | "left" | "right";
-type EagleAnimation = "idle" | "sleeping" | "backflip";
+type EagleAnimation = "idle" | "sleeping";
 
 const EAGLE_REPLIES = [
   "Try the course preview first, then shortlist anything that still feels like a good fit.",
@@ -49,9 +49,9 @@ export function StudyEagle() {
   }, []);
 
   useEffect(() => {
-    const frameDuration = animation === "sleeping" ? 900 : animation === "backflip" ? 145 : 220;
+    const frameDuration = animation === "sleeping" ? 900 : 220;
     const timer = window.setInterval(
-      () => setFrame((current) => (current + 1) % (animation === "sleeping" ? 4 : animation === "backflip" ? 6 : 3)),
+      () => setFrame((current) => (current + 1) % (animation === "sleeping" ? 4 : 3)),
       frameDuration,
     );
     return () => window.clearInterval(timer);
@@ -78,12 +78,9 @@ export function StudyEagle() {
       setChatOpen(true);
     };
     const onCelebration = () => {
-      setFrame(0);
-      setAnimation("backflip");
       setCelebrating(true);
       setDirection("up");
       window.setTimeout(() => {
-        setAnimation("idle");
         setCelebrating(false);
         setDirection("down");
       }, 870);
@@ -245,13 +242,11 @@ export function StudyEagle() {
           className="study-eagle-button"
         >
           <span
-            className={`study-eagle-sprite ${animation === "sleeping" ? "study-eagle-sprite-sleeping" : ""} ${animation === "backflip" ? "study-eagle-sprite-backflip" : ""}`}
+            className={`study-eagle-sprite ${animation === "sleeping" ? "study-eagle-sprite-sleeping" : ""}`}
             style={{
               backgroundPosition:
                 animation === "sleeping"
                   ? `${frame * 33.333}% 0%`
-                  : animation === "backflip"
-                  ? `${frame * 20}% 0%`
                   : `${frame * 50}% ${direction === "down" ? "0%" : direction === "up" ? "100%" : direction === "left" ? "33.333%" : "66.666%"}`,
             }}
           />
