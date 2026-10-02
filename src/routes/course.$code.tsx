@@ -8,6 +8,7 @@ import { COURSES, getCourse } from "@/lib/courses";
 import { useAuth } from "@/hooks/use-auth";
 import { useCourseStats, useShortlist, useToggleShortlist } from "@/lib/ratings";
 import { FALLBACK_SUBJECT_IMAGE, getCourseImage } from "@/lib/subject-images";
+import { getCourseCalendarUrl } from "@/lib/course-research";
 import { toast } from "sonner";
 import { ArrowLeft, Plus, Check, Share2, Star, GraduationCap, ExternalLink } from "lucide-react";
 import { useEffect, useState } from "react";
@@ -259,7 +260,7 @@ function CoursePage() {
               {[
                 {
                   label: "View on UTM Academic Calendar",
-                  href: `https://utm.calendar.utoronto.ca/search-courses?course_search=${encodeURIComponent(course.code)}`,
+                  href: getCourseCalendarUrl(course.code),
                 },
                 {
                   label: "Check Timetable Builder availability",
