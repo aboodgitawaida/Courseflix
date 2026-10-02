@@ -9,7 +9,7 @@ import { useCourseStats, useShortlist, useToggleShortlist } from "@/lib/ratings"
 import { FALLBACK_SUBJECT_IMAGE, getCourseImage } from "@/lib/subject-images";
 import { calendarUrl } from "@/lib/links";
 import { toast } from "sonner";
-import { ArrowLeft, Plus, Check, Share2, GraduationCap, ExternalLink } from "lucide-react";
+import { ArrowLeft, Plus, Check, Share2, GraduationCap, ExternalLink, Star } from "lucide-react";
 import { useEffect, useState } from "react";
 import { siteUrl } from "@/lib/site";
 import { timetableUrl } from "@/lib/links";
@@ -240,21 +240,29 @@ function CoursePage() {
                     <div className="font-semibold">{p.name}</div>
                     <div className="flex items-center gap-2 text-xs font-semibold">
                       <span className="text-brand">{p.term}</span>
-                      {rating && <span className="text-amber-500">{rating.rating.toFixed(1)}/5 RMP</span>}
+                      {rating && (
+                        <span className="flex items-center gap-1 text-amber-500" title={`${rating.rating.toFixed(1)} out of 5`}>
+                          <Star className="h-3.5 w-3.5 fill-current" aria-hidden="true" />
+                          {rating.rating.toFixed(1)}/5 RMP
+                        </span>
+                      )}
                     </div>
                   </div>
                   <div className="mt-2 text-xs text-muted-foreground">
                     Published for {p.sections.join(", ")} by the UTM Timetable Builder.
                   </div>
                   {rating ? (
-                    <a
-                      href={rating.profileUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="mt-2 inline-flex text-xs text-brand hover:underline"
-                    >
-                      {rating.reviewCount} Rate My Professors reviews · retrieved {rating.retrievedAt}
-                    </a>
+                    <div className="mt-2 space-y-1">
+                      <div className="text-xs text-muted-foreground">{rating.institution}</div>
+                      <a
+                        href={rating.profileUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex text-xs text-brand hover:underline"
+                      >
+                        {rating.reviewCount} Rate My Professors reviews · retrieved {rating.retrievedAt}
+                      </a>
+                    </div>
                   ) : (
                     <a
                       href={`https://www.ratemyprofessors.com/search/professors?q=${encodeURIComponent(`${p.name} University of Toronto Mississauga`)}`}
