@@ -45,7 +45,7 @@ export function BrandIntro() {
       onClick={() => setVisible(false)}
       className={`fixed inset-0 z-[100] flex items-center justify-center overflow-hidden bg-black transition-opacity duration-500 ${
         done ? "opacity-0" : "opacity-100"
-      }`}
+      } ${done ? "pointer-events-none" : ""}`}
     >
       <div className="relative">
         <div className="wordmark intro-word font-display text-[15vw] leading-none md:text-[11vw]">
