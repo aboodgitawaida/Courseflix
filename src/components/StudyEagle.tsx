@@ -41,6 +41,8 @@ export function StudyEagle() {
   const messageTimer = useRef<number | null>(null);
   const sleepTransitionTimer = useRef<number | null>(null);
   const sleepSequence = useRef(0);
+  const animationRef = useRef<EagleAnimation>("idle");
+  const positionRef = useRef<Position | null>(null);
   const pathname = useRouterState({ select: (state) => state.location.pathname });
   const course = getCurrentCourse(pathname);
 
@@ -56,6 +58,11 @@ export function StudyEagle() {
   useEffect(() => {
     setPosition(getNormalPerchPosition());
   }, []);
+
+  useEffect(() => {
+    animationRef.current = animation;
+    positionRef.current = position;
+  }, [animation, position]);
 
   useEffect(() => {
     const frameDuration = animation === "sleeping" ? 900 : 220;
@@ -103,13 +110,27 @@ export function StudyEagle() {
     };
     const onCelebration = () => {
       setActivityVersion((version) => version + 1);
-      showStatus("Nice pick!");
-      setCelebrating(true);
-      setDirection("up");
-      window.setTimeout(() => {
-        setCelebrating(false);
-        setDirection("down");
-      }, 870);
+      const celebrate = () => {
+        showStatus("Nice pick!");
+        setCelebrating(true);
+        setDirection("up");
+        window.setTimeout(() => {
+          setCelebrating(false);
+          setDirection("down");
+        }, 870);
+      };
+      if (animationRef.current === "sleeping") {
+        sleepSequence.current += 1;
+        setAnimation("idle");
+        setSleepPhase("awake");
+        setLanding(false);
+        if (returnFrame.current !== null) cancelAnimationFrame(returnFrame.current);
+        isReturningRef.current = false;
+        setIsReturning(false);
+        startFlight(getNormalPerchPosition(), celebrate);
+      } else {
+        celebrate();
+      }
     };
     window.addEventListener("study-eagle-summarize", onSummary);
     const onClearSummary = () => {
@@ -196,11 +217,12 @@ export function StudyEagle() {
   }
 
   function startFlight(target: Position, onArrive?: () => void) {
-    if (!position) return;
+    const currentPosition = positionRef.current;
+    if (!currentPosition) return;
     if (returnFrame.current !== null) cancelAnimationFrame(returnFrame.current);
     isReturningRef.current = true;
     setIsReturning(true);
-    const start = position;
+    const start = currentPosition;
     if (Math.abs(target.x - start.x) < 1 && Math.abs(target.y - start.y) < 1) {
       setIsReturning(false);
       isReturningRef.current = false;
@@ -261,7 +283,7 @@ export function StudyEagle() {
               </div>
               <p className="mt-1 text-[11px] text-amber-100/60">Your tiny campus co-pilot</p>
             </div>
-            <button onClick={() => setChatOpen(false)} aria-label="Close Study Eagle chat" className="rounded-md p-1 text-white/50 hover:bg-white/10 hover:text-white">
+            <button type="button" onClick={() => setChatOpen(false)} aria-label="Close Study Eagle chat" className="rounded-md p-1 text-white/50 hover:bg-white/10 hover:text-white">
               <X className="h-4 w-4" />
             </button>
           </div>
@@ -269,9 +291,9 @@ export function StudyEagle() {
             {summaryCourseCode && summaryText ? `${summaryCourseCode}: ${summaryText}` : reply}
           </div>
           <div className="mt-3 flex flex-wrap gap-2">
-            <button onClick={() => setReply(EAGLE_REPLIES[0])} className="study-eagle-chip">Study tip</button>
-            <button onClick={() => setReply(course ? `For ${course.code}, check the prerequisite path before enrolling.` : EAGLE_REPLIES[1])} className="study-eagle-chip">Help me choose</button>
-            <button onClick={() => setReply(EAGLE_REPLIES[2])} className="study-eagle-chip">Plan a semester</button>
+            <button type="button" onClick={() => setReply(EAGLE_REPLIES[0])} className="study-eagle-chip">Study tip</button>
+            <button type="button" onClick={() => setReply(course ? `For ${course.code}, check the prerequisite path before enrolling.` : EAGLE_REPLIES[1])} className="study-eagle-chip">Help me choose</button>
+            <button type="button" onClick={() => setReply(EAGLE_REPLIES[2])} className="study-eagle-chip">Plan a semester</button>
           </div>
         </div>
       )}

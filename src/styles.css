@@ -166,6 +166,7 @@
 @utility animate-shimmer { animation: shimmer 2s infinite linear; background: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.05) 50%, transparent 100%); background-size: 200% 100%; }
 
 .study-eagle { user-select: none; touch-action: none; }
+.study-eagle-panel, .study-eagle-controls, .study-eagle-chip { pointer-events: auto; }
 .study-eagle-dragging { cursor: grabbing; }
 .study-eagle-button { position: relative; display: grid; place-items: center; width: 96px; height: 88px; cursor: grab; image-rendering: pixelated; filter: drop-shadow(0 9px 4px rgb(0 0 0 / 0.35)); transition: transform 160ms ease, filter 160ms ease; }
 .study-eagle-button:hover { transform: translateY(-4px) scale(1.04); filter: drop-shadow(0 13px 6px rgb(0 0 0 / 0.4)); }
