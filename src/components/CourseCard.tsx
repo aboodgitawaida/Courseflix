@@ -125,7 +125,7 @@ export const CourseCard = memo(function CourseCard({ course, size = "md" }: { co
       }}
       className={`group relative shrink-0 ${w} cursor-pointer rounded-2xl border border-white/[0.08] bg-surface overflow-hidden transition-all duration-300 ease-out hover:-translate-y-1 hover:shadow-2xl hover:shadow-red-900/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/30`}
     >
-      <div className={`relative aspect-video bg-gradient-to-br ${art.gradient}`}>
+      <div className={`course-card-art relative aspect-video bg-gradient-to-br ${art.gradient}`}>
         <img
           src={imageSrc}
           alt={`${course.subject} department`}
