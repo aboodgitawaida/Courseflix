@@ -6,6 +6,7 @@ import { getCourse, type Course } from "@/lib/courses";
 type Position = { x: number; y: number };
 type Direction = "down" | "up" | "left" | "right";
 type EagleAnimation = "idle" | "sleeping";
+type SleepPhase = "awake" | "light" | "deep";
 
 const EAGLE_REPLIES = [
   "Try the course preview first, then shortlist anything that still feels like a good fit.",
@@ -22,6 +23,9 @@ export function StudyEagle() {
   const [isDragging, setIsDragging] = useState(false);
   const [isReturning, setIsReturning] = useState(false);
   const [celebrating, setCelebrating] = useState(false);
+  const [landing, setLanding] = useState(false);
+  const [sleepPhase, setSleepPhase] = useState<SleepPhase>("awake");
+  const [statusMessage, setStatusMessage] = useState<string | null>(null);
   const [summaryCourseCode, setSummaryCourseCode] = useState<string | null>(null);
   const [summaryContext, setSummaryContext] = useState<"preview" | "page" | null>(null);
   const [summaryText, setSummaryText] = useState<string | null>(null);
@@ -32,6 +36,8 @@ export function StudyEagle() {
   const didDrag = useRef(false);
   const returnFrame = useRef<number | null>(null);
   const isReturningRef = useRef(false);
+  const isDraggingRef = useRef(false);
+  const messageTimer = useRef<number | null>(null);
   const pathname = useRouterState({ select: (state) => state.location.pathname });
   const course = getCurrentCourse(pathname);
 
@@ -60,11 +66,20 @@ export function StudyEagle() {
   useEffect(() => {
     if (animation !== "idle") return;
     const timer = window.setTimeout(() => {
-      if (isReturningRef.current) return;
-      startFlight(getSleepPerchPosition(), () => setAnimation("sleeping"));
+      if (isReturningRef.current || isDraggingRef.current) return;
+      startFlight(getSleepPerchPosition(), () => {
+        setLanding(true);
+        showStatus("Time for a study break.");
+        setSleepPhase("light");
+        window.setTimeout(() => {
+          setLanding(false);
+          setAnimation("sleeping");
+          window.setTimeout(() => setSleepPhase("deep"), 5_000);
+        }, 650);
+      });
     }, 10_000);
     return () => window.clearTimeout(timer);
-  }, [animation, chatOpen, isDragging]);
+  }, [animation, chatOpen, isDragging, isReturning]);
 
   useEffect(() => {
     const onSummary = (event: Event) => {
@@ -78,6 +93,7 @@ export function StudyEagle() {
       setChatOpen(true);
     };
     const onCelebration = () => {
+      showStatus("Nice pick!");
       setCelebrating(true);
       setDirection("up");
       window.setTimeout(() => {
@@ -104,13 +120,18 @@ export function StudyEagle() {
   useEffect(() => {
     return () => {
       if (returnFrame.current !== null) cancelAnimationFrame(returnFrame.current);
+      if (messageTimer.current !== null) window.clearTimeout(messageTimer.current);
     };
   }, []);
 
   function onPointerDown(event: ReactPointerEvent<HTMLButtonElement>) {
     if (!position) return;
     const wasSleeping = animation === "sleeping";
+    isDraggingRef.current = true;
     setAnimation("idle");
+    setSleepPhase("awake");
+    setLanding(false);
+    showStatus(wasSleeping ? "Back already?" : "Krrr!");
     event.currentTarget.setPointerCapture(event.pointerId);
     if (returnFrame.current !== null) cancelAnimationFrame(returnFrame.current);
     isReturningRef.current = false;
@@ -138,6 +159,7 @@ export function StudyEagle() {
   }
 
   function onPointerUp() {
+    isDraggingRef.current = false;
     setIsDragging(false);
     if (didDrag.current) {
       startFlight(getNormalPerchPosition());
@@ -150,6 +172,7 @@ export function StudyEagle() {
   function petEagle() {
     if (isDragging || didDrag.current) return;
     setPetCount((count) => count + 1);
+    showStatus(petCount % 2 === 0 ? "Krrr! That tickles." : "You got me.");
     setSummaryCourseCode(null);
     setSummaryText(null);
     setReply(petCount % 2 === 0 ? "Krrr! That tickles. You have got this." : EAGLE_REPLIES[petCount % EAGLE_REPLIES.length]);
@@ -196,6 +219,15 @@ export function StudyEagle() {
     returnFrame.current = requestAnimationFrame(step);
   }
 
+  function showStatus(message: string) {
+    if (messageTimer.current !== null) window.clearTimeout(messageTimer.current);
+    setStatusMessage(message);
+    messageTimer.current = window.setTimeout(() => {
+      setStatusMessage(null);
+      messageTimer.current = null;
+    }, 2_800);
+  }
+
   if (!position) return null;
 
   return (
@@ -227,9 +259,15 @@ export function StudyEagle() {
         </div>
       )}
 
-      <div className={`relative ${celebrating ? "study-eagle-celebrating" : ""} study-eagle-${animation}`}>
+      {statusMessage && !chatOpen && (
+        <div className="study-eagle-status" role="status">
+          {statusMessage}
+        </div>
+      )}
+      <div className={`relative ${celebrating ? "study-eagle-celebrating" : ""} ${landing ? "study-eagle-landing" : ""} study-eagle-${animation} study-eagle-sleep-${sleepPhase}`}>
         <div className={`study-eagle-spark ${petCount ? "study-eagle-spark-visible" : ""}`} aria-hidden="true">✦</div>
         {celebrating && <div className="study-eagle-confetti" aria-hidden="true">✦ · ✧ ✦ · ✧</div>}
+        {landing && <div className="study-eagle-dust" aria-hidden="true">· ｡ ·</div>}
         <button
           type="button"
           aria-label={`Study Eagle. ${animation === "sleeping" ? "Sleeping. " : ""}Click to pet, drag to fly.`}

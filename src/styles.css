@@ -163,7 +163,9 @@
 .study-eagle-sprite-sleeping { background-image: url("/eagle-sleeping-spritesheet.png"); background-size: 400% 100%; }
 .study-eagle-sleeping .study-eagle-button { animation: eagle-sleep 2.4s steps(2, end) infinite; }
 .study-eagle-sleeping .study-eagle-sprite { filter: brightness(0.72) saturate(0.78); }
+.study-eagle-sleep-deep .study-eagle-sprite { filter: brightness(0.62) saturate(0.68); }
 .study-eagle-sleeping::after { content: "z  z"; position: absolute; top: -28px; right: 9px; color: rgb(253 230 138 / 0.8); font: 700 12px/1 monospace; letter-spacing: 4px; animation: eagle-zzz 2.4s steps(3, end) infinite; pointer-events: none; }
+.study-eagle-sleep-deep::after { content: "Z  z"; top: -31px; font-size: 14px; }
 .study-eagle-shadow { position: absolute; z-index: -1; bottom: -1px; left: 19px; width: 58px; height: 10px; border-radius: 50%; background: rgb(0 0 0 / 0.4); filter: blur(3px); }
 .study-eagle-controls { display: flex; justify-content: center; gap: 3px; margin-top: 2px; opacity: 0; transform: translateY(4px); transition: opacity 160ms ease, transform 160ms ease; }
 .study-eagle:hover .study-eagle-controls, .study-eagle:focus-within .study-eagle-controls { opacity: 1; transform: translateY(0); }
@@ -174,7 +176,12 @@
 .study-eagle-spark { position: absolute; top: -2px; right: 5px; color: rgb(253 230 138 / 0); font-size: 16px; transform: scale(0.4); transition: color 150ms ease, transform 300ms ease; }
 .study-eagle-spark-visible { color: rgb(253 230 138 / 0.95); transform: scale(1.2) translateY(-9px); }
 .study-eagle-confetti { position: absolute; top: -18px; left: -34px; width: 170px; color: #fbbf24; font-size: 18px; letter-spacing: 8px; white-space: nowrap; animation: eagle-confetti 1.8s ease-out forwards; pointer-events: none; }
+.study-eagle-status { position: absolute; right: 0; bottom: 94px; width: max-content; max-width: 220px; border: 1px solid rgb(251 191 36 / 0.25); border-radius: 12px; padding: 7px 10px; color: rgb(254 243 199 / 0.95); background: rgb(23 18 13 / 0.94); box-shadow: 0 8px 24px rgb(0 0 0 / 0.28); font-size: 11px; white-space: nowrap; pointer-events: none; }
+.study-eagle-dust { position: absolute; bottom: 4px; left: 12px; width: 72px; color: rgb(214 178 117 / 0.9); font-size: 20px; letter-spacing: 7px; animation: eagle-dust 650ms ease-out forwards; pointer-events: none; }
+.study-eagle-celebrating .study-eagle-button { animation: eagle-celebrate-hop 870ms ease-out; }
 @keyframes eagle-confetti { 0% { opacity: 0; transform: translateY(16px) scale(0.5); } 20% { opacity: 1; } 100% { opacity: 0; transform: translateY(-52px) scale(1.25); } }
+@keyframes eagle-celebrate-hop { 0%, 100% { transform: translateY(0); } 35% { transform: translateY(-16px); } 70% { transform: translateY(-5px); } }
+@keyframes eagle-dust { 0% { opacity: 0; transform: translateY(3px) scale(0.7); } 30% { opacity: 1; } 100% { opacity: 0; transform: translateY(-12px) scale(1.2); } }
 @keyframes eagle-sleep {
   0%, 100% { transform: translateY(2px) rotate(0deg); }
   50% { transform: translateY(5px) rotate(1deg); }
