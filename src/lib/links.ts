@@ -18,6 +18,12 @@ export const redditSearchUrl = (code: string) =>
 export const rmpSearchUrl = (name: string) =>
   `https://www.ratemyprofessors.com/search/professors?q=${encodeURIComponent(name)}`;
 
+export const rmpUtmSearchUrl = (name: string) =>
+  `https://www.ratemyprofessors.com/search/professors/4928?q=${encodeURIComponent(name)}&did=11`;
+
+export const rmpTorontoSearchUrl = (name: string) =>
+  `https://www.ratemyprofessors.com/search/professors/1484?q=${encodeURIComponent(name)}`;
+
 export const syllabusSearchUrl = (code: string) =>
   `https://www.google.com/search?q=${encodeURIComponent(`${code} UTM course outline syllabus filetype:pdf`)}`;
 
