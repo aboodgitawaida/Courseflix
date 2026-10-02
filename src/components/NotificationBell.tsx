@@ -5,11 +5,15 @@ import { avatarSrc } from "@/lib/profile";
 import { useClearNotifications, useMarkNotificationsRead, useNotifications } from "@/lib/social";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { announce } from "@/lib/a11y";
+import { achievementDefinition } from "@/lib/achievements";
 
 function line(kind: string, name: string, code: string | null) {
   if (kind === "friend_request") return `${name} sent you a friend request`;
   if (kind === "friend_accepted") return `${name} accepted your friend request`;
   if (kind === "shortlist_add") return `${name} added ${code ?? "a course"} to their shortlist`;
+  if (kind === "achievement_unlocked") {
+    return `You unlocked ${achievementDefinition(code ?? "")?.name ?? "an achievement"}`;
+  }
   return `${name} did something on Courseflix`;
 }
 
@@ -44,8 +48,22 @@ export function NotificationBell() {
         </div>
       )}
       {error && <div className="space-y-2 px-2 py-6 text-center text-xs text-destructive"><div>{error instanceof Error ? error.message : "Could not load activity."}</div><button onClick={() => void refetch()} className="rounded-full border border-brand/40 px-3 py-1 text-brand">Retry</button></div>}
-      {!isLoading && !error && rows.length === 0 && <div className="px-2 py-6 text-center text-xs text-muted-foreground"><p>Nothing yet. Add friends to see their picks.</p><Link to="/friends" className="mt-2 inline-block font-semibold text-brand underline underline-offset-4">Find friends</Link></div>}
-      {!error && rows.slice(0, 12).map((r) => { const person = r.actor_id ? people?.get(r.actor_id) : undefined; const name = person?.display_name ?? "A student"; return <DropdownMenuItem key={r.id} asChild><Link to={r.kind === "shortlist_add" && r.course_code ? "/course/$code" : "/friends"} params={r.kind === "shortlist_add" && r.course_code ? { code: r.course_code } : {}} className="flex items-start gap-2"><img src={avatarSrc(person?.avatar_id)} alt="" width={28} height={28} className="h-7 w-7 shrink-0 rounded-full object-contain" /><span className="min-w-0 flex-1 text-xs leading-snug">{line(r.kind, name, r.course_code)}{!r.read && <span className="ml-1 inline-block h-1.5 w-1.5 rounded-full bg-brand align-middle" />}<span className="mt-0.5 block text-[10px] text-muted-foreground">{relativeMinutes(r.created_at, now)}</span></span></Link></DropdownMenuItem>; })}
+      {!isLoading && !error && rows.length === 0 && <div className="px-2 py-6 text-center text-xs text-muted-foreground"><p>Nothing yet. Add friends or unlock an achievement.</p><Link to="/friends" className="mt-2 inline-block font-semibold text-brand underline underline-offset-4">Find friends</Link></div>}
+      {!error && rows.slice(0, 12).map((r) => {
+        const person = r.actor_id ? people?.get(r.actor_id) : undefined;
+        const name = person?.display_name ?? "A student";
+        const achievement = r.kind === "achievement_unlocked" ? achievementDefinition(r.course_code ?? "") : undefined;
+        const destination = r.kind === "achievement_unlocked"
+          ? "/achievements"
+          : r.kind === "shortlist_add" && r.course_code
+            ? "/course/$code"
+            : "/friends";
+        const params = r.kind === "shortlist_add" && r.course_code ? { code: r.course_code } : {};
+        return <DropdownMenuItem key={r.id} asChild><Link to={destination} params={params} className="flex items-start gap-2">
+          <img src={achievement?.icon ?? avatarSrc(person?.avatar_id)} alt="" width={28} height={28} className="h-7 w-7 shrink-0 rounded-full object-contain" />
+          <span className="min-w-0 flex-1 text-xs leading-snug">{line(r.kind, name, r.course_code)}{!r.read && <span className="ml-1 inline-block h-1.5 w-1.5 rounded-full bg-brand align-middle" />}<span className="mt-0.5 block text-[10px] text-muted-foreground">{relativeMinutes(r.created_at, now)}</span></span>
+        </Link></DropdownMenuItem>;
+      })}
     </DropdownMenuContent>
   </DropdownMenu>;
 }

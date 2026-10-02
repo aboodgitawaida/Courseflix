@@ -24,6 +24,35 @@ const definitions = [
   { id: "campus-voice", name: "Campus Voice", description: "Share ten course experiences with UTM.", icon: "/achievements/campus-voice.png", requirement: 10, accent: "from-lime-400/25 to-green-400/10" },
 ] as const;
 
+export function achievementDefinition(id: string) {
+  return definitions.find((definition) => definition.id === id);
+}
+
+export async function createAchievementNotifications(ids: string[]) {
+  if (ids.length === 0) return;
+  const { data: auth, error: authError } = await supabase.auth.getUser();
+  if (authError) throw authError;
+  if (!auth.user) return;
+  const { data: existing, error: existingError } = await supabase
+    .from("notifications")
+    .select("course_code")
+    .eq("user_id", auth.user.id)
+    .eq("kind", "achievement_unlocked")
+    .in("course_code", ids);
+  if (existingError) throw existingError;
+  const known = new Set((existing ?? []).map((row) => row.course_code));
+  const newIds = ids.filter((id) => !known.has(id));
+  if (newIds.length === 0) return;
+  const { error } = await supabase.from("notifications").insert(
+    newIds.map((id) => ({
+      user_id: auth.user!.id,
+      kind: "achievement_unlocked",
+      course_code: id,
+    })),
+  );
+  if (error && error.code !== "23505") throw error;
+}
+
 async function loadShortlist() {
   const { data: auth, error: authError } = await supabase.auth.getUser();
   if (authError) throw authError;
