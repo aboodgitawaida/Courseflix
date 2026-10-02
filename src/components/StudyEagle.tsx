@@ -5,7 +5,7 @@ import { getCourse, type Course } from "@/lib/courses";
 
 type Position = { x: number; y: number };
 type Direction = "down" | "up" | "left" | "right";
-type EagleAnimation = "idle" | "sleeping";
+type EagleAnimation = "idle" | "sleeping" | "backflip";
 
 const EAGLE_REPLIES = [
   "Try the course preview first, then shortlist anything that still feels like a good fit.",
@@ -51,14 +51,14 @@ export function StudyEagle() {
   useEffect(() => {
     const frameDuration = animation === "sleeping" ? 900 : 220;
     const timer = window.setInterval(
-      () => setFrame((current) => (current + 1) % (animation === "sleeping" ? 4 : 3)),
+      () => setFrame((current) => (current + 1) % (animation === "sleeping" || animation === "backflip" ? 4 : 3)),
       frameDuration,
     );
     return () => window.clearInterval(timer);
   }, [animation]);
 
   useEffect(() => {
-    if (animation === "sleeping") return;
+    if (animation !== "idle") return;
     const timer = window.setTimeout(() => {
       if (isReturningRef.current) return;
       startFlight(getSleepPerchPosition(), () => setAnimation("sleeping"));
@@ -78,12 +78,15 @@ export function StudyEagle() {
       setChatOpen(true);
     };
     const onCelebration = () => {
+      setFrame(0);
+      setAnimation("backflip");
       setCelebrating(true);
       setDirection("up");
       window.setTimeout(() => {
+        setAnimation("idle");
         setCelebrating(false);
         setDirection("down");
-      }, 1800);
+      }, 880);
     };
     window.addEventListener("study-eagle-summarize", onSummary);
     const onClearSummary = () => {
@@ -242,11 +245,13 @@ export function StudyEagle() {
           className="study-eagle-button"
         >
           <span
-            className={`study-eagle-sprite ${animation === "sleeping" ? "study-eagle-sprite-sleeping" : ""}`}
+            className={`study-eagle-sprite ${animation === "sleeping" ? "study-eagle-sprite-sleeping" : ""} ${animation === "backflip" ? "study-eagle-sprite-backflip" : ""}`}
             style={{
               backgroundPosition:
                 animation === "sleeping"
                   ? `${frame * 33.333}% 0%`
+                  : animation === "backflip"
+                    ? `${frame * 33.333}% 0%`
                   : `${frame * 50}% ${direction === "down" ? "0%" : direction === "up" ? "100%" : direction === "left" ? "33.333%" : "66.666%"}`,
             }}
           />
