@@ -38,6 +38,8 @@ export function StudyEagle() {
   const isReturningRef = useRef(false);
   const isDraggingRef = useRef(false);
   const messageTimer = useRef<number | null>(null);
+  const sleepTransitionTimer = useRef<number | null>(null);
+  const sleepSequence = useRef(0);
   const pathname = useRouterState({ select: (state) => state.location.pathname });
   const course = getCurrentCourse(pathname);
 
@@ -67,17 +69,23 @@ export function StudyEagle() {
     if (animation !== "idle") return;
     const timer = window.setTimeout(() => {
       if (isReturningRef.current || isDraggingRef.current) return;
+      const sequence = ++sleepSequence.current;
       startFlight(getSleepPerchPosition(), () => {
+        if (sequence !== sleepSequence.current || isDraggingRef.current) return;
         setLanding(true);
         showStatus("Time for a study break.");
         setSleepPhase("light");
         window.setTimeout(() => {
+          if (sequence !== sleepSequence.current || isDraggingRef.current) return;
           setLanding(false);
           setAnimation("sleeping");
-          window.setTimeout(() => setSleepPhase("deep"), 5_000);
+          window.setTimeout(() => {
+            if (sequence === sleepSequence.current) setSleepPhase("deep");
+          }, 5_000);
         }, 650);
       });
     }, 10_000);
+    sleepTransitionTimer.current = timer;
     return () => window.clearTimeout(timer);
   }, [animation, chatOpen, isDragging, isReturning]);
 
@@ -121,17 +129,24 @@ export function StudyEagle() {
     return () => {
       if (returnFrame.current !== null) cancelAnimationFrame(returnFrame.current);
       if (messageTimer.current !== null) window.clearTimeout(messageTimer.current);
+      if (sleepTransitionTimer.current !== null) window.clearTimeout(sleepTransitionTimer.current);
+      sleepSequence.current += 1;
     };
   }, []);
 
   function onPointerDown(event: ReactPointerEvent<HTMLButtonElement>) {
     if (!position) return;
     const wasSleeping = animation === "sleeping";
+    sleepSequence.current += 1;
     isDraggingRef.current = true;
     setAnimation("idle");
     setSleepPhase("awake");
     setLanding(false);
     showStatus(wasSleeping ? "Back already?" : "Krrr!");
+    if (sleepTransitionTimer.current !== null) {
+      window.clearTimeout(sleepTransitionTimer.current);
+      sleepTransitionTimer.current = null;
+    }
     event.currentTarget.setPointerCapture(event.pointerId);
     if (returnFrame.current !== null) cancelAnimationFrame(returnFrame.current);
     isReturningRef.current = false;
