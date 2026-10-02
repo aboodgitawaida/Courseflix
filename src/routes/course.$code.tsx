@@ -9,9 +9,10 @@ import { useCourseStats, useShortlist, useToggleShortlist } from "@/lib/ratings"
 import { FALLBACK_SUBJECT_IMAGE, getCourseImage } from "@/lib/subject-images";
 import { calendarUrl } from "@/lib/links";
 import { toast } from "sonner";
-import { ArrowLeft, Plus, Check, Share2, Star, GraduationCap, ExternalLink } from "lucide-react";
+import { ArrowLeft, Plus, Check, Share2, GraduationCap, ExternalLink } from "lucide-react";
 import { useEffect, useState } from "react";
 import { siteUrl } from "@/lib/site";
+import { timetableUrl } from "@/lib/links";
 
 export const Route = createFileRoute("/course/$code")({
   loader: ({ params }) => {
@@ -220,34 +221,35 @@ function CoursePage() {
           <div>
             <div className="flex items-center gap-2 mb-3">
               <GraduationCap className="h-5 w-5 text-brand" />
-              <h3 className="font-display text-xl font-bold">Top profs</h3>
+              <h3 className="font-display text-xl font-bold">Published instructors</h3>
             </div>
             <div className="space-y-2">
-              {course.topProfs.length === 0 && (
+              {course.publishedInstructors.length === 0 && (
                 <div className="rounded-xl bg-surface border border-border/40 p-4 text-muted-foreground text-sm">
-                  Instructor ratings aren't wired up yet.
+                  UTM has not published an instructor for this course in the retrieved timetable.
                 </div>
               )}
-              {course.topProfs.map((p) => (
-                <div key={p.name} className="rounded-xl bg-surface border border-border/40 p-4">
+              {course.publishedInstructors.map((p) => (
+                <div key={`${p.term}-${p.name}`} className="rounded-xl bg-surface border border-border/40 p-4">
                   <div className="flex items-center justify-between">
                     <div className="font-semibold">{p.name}</div>
-                    <div className="flex items-center gap-1 text-brand font-semibold text-sm">
-                      <Star className="h-3.5 w-3.5 fill-current" /> {p.rmp.toFixed(1)}
-                    </div>
+                    <div className="text-xs font-semibold text-brand">{p.term}</div>
                   </div>
-                  <div className="mt-2 flex flex-wrap gap-1">
-                    {p.tags.map((t) => (
-                      <span
-                        key={t}
-                        className="text-[10px] px-1.5 py-0.5 rounded bg-brand/10 text-brand border border-brand/20"
-                      >
-                        {t}
-                      </span>
-                    ))}
+                  <div className="mt-2 text-xs text-muted-foreground">
+                    Published for {p.sections.join(", ")} by the UTM Timetable Builder.
                   </div>
                 </div>
               ))}
+              {course.publishedInstructors.length > 0 && (
+                <a
+                  href={timetableUrl(course.code)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1 text-xs text-brand hover:underline"
+                >
+                  Verify current timetable <ExternalLink className="h-3 w-3" />
+                </a>
+              )}
             </div>
           </div>
 
