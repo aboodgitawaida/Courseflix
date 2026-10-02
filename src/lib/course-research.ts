@@ -48,7 +48,9 @@ const pilotCodes = [
 ] as const;
 
 const calendarHref = (code: string) =>
-  `https://utm.calendar.utoronto.ca/search-courses?course_search=${encodeURIComponent(code)}`;
+  `https://utm.calendar.utoronto.ca/course/${encodeURIComponent(code.toLowerCase())}`;
+
+export const getCourseCalendarUrl = calendarHref;
 
 const timetableHref = (code: string) =>
   `https://ttb.utoronto.ca/?courseCode=${encodeURIComponent(code)}`;
