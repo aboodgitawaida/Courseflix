@@ -62,7 +62,7 @@ export function StudyEagle() {
     const timer = window.setTimeout(() => {
       if (isReturningRef.current) return;
       startFlight(getSleepPerchPosition(), () => setAnimation("sleeping"));
-    }, 2_000);
+    }, 10_000);
     return () => window.clearTimeout(timer);
   }, [animation, chatOpen, isDragging]);
 
