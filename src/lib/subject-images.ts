@@ -95,7 +95,7 @@ export const SUBJECT_IMAGES: Record<string, string> = {
   AST: `https://images.unsplash.com/photo-1462331940025-496dfbfc7564${UNSPLASH_PARAMS}`,
   PSY: `https://images.unsplash.com/photo-1559757175-0eb30cd8c063${UNSPLASH_PARAMS}`,
   SOC: `https://images.unsplash.com/photo-1529156069898-49953e39b3ac${UNSPLASH_PARAMS}`,
-  WGS: `https://images.unsplash.com/photo-1524504388940-b1c1722653e1${UNSPLASH_PARAMS}`,
+  WGS: `https://images.unsplash.com/photo-1529107386315-e1a2ed48a620${UNSPLASH_PARAMS}`,
   CCT: `https://images.unsplash.com/photo-1522071820081-009f0129c71c${UNSPLASH_PARAMS}`,
   ECO: `https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3${UNSPLASH_PARAMS}`,
   MGT: `https://images.unsplash.com/photo-1454165804606-c3d57bc86b40${UNSPLASH_PARAMS}`,
