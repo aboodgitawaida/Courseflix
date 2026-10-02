@@ -49,9 +49,9 @@ export function StudyEagle() {
   }, []);
 
   useEffect(() => {
-    const frameDuration = animation === "sleeping" ? 900 : 220;
+    const frameDuration = animation === "sleeping" ? 900 : animation === "backflip" ? 145 : 220;
     const timer = window.setInterval(
-      () => setFrame((current) => (current + 1) % (animation === "sleeping" || animation === "backflip" ? 4 : 3)),
+      () => setFrame((current) => (current + 1) % (animation === "sleeping" ? 4 : animation === "backflip" ? 6 : 3)),
       frameDuration,
     );
     return () => window.clearInterval(timer);
@@ -86,7 +86,7 @@ export function StudyEagle() {
         setAnimation("idle");
         setCelebrating(false);
         setDirection("down");
-      }, 880);
+      }, 870);
     };
     window.addEventListener("study-eagle-summarize", onSummary);
     const onClearSummary = () => {
@@ -251,7 +251,7 @@ export function StudyEagle() {
                 animation === "sleeping"
                   ? `${frame * 33.333}% 0%`
                   : animation === "backflip"
-                    ? `${frame * 33.333}% 0%`
+                  ? `${frame * 20}% 0%`
                   : `${frame * 50}% ${direction === "down" ? "0%" : direction === "up" ? "100%" : direction === "left" ? "33.333%" : "66.666%"}`,
             }}
           />
