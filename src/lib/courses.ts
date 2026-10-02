@@ -1,5 +1,6 @@
 import { CATALOG } from "./utm-catalog";
 import { MAJORS, type Major } from "./majors";
+import { PUBLISHED_INSTRUCTORS, type PublishedInstructor } from "./course-instructors";
 
 export type CourseTag =
   | "Bird"
@@ -36,6 +37,7 @@ export type Course = {
   wouldTakeAgain: number;
   vibe: string;
   topProfs: Array<{ name: string; rmp: number; tags: string[] }>;
+  publishedInstructors: PublishedInstructor[];
   reviews: Array<{ source: "reddit" | "rmp"; quote: string }>;
   poster: [string, string];
   majors: string[];
@@ -224,6 +226,7 @@ function buildCourse(row: (typeof CATALOG)[number]): Course {
     wouldTakeAgain,
     vibe: "",
     topProfs: [],
+    publishedInstructors: PUBLISHED_INSTRUCTORS[code] ?? [],
     reviews: [],
     poster: PALETTE[hash(subject) % PALETTE.length]!,
     majors: majorIds,
