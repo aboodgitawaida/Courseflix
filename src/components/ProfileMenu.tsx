@@ -1,6 +1,6 @@
 import { Link, useNavigate } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
-import { LifeBuoy, LogOut, Moon, Settings, Sun, User, Users, Volume2, VolumeX } from "lucide-react";
+import { Award, LifeBuoy, LogOut, Moon, Settings, Sun, User, Users, Volume2, VolumeX } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { useTheme } from "@/hooks/use-theme";
@@ -35,6 +35,7 @@ export function ProfileMenu() {
       <DropdownMenuSeparator />
       <DropdownMenuItem asChild><Link to="/settings"><User className="mr-2 h-4 w-4" /> Account</Link></DropdownMenuItem>
       <DropdownMenuItem asChild><Link to="/friends"><Users className="mr-2 h-4 w-4" /> Friends</Link></DropdownMenuItem>
+      <DropdownMenuItem asChild><Link to="/achievements"><Award className="mr-2 h-4 w-4" /> Achievements</Link></DropdownMenuItem>
       <DropdownMenuItem asChild><Link to="/settings" hash="preferences"><Settings className="mr-2 h-4 w-4" /> Settings</Link></DropdownMenuItem>
       <DropdownMenuItem asChild><Link to="/help"><LifeBuoy className="mr-2 h-4 w-4" /> Help centre</Link></DropdownMenuItem>
       <DropdownMenuSeparator />
