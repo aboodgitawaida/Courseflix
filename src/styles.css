@@ -114,6 +114,17 @@
 .light .border-white\/\[0\.08\], .light .border-white\/\[0\.12\], .light .border-white\/15, .light .border-white\/10 { border-color: var(--border); }
 .light .bg-white\/\[0\.04\], .light .bg-white\/\[0\.05\], .light .bg-white\/5 { background-color: var(--surface-2); }
 .light .bg-black\/40, .light .bg-black\/50, .light .bg-black\/70 { background-color: rgb(255 255 255 / 0.72); }
+.light .bg-\[\#121216\], .light .bg-\[\#121215\] { background-color: var(--surface); }
+.light .bg-\[\#17120d\] { background-color: rgb(255 255 255 / 0.96); }
+.light .bg-\[\#09090b\] { background-color: var(--background); }
+.light .from-red-950\/40 { --tw-gradient-from: rgb(254 226 226 / 0.9); }
+.light .via-black, .light .to-black { --tw-gradient-to: var(--background); }
+.light .text-amber-100\/60, .light .text-amber-200, .light .text-amber-300 { color: #9f1239; }
+.light .text-white\/50 { color: rgb(15 23 42 / 0.5); }
+.light .border-amber-300\/25, .light .border-amber-300\/20 { border-color: rgb(190 24 93 / 0.25); }
+.light .border-white\/\[0\.1\], .light .border-white\/\[0\.12\] { border-color: var(--border); }
+.light .shadow-black\/50, .light .shadow-black\/60, .light .shadow-black\/70 { --tw-shadow-color: rgb(15 23 42 / 0.14); }
+.light .study-eagle-panel { color: var(--foreground); }
 
 @utility scroll-rail {
   scroll-snap-type: x mandatory;
