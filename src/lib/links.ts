@@ -19,7 +19,7 @@ export const rmpSearchUrl = (name: string) =>
   `https://www.ratemyprofessors.com/search/professors?q=${encodeURIComponent(name)}`;
 
 export const rmpUtmSearchUrl = (name: string) =>
-  `https://www.ratemyprofessors.com/search/professors/4928?q=${encodeURIComponent(name)}&did=11`;
+  `https://www.ratemyprofessors.com/search/professors/4928?q=${encodeURIComponent(name)}`;
 
 export const rmpTorontoSearchUrl = (name: string) =>
   `https://www.ratemyprofessors.com/search/professors/1484?q=${encodeURIComponent(name)}`;

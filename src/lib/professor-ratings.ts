@@ -74,6 +74,15 @@ export const VERIFIED_PROFESSOR_RATINGS: Record<string, ProfessorRating> = {
     source: "Rate My Professors",
     retrievedAt: "2026-10-02",
   },
+  "Ali Mousavidehshikh": {
+    name: "Ali Mousavidehshikh",
+    institution: "University of Toronto at Mississauga",
+    rating: 3.2,
+    reviewCount: 71,
+    profileUrl: "https://www.ratemyprofessors.com/professor/1969952",
+    source: "Rate My Professors",
+    retrievedAt: "2026-10-02",
+  },
 };
 
 export const getProfessorRating = (name: string) => VERIFIED_PROFESSOR_RATINGS[name];
