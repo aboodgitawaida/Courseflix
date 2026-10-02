@@ -2,13 +2,12 @@ import { createFileRoute, Link, notFound, useNavigate } from "@tanstack/react-ro
 import { TopNav } from "@/components/TopNav";
 import { CourseCard } from "@/components/CourseCard";
 import { RatingSection } from "@/components/RatingSection";
-import { CourseResearchPanel } from "@/components/CourseResearchPanel";
 import { PrereqTree } from "@/components/PrereqTree";
 import { COURSES, getCourse } from "@/lib/courses";
 import { useAuth } from "@/hooks/use-auth";
 import { useCourseStats, useShortlist, useToggleShortlist } from "@/lib/ratings";
 import { FALLBACK_SUBJECT_IMAGE, getCourseImage } from "@/lib/subject-images";
-import { getCourseCalendarUrl } from "@/lib/course-research";
+import { calendarUrl } from "@/lib/links";
 import { toast } from "sonner";
 import { ArrowLeft, Plus, Check, Share2, Star, GraduationCap, ExternalLink } from "lucide-react";
 import { useEffect, useState } from "react";
@@ -214,8 +213,6 @@ function CoursePage() {
             )}
           </div>
 
-          <CourseResearchPanel course={course} />
-
           <RatingSection code={course.code} />
         </div>
 
@@ -260,7 +257,7 @@ function CoursePage() {
               {[
                 {
                   label: "View on UTM Academic Calendar",
-                  href: getCourseCalendarUrl(course.code),
+                  href: calendarUrl(course.code),
                 },
                 {
                   label: "Check Timetable Builder availability",

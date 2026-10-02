@@ -11,7 +11,7 @@ import { useCourseStats, useShortlist, useToggleShortlist } from "@/lib/ratings"
 import { FALLBACK_SUBJECT_IMAGE, getCourseImage } from "@/lib/subject-images";
 import { PrereqTree } from "./PrereqTree";
 import { useEffect, useState } from "react";
-import { getCourseCalendarUrl } from "@/lib/course-research";
+import { calendarUrl } from "@/lib/links";
 
 export function CoursePreviewModal() {
   const { previewCode, closePreview } = useCourseUI();
@@ -157,7 +157,7 @@ export function CoursePreviewModal() {
                   Full course page →
                 </Link>
                 <a
-                  href={getCourseCalendarUrl(course.code)}
+                  href={calendarUrl(course.code)}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="inline-flex items-center gap-1 rounded-sm text-muted-foreground hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/70"
