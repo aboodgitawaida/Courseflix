@@ -48,9 +48,9 @@ export function Hero({ featured, major }: { featured: Course; major: string }) {
         loading="eager"
         decoding="async"
         onError={() => setImageSrc(FALLBACK_SUBJECT_IMAGE)}
-        className="absolute inset-0 h-full w-full object-cover opacity-25"
+        className="hero-course-image absolute inset-0 h-full w-full object-cover opacity-25"
       />
-      <div className="absolute inset-0 bg-gradient-to-t from-background via-background/60 to-background/30" />
+      <div className="hero-course-overlay absolute inset-0 bg-gradient-to-t from-background via-background/60 to-background/30" />
       <div
         className="absolute inset-0"
         style={{

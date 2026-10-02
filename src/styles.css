@@ -125,6 +125,13 @@
 .light .border-white\/\[0\.1\], .light .border-white\/\[0\.12\] { border-color: var(--border); }
 .light .shadow-black\/50, .light .shadow-black\/60, .light .shadow-black\/70 { --tw-shadow-color: rgb(15 23 42 / 0.14); }
 .light .study-eagle-panel { color: var(--foreground); }
+.light .hero-course-image { opacity: 0.42; }
+.light .hero-course-overlay { background-image: linear-gradient(to top, rgb(248 250 252 / 0.9), rgb(248 250 252 / 0.34) 52%, rgb(248 250 252 / 0.08)); }
+.light .course-card-art > img { opacity: 0.78; }
+.light .course-card-art > div:nth-of-type(2) { background-image: linear-gradient(to top, rgb(15 23 42 / 0.78), rgb(15 23 42 / 0.22) 58%, transparent); }
+.light .course-card-art .text-white { color: #fff; }
+.light .course-card-art .text-white\/80 { color: rgb(255 255 255 / 0.86); }
+.light .course-card-art .border-white\/\[0\.12\], .light .course-card-art .bg-white\/\[0\.08\] { border-color: rgb(255 255 255 / 0.35); background-color: rgb(15 23 42 / 0.3); }
 
 @utility scroll-rail {
   scroll-snap-type: x mandatory;
