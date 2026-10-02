@@ -12,7 +12,7 @@ import { toast } from "sonner";
 import { ArrowLeft, Plus, Check, Share2, GraduationCap, ExternalLink, Star } from "lucide-react";
 import { useEffect, useState } from "react";
 import { siteUrl } from "@/lib/site";
-import { timetableUrl } from "@/lib/links";
+import { rmpTorontoSearchUrl, rmpUtmSearchUrl, timetableUrl } from "@/lib/links";
 import { getProfessorRating } from "@/lib/professor-ratings";
 
 export const Route = createFileRoute("/course/$code")({
@@ -264,14 +264,24 @@ function CoursePage() {
                       </a>
                     </div>
                   ) : (
-                    <a
-                      href={`https://www.ratemyprofessors.com/search/professors?q=${encodeURIComponent(`${p.name} University of Toronto Mississauga`)}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="mt-2 inline-flex text-xs text-muted-foreground hover:text-brand hover:underline"
-                    >
-                      Search Rate My Professors
-                    </a>
+                    <div className="mt-2 flex flex-wrap gap-x-3 gap-y-1 text-xs">
+                      <a
+                        href={rmpUtmSearchUrl(p.name)}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-muted-foreground hover:text-brand hover:underline"
+                      >
+                        Search UTM RMP
+                      </a>
+                      <a
+                        href={rmpTorontoSearchUrl(p.name)}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-muted-foreground hover:text-brand hover:underline"
+                      >
+                        Search University of Toronto RMP
+                      </a>
+                    </div>
                   )}
                       </>
                     );
