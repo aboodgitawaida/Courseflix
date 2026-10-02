@@ -26,6 +26,7 @@ export function StudyEagle() {
   const [landing, setLanding] = useState(false);
   const [sleepPhase, setSleepPhase] = useState<SleepPhase>("awake");
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
+  const [activityVersion, setActivityVersion] = useState(0);
   const [summaryCourseCode, setSummaryCourseCode] = useState<string | null>(null);
   const [summaryContext, setSummaryContext] = useState<"preview" | "page" | null>(null);
   const [summaryText, setSummaryText] = useState<string | null>(null);
@@ -87,7 +88,7 @@ export function StudyEagle() {
     }, 10_000);
     sleepTransitionTimer.current = timer;
     return () => window.clearTimeout(timer);
-  }, [animation, chatOpen, isDragging, isReturning]);
+  }, [activityVersion, animation, chatOpen, isDragging, isReturning]);
 
   useEffect(() => {
     const onSummary = (event: Event) => {
@@ -101,6 +102,7 @@ export function StudyEagle() {
       setChatOpen(true);
     };
     const onCelebration = () => {
+      setActivityVersion((version) => version + 1);
       showStatus("Nice pick!");
       setCelebrating(true);
       setDirection("up");
