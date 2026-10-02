@@ -83,6 +83,15 @@ export const VERIFIED_PROFESSOR_RATINGS: Record<string, ProfessorRating> = {
     source: "Rate My Professors",
     retrievedAt: "2026-10-02",
   },
+  "Romina Piunno": {
+    name: "Romina Piunno",
+    institution: "University of Toronto at Mississauga",
+    rating: 2,
+    reviewCount: 3,
+    profileUrl: "https://www.ratemyprofessors.com/professor/3109233",
+    source: "Rate My Professors",
+    retrievedAt: "2026-10-02",
+  },
 };
 
 export const getProfessorRating = (name: string) => VERIFIED_PROFESSOR_RATINGS[name];
