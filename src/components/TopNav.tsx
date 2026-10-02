@@ -1,5 +1,5 @@
 import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
-import { Search, Bookmark, User, Menu, X, Users, Settings, LifeBuoy, Star } from "lucide-react";
+import { Search, Bookmark, User, Menu, X, Users, Settings, LifeBuoy, Star, Award } from "lucide-react";
 import { useState } from "react";
 import { useAuth } from "@/hooks/use-auth";
 import { useCourseUI } from "@/hooks/use-course-ui";
@@ -51,6 +51,11 @@ export function TopNav() {
           {signedIn && (
             <Link to="/reviews" className="transition hover:text-foreground">
               My Reviews
+            </Link>
+          )}
+          {signedIn && (
+            <Link to="/achievements" className="transition hover:text-foreground">
+              Achievements
             </Link>
           )}
           <a
@@ -170,6 +175,16 @@ export function TopNav() {
               aria-current={pathname === "/friends" ? "page" : undefined}
             >
               <Users className="mr-2 inline h-4 w-4" /> Friends
+            </Link>
+            <Link
+              to="/achievements"
+              onClick={() => setMobileMenuOpen(false)}
+              className={`rounded-lg px-3 py-2.5 transition hover:bg-white/10 hover:text-foreground ${
+                pathname === "/achievements" ? "bg-white/10 text-foreground" : "text-muted-foreground"
+              }`}
+              aria-current={pathname === "/achievements" ? "page" : undefined}
+            >
+              <Award className="mr-2 inline h-4 w-4" /> Achievements
             </Link>
             {signedIn && (
               <Link
