@@ -2,6 +2,7 @@ import { createFileRoute, Link, notFound, useNavigate } from "@tanstack/react-ro
 import { TopNav } from "@/components/TopNav";
 import { CourseCard } from "@/components/CourseCard";
 import { RatingSection } from "@/components/RatingSection";
+import { CourseResearchPanel } from "@/components/CourseResearchPanel";
 import { PrereqTree } from "@/components/PrereqTree";
 import { COURSES, getCourse } from "@/lib/courses";
 import { useAuth } from "@/hooks/use-auth";
@@ -211,6 +212,8 @@ function CoursePage() {
               <p className="mt-3 text-xs text-muted-foreground">{course.prereqRaw}</p>
             )}
           </div>
+
+          <CourseResearchPanel course={course} />
 
           <RatingSection code={course.code} />
         </div>
