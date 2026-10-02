@@ -13,6 +13,7 @@ import { ArrowLeft, Plus, Check, Share2, GraduationCap, ExternalLink } from "luc
 import { useEffect, useState } from "react";
 import { siteUrl } from "@/lib/site";
 import { timetableUrl } from "@/lib/links";
+import { getProfessorRating } from "@/lib/professor-ratings";
 
 export const Route = createFileRoute("/course/$code")({
   loader: ({ params }) => {
@@ -231,13 +232,42 @@ function CoursePage() {
               )}
               {course.publishedInstructors.map((p) => (
                 <div key={`${p.term}-${p.name}`} className="rounded-xl bg-surface border border-border/40 p-4">
+                  {(() => {
+                    const rating = getProfessorRating(p.name);
+                    return (
+                      <>
                   <div className="flex items-center justify-between">
                     <div className="font-semibold">{p.name}</div>
-                    <div className="text-xs font-semibold text-brand">{p.term}</div>
+                    <div className="flex items-center gap-2 text-xs font-semibold">
+                      <span className="text-brand">{p.term}</span>
+                      {rating && <span className="text-amber-500">{rating.rating.toFixed(1)}/5 RMP</span>}
+                    </div>
                   </div>
                   <div className="mt-2 text-xs text-muted-foreground">
                     Published for {p.sections.join(", ")} by the UTM Timetable Builder.
                   </div>
+                  {rating ? (
+                    <a
+                      href={rating.profileUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="mt-2 inline-flex text-xs text-brand hover:underline"
+                    >
+                      {rating.reviewCount} Rate My Professors reviews · retrieved {rating.retrievedAt}
+                    </a>
+                  ) : (
+                    <a
+                      href={`https://www.ratemyprofessors.com/search/professors?q=${encodeURIComponent(`${p.name} University of Toronto Mississauga`)}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="mt-2 inline-flex text-xs text-muted-foreground hover:text-brand hover:underline"
+                    >
+                      Search Rate My Professors
+                    </a>
+                  )}
+                      </>
+                    );
+                  })()}
                 </div>
               ))}
               {course.publishedInstructors.length > 0 && (
