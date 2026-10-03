@@ -92,10 +92,20 @@ export const VERIFIED_PROFESSOR_RATINGS: Record<string, ProfessorRating> = {
     source: "Rate My Professors",
     retrievedAt: "2026-10-02",
   },
+  "Holger Schott Syme": {
+    name: "Holger Schott Syme",
+    institution: "University of Toronto at Mississauga",
+    rating: 4.3,
+    reviewCount: 25,
+    profileUrl: "https://www.ratemyprofessors.com/professor/810761",
+    source: "Rate My Professors",
+    retrievedAt: "2026-10-02",
+  },
 };
 
 const PROFESSOR_RATING_ALIASES: Record<string, string> = {
   "Ken Derry": "Kenneth Derry",
+  "Holger Syme": "Holger Schott Syme",
 };
 
 const normalizeProfessorName = (name: string) => name.trim().replace(/\s+/g, " ").toLowerCase();
