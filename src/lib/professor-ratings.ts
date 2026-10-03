@@ -94,4 +94,20 @@ export const VERIFIED_PROFESSOR_RATINGS: Record<string, ProfessorRating> = {
   },
 };
 
-export const getProfessorRating = (name: string) => VERIFIED_PROFESSOR_RATINGS[name];
+const PROFESSOR_RATING_ALIASES: Record<string, string> = {
+  "Ken Derry": "Kenneth Derry",
+};
+
+const normalizeProfessorName = (name: string) => name.trim().replace(/\s+/g, " ").toLowerCase();
+
+const normalizedProfessorRatings = new Map(
+  Object.entries(VERIFIED_PROFESSOR_RATINGS).map(([name, rating]) => [
+    normalizeProfessorName(name),
+    rating,
+  ]),
+);
+
+export const getProfessorRating = (name: string) =>
+  normalizedProfessorRatings.get(
+    normalizeProfessorName(PROFESSOR_RATING_ALIASES[name.trim()] ?? name),
+  );
