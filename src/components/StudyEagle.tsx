@@ -1,5 +1,5 @@
 import { MessageCircle, Sparkles, X } from "lucide-react";
-import { useEffect, useRef, useState, type PointerEvent as ReactPointerEvent } from "react";
+import { useEffect, useRef, useState, type CSSProperties, type PointerEvent as ReactPointerEvent } from "react";
 import { useRouterState } from "@tanstack/react-router";
 import { getCourse, type Course } from "@/lib/courses";
 
@@ -31,6 +31,7 @@ export function StudyEagle() {
   const [summaryContext, setSummaryContext] = useState<"preview" | "page" | null>(null);
   const [summaryText, setSummaryText] = useState<string | null>(null);
   const [direction, setDirection] = useState<Direction>("down");
+  const [flightAngle, setFlightAngle] = useState(0);
   const [animation, setAnimation] = useState<EagleAnimation>("idle");
   const dragOffset = useRef<Position>({ x: 0, y: 0 });
   const lastPointer = useRef<Position>({ x: 0, y: 0 });
@@ -226,30 +227,29 @@ export function StudyEagle() {
     if (Math.abs(target.x - start.x) < 1 && Math.abs(target.y - start.y) < 1) {
       setIsReturning(false);
       isReturningRef.current = false;
+      setFlightAngle(0);
       setDirection("down");
       onArrive?.();
       return;
     }
     const startedAt = performance.now();
-    const verticalDuration = Math.max(220, Math.abs(target.y - start.y) * 2.2);
-    const horizontalDuration = Math.max(220, Math.abs(target.x - start.x) * 2.2);
-    const totalDuration = verticalDuration + horizontalDuration;
+    const deltaX = target.x - start.x;
+    const deltaY = target.y - start.y;
+    const totalDuration = Math.max(420, Math.hypot(deltaX, deltaY) * 2.2);
+    setFlightAngle((Math.atan2(deltaY, deltaX) * 180) / Math.PI);
 
     const step = (now: number) => {
       const elapsed = Math.min(now - startedAt, totalDuration);
-      if (elapsed < verticalDuration) {
-        setDirection(elapsed < verticalDuration / 2 ? (target.y > start.y ? "down" : "up") : "down");
-        setPosition({ x: start.x, y: lerp(start.y, target.y, elapsed / verticalDuration) });
-      } else {
-        setDirection("right");
-        setPosition({ x: lerp(start.x, target.x, (elapsed - verticalDuration) / horizontalDuration), y: target.y });
-      }
+      const progress = elapsed / totalDuration;
+      setDirection(deltaX >= 0 ? "right" : "left");
+      setPosition({ x: lerp(start.x, target.x, progress), y: lerp(start.y, target.y, progress) });
       if (elapsed < totalDuration) {
         returnFrame.current = requestAnimationFrame(step);
       } else {
         returnFrame.current = null;
         setIsReturning(false);
         isReturningRef.current = false;
+        setFlightAngle(0);
         setDirection("down");
         setPosition(target);
         onArrive?.();
@@ -321,11 +321,12 @@ export function StudyEagle() {
           <span
             className={`study-eagle-sprite ${animation === "sleeping" ? "study-eagle-sprite-sleeping" : ""}`}
             style={{
+              "--flight-angle": `${flightAngle}deg`,
               backgroundPosition:
                 animation === "sleeping"
                   ? `${frame * 33.333}% 0%`
                   : `${frame * 50}% ${direction === "down" ? "0%" : direction === "up" ? "100%" : direction === "left" ? "33.333%" : "66.666%"}`,
-            }}
+            } as CSSProperties}
           />
         </button>
         <div className="study-eagle-shadow" aria-hidden="true" />
