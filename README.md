@@ -8,4 +8,3 @@ This app is for making money moves.
 
 **Live App**: [courseflix.ca](https://www.courseflix.ca)
 
-<!-- Vercel auto-deploy test -->
