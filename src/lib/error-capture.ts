@@ -13,6 +13,9 @@ function record(error: unknown) {
   }
 
   seenErrors.set(key, now);
+  for (const [seenKey, seenAt] of seenErrors) {
+    if (now - seenAt >= TTL_MS) seenErrors.delete(seenKey);
+  }
   lastCapturedError = { error, at: now };
 }
 
