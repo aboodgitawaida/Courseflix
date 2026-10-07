@@ -1,5 +1,5 @@
 import { createServerFn } from "@tanstack/react-start";
-import { createClient } from "@supabase/supabase-js";
+import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 import { Resend } from "resend";
 import { SITE_URL } from "./site";
 import { serverLog } from "./server-log";
@@ -7,7 +7,8 @@ import { serverLog } from "./server-log";
 const RESET_WINDOW_MS = 15 * 60 * 1_000;
 const MAX_RESETS_PER_EMAIL = 3;
 const MAX_RESETS_PER_IP = 10;
-const GENERIC_SUCCESS = { success: true } as const;
+type ResetResult = { success?: boolean; error?: string };
+const GENERIC_SUCCESS: ResetResult = { success: true };
 
 async function sha256(value: string) {
   const bytes = new TextEncoder().encode(value);
@@ -25,7 +26,8 @@ async function clientIp() {
 // instances. Fails open (logs and allows) if the table is unavailable so a
 // missing migration cannot lock everyone out of password reset.
 async function isRateLimited(
-  admin: ReturnType<typeof createClient>,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  admin: SupabaseClient<any>,
   emailHash: string,
   ipHash: string | null,
 ) {
@@ -68,7 +70,7 @@ export const resetPassword = createServerFn()
     }
     return normalized;
   })
-  .handler(async ({ data: email }) => {
+  .handler(async ({ data: email }): Promise<ResetResult> => {
     try {
       const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
       const resendApiKey = process.env.RESEND_API_KEY;
