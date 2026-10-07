@@ -17,10 +17,10 @@ export function CompareDrawer() {
   if (courses.length < 2) return null;
 
   return (
-    <div className="fixed inset-x-0 bottom-0 z-50 border-t border-white/10 bg-[#121216]/95 backdrop-blur-md">
+    <div className="glass fixed inset-x-3 bottom-3 z-50 rounded-3xl bg-[#121216]/90 md:inset-x-6">
       <div className="mx-auto max-w-5xl px-4 py-4">
         <div className="mb-3 flex items-center justify-between">
-          <h2 className="font-display text-lg font-bold">Compare {courses.length} courses</h2>
+          <h2 className="font-mega text-lg font-bold tracking-tight">Compare {courses.length} courses</h2>
           <button
             onClick={clearCompare}
             className="rounded-full border border-white/15 px-3 py-1 text-xs font-semibold hover:border-brand/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/70"

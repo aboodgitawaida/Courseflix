@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { Check, Search, UserMinus, UserPlus, X } from "lucide-react";
 import { TopNav } from "@/components/TopNav";
+import { PageBackdrop } from "@/components/PageBackdrop";
 import { useAuth } from "@/hooks/use-auth";
 import { avatarSrc } from "@/lib/profile";
 import {
@@ -103,16 +104,19 @@ function FriendsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-background text-foreground">
+    <div className="relative min-h-screen overflow-x-clip text-foreground">
+      <PageBackdrop />
       <TopNav />
       <div className="mx-auto max-w-3xl px-6 pb-24 pt-10 md:px-10">
-        <h1 className="font-display text-4xl font-black md:text-5xl">Friends</h1>
+        <h1 className="font-mega text-[clamp(2.6rem,7vw,5.5rem)] font-black leading-[0.92] tracking-[-0.05em] animate-fade-in-up">
+          Your <span className="font-serif-accent text-gradient-brand pr-[0.05em] text-[1.12em] font-normal">people.</span>
+        </h1>
         <p className="mt-2 text-sm text-muted-foreground">
           Find classmates by username and compare what you're both planning to take.
         </p>
 
         {!signedIn && (
-          <div className="mt-8 rounded-2xl border border-border/50 bg-surface p-6">
+          <div className="mt-8 rounded-3xl glass p-6">
             <h2 className="font-display text-2xl">Sign in to add friends</h2>
             <Link
               to="/auth"
@@ -164,7 +168,7 @@ function FriendsPage() {
                               ? "Respond in Requests"
                               : "Add";
                       return (
-                    <div key={p.id} className="flex items-center gap-3 rounded-xl border border-border/50 bg-surface p-3">
+                    <div key={p.id} className="flex items-center gap-3 rounded-xl glass p-3">
                       <img src={avatarSrc(p.avatar_id)} alt="" width={40} height={40} className="h-10 w-10 rounded-full object-contain" />
                       <div className="min-w-0 flex-1">
                         <div className="truncate text-sm font-semibold">{p.display_name}</div>
@@ -197,7 +201,7 @@ function FriendsPage() {
                   {data!.incoming.map((r) => {
                     const p = people?.get(r.requester_id);
                     return (
-                      <div key={r.id} className="flex items-center gap-3 rounded-xl border border-border/50 bg-surface p-3">
+                      <div key={r.id} className="flex items-center gap-3 rounded-xl glass p-3">
                         <img src={avatarSrc(p?.avatar_id)} alt="" width={40} height={40} className="h-10 w-10 rounded-full object-contain" />
                         <div className="min-w-0 flex-1 truncate text-sm font-semibold">
                           {p?.display_name ?? "A student"}
@@ -255,7 +259,7 @@ function FriendsPage() {
                   const p = people?.get(id);
                   const name = p?.display_name ?? "A student";
                   return (
-                    <div key={r.id} className="rounded-xl border border-border/50 bg-surface p-4">
+                    <div key={r.id} className="rounded-xl glass p-4">
                       <div className="flex items-center gap-3">
                         <img src={avatarSrc(p?.avatar_id)} alt="" width={40} height={40} className="h-10 w-10 rounded-full object-contain" />
                         <div className="min-w-0 flex-1">
