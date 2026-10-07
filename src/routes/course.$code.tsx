@@ -28,6 +28,7 @@ import { useEffect, useState } from "react";
 import { siteUrl } from "@/lib/site";
 import { rmpTorontoSearchUrl, rmpUtmSearchUrl, timetableUrl } from "@/lib/links";
 import { getProfessorRating } from "@/lib/professor-ratings";
+import { PUBLISHED_INSTRUCTORS } from "@/lib/course-instructors";
 
 export const Route = createFileRoute("/course/$code")({
   loader: ({ params }) => {
@@ -79,6 +80,7 @@ export const Route = createFileRoute("/course/$code")({
 
 function CoursePage() {
   const { course } = Route.useLoaderData() as { course: import("@/lib/courses").Course };
+  const publishedInstructors = PUBLISHED_INSTRUCTORS[course.code] ?? [];
   const [c1, c2] = course.poster;
   const [imageSrc, setImageSrc] = useState(() =>
     getCourseImage(course.subject).replace("w=400", "w=1200"),
@@ -282,12 +284,12 @@ function CoursePage() {
               <h3 className="font-display text-xl font-bold">Published instructors</h3>
             </div>
             <div className="space-y-2">
-              {course.publishedInstructors.length === 0 && (
+              {publishedInstructors.length === 0 && (
                 <div className="glass rounded-2xl p-4 text-muted-foreground text-sm">
                   UTM has not published an instructor for this course in the retrieved timetable.
                 </div>
               )}
-              {course.publishedInstructors.map((p) => (
+              {publishedInstructors.map((p) => (
                 <div key={`${p.term}-${p.name}`} className="glass rounded-2xl p-4">
                   {(() => {
                     const rating = getProfessorRating(p.name);
@@ -351,7 +353,7 @@ function CoursePage() {
                   })()}
                 </div>
               ))}
-              {course.publishedInstructors.length > 0 && (
+              {publishedInstructors.length > 0 && (
                 <a
                   href={timetableUrl(course.code)}
                   target="_blank"
