@@ -456,25 +456,6 @@
 @keyframes vt-out { to { opacity: 0; transform: scale(0.985); filter: blur(6px); } }
 @keyframes vt-in { from { opacity: 0; transform: scale(1.015); filter: blur(6px); } }
 
-/* Custom cursor */
-.cursor-dot, .cursor-ring { position: fixed; left: 0; top: 0; z-index: 120; pointer-events: none; border-radius: 9999px; will-change: transform; }
-.cursor-dot { width: 6px; height: 6px; margin: -3px 0 0 -3px; background: var(--brand); }
-.cursor-ring {
-  width: 34px; height: 34px; margin: -17px 0 0 -17px;
-  border: 1.5px solid rgb(255 255 255 / 0.35);
-  display: grid; place-items: center;
-  font: 700 9px/1 var(--font-sans); letter-spacing: 0.18em; text-transform: uppercase; color: #fff;
-  transition: width 0.35s cubic-bezier(0.22, 1, 0.36, 1), height 0.35s cubic-bezier(0.22, 1, 0.36, 1), margin 0.35s cubic-bezier(0.22, 1, 0.36, 1), background-color 0.3s ease, border-color 0.3s ease, opacity 0.3s ease;
-}
-.cursor-ring > span { opacity: 0; transition: opacity 0.2s ease; }
-.cursor-ring.is-link { width: 54px; height: 54px; margin: -27px 0 0 -27px; border-color: var(--brand); background: rgb(229 9 20 / 0.12); }
-.cursor-ring.is-card { width: 76px; height: 76px; margin: -38px 0 0 -38px; border-color: transparent; background: var(--brand); }
-.cursor-ring.is-card > span { opacity: 1; }
-.cursor-ring.is-down { width: 26px; height: 26px; margin: -13px 0 0 -13px; }
-.cursor-hidden { opacity: 0; }
-.light .cursor-ring { border-color: rgb(15 23 42 / 0.3); }
-.light .cursor-ring.is-card { border-color: transparent; }
-
 /* Shortlist add burst */
 .burst-dot { position: absolute; left: -3px; top: -3px; width: 6px; height: 6px; border-radius: 9999px; animation: burst-fly 0.7s cubic-bezier(0.22, 1, 0.36, 1) forwards; }
 .burst-ring { position: absolute; left: -14px; top: -14px; width: 28px; height: 28px; border-radius: 9999px; border: 2px solid var(--brand); animation: burst-ring 0.6s ease-out forwards; }
@@ -500,7 +481,7 @@
 
 @media (prefers-reduced-motion: reduce) {
   ::view-transition-old(root), ::view-transition-new(root) { animation: none; }
-  .burst, .cursor-dot, .cursor-ring { display: none; }
+  .burst { display: none; }
   .skeleton-sweep::after { animation: none; }
 }
 
