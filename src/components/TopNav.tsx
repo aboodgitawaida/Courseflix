@@ -1,16 +1,5 @@
 import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
-import {
-  Search,
-  Bookmark,
-  User,
-  Menu,
-  X,
-  Users,
-  Settings,
-  LifeBuoy,
-  Star,
-  Award,
-} from "lucide-react";
+import { Search, Bookmark, User } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useAuth } from "@/hooks/use-auth";
 import { useCourseUI } from "@/hooks/use-course-ui";
@@ -26,7 +15,6 @@ export function TopNav() {
   const { major, setMajor } = useMajor();
   const currentMajor = getMajor(major);
   const pathname = useRouterState({ select: (s) => s.location.pathname });
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
 
   useEffect(() => {
@@ -43,7 +31,6 @@ export function TopNav() {
 
   function scrollToCreator(e: React.MouseEvent) {
     e.preventDefault();
-    setMobileMenuOpen(false);
     const go = (tries = 0) => {
       const el = document.getElementById("creator");
       if (el) {
@@ -130,7 +117,7 @@ export function TopNav() {
           to="/list"
           aria-label="My shortlist"
           title={currentMajor ? `My shortlist · ${currentMajor.name}` : "My shortlist"}
-          className="grid h-9 w-9 shrink-0 place-items-center rounded-full transition hover:bg-white/10"
+          className="hidden h-9 w-9 shrink-0 place-items-center rounded-full transition hover:bg-white/10 lg:grid"
         >
           <Bookmark className="h-4 w-4" />
         </Link>
@@ -148,110 +135,7 @@ export function TopNav() {
             <User className="h-4 w-4" /> <span className="hidden sm:inline">Sign in</span>
           </Link>
         )}
-
-        <button
-          type="button"
-          aria-label={mobileMenuOpen ? "Close navigation menu" : "Open navigation menu"}
-          aria-expanded={mobileMenuOpen}
-          aria-controls="mobile-navigation"
-          onClick={() => setMobileMenuOpen((open) => !open)}
-          className="grid h-9 w-9 shrink-0 place-items-center rounded-full transition hover:bg-white/10 focus-visible:ring-2 focus-visible:ring-white/30 lg:hidden"
-        >
-          {mobileMenuOpen ? <X className="h-4 w-4" /> : <Menu className="h-4 w-4" />}
-        </button>
       </div>
-
-      {mobileMenuOpen && (
-        <nav
-          id="mobile-navigation"
-          aria-label="Mobile navigation"
-          className="glass mx-auto mt-2 max-w-6xl rounded-3xl bg-background/90 p-3 animate-fade-in-up lg:hidden"
-        >
-          <div className="grid gap-1 text-base font-medium">
-            <Link
-              to="/"
-              onClick={() => setMobileMenuOpen(false)}
-              className={`rounded-2xl px-4 py-3 transition hover:bg-white/10 hover:text-foreground ${
-                pathname === "/" ? "bg-white/10 text-foreground" : "text-muted-foreground"
-              }`}
-              aria-current={pathname === "/" ? "page" : undefined}
-            >
-              Browse
-            </Link>
-            <Link
-              to="/list"
-              onClick={() => setMobileMenuOpen(false)}
-              className={`rounded-2xl px-4 py-3 transition hover:bg-white/10 hover:text-foreground ${
-                pathname === "/list" ? "bg-white/10 text-foreground" : "text-muted-foreground"
-              }`}
-              aria-current={pathname === "/list" ? "page" : undefined}
-            >
-              <Bookmark className="mr-2 inline h-4 w-4" /> My shortlist
-            </Link>
-            <Link
-              to="/friends"
-              onClick={() => setMobileMenuOpen(false)}
-              className={`rounded-2xl px-4 py-3 transition hover:bg-white/10 hover:text-foreground ${
-                pathname === "/friends" ? "bg-white/10 text-foreground" : "text-muted-foreground"
-              }`}
-              aria-current={pathname === "/friends" ? "page" : undefined}
-            >
-              <Users className="mr-2 inline h-4 w-4" /> Friends
-            </Link>
-            <Link
-              to="/achievements"
-              onClick={() => setMobileMenuOpen(false)}
-              className={`rounded-2xl px-4 py-3 transition hover:bg-white/10 hover:text-foreground ${
-                pathname === "/achievements"
-                  ? "bg-white/10 text-foreground"
-                  : "text-muted-foreground"
-              }`}
-              aria-current={pathname === "/achievements" ? "page" : undefined}
-            >
-              <Award className="mr-2 inline h-4 w-4" /> Achievements
-            </Link>
-            {signedIn && (
-              <Link
-                to="/reviews"
-                onClick={() => setMobileMenuOpen(false)}
-                className={`rounded-2xl px-4 py-3 transition hover:bg-white/10 hover:text-foreground ${
-                  pathname === "/reviews" ? "bg-white/10 text-foreground" : "text-muted-foreground"
-                }`}
-                aria-current={pathname === "/reviews" ? "page" : undefined}
-              >
-                <Star className="mr-2 inline h-4 w-4" /> My reviews
-              </Link>
-            )}
-            <Link
-              to="/settings"
-              onClick={() => setMobileMenuOpen(false)}
-              className={`rounded-2xl px-4 py-3 transition hover:bg-white/10 hover:text-foreground ${
-                pathname === "/settings" ? "bg-white/10 text-foreground" : "text-muted-foreground"
-              }`}
-              aria-current={pathname === "/settings" ? "page" : undefined}
-            >
-              <Settings className="mr-2 inline h-4 w-4" /> Settings
-            </Link>
-            <Link
-              to="/help"
-              onClick={() => setMobileMenuOpen(false)}
-              className={`rounded-2xl px-4 py-3 transition hover:bg-white/10 hover:text-foreground ${
-                pathname === "/help" ? "bg-white/10 text-foreground" : "text-muted-foreground"
-              }`}
-              aria-current={pathname === "/help" ? "page" : undefined}
-            >
-              <LifeBuoy className="mr-2 inline h-4 w-4" /> Help
-            </Link>
-            <a
-              href="/#creator"
-              onClick={scrollToCreator}
-              className="rounded-lg px-3 py-2.5 text-muted-foreground transition hover:bg-white/10 hover:text-foreground"
-            >
-              Creator
-            </a>
-          </div>
-        </nav>
-      )}
     </header>
   );
 }

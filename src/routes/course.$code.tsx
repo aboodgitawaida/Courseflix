@@ -21,6 +21,9 @@ import {
 } from "lucide-react";
 import { Spotlight } from "@/components/Spotlight";
 import { useReveal } from "@/hooks/use-reveal";
+import { ShareStoryButton } from "@/components/ShareStoryButton";
+import { Burst } from "@/components/Burst";
+import { renderCourseStory } from "@/lib/story-card";
 import { useEffect, useState } from "react";
 import { siteUrl } from "@/lib/site";
 import { rmpTorontoSearchUrl, rmpUtmSearchUrl, timetableUrl } from "@/lib/links";
@@ -52,7 +55,9 @@ export const Route = createFileRoute("/course/$code")({
         property: "og:url",
         content: loaderData ? siteUrl(`/course/${loaderData.course.code}`) : siteUrl(),
       },
+      { property: "og:image", content: siteUrl("/og-image.png") },
       { name: "twitter:card", content: "summary_large_image" },
+      { name: "twitter:image", content: siteUrl("/og-image.png") },
     ],
     links: loaderData
       ? [{ rel: "canonical", href: siteUrl(`/course/${loaderData.course.code}`) }]
@@ -92,6 +97,7 @@ function CoursePage() {
   const toggle = useToggleShortlist();
   const saved = shortlist.includes(course.code);
   const hasReal = !!stats && stats.rating_count > 0;
+  const [burst, setBurst] = useState(0);
 
   useEffect(() => {
     window.dispatchEvent(
@@ -106,6 +112,7 @@ function CoursePage() {
     }
     try {
       await toggle.mutateAsync({ code: course.code, saved });
+      if (!saved) setBurst((n) => n + 1);
       toast.success(saved ? "Removed from your shortlist" : "Saved to your shortlist");
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Could not update shortlist");
@@ -178,14 +185,17 @@ function CoursePage() {
           </div>
 
           <div className="mt-9 flex flex-wrap gap-3 animate-fade-in-up opacity-0 [animation-delay:0.55s]">
-            <button
-              onClick={onShortlist}
-              aria-pressed={saved}
-              className="shine inline-flex items-center gap-2 rounded-full bg-brand px-6 py-3.5 text-sm font-semibold text-primary-foreground shadow-2xl shadow-brand/40 transition hover:bg-brand-glow active:scale-[0.98]"
-            >
-              {saved ? <Check className="h-4 w-4" /> : <Plus className="h-4 w-4" />}
-              {saved ? "In your shortlist" : "Add to shortlist"}
-            </button>
+            <span className="relative inline-flex">
+              <button
+                onClick={onShortlist}
+                aria-pressed={saved}
+                className="shine inline-flex items-center gap-2 rounded-full bg-brand px-6 py-3.5 text-sm font-semibold text-primary-foreground shadow-2xl shadow-brand/40 transition hover:bg-brand-glow active:scale-[0.98]"
+              >
+                {saved ? <Check className="h-4 w-4" /> : <Plus className="h-4 w-4" />}
+                {saved ? "In your shortlist" : "Add to shortlist"}
+              </button>
+              <Burst trigger={burst} />
+            </span>
             <button
               onClick={() => {
                 navigator.clipboard?.writeText(window.location.href);
@@ -195,6 +205,16 @@ function CoursePage() {
             >
               <Share2 className="h-4 w-4" /> Share
             </button>
+            <ShareStoryButton
+              render={() =>
+                renderCourseStory(
+                  course,
+                  hasReal ? { avg: stats!.avg_rating, count: stats!.rating_count } : null,
+                )
+              }
+              fileName={`courseflix-${course.code}.png`}
+              className="py-3.5 px-6"
+            />
           </div>
         </div>
       </section>
