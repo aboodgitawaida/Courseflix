@@ -73,7 +73,7 @@ export function useFriendships() {
         people,
       };
     },
-    refetchInterval: 15_000,
+    refetchInterval: 60_000,
     retry: 1,
   });
 }
@@ -195,7 +195,7 @@ export function useNotifications() {
       ]);
       return { rows, people };
     },
-    refetchInterval: 10_000,
+    refetchInterval: 30_000,
     staleTime: 15_000,
     retry: 1,
   });
@@ -228,10 +228,7 @@ export function useClearNotifications() {
       const uid = await currentUserId();
       if (!uid) return;
 
-      const { error } = await supabase
-        .from("notifications")
-        .delete()
-        .eq("user_id", uid);
+      const { error } = await supabase.from("notifications").delete().eq("user_id", uid);
       if (error) throw new Error(`Could not clear notifications: ${error.message}`);
     },
     onSuccess: () => {

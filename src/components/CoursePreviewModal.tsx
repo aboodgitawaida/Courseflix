@@ -67,19 +67,26 @@ export function CoursePreviewModal() {
               />
               <div className="absolute inset-x-0 bottom-0 h-2/3 bg-gradient-to-t from-[#121216] via-[#121216]/70 to-transparent" />
               <div className="absolute inset-x-0 bottom-0 p-6">
-                <DialogTitle className="font-mega text-4xl font-black tracking-[-0.05em] md:text-6xl">{course.code}</DialogTitle>
+                <DialogTitle className="font-mega text-4xl font-black tracking-[-0.05em] md:text-6xl">
+                  {course.code}
+                </DialogTitle>
                 <DialogDescription className="mt-1 text-base font-medium text-white/85">
                   {course.title}
                 </DialogDescription>
                 <div className="mt-3 flex flex-wrap items-center gap-3 text-xs">
                   {match !== null && (
                     <span className="font-semibold text-emerald-400">
-                      {match}{majorName ? ` · ${majorName}` : ""}
+                      {match}
+                      {majorName ? ` · ${majorName}` : ""}
                     </span>
                   )}
-                  <span className="rounded border border-white/15 bg-black/40 px-2 py-0.5">{course.area}</span>
+                  <span className="rounded border border-white/15 bg-black/40 px-2 py-0.5">
+                    {course.area}
+                  </span>
                   <span className="text-white/70">
-                    {hasStudentData ? `${stats!.pct_would_take_again}% would retake` : "No student data yet"}
+                    {hasStudentData
+                      ? `${stats!.pct_would_take_again}% would retake`
+                      : "No student data yet"}
                   </span>
                   <span className="flex items-center gap-1 font-semibold text-brand">
                     <Star className="h-3 w-3 fill-current" /> {displayRating}
@@ -110,12 +117,18 @@ export function CoursePreviewModal() {
 
               <div className="flex flex-wrap gap-1.5">
                 {getBadges(course).map((b) => (
-                  <span key={b.label} className="rounded-full border border-white/10 bg-white/5 px-2.5 py-1 text-xs">
+                  <span
+                    key={b.label}
+                    className="rounded-full border border-white/10 bg-white/5 px-2.5 py-1 text-xs"
+                  >
                     {b.emoji} {b.label}
                   </span>
                 ))}
                 {course.tags.map((t) => (
-                  <span key={t} className="rounded-full border border-white/10 bg-white/5 px-2.5 py-1 text-xs text-muted-foreground">
+                  <span
+                    key={t}
+                    className="rounded-full border border-white/10 bg-white/5 px-2.5 py-1 text-xs text-muted-foreground"
+                  >
                     {t}
                   </span>
                 ))}
@@ -125,15 +138,22 @@ export function CoursePreviewModal() {
 
               <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
                 <Stat label="Rating" value={hasStudentData ? `${displayRating}/5` : "No data"} />
-                <Stat label="Difficulty" value={hasStudentData ? `${displayDifficulty}/5` : "No data"} />
-                <Stat label="Workload" value={hasStudentData ? `${displayWorkload}/5` : "No data"} />
+                <Stat
+                  label="Difficulty"
+                  value={hasStudentData ? `${displayDifficulty}/5` : "No data"}
+                />
+                <Stat
+                  label="Workload"
+                  value={hasStudentData ? `${displayWorkload}/5` : "No data"}
+                />
                 <Stat label="Assessment data" value="Not verified" />
               </div>
 
               <div>
                 <h3 className="font-display text-lg font-bold">Contact hours</h3>
                 <p className="mt-1 text-sm text-muted-foreground">
-                  {course.hours || "Hours not listed"} · {course.credits} credit{course.credits === 1 ? "" : "s"}
+                  {course.hours || "Hours not listed"} · {course.credits} credit
+                  {course.credits === 1 ? "" : "s"}
                 </p>
               </div>
 

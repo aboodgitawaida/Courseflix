@@ -27,7 +27,15 @@ function Stars({ value, onChange }: { value: number; onChange: (n: number) => vo
   );
 }
 
-function Scale({ label, value, onChange }: { label: string; value: number; onChange: (n: number) => void }) {
+function Scale({
+  label,
+  value,
+  onChange,
+}: {
+  label: string;
+  value: number;
+  onChange: (n: number) => void;
+}) {
   return (
     <div>
       <div className="text-xs uppercase tracking-wider text-muted-foreground mb-1.5">{label}</div>
@@ -53,12 +61,16 @@ function Scale({ label, value, onChange }: { label: string; value: number; onCha
 
 export function RatingSection({ code }: { code: string }) {
   const { signedIn, user } = useAuth();
-  const { data: reviews = [], error: reviewsError, refetch: refetchReviews } = useCourseRatings(code);
+  const {
+    data: reviews = [],
+    error: reviewsError,
+    refetch: refetchReviews,
+  } = useCourseRatings(code);
   const { data: stats, error: statsError, refetch: refetchStats } = useCourseStats(code);
   const submit = useSubmitRating(code);
   const remove = useDeleteRating();
 
-  const mine = reviews.find((r) => r.user_id === user?.id);
+  const mine = user ? reviews.find((r) => r.is_mine) : undefined;
   const [open, setOpen] = useState(false);
   const [rating, setRating] = useState(mine?.rating ?? 0);
   const [difficulty, setDifficulty] = useState(mine?.difficulty ?? 3);
@@ -146,7 +158,9 @@ export function RatingSection({ code }: { code: string }) {
       {open && (
         <div className="glass rounded-3xl border-brand/30 p-6 space-y-4 mb-4">
           <div>
-            <div className="text-xs uppercase tracking-wider text-muted-foreground mb-1.5">Overall</div>
+            <div className="text-xs uppercase tracking-wider text-muted-foreground mb-1.5">
+              Overall
+            </div>
             <Stars value={rating} onChange={setRating} />
           </div>
           <div className="grid grid-cols-2 gap-4">
@@ -154,7 +168,12 @@ export function RatingSection({ code }: { code: string }) {
             <Scale label="Workload" value={workload} onChange={setWorkload} />
           </div>
           <label className="flex items-center gap-2 text-sm">
-            <input type="checkbox" checked={again} onChange={(e) => setAgain(e.target.checked)} className="accent-brand h-4 w-4" />
+            <input
+              type="checkbox"
+              checked={again}
+              onChange={(e) => setAgain(e.target.checked)}
+              className="accent-brand h-4 w-4"
+            />
             I'd take this course again
           </label>
           <input
@@ -180,7 +199,10 @@ export function RatingSection({ code }: { code: string }) {
             >
               {submit.isPending ? "Saving…" : "Post rating"}
             </button>
-            <button onClick={() => setOpen(false)} className="rounded-full px-5 py-2 text-sm font-semibold text-muted-foreground hover:text-foreground">
+            <button
+              onClick={() => setOpen(false)}
+              className="rounded-full px-5 py-2 text-sm font-semibold text-muted-foreground hover:text-foreground"
+            >
               Cancel
             </button>
             {mine && (
