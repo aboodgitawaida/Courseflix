@@ -50,42 +50,42 @@ function ReviewsPage() {
   }
 
   function startEditing(review: (typeof reviews)[number]) {
-      setEditingId(review.id);
-      setDraft({
-        courseCode: review.course_code,
-        rating: review.rating,
-        difficulty: review.difficulty,
-        workload: review.workload,
-        wouldTakeAgain: review.would_take_again,
-        profName: review.prof_name ?? "",
-        comment: review.comment ?? "",
-      });
+    setEditingId(review.id);
+    setDraft({
+      courseCode: review.course_code,
+      rating: review.rating,
+      difficulty: review.difficulty,
+      workload: review.workload,
+      wouldTakeAgain: review.would_take_again,
+      profName: review.prof_name ?? "",
+      comment: review.comment ?? "",
+    });
   }
 
   function cancelEditing() {
-      setEditingId(null);
-      setDraft(null);
+    setEditingId(null);
+    setDraft(null);
   }
 
   async function saveEdit() {
-      if (!draft || draft.rating < 1) {
-        toast.error("Pick a star rating first.");
-        return;
-      }
-      try {
-        await submit.mutateAsync({
-          course_code: draft.courseCode,
-          rating: draft.rating,
-          difficulty: draft.difficulty,
-          workload: draft.workload,
-          would_take_again: draft.wouldTakeAgain,
-          prof_name: draft.profName.trim().slice(0, 80) || null,
-          comment: draft.comment.trim().slice(0, 1000) || null,
-        });
-        toast.success("Your review was updated.");
-        cancelEditing();
-      } catch (err) {
-        toast.error(err instanceof Error ? err.message : "Could not update your review");
+    if (!draft || draft.rating < 1) {
+      toast.error("Pick a star rating first.");
+      return;
+    }
+    try {
+      await submit.mutateAsync({
+        course_code: draft.courseCode,
+        rating: draft.rating,
+        difficulty: draft.difficulty,
+        workload: draft.workload,
+        would_take_again: draft.wouldTakeAgain,
+        prof_name: draft.profName.trim().slice(0, 80) || null,
+        comment: draft.comment.trim().slice(0, 1000) || null,
+      });
+      toast.success("Your review was updated.");
+      cancelEditing();
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Could not update your review");
     }
   }
 
@@ -95,7 +95,10 @@ function ReviewsPage() {
       <TopNav />
       <main className="mx-auto max-w-4xl px-6 pb-24 pt-10 md:px-10">
         <h1 className="font-mega text-[clamp(2.6rem,7vw,5.5rem)] font-black leading-[0.92] tracking-[-0.05em] animate-fade-in-up">
-          My <span className="font-serif-accent text-gradient-brand pr-[0.05em] text-[1.12em] font-normal">reviews.</span>
+          My{" "}
+          <span className="font-serif-accent text-gradient-brand pr-[0.05em] text-[1.12em] font-normal">
+            reviews.
+          </span>
         </h1>
         <p className="mt-2 text-sm text-muted-foreground">
           Review the courses you have rated and remove anything you no longer want to keep.
@@ -119,7 +122,10 @@ function ReviewsPage() {
           </div>
         ) : error ? (
           <div className="mt-8">
-            <QueryErrorState message="Could not load your reviews." onRetry={() => void refetch()} />
+            <QueryErrorState
+              message="Could not load your reviews."
+              onRetry={() => void refetch()}
+            />
           </div>
         ) : reviews.length === 0 ? (
           <div className="mt-8 rounded-3xl glass p-6">
@@ -175,7 +181,9 @@ function ReviewsPage() {
                   {editingId === review.id && draft ? (
                     <div className="mt-4 space-y-4 rounded-xl border border-brand/30 bg-surface-2 p-4">
                       <div>
-                        <p className="mb-2 text-xs uppercase tracking-wider text-muted-foreground">Overall</p>
+                        <p className="mb-2 text-xs uppercase tracking-wider text-muted-foreground">
+                          Overall
+                        </p>
                         <div className="flex gap-1">
                           {[1, 2, 3, 4, 5].map((value) => (
                             <button
@@ -192,14 +200,23 @@ function ReviewsPage() {
                       </div>
                       <div className="grid grid-cols-2 gap-4">
                         {(["difficulty", "workload"] as const).map((field) => (
-                          <label key={field} className="text-xs uppercase tracking-wider text-muted-foreground">
+                          <label
+                            key={field}
+                            className="text-xs uppercase tracking-wider text-muted-foreground"
+                          >
                             {field}
                             <select
                               value={draft[field]}
-                              onChange={(event) => setDraft({ ...draft, [field]: Number(event.target.value) })}
+                              onChange={(event) =>
+                                setDraft({ ...draft, [field]: Number(event.target.value) })
+                              }
                               className="mt-1 block h-9 w-full rounded-lg border border-border/50 bg-background px-2 text-sm text-foreground"
                             >
-                              {[1, 2, 3, 4, 5].map((value) => <option key={value} value={value}>{value}/5</option>)}
+                              {[1, 2, 3, 4, 5].map((value) => (
+                                <option key={value} value={value}>
+                                  {value}/5
+                                </option>
+                              ))}
                             </select>
                           </label>
                         ))}
@@ -208,7 +225,9 @@ function ReviewsPage() {
                         <input
                           type="checkbox"
                           checked={draft.wouldTakeAgain}
-                          onChange={(event) => setDraft({ ...draft, wouldTakeAgain: event.target.checked })}
+                          onChange={(event) =>
+                            setDraft({ ...draft, wouldTakeAgain: event.target.checked })
+                          }
                           className="accent-brand"
                         />
                         I’d take this course again
@@ -256,7 +275,9 @@ function ReviewsPage() {
                           Difficulty {review.difficulty}/5 · Workload {review.workload}/5
                         </span>
                       </div>
-                      {review.comment && <p className="mt-3 leading-relaxed text-foreground/90">{review.comment}</p>}
+                      {review.comment && (
+                        <p className="mt-3 leading-relaxed text-foreground/90">{review.comment}</p>
+                      )}
                     </>
                   )}
                 </article>

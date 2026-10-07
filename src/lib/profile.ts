@@ -80,9 +80,9 @@ export function useProfile(userId?: string) {
         .insert({
           id: uid,
           display_name:
-            authData.user.user_metadata?.display_name ??
-            authData.user.email?.split("@")[0] ??
-            "UTM student",
+            String(authData.user.user_metadata?.display_name ?? "")
+              .trim()
+              .slice(0, 40) || "UTM student",
           avatar_id: "hmalc",
           is_private: false,
         })

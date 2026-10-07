@@ -1,5 +1,11 @@
 import { MessageCircle, Sparkles, X } from "lucide-react";
-import { useEffect, useRef, useState, type CSSProperties, type PointerEvent as ReactPointerEvent } from "react";
+import {
+  useEffect,
+  useRef,
+  useState,
+  type CSSProperties,
+  type PointerEvent as ReactPointerEvent,
+} from "react";
 import { useRouterState } from "@tanstack/react-router";
 import { getCourse, type Course } from "@/lib/courses";
 
@@ -188,12 +194,24 @@ export function StudyEagle() {
     const deltaX = event.clientX - lastPointer.current.x;
     const deltaY = event.clientY - lastPointer.current.y;
     if (Math.abs(deltaX) > 2 || Math.abs(deltaY) > 2) {
-      setDirection(Math.abs(deltaX) > Math.abs(deltaY) ? (deltaX > 0 ? "right" : "left") : deltaY > 0 ? "down" : "up");
+      setDirection(
+        Math.abs(deltaX) > Math.abs(deltaY)
+          ? deltaX > 0
+            ? "right"
+            : "left"
+          : deltaY > 0
+            ? "down"
+            : "up",
+      );
     }
     lastPointer.current = { x: event.clientX, y: event.clientY };
     setPosition({
       x: clamp(event.clientX - dragOffset.current.x, 8, window.innerWidth - 104),
-      y: clamp(event.clientY - dragOffset.current.y, 72, window.innerHeight - 112 - tabBarClearance()),
+      y: clamp(
+        event.clientY - dragOffset.current.y,
+        72,
+        window.innerHeight - 112 - tabBarClearance(),
+      ),
     });
   }
 
@@ -214,7 +232,11 @@ export function StudyEagle() {
     showStatus(petCount % 2 === 0 ? "Krrr! That tickles." : "You got me.");
     setSummaryCourseCode(null);
     setSummaryText(null);
-    setReply(petCount % 2 === 0 ? "Krrr! That tickles. You have got this." : EAGLE_REPLIES[petCount % EAGLE_REPLIES.length]);
+    setReply(
+      petCount % 2 === 0
+        ? "Krrr! That tickles. You have got this."
+        : EAGLE_REPLIES[petCount % EAGLE_REPLIES.length],
+    );
   }
 
   function startFlight(target: Position, onArrive?: () => void) {
@@ -283,7 +305,12 @@ export function StudyEagle() {
               </div>
               <p className="mt-1 text-[11px] text-amber-100/60">Your tiny campus co-pilot</p>
             </div>
-            <button type="button" onClick={() => setChatOpen(false)} aria-label="Close Study Eagle chat" className="rounded-md p-1 text-white/50 hover:bg-white/10 hover:text-white">
+            <button
+              type="button"
+              onClick={() => setChatOpen(false)}
+              aria-label="Close Study Eagle chat"
+              className="rounded-md p-1 text-white/50 hover:bg-white/10 hover:text-white"
+            >
               <X className="h-4 w-4" />
             </button>
           </div>
@@ -291,9 +318,33 @@ export function StudyEagle() {
             {summaryCourseCode && summaryText ? `${summaryCourseCode}: ${summaryText}` : reply}
           </div>
           <div className="mt-3 flex flex-wrap gap-2">
-            <button type="button" onClick={() => setReply(EAGLE_REPLIES[0])} className="study-eagle-chip">Study tip</button>
-            <button type="button" onClick={() => setReply(course ? `For ${course.code}, check the prerequisite path before enrolling.` : EAGLE_REPLIES[1])} className="study-eagle-chip">Help me choose</button>
-            <button type="button" onClick={() => setReply(EAGLE_REPLIES[2])} className="study-eagle-chip">Plan a semester</button>
+            <button
+              type="button"
+              onClick={() => setReply(EAGLE_REPLIES[0])}
+              className="study-eagle-chip"
+            >
+              Study tip
+            </button>
+            <button
+              type="button"
+              onClick={() =>
+                setReply(
+                  course
+                    ? `For ${course.code}, check the prerequisite path before enrolling.`
+                    : EAGLE_REPLIES[1],
+                )
+              }
+              className="study-eagle-chip"
+            >
+              Help me choose
+            </button>
+            <button
+              type="button"
+              onClick={() => setReply(EAGLE_REPLIES[2])}
+              className="study-eagle-chip"
+            >
+              Plan a semester
+            </button>
           </div>
         </div>
       )}
@@ -303,10 +354,25 @@ export function StudyEagle() {
           {statusMessage}
         </div>
       )}
-      <div className={`relative ${celebrating ? "study-eagle-celebrating" : ""} ${landing ? "study-eagle-landing" : ""} study-eagle-${animation} study-eagle-sleep-${sleepPhase}`}>
-        <div className={`study-eagle-spark ${petCount ? "study-eagle-spark-visible" : ""}`} aria-hidden="true">✦</div>
-        {celebrating && <div className="study-eagle-confetti" aria-hidden="true">✦ · ✧ ✦ · ✧</div>}
-        {landing && <div className="study-eagle-dust" aria-hidden="true">· ｡ ·</div>}
+      <div
+        className={`relative ${celebrating ? "study-eagle-celebrating" : ""} ${landing ? "study-eagle-landing" : ""} study-eagle-${animation} study-eagle-sleep-${sleepPhase}`}
+      >
+        <div
+          className={`study-eagle-spark ${petCount ? "study-eagle-spark-visible" : ""}`}
+          aria-hidden="true"
+        >
+          ✦
+        </div>
+        {celebrating && (
+          <div className="study-eagle-confetti" aria-hidden="true">
+            ✦ · ✧ ✦ · ✧
+          </div>
+        )}
+        {landing && (
+          <div className="study-eagle-dust" aria-hidden="true">
+            · ｡ ·
+          </div>
+        )}
         <button
           type="button"
           aria-label={`Study Eagle. ${animation === "sleeping" ? "Sleeping. " : ""}Click to pet, drag to fly.`}
@@ -320,18 +386,27 @@ export function StudyEagle() {
         >
           <span
             className={`study-eagle-sprite ${animation === "sleeping" ? "study-eagle-sprite-sleeping" : ""}`}
-            style={{
-              "--flight-angle": `${flightAngle}deg`,
-              backgroundPosition:
-                animation === "sleeping"
-                  ? `${frame * 33.333}% 0%`
-                  : `${frame * 50}% ${direction === "down" ? "0%" : direction === "up" ? "100%" : direction === "left" ? "33.333%" : "66.666%"}`,
-            } as CSSProperties}
+            style={
+              {
+                "--flight-angle": `${flightAngle}deg`,
+                backgroundPosition:
+                  animation === "sleeping"
+                    ? `${frame * 33.333}% 0%`
+                    : `${frame * 50}% ${direction === "down" ? "0%" : direction === "up" ? "100%" : direction === "left" ? "33.333%" : "66.666%"}`,
+              } as CSSProperties
+            }
           />
         </button>
         <div className="study-eagle-shadow" aria-hidden="true" />
         <div className="study-eagle-controls">
-          <button type="button" onClick={() => setChatOpen((open) => !open)} aria-label="Chat with Study Eagle" title="Chat with Study Eagle"><MessageCircle className="h-3.5 w-3.5" /></button>
+          <button
+            type="button"
+            onClick={() => setChatOpen((open) => !open)}
+            aria-label="Chat with Study Eagle"
+            title="Chat with Study Eagle"
+          >
+            <MessageCircle className="h-3.5 w-3.5" />
+          </button>
         </div>
       </div>
     </div>
@@ -368,7 +443,10 @@ function makeCourseSummary(course: Course) {
     .trim();
   const lead = description.split(/(?<=[.!?])\s+/)[0] ?? description;
   const cleanedLead = lead
-    .replace(/^this course (?:will )?(?:introduces?|explores?|examines?|surveys?)\s+(?:students to\s+)?/i, "")
+    .replace(
+      /^this course (?:will )?(?:introduces?|explores?|examines?|surveys?)\s+(?:students to\s+)?/i,
+      "",
+    )
     .replace(/^(?:an?|the)\s+introduction to\s+/i, "")
     .replace(/^topics include\s+/i, "")
     .replace(/^this is\s+/i, "")
@@ -381,9 +459,10 @@ function makeCourseSummary(course: Course) {
     .replace(/\s+/g, " ")
     .trim()
     .replace(/[.!?]+$/, "");
-  const summary = /^anthropology is the global and holistic study of human biology and behaviour/i.test(lead)
-    ? `Students will explore ${introFocus.toLowerCase()}, including human biology, behaviour, and the study of human societies`
-    : cleanedLead;
+  const summary =
+    /^anthropology is the global and holistic study of human biology and behaviour/i.test(lead)
+      ? `Students will explore ${introFocus.toLowerCase()}, including human biology, behaviour, and the study of human societies`
+      : cleanedLead;
   if (!summary) return "Course details are available on the course page.";
 
   // Use a complete thought only. A shorter title-based sentence is more useful
@@ -394,11 +473,12 @@ function makeCourseSummary(course: Course) {
     .replace(/^(?:the elements of|the study of)\s+/i, "")
     .trim();
   const focusedSummary = `Students will explore ${lowercaseFirst(firstFocus)}`;
-  const completeSummary = summary.length <= maxLength
-    ? summary
-    : focusedSummary.length <= maxLength
-      ? focusedSummary
-      : `Students will explore ${introFocus.toLowerCase()}`;
+  const completeSummary =
+    summary.length <= maxLength
+      ? summary
+      : focusedSummary.length <= maxLength
+        ? focusedSummary
+        : `Students will explore ${introFocus.toLowerCase()}`;
   return `${lowercaseFirst(completeSummary).replace(/[.!?]+$/, "")}.`;
 }
 

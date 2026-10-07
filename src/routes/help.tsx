@@ -51,7 +51,10 @@ function HelpPage() {
       <TopNav />
       <div className="mx-auto max-w-3xl px-6 pb-24 pt-10 md:px-10">
         <h1 className="font-mega text-[clamp(2.6rem,7vw,5.5rem)] font-black leading-[0.92] tracking-[-0.05em] animate-fade-in-up">
-          Help <span className="font-serif-accent text-gradient-brand pr-[0.05em] text-[1.12em] font-normal">centre.</span>
+          Help{" "}
+          <span className="font-serif-accent text-gradient-brand pr-[0.05em] text-[1.12em] font-normal">
+            centre.
+          </span>
         </h1>
         <p className="mt-2 text-sm text-muted-foreground">Everything about how Courseflix works.</p>
 
