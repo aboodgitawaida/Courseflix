@@ -22,9 +22,16 @@ export const Route = createFileRoute("/friends")({
   head: () => ({
     meta: [
       { title: "Friends — Courseflix UTM" },
-      { name: "description", content: "Add UTM classmates on Courseflix, accept friend requests, and see which courses your friends have shortlisted." },
+      {
+        name: "description",
+        content:
+          "Add UTM classmates on Courseflix, accept friend requests, and see which courses your friends have shortlisted.",
+      },
       { property: "og:title", content: "Friends — Courseflix UTM" },
-      { property: "og:description", content: "See what your UTM friends are planning to take next term." },
+      {
+        property: "og:description",
+        content: "See what your UTM friends are planning to take next term.",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
     ],
@@ -36,7 +43,8 @@ function FriendShortlist({ userId, name }: { userId: string; name: string }) {
   const { data: codes = [], isLoading, error } = useFriendShortlist(userId);
   if (isLoading) return <p className="text-xs text-muted-foreground">Loading shortlist…</p>;
   if (error) return <p className="text-xs text-muted-foreground">{name}'s shortlist is private.</p>;
-  if (codes.length === 0) return <p className="text-xs text-muted-foreground">No saved courses yet.</p>;
+  if (codes.length === 0)
+    return <p className="text-xs text-muted-foreground">No saved courses yet.</p>;
   return (
     <div className="flex flex-wrap gap-1.5">
       {codes.map((c) => (
@@ -66,7 +74,9 @@ function FriendsPage() {
 
   useEffect(() => {
     if (signedIn && !isLoading && !friendshipsError) {
-      announce(`${data?.accepted.length ?? 0} friend${data?.accepted.length === 1 ? "" : "s"} loaded.`);
+      announce(
+        `${data?.accepted.length ?? 0} friend${data?.accepted.length === 1 ? "" : "s"} loaded.`,
+      );
     }
   }, [data?.accepted.length, friendshipsError, isLoading, signedIn]);
 
@@ -109,7 +119,10 @@ function FriendsPage() {
       <TopNav />
       <div className="mx-auto max-w-3xl px-6 pb-24 pt-10 md:px-10">
         <h1 className="font-mega text-[clamp(2.6rem,7vw,5.5rem)] font-black leading-[0.92] tracking-[-0.05em] animate-fade-in-up">
-          Your <span className="font-serif-accent text-gradient-brand pr-[0.05em] text-[1.12em] font-normal">people.</span>
+          Your{" "}
+          <span className="font-serif-accent text-gradient-brand pr-[0.05em] text-[1.12em] font-normal">
+            people.
+          </span>
         </h1>
         <p className="mt-2 text-sm text-muted-foreground">
           Find classmates by username and compare what you're both planning to take.
@@ -155,7 +168,7 @@ function FriendsPage() {
                 )}
                 {results
                   .filter((p) => p.id !== uid)
-                  .map((p) => (
+                  .map((p) =>
                     (() => {
                       const relationship = relationshipFor(p.id);
                       const disabled = relationship !== "none";
@@ -168,29 +181,36 @@ function FriendsPage() {
                               ? "Respond in Requests"
                               : "Add";
                       return (
-                    <div key={p.id} className="flex items-center gap-3 rounded-xl glass p-3">
-                      <img src={avatarSrc(p.avatar_id)} alt="" width={40} height={40} className="h-10 w-10 rounded-full object-contain" />
-                      <div className="min-w-0 flex-1">
-                        <div className="truncate text-sm font-semibold">{p.display_name}</div>
-                        <div className="truncate text-xs text-muted-foreground">
-                          {p.username ? `@${p.username}` : "no username yet"}
+                        <div key={p.id} className="flex items-center gap-3 rounded-xl glass p-3">
+                          <img
+                            src={avatarSrc(p.avatar_id)}
+                            alt=""
+                            width={40}
+                            height={40}
+                            className="h-10 w-10 rounded-full object-contain"
+                          />
+                          <div className="min-w-0 flex-1">
+                            <div className="truncate text-sm font-semibold">{p.display_name}</div>
+                            <div className="truncate text-xs text-muted-foreground">
+                              {p.username ? `@${p.username}` : "no username yet"}
+                            </div>
+                          </div>
+                          <button
+                            onClick={() => void add(p.id)}
+                            disabled={disabled}
+                            className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-semibold transition ${
+                              disabled
+                                ? "cursor-default border border-border/60 text-muted-foreground"
+                                : "bg-brand text-primary-foreground hover:bg-brand-glow"
+                            }`}
+                          >
+                            {relationship === "none" && <UserPlus className="h-3.5 w-3.5" />}{" "}
+                            {label}
+                          </button>
                         </div>
-                      </div>
-                      <button
-                        onClick={() => void add(p.id)}
-                        disabled={disabled}
-                        className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-semibold transition ${
-                          disabled
-                            ? "cursor-default border border-border/60 text-muted-foreground"
-                            : "bg-brand text-primary-foreground hover:bg-brand-glow"
-                        }`}
-                      >
-                        {relationship === "none" && <UserPlus className="h-3.5 w-3.5" />} {label}
-                      </button>
-                    </div>
                       );
-                    })()
-                  ))}
+                    })(),
+                  )}
               </section>
             )}
 
@@ -202,7 +222,13 @@ function FriendsPage() {
                     const p = people?.get(r.requester_id);
                     return (
                       <div key={r.id} className="flex items-center gap-3 rounded-xl glass p-3">
-                        <img src={avatarSrc(p?.avatar_id)} alt="" width={40} height={40} className="h-10 w-10 rounded-full object-contain" />
+                        <img
+                          src={avatarSrc(p?.avatar_id)}
+                          alt=""
+                          width={40}
+                          height={40}
+                          className="h-10 w-10 rounded-full object-contain"
+                        />
                         <div className="min-w-0 flex-1 truncate text-sm font-semibold">
                           {p?.display_name ?? "A student"}
                         </div>
@@ -247,7 +273,9 @@ function FriendsPage() {
               )}
               {!isLoading && (data?.accepted.length ?? 0) === 0 && (
                 <div className="mt-2 flex flex-wrap items-center gap-3">
-                  <p className="text-sm text-muted-foreground">No friends yet — find a classmate to get started.</p>
+                  <p className="text-sm text-muted-foreground">
+                    No friends yet — find a classmate to get started.
+                  </p>
                   <p className="text-xs text-muted-foreground/80">
                     Use the search bar above to find friends.
                   </p>
@@ -261,10 +289,18 @@ function FriendsPage() {
                   return (
                     <div key={r.id} className="rounded-xl glass p-4">
                       <div className="flex items-center gap-3">
-                        <img src={avatarSrc(p?.avatar_id)} alt="" width={40} height={40} className="h-10 w-10 rounded-full object-contain" />
+                        <img
+                          src={avatarSrc(p?.avatar_id)}
+                          alt=""
+                          width={40}
+                          height={40}
+                          className="h-10 w-10 rounded-full object-contain"
+                        />
                         <div className="min-w-0 flex-1">
                           <div className="truncate text-sm font-semibold">{name}</div>
-                          <div className="truncate text-xs text-muted-foreground">{p?.username ? `@${p.username}` : ""}</div>
+                          <div className="truncate text-xs text-muted-foreground">
+                            {p?.username ? `@${p.username}` : ""}
+                          </div>
                         </div>
                         <button
                           disabled={remove.isPending}
@@ -286,7 +322,8 @@ function FriendsPage() {
 
             {(data?.outgoing.length ?? 0) > 0 && (
               <p className="mt-6 text-xs text-muted-foreground">
-                {data!.outgoing.length} request{data!.outgoing.length === 1 ? "" : "s"} still pending.
+                {data!.outgoing.length} request{data!.outgoing.length === 1 ? "" : "s"} still
+                pending.
               </p>
             )}
           </>

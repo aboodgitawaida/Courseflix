@@ -1,4 +1,3 @@
-
 let lastCapturedError: { error: unknown; at: number } | undefined;
 const TTL_MS = 5_000;
 const seenErrors = new Map<string, number>();

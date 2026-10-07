@@ -1,10 +1,21 @@
-import { createContext, useCallback, useContext, useEffect, useRef, useState, type ReactNode } from "react";
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+  type ReactNode,
+} from "react";
 
 export type SoundName = "add" | "remove" | "toggle" | "pop" | "tick";
 
 const KEY = "courseflix.muted";
 
-const TONES: Record<SoundName, { freq: number; to: number; dur: number; type: OscillatorType; gain?: number }> = {
+const TONES: Record<
+  SoundName,
+  { freq: number; to: number; dur: number; type: OscillatorType; gain?: number }
+> = {
   add: { freq: 520, to: 880, dur: 0.16, type: "sine" },
   remove: { freq: 420, to: 220, dur: 0.16, type: "sine" },
   toggle: { freq: 300, to: 620, dur: 0.12, type: "triangle" },
@@ -12,7 +23,11 @@ const TONES: Record<SoundName, { freq: number; to: number; dur: number; type: Os
   tick: { freq: 1500, to: 950, dur: 0.035, type: "sine", gain: 0.018 },
 };
 
-const SoundContext = createContext<{ muted: boolean; toggleMuted: () => void; play: (n: SoundName) => void }>({
+const SoundContext = createContext<{
+  muted: boolean;
+  toggleMuted: () => void;
+  play: (n: SoundName) => void;
+}>({
   muted: false,
   toggleMuted: () => {},
   play: () => {},
@@ -30,7 +45,9 @@ export function SoundProvider({ children }: { children: ReactNode }) {
     (name: SoundName) => {
       if (muted || typeof window === "undefined") return;
       try {
-        const Ctor = window.AudioContext ?? (window as unknown as { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
+        const Ctor =
+          window.AudioContext ??
+          (window as unknown as { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
         if (!Ctor) return;
         const ctx = ctxRef.current ?? new Ctor();
         ctxRef.current = ctx;
@@ -42,7 +59,10 @@ export function SoundProvider({ children }: { children: ReactNode }) {
         osc.frequency.setValueAtTime(cfg.freq, ctx.currentTime);
         osc.frequency.exponentialRampToValueAtTime(cfg.to, ctx.currentTime + cfg.dur);
         gain.gain.setValueAtTime(0.0001, ctx.currentTime);
-        gain.gain.exponentialRampToValueAtTime(cfg.gain ?? 0.09, ctx.currentTime + Math.min(0.02, cfg.dur / 3));
+        gain.gain.exponentialRampToValueAtTime(
+          cfg.gain ?? 0.09,
+          ctx.currentTime + Math.min(0.02, cfg.dur / 3),
+        );
         gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + cfg.dur);
         osc.connect(gain).connect(ctx.destination);
         osc.start();
@@ -62,7 +82,9 @@ export function SoundProvider({ children }: { children: ReactNode }) {
     });
   }, []);
 
-  return <SoundContext.Provider value={{ muted, toggleMuted, play }}>{children}</SoundContext.Provider>;
+  return (
+    <SoundContext.Provider value={{ muted, toggleMuted, play }}>{children}</SoundContext.Provider>
+  );
 }
 
 export const useSound = () => useContext(SoundContext);

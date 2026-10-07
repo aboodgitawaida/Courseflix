@@ -62,20 +62,64 @@ const PALETTE: Array<[string, string]> = [
 
 export const SUBJECT_ART: Record<string, { gradient: string; accent: string; motif: string }> = {
   CSC: { gradient: "from-cyan-950/90 via-cyan-950/40 to-black", accent: "#22d3ee", motif: "grid" },
-  POL: { gradient: "from-amber-950/90 via-amber-950/40 to-black", accent: "#f59e0b", motif: "columns" },
-  ANT: { gradient: "from-orange-950/90 via-orange-950/40 to-black", accent: "#fb923c", motif: "relic" },
+  POL: {
+    gradient: "from-amber-950/90 via-amber-950/40 to-black",
+    accent: "#f59e0b",
+    motif: "columns",
+  },
+  ANT: {
+    gradient: "from-orange-950/90 via-orange-950/40 to-black",
+    accent: "#fb923c",
+    motif: "relic",
+  },
   ENG: { gradient: "from-stone-900 via-stone-900/50 to-black", accent: "#d6bfa3", motif: "books" },
-  BIO: { gradient: "from-emerald-950/90 via-emerald-950/40 to-black", accent: "#34d399", motif: "cells" },
-  MAT: { gradient: "from-blue-950/90 via-blue-950/40 to-black", accent: "#60a5fa", motif: "geometry" },
-  STA: { gradient: "from-blue-950/90 via-indigo-950/40 to-black", accent: "#818cf8", motif: "geometry" },
-  SOC: { gradient: "from-purple-950/90 via-purple-950/40 to-black", accent: "#c084fc", motif: "neural" },
-  PSY: { gradient: "from-purple-950/90 via-violet-950/40 to-black", accent: "#a78bfa", motif: "neural" },
-  ECO: { gradient: "from-teal-950/90 via-teal-950/40 to-black", accent: "#2dd4bf", motif: "finance" },
-  MGT: { gradient: "from-teal-950/90 via-emerald-950/40 to-black", accent: "#14b8a6", motif: "finance" },
-  MGM: { gradient: "from-teal-950/90 via-emerald-950/40 to-black", accent: "#14b8a6", motif: "finance" },
+  BIO: {
+    gradient: "from-emerald-950/90 via-emerald-950/40 to-black",
+    accent: "#34d399",
+    motif: "cells",
+  },
+  MAT: {
+    gradient: "from-blue-950/90 via-blue-950/40 to-black",
+    accent: "#60a5fa",
+    motif: "geometry",
+  },
+  STA: {
+    gradient: "from-blue-950/90 via-indigo-950/40 to-black",
+    accent: "#818cf8",
+    motif: "geometry",
+  },
+  SOC: {
+    gradient: "from-purple-950/90 via-purple-950/40 to-black",
+    accent: "#c084fc",
+    motif: "neural",
+  },
+  PSY: {
+    gradient: "from-purple-950/90 via-violet-950/40 to-black",
+    accent: "#a78bfa",
+    motif: "neural",
+  },
+  ECO: {
+    gradient: "from-teal-950/90 via-teal-950/40 to-black",
+    accent: "#2dd4bf",
+    motif: "finance",
+  },
+  MGT: {
+    gradient: "from-teal-950/90 via-emerald-950/40 to-black",
+    accent: "#14b8a6",
+    motif: "finance",
+  },
+  MGM: {
+    gradient: "from-teal-950/90 via-emerald-950/40 to-black",
+    accent: "#14b8a6",
+    motif: "finance",
+  },
 };
 
-const DEFAULT_ART = { gradient: "from-zinc-900 via-zinc-900/50 to-black", accent: "#e50914", motif: "grid" };
+const DEFAULT_ART = {
+  gradient: "from-zinc-900 via-zinc-900/50 to-black",
+  accent: "#e50914",
+  motif: "grid",
+};
 
 export const getArt = (subject: string) => SUBJECT_ART[subject] ?? DEFAULT_ART;
 
@@ -188,9 +232,11 @@ function buildCourse(row: (typeof CATALOG)[number]): Course {
   if (level <= 100) tags.push("Intro");
   if (level >= 400) tags.push("Seminar");
   else if (level >= 300) tags.push("Upper-year");
-  if (dist.includes("S") && ["MAT", "STA", "CSC", "PHY", "AST", "ECO"].includes(subject)) tags.push("Math-Heavy");
+  if (dist.includes("S") && ["MAT", "STA", "CSC", "PHY", "AST", "ECO"].includes(subject))
+    tags.push("Math-Heavy");
   if (practical >= 24) tags.push("Lab-Heavy");
-  if (dist.includes("H") || ["ENG", "HIS", "PHL", "RLG", "WGS", "WRI"].includes(subject)) tags.push("Essay-Heavy");
+  if (dist.includes("H") || ["ENG", "HIS", "PHL", "RLG", "WGS", "WRI"].includes(subject))
+    tags.push("Essay-Heavy");
   if (/seminar|discussion/i.test(description)) tags.push("Discussion");
   if (/project|studio|practicum|field/i.test(description)) tags.push("Project");
   if (load >= 70) tags.push("Heavy");
@@ -237,13 +283,15 @@ export const COURSES: Course[] = CATALOG.map(buildCourse);
 
 const byCode = new Map(COURSES.map((c) => [c.code, c]));
 export const getCourse = (code: string) =>
-  byCode.get(code.toUpperCase()) ?? COURSES.find((c) => c.code.toLowerCase() === code.toLowerCase());
+  byCode.get(code.toUpperCase()) ??
+  COURSES.find((c) => c.code.toLowerCase() === code.toLowerCase());
 
 const unlockedBy = new Map<string, string[]>();
 for (const c of COURSES) {
   for (const p of c.prereqs) unlockedBy.set(p, [...(unlockedBy.get(p) ?? []), c.code]);
 }
-export const getNextSteps = (code: string) => (unlockedBy.get(code.toUpperCase()) ?? []).slice(0, 6);
+export const getNextSteps = (code: string) =>
+  (unlockedBy.get(code.toUpperCase()) ?? []).slice(0, 6);
 
 export type Rail = { title: string; blurb?: string; codes: string[] };
 
@@ -262,7 +310,10 @@ export function getFeaturedForMajor(majorId: string | null): Course {
   return [...list].sort((a, b) => a.code.localeCompare(b.code))[0] ?? COURSES[0]!;
 }
 
-export function getProgramMatch(course: Course, majorId: string | null): "Core program subject" | "Program support subject" | "Outside selected program" | null {
+export function getProgramMatch(
+  course: Course,
+  majorId: string | null,
+): "Core program subject" | "Program support subject" | "Outside selected program" | null {
   const major = MAJORS.find((m) => m.id === majorId);
   if (!major) return null;
   if (major.core.includes(course.subject)) return "Core program subject";
@@ -274,7 +325,8 @@ export type Badge = { label: string; emoji: string; tone: "bird" | "essay" | "ex
 
 export function isBird(c: Course) {
   if (BIRD_BLOCKLIST.has(c.code)) return false;
-  if (c.tags.includes("Math-Heavy") || c.tags.includes("Heavy") || c.tags.includes("Exam-Heavy")) return false;
+  if (c.tags.includes("Math-Heavy") || c.tags.includes("Heavy") || c.tags.includes("Exam-Heavy"))
+    return false;
   if (c.level > 200) return false;
   return c.tags.includes("Easy") || c.workload <= 2.6;
 }
@@ -282,14 +334,20 @@ export function isBird(c: Course) {
 export function getBadges(c: Course): Badge[] {
   const out: Badge[] = [];
   if (isBird(c)) out.push({ label: "Light workload signal", emoji: "🦅", tone: "bird" });
-  if (c.tags.includes("Essay-Heavy")) out.push({ label: "Essay signal", emoji: "📝", tone: "essay" });
+  if (c.tags.includes("Essay-Heavy"))
+    out.push({ label: "Essay signal", emoji: "📝", tone: "essay" });
   if (c.tags.includes("Project") || c.tags.includes("Lab-Heavy"))
     out.push({ label: "Project/lab signal", emoji: "💻", tone: "project" });
   return out.slice(0, 2);
 }
 
 export function isCourseworkHeavy(c: Course) {
-  return c.tags.includes("Project") || c.tags.includes("Lab-Heavy") || c.tags.includes("Seminar") || c.tags.includes("Discussion");
+  return (
+    c.tags.includes("Project") ||
+    c.tags.includes("Lab-Heavy") ||
+    c.tags.includes("Seminar") ||
+    c.tags.includes("Discussion")
+  );
 }
 
 export type FilterId = "all" | "bird" | "science" | "social" | "humanities" | "l100" | "l200";
@@ -366,18 +424,45 @@ export function getRailsForMajor(majorId: string | null, filter: FilterId = "all
   const birds = byRating(pool.filter(isBird));
   const coursework = byRating(pool.filter(isCourseworkHeavy));
   const prereqCounts = new Map<string, number>();
-  for (const c of COURSES) for (const p of c.prereqs) prereqCounts.set(p, (prereqCounts.get(p) ?? 0) + 1);
+  for (const c of COURSES)
+    for (const p of c.prereqs) prereqCounts.set(p, (prereqCounts.get(p) ?? 0) + 1);
   const gateways = pool
     .filter((c) => (prereqCounts.get(c.code) ?? 0) > 0)
     .sort((a, b) => (prereqCounts.get(b.code) ?? 0) - (prereqCounts.get(a.code) ?? 0));
 
   const rails: Rail[] = [
-    { title: "🔥 Trending at UTM", blurb: "What students are browsing most right now", codes: codes(trending) },
-    { title: "🎯 Start here", blurb: `First- and second-year ${major?.name ?? "UTM"} courses`, codes: codes(first) },
-    { title: "🦅 Lighter workload signals", blurb: "Intro courses with lighter listed contact-hour signals — verify the workload yourself", codes: codes(birds) },
-    { title: "🧪 Coursework signals", blurb: "Descriptions mention projects, labs, seminars, or discussion; assessment details are not verified", codes: codes(coursework) },
-    { title: "📚 Popular program prerequisites", blurb: "Courses that unlock the most upper-year options", codes: codes(gateways) },
-    { title: "🧩 Required support courses", blurb: "The other subjects your program needs", codes: codes(byRating(support)) },
+    {
+      title: "🔥 Trending at UTM",
+      blurb: "What students are browsing most right now",
+      codes: codes(trending),
+    },
+    {
+      title: "🎯 Start here",
+      blurb: `First- and second-year ${major?.name ?? "UTM"} courses`,
+      codes: codes(first),
+    },
+    {
+      title: "🦅 Lighter workload signals",
+      blurb:
+        "Intro courses with lighter listed contact-hour signals — verify the workload yourself",
+      codes: codes(birds),
+    },
+    {
+      title: "🧪 Coursework signals",
+      blurb:
+        "Descriptions mention projects, labs, seminars, or discussion; assessment details are not verified",
+      codes: codes(coursework),
+    },
+    {
+      title: "📚 Popular program prerequisites",
+      blurb: "Courses that unlock the most upper-year options",
+      codes: codes(gateways),
+    },
+    {
+      title: "🧩 Required support courses",
+      blurb: "The other subjects your program needs",
+      codes: codes(byRating(support)),
+    },
     { title: "🚀 Upper-year picks", blurb: "Once you've cleared the prereqs", codes: codes(upper) },
     { title: "🎓 Seminars & capstones", blurb: "400-level, small classes", codes: codes(seminars) },
   ];
