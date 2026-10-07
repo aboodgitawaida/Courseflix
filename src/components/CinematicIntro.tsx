@@ -29,16 +29,28 @@ export function CinematicIntro() {
     >
       <div className="cinematic-ambient pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-red-950/40 via-black to-black" />
 
-      <div className="cinematic-logo relative z-10 overflow-hidden">
-        <div className="text-4xl font-black tracking-wider text-white drop-shadow-[0_0_30px_rgba(229,9,20,0.6)] md:text-6xl">
-          COURSEFLIX
+      <div className="relative z-10 flex flex-col items-center">
+        <div aria-label="Courseflix" className="wordmark text-6xl leading-none md:text-9xl">
+          {"COURSEFLIX".split("").map((ch, i) => (
+            <span
+              key={i}
+              aria-hidden="true"
+              className="intro-letter"
+              style={{ animationDelay: `${0.15 + i * 0.05}s` }}
+            >
+              {ch}
+            </span>
+          ))}
         </div>
-        <div className="cinematic-sheen pointer-events-none absolute inset-y-0 left-0 w-1/2 bg-gradient-to-r from-transparent via-white/35 to-transparent" />
+        <div className="intro-streak mt-4 h-[2px] w-[min(70vw,560px)] bg-gradient-to-r from-transparent via-brand to-transparent shadow-[0_0_24px_4px_rgba(229,9,20,0.55)]" />
+        <div className="mt-5 text-[10px] font-semibold uppercase tracking-[0.5em] text-neutral-500 opacity-0 animate-fade-in-up [animation-delay:1s]">
+          UTM · Course discovery
+        </div>
       </div>
 
       <button
         type="button"
-        className="absolute bottom-8 right-8 z-20 text-xs text-neutral-400 transition-colors hover:text-white"
+        className="absolute bottom-8 right-8 z-20 rounded-full border border-white/15 px-4 py-1.5 text-xs font-semibold uppercase tracking-[0.2em] text-neutral-400 transition-colors hover:border-white/40 hover:text-white"
         onClick={(e) => {
           e.stopPropagation();
           finish();
