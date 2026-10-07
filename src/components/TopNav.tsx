@@ -1,6 +1,17 @@
 import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
-import { Search, Bookmark, User, Menu, X, Users, Settings, LifeBuoy, Star, Award } from "lucide-react";
-import { useState } from "react";
+import {
+  Search,
+  Bookmark,
+  User,
+  Menu,
+  X,
+  Users,
+  Settings,
+  LifeBuoy,
+  Star,
+  Award,
+} from "lucide-react";
+import { useEffect, useState } from "react";
 import { useAuth } from "@/hooks/use-auth";
 import { useCourseUI } from "@/hooks/use-course-ui";
 import { useMajor } from "@/hooks/use-major";
@@ -16,6 +27,19 @@ export function TopNav() {
   const currentMajor = getMajor(major);
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 24);
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
+  const desktopLink = (active: boolean) =>
+    `relative rounded-full px-3 py-1.5 transition hover:text-foreground ${
+      active ? "bg-white/[0.08] text-foreground" : ""
+    }`;
 
   function scrollToCreator(e: React.MouseEvent) {
     e.preventDefault();
@@ -33,36 +57,34 @@ export function TopNav() {
   }
 
   return (
-    <header className="sticky top-0 z-50 border-b border-white/[0.08] bg-background/70 backdrop-blur-xl">
-      <div className="flex h-16 items-center gap-3 px-4 md:gap-4 md:px-10">
+    <header className="sticky top-0 z-50 px-3 pt-3 md:px-6">
+      <div
+        className={`glass mx-auto flex h-14 items-center gap-2 rounded-full pl-5 pr-2 transition-all duration-500 md:gap-3 ${
+          scrolled ? "max-w-6xl bg-background/70 shadow-2xl shadow-black/40" : "max-w-[1600px]"
+        }`}
+      >
         <Link to="/" aria-label="Courseflix home" className="shrink-0">
-          <span className="wordmark font-display text-2xl leading-none md:text-3xl">
-            Courseflix
-          </span>
+          <span className="wordmark text-2xl leading-none md:text-[1.7rem]">Courseflix</span>
         </Link>
 
-        <nav className="hidden items-center gap-5 text-sm font-medium text-muted-foreground lg:flex">
-          <Link to="/" className="transition hover:text-foreground">
+        <nav className="ml-2 hidden items-center gap-0.5 text-sm font-medium text-muted-foreground lg:flex">
+          <Link to="/" className={desktopLink(pathname === "/")}>
             Browse
           </Link>
-          <Link to="/list" className="transition hover:text-foreground">
+          <Link to="/list" className={desktopLink(pathname === "/list")}>
             My Shortlist
           </Link>
           {signedIn && (
-            <Link to="/reviews" className="transition hover:text-foreground">
+            <Link to="/reviews" className={desktopLink(pathname === "/reviews")}>
               My Reviews
             </Link>
           )}
           {signedIn && (
-            <Link to="/achievements" className="transition hover:text-foreground">
+            <Link to="/achievements" className={desktopLink(pathname === "/achievements")}>
               Achievements
             </Link>
           )}
-          <a
-            href="/#creator"
-            onClick={scrollToCreator}
-            className="transition hover:text-foreground"
-          >
+          <a href="/#creator" onClick={scrollToCreator} className={desktopLink(false)}>
             Creator
           </a>
         </nav>
@@ -70,11 +92,11 @@ export function TopNav() {
         <button
           onClick={() => setSearchOpen(true)}
           aria-label="Search courses"
-          className="ml-auto hidden h-9 min-w-[220px] items-center gap-2 rounded-full border border-white/[0.08] bg-white/[0.04] px-3 text-left text-sm text-muted-foreground transition hover:border-brand/50 hover:bg-white/[0.06] focus-visible:ring-2 focus-visible:ring-white/30 sm:flex"
+          className="glow-ring ml-auto hidden h-9 min-w-[220px] items-center gap-2 rounded-full border border-white/[0.08] bg-white/[0.04] px-3 text-left text-sm text-muted-foreground transition hover:border-brand/50 hover:bg-white/[0.06] focus-visible:ring-2 focus-visible:ring-white/30 sm:flex"
         >
           <Search className="h-4 w-4" />
           <span className="flex-1 truncate">Search courses…</span>
-          <kbd className="rounded border border-white/[0.12] bg-black/50 px-1.5 py-0.5 text-[10px] font-semibold">
+          <kbd className="rounded-md border border-white/[0.12] px-1.5 py-0.5 text-[10px] font-semibold">
             ⌘K
           </kbd>
         </button>
@@ -121,7 +143,7 @@ export function TopNav() {
         ) : (
           <Link
             to="/auth"
-            className="flex h-9 shrink-0 items-center gap-1.5 rounded-full bg-brand px-3 text-sm font-semibold text-primary-foreground transition hover:bg-brand-glow"
+            className="shine flex h-10 shrink-0 items-center gap-1.5 rounded-full bg-brand px-4 text-sm font-semibold text-primary-foreground shadow-lg shadow-brand/30 transition hover:bg-brand-glow"
           >
             <User className="h-4 w-4" /> <span className="hidden sm:inline">Sign in</span>
           </Link>
@@ -143,13 +165,13 @@ export function TopNav() {
         <nav
           id="mobile-navigation"
           aria-label="Mobile navigation"
-          className="border-t border-white/[0.08] bg-background/95 px-4 py-3 backdrop-blur-xl lg:hidden"
+          className="glass mx-auto mt-2 max-w-6xl rounded-3xl bg-background/90 p-3 animate-fade-in-up lg:hidden"
         >
-          <div className="grid gap-1 text-sm font-medium">
+          <div className="grid gap-1 text-base font-medium">
             <Link
               to="/"
               onClick={() => setMobileMenuOpen(false)}
-              className={`rounded-lg px-3 py-2.5 transition hover:bg-white/10 hover:text-foreground ${
+              className={`rounded-2xl px-4 py-3 transition hover:bg-white/10 hover:text-foreground ${
                 pathname === "/" ? "bg-white/10 text-foreground" : "text-muted-foreground"
               }`}
               aria-current={pathname === "/" ? "page" : undefined}
@@ -159,7 +181,7 @@ export function TopNav() {
             <Link
               to="/list"
               onClick={() => setMobileMenuOpen(false)}
-              className={`rounded-lg px-3 py-2.5 transition hover:bg-white/10 hover:text-foreground ${
+              className={`rounded-2xl px-4 py-3 transition hover:bg-white/10 hover:text-foreground ${
                 pathname === "/list" ? "bg-white/10 text-foreground" : "text-muted-foreground"
               }`}
               aria-current={pathname === "/list" ? "page" : undefined}
@@ -169,7 +191,7 @@ export function TopNav() {
             <Link
               to="/friends"
               onClick={() => setMobileMenuOpen(false)}
-              className={`rounded-lg px-3 py-2.5 transition hover:bg-white/10 hover:text-foreground ${
+              className={`rounded-2xl px-4 py-3 transition hover:bg-white/10 hover:text-foreground ${
                 pathname === "/friends" ? "bg-white/10 text-foreground" : "text-muted-foreground"
               }`}
               aria-current={pathname === "/friends" ? "page" : undefined}
@@ -179,8 +201,10 @@ export function TopNav() {
             <Link
               to="/achievements"
               onClick={() => setMobileMenuOpen(false)}
-              className={`rounded-lg px-3 py-2.5 transition hover:bg-white/10 hover:text-foreground ${
-                pathname === "/achievements" ? "bg-white/10 text-foreground" : "text-muted-foreground"
+              className={`rounded-2xl px-4 py-3 transition hover:bg-white/10 hover:text-foreground ${
+                pathname === "/achievements"
+                  ? "bg-white/10 text-foreground"
+                  : "text-muted-foreground"
               }`}
               aria-current={pathname === "/achievements" ? "page" : undefined}
             >
@@ -190,7 +214,7 @@ export function TopNav() {
               <Link
                 to="/reviews"
                 onClick={() => setMobileMenuOpen(false)}
-                className={`rounded-lg px-3 py-2.5 transition hover:bg-white/10 hover:text-foreground ${
+                className={`rounded-2xl px-4 py-3 transition hover:bg-white/10 hover:text-foreground ${
                   pathname === "/reviews" ? "bg-white/10 text-foreground" : "text-muted-foreground"
                 }`}
                 aria-current={pathname === "/reviews" ? "page" : undefined}
@@ -201,7 +225,7 @@ export function TopNav() {
             <Link
               to="/settings"
               onClick={() => setMobileMenuOpen(false)}
-              className={`rounded-lg px-3 py-2.5 transition hover:bg-white/10 hover:text-foreground ${
+              className={`rounded-2xl px-4 py-3 transition hover:bg-white/10 hover:text-foreground ${
                 pathname === "/settings" ? "bg-white/10 text-foreground" : "text-muted-foreground"
               }`}
               aria-current={pathname === "/settings" ? "page" : undefined}
@@ -211,7 +235,7 @@ export function TopNav() {
             <Link
               to="/help"
               onClick={() => setMobileMenuOpen(false)}
-              className={`rounded-lg px-3 py-2.5 transition hover:bg-white/10 hover:text-foreground ${
+              className={`rounded-2xl px-4 py-3 transition hover:bg-white/10 hover:text-foreground ${
                 pathname === "/help" ? "bg-white/10 text-foreground" : "text-muted-foreground"
               }`}
               aria-current={pathname === "/help" ? "page" : undefined}
