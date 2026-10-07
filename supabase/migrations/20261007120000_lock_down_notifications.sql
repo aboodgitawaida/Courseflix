@@ -18,7 +18,13 @@ create policy "Users create own achievement notifications" on public.notificatio
   );
 
 -- Users may only flip `read`; they must not rewrite who/what a notification is about.
-revoke update on public.notifications from authenticated;
+revoke all on public.notifications from authenticated;
+grant select, insert, delete on public.notifications to authenticated;
 grant update (read) on public.notifications to authenticated;
+
+-- Make sure users can still clear their own notifications.
+drop policy if exists "Users delete own notifications" on public.notifications;
+create policy "Users delete own notifications" on public.notifications
+  for delete to authenticated using (auth.uid() = user_id);
 
 notify pgrst, 'reload schema';
