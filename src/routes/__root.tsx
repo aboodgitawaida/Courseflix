@@ -21,6 +21,10 @@ import { CoursePreviewModal } from "@/components/CoursePreviewModal";
 import { CompareDrawer } from "@/components/CompareDrawer";
 import { StudyEagle } from "@/components/StudyEagle";
 import { NetworkStatusBanner } from "@/components/NetworkStatusBanner";
+import { Cursor } from "@/components/Cursor";
+import { MobileTabBar } from "@/components/MobileTabBar";
+import { InstallPrompt } from "@/components/InstallPrompt";
+import { useSmoothScroll } from "@/hooks/use-smooth-scroll";
 import { supabase } from "@/integrations/supabase/client";
 import { captureFirstTouchAttribution } from "@/lib/attribution";
 import { A11Y_ANNOUNCE_EVENT } from "@/lib/a11y";
@@ -105,7 +109,11 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         content:
           "Browse every UTM course like Netflix. Pick your major, get curated rows, save a shortlist, and share it with friends.",
       },
-      { name: "viewport", content: "width=device-width, initial-scale=1" },
+      { name: "viewport", content: "width=device-width, initial-scale=1, viewport-fit=cover" },
+      { name: "apple-mobile-web-app-capable", content: "yes" },
+      { name: "mobile-web-app-capable", content: "yes" },
+      { name: "apple-mobile-web-app-status-bar-style", content: "black-translucent" },
+      { name: "apple-mobile-web-app-title", content: "Courseflix" },
       { name: "theme-color", content: "#060607" },
       { property: "og:url", content: "https://courseflix.ca/" },
       { property: "og:title", content: "CourseFlix | Browse & Discover UTM Courses Like Netflix" },
@@ -143,6 +151,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { rel: "shortcut icon", type: "image/x-icon", href: "/eagle-favicon-v4.ico" },
       { rel: "icon", type: "image/x-icon", href: "/eagle-favicon-v4.ico" },
       { rel: "apple-touch-icon", sizes: "180x180", href: "/eagle-apple-touch-icon-v4.png" },
+      { rel: "manifest", href: "/manifest.webmanifest" },
       { rel: "canonical", href: "https://courseflix.ca/" },
     ],
   }),
@@ -171,6 +180,7 @@ function RootComponent() {
   const router = useRouter();
   const [announcement, setAnnouncement] = useState("");
   const [termsAccepted, setTermsAccepted] = useState<boolean | null>(null);
+  useSmoothScroll();
 
   useEffect(() => {
     captureFirstTouchAttribution();
@@ -219,6 +229,9 @@ function RootComponent() {
             <CoursePreviewModal />
             <CompareDrawer />
             <StudyEagle />
+            <Cursor />
+            <MobileTabBar />
+            <InstallPrompt />
             <Toaster position="top-center" />
             {termsAccepted === false && (
               <div className="fixed inset-0 z-[100] grid place-items-center bg-black/75 p-4 backdrop-blur-sm">

@@ -12,6 +12,8 @@ import { siteUrl } from "@/lib/site";
 import { parseShortlistCodesWithStats, parseShortlistSearch } from "@/lib/validation";
 import { QueryErrorState } from "@/components/QueryErrorState";
 import { announce } from "@/lib/a11y";
+import { ShareStoryButton } from "@/components/ShareStoryButton";
+import { renderShortlistStory } from "@/lib/story-card";
 
 export const Route = createFileRoute("/list")({
   validateSearch: parseShortlistSearch,
@@ -106,6 +108,10 @@ function ListPage() {
 
         {courses.length > 0 && (
           <div className="mt-6 flex flex-wrap gap-2">
+            <ShareStoryButton
+              render={() => renderShortlistStory(courses, { shared })}
+              fileName="courseflix-lineup.png"
+            />
             <button
               onClick={() => copy(shareUrl, "Shortlist link copied")}
               className="inline-flex items-center gap-2 rounded-full bg-brand px-5 py-2.5 text-sm font-semibold text-primary-foreground transition hover:bg-brand-glow focus-visible:ring-2 focus-visible:ring-red-600/50"
