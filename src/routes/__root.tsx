@@ -29,19 +29,30 @@ const TERMS_NOTICE_ENABLED = false;
 
 function NotFoundComponent() {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background px-4">
-      <div className="max-w-md text-center">
-        <h1 className="text-7xl font-bold text-foreground">404</h1>
-        <h2 className="mt-4 text-xl font-semibold text-foreground">Page not found</h2>
-        <p className="mt-2 text-sm text-muted-foreground">
+    <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-background px-4">
+      <div
+        aria-hidden="true"
+        className="mesh-blob left-1/2 top-1/3 h-[420px] w-[420px] -translate-x-1/2 bg-brand/20"
+      />
+      <div className="relative max-w-xl text-center">
+        <h1 className="text-outline font-mega text-[34vw] font-black leading-[0.8] md:text-[14rem]">
+          404
+        </h1>
+        <h2 className="mt-2 font-mega text-3xl font-extrabold md:text-4xl">
+          This episode{" "}
+          <span className="font-serif-accent text-gradient-brand text-[1.15em]">
+            doesn't exist.
+          </span>
+        </h2>
+        <p className="mt-3 text-sm text-muted-foreground">
           The page you're looking for doesn't exist or has been moved.
         </p>
-        <div className="mt-6">
+        <div className="mt-8">
           <Link
             to="/"
-            className="inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
+            className="shine inline-flex items-center justify-center rounded-full bg-brand px-6 py-3 text-sm font-semibold text-primary-foreground shadow-lg shadow-brand/30 transition-colors hover:bg-brand-glow"
           >
-            Go home
+            Back to browsing
           </Link>
         </div>
       </div>
@@ -95,7 +106,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
           "Browse every UTM course like Netflix. Pick your major, get curated rows, save a shortlist, and share it with friends.",
       },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { name: "theme-color", content: "#0b0b0b" },
+      { name: "theme-color", content: "#060607" },
       { property: "og:url", content: "https://courseflix.ca/" },
       { property: "og:title", content: "CourseFlix | Browse & Discover UTM Courses Like Netflix" },
       {
@@ -126,7 +137,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
       {
         rel: "stylesheet",
-        href: "https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap",
+        href: "https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter+Tight:wght@400;500;600;700;800;900&family=Unbounded:wght@500;700;800;900&family=Instrument+Serif:ital@0;1&display=swap",
       },
       { rel: "icon", type: "image/png", sizes: "32x32", href: "/eagle-favicon-v4-32x32.png" },
       { rel: "shortcut icon", type: "image/x-icon", href: "/eagle-favicon-v4.ico" },
@@ -217,7 +228,9 @@ function RootComponent() {
                   aria-labelledby="terms-notice-title"
                   className="max-h-[min(720px,90vh)] w-full max-w-lg overflow-y-auto rounded-2xl border border-brand/40 bg-surface p-6 shadow-2xl"
                 >
-                  <p className="text-xs font-bold uppercase tracking-[0.2em] text-brand">Before you continue</p>
+                  <p className="text-xs font-bold uppercase tracking-[0.2em] text-brand">
+                    Before you continue
+                  </p>
                   <h1 id="terms-notice-title" className="mt-2 font-display text-3xl font-black">
                     Welcome to Courseflix
                   </h1>
