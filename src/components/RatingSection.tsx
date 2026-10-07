@@ -134,7 +134,7 @@ export function RatingSection({ code }: { code: string }) {
         <h2 className="font-display text-2xl font-bold tracking-tight md:text-3xl">
           Student ratings{" "}
           <span className="text-sm font-medium text-muted-foreground">
-            ({stats?.rating_count ?? 0})
+            ({stats?.rating_count ?? reviews.length})
           </span>
         </h2>
         {signedIn ? (
