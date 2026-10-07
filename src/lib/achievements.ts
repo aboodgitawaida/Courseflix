@@ -14,14 +14,70 @@ export type Achievement = {
 };
 
 const definitions = [
-  { id: "first-shortlist", name: "First Pick", description: "Save your first course to the shortlist.", icon: "/achievements/first-shortlist.png", requirement: 1, accent: "from-red-500/25 to-orange-400/10" },
-  { id: "shortlist-five", name: "The Collector", description: "Build a shortlist of five courses.", icon: "/achievements/shortlist-five.png", requirement: 5, accent: "from-amber-400/25 to-red-500/10" },
-  { id: "first-review", name: "Say Your Piece", description: "Leave your first course review.", icon: "/achievements/first-review.png", requirement: 1, accent: "from-sky-400/25 to-indigo-400/10" },
-  { id: "review-ten", name: "Campus Critic", description: "Review ten different courses.", icon: "/achievements/review-ten.png", requirement: 10, accent: "from-violet-400/25 to-fuchsia-400/10" },
-  { id: "first-friend", name: "Open Door", description: "Add your first friend.", icon: "/achievements/first-friend.png", requirement: 1, accent: "from-pink-400/25 to-rose-400/10" },
-  { id: "five-friends", name: "Study Circle", description: "Grow your friend circle to five.", icon: "/achievements/five-friends.png", requirement: 5, accent: "from-emerald-400/25 to-teal-400/10" },
-  { id: "course-explorer", name: "Course Explorer", description: "Review or save courses from three subject areas.", icon: "/achievements/course-explorer.png", requirement: 3, accent: "from-cyan-400/25 to-blue-400/10" },
-  { id: "campus-voice", name: "Campus Voice", description: "Share ten course experiences with UTM.", icon: "/achievements/campus-voice.png", requirement: 10, accent: "from-lime-400/25 to-green-400/10" },
+  {
+    id: "first-shortlist",
+    name: "First Pick",
+    description: "Save your first course to the shortlist.",
+    icon: "/achievements/first-shortlist.png",
+    requirement: 1,
+    accent: "from-red-500/25 to-orange-400/10",
+  },
+  {
+    id: "shortlist-five",
+    name: "The Collector",
+    description: "Build a shortlist of five courses.",
+    icon: "/achievements/shortlist-five.png",
+    requirement: 5,
+    accent: "from-amber-400/25 to-red-500/10",
+  },
+  {
+    id: "first-review",
+    name: "Say Your Piece",
+    description: "Leave your first course review.",
+    icon: "/achievements/first-review.png",
+    requirement: 1,
+    accent: "from-sky-400/25 to-indigo-400/10",
+  },
+  {
+    id: "review-ten",
+    name: "Campus Critic",
+    description: "Review ten different courses.",
+    icon: "/achievements/review-ten.png",
+    requirement: 10,
+    accent: "from-violet-400/25 to-fuchsia-400/10",
+  },
+  {
+    id: "first-friend",
+    name: "Open Door",
+    description: "Add your first friend.",
+    icon: "/achievements/first-friend.png",
+    requirement: 1,
+    accent: "from-pink-400/25 to-rose-400/10",
+  },
+  {
+    id: "five-friends",
+    name: "Study Circle",
+    description: "Grow your friend circle to five.",
+    icon: "/achievements/five-friends.png",
+    requirement: 5,
+    accent: "from-emerald-400/25 to-teal-400/10",
+  },
+  {
+    id: "course-explorer",
+    name: "Course Explorer",
+    description: "Review or save courses from three subject areas.",
+    icon: "/achievements/course-explorer.png",
+    requirement: 3,
+    accent: "from-cyan-400/25 to-blue-400/10",
+  },
+  {
+    id: "campus-voice",
+    name: "Campus Voice",
+    description: "Share ten course experiences with UTM.",
+    icon: "/achievements/campus-voice.png",
+    requirement: 10,
+    accent: "from-lime-400/25 to-green-400/10",
+  },
 ] as const;
 
 export function achievementDefinition(id: string) {
@@ -57,7 +113,10 @@ async function loadShortlist() {
   const { data: auth, error: authError } = await supabase.auth.getUser();
   if (authError) throw authError;
   if (!auth.user) return [] as string[];
-  const { data, error } = await supabase.from("shortlists").select("course_code").eq("user_id", auth.user.id);
+  const { data, error } = await supabase
+    .from("shortlists")
+    .select("course_code")
+    .eq("user_id", auth.user.id);
   if (error) throw error;
   return (data ?? []).map((row) => row.course_code as string);
 }
@@ -66,7 +125,12 @@ async function loadRatings() {
   const { data: auth, error: authError } = await supabase.auth.getUser();
   if (authError) throw authError;
   if (!auth.user) return [] as RatingRow[];
-  const { data, error } = await supabase.from("course_ratings").select("id, user_id, course_code, rating, difficulty, workload, would_take_again, prof_name, comment, created_at").eq("user_id", auth.user.id);
+  const { data, error } = await supabase
+    .from("course_ratings")
+    .select(
+      "id, user_id, course_code, rating, difficulty, workload, would_take_again, prof_name, comment, created_at",
+    )
+    .eq("user_id", auth.user.id);
   if (error) throw error;
   return (data ?? []) as RatingRow[];
 }
@@ -121,5 +185,11 @@ export function useAchievements(enabled: boolean) {
     const progress = Math.min(definition.requirement, values[definition.id] ?? 0);
     return { ...definition, progress, unlocked: progress >= definition.requirement };
   });
-  return { achievements, isLoading, error, refetch: () => Promise.all([ratingQuery.refetch(), shortlistQuery.refetch(), friendsQuery.refetch()]) };
+  return {
+    achievements,
+    isLoading,
+    error,
+    refetch: () =>
+      Promise.all([ratingQuery.refetch(), shortlistQuery.refetch(), friendsQuery.refetch()]),
+  };
 }

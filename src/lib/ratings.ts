@@ -16,6 +16,9 @@ export type RatingRow = {
   created_at: string;
 };
 
+// Public reviews come from a view that hides who wrote them.
+export type PublicReview = Omit<RatingRow, "user_id"> & { is_mine: boolean };
+
 export type RatingStats = {
   rating_count: number;
   avg_rating: number;
@@ -29,14 +32,14 @@ export function useCourseRatings(code: string) {
     queryKey: ["ratings", code],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from("course_ratings")
+        .from("course_reviews_public")
         .select(
-          "id, user_id, course_code, rating, difficulty, workload, would_take_again, prof_name, comment, created_at",
+          "id, course_code, rating, difficulty, workload, would_take_again, prof_name, comment, created_at, is_mine",
         )
         .eq("course_code", code)
         .order("created_at", { ascending: false });
       if (error) throw new Error(`Could not load ratings: ${error.message}`);
-      return (data ?? []) as RatingRow[];
+      return (data ?? []) as PublicReview[];
     },
     retry: 1,
   });
@@ -84,7 +87,6 @@ export function useCourseStats(code: string) {
         pct_would_take_again: Number(values["pct_would_take_again"] ?? 0),
       } as RatingStats;
     },
-    refetchInterval: 10_000,
     retry: 1,
   });
 }
@@ -195,7 +197,9 @@ export function useToggleShortlist() {
       await queryClient.cancelQueries({ queryKey: ["shortlist"] });
       const previous = queryClient.getQueryData<string[]>(["shortlist"]) ?? [];
 
-      const next = saved ? previous.filter((item) => item !== code) : [...new Set([code, ...previous])];
+      const next = saved
+        ? previous.filter((item) => item !== code)
+        : [...new Set([code, ...previous])];
       queryClient.setQueryData(["shortlist"], next);
       return { previous };
     },
@@ -206,7 +210,8 @@ export function useToggleShortlist() {
     },
     onSuccess: (_data, { code, saved }) => {
       announce(saved ? `${code} removed from your shortlist.` : `${code} added to your shortlist.`);
-      if (!saved) window.dispatchEvent(new CustomEvent("study-eagle-celebrate", { detail: { code } }));
+      if (!saved)
+        window.dispatchEvent(new CustomEvent("study-eagle-celebrate", { detail: { code } }));
     },
     onSettled: () => {
       void queryClient.invalidateQueries({ queryKey: ["shortlist"] });

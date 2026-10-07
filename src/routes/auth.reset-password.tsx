@@ -126,7 +126,9 @@ function ResetPasswordPage() {
       <div className="glass relative z-10 w-full max-w-md rounded-[2rem] p-7 md:p-10">
         {readyToVerify ? (
           <>
-            <h1 className="font-mega text-3xl font-extrabold tracking-[-0.04em] text-white">Continue password reset</h1>
+            <h1 className="font-mega text-3xl font-extrabold tracking-[-0.04em] text-white">
+              Continue password reset
+            </h1>
             <p className="text-sm text-neutral-500 mt-1">
               Click continue when you are ready to use this one-time reset link.
             </p>
@@ -141,27 +143,27 @@ function ResetPasswordPage() {
           </>
         ) : (
           <>
-            <h1 className="font-mega text-3xl font-extrabold tracking-[-0.04em] text-white">Reset your password</h1>
-            <p className="text-sm text-neutral-500 mt-1">
-              Enter your new password below.
-            </p>
-          <form onSubmit={onSubmit} className="space-y-3 mt-6">
-          <input
-            type="password"
-            required
-            minLength={6}
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            placeholder="New password"
-            className="w-full h-12 rounded-2xl bg-white/[0.04] border border-white/[0.08] px-4 text-sm outline-none transition focus:border-brand/60 focus:ring-4 focus:ring-brand/15"
-          />
-          <button
-            disabled={busy}
-            className="w-full shine h-12 rounded-2xl bg-brand text-primary-foreground font-semibold text-sm shadow-lg shadow-brand/30 hover:bg-brand-glow transition disabled:opacity-60 active:scale-[0.98]"
-          >
-            {busy ? "…" : "Update password"}
-          </button>
-        </form>
+            <h1 className="font-mega text-3xl font-extrabold tracking-[-0.04em] text-white">
+              Reset your password
+            </h1>
+            <p className="text-sm text-neutral-500 mt-1">Enter your new password below.</p>
+            <form onSubmit={onSubmit} className="space-y-3 mt-6">
+              <input
+                type="password"
+                required
+                minLength={6}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="New password"
+                className="w-full h-12 rounded-2xl bg-white/[0.04] border border-white/[0.08] px-4 text-sm outline-none transition focus:border-brand/60 focus:ring-4 focus:ring-brand/15"
+              />
+              <button
+                disabled={busy}
+                className="w-full shine h-12 rounded-2xl bg-brand text-primary-foreground font-semibold text-sm shadow-lg shadow-brand/30 hover:bg-brand-glow transition disabled:opacity-60 active:scale-[0.98]"
+              >
+                {busy ? "…" : "Update password"}
+              </button>
+            </form>
           </>
         )}
       </div>

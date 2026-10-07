@@ -87,11 +87,17 @@ function ListPage() {
         <h1 className="mt-5 font-mega text-[clamp(2.6rem,7vw,5.5rem)] font-black leading-[0.92] tracking-[-0.05em] animate-fade-in-up">
           {shared ? (
             <>
-              A friend's <span className="font-serif-accent text-gradient-brand pr-[0.05em] text-[1.12em] font-normal">list.</span>
+              A friend's{" "}
+              <span className="font-serif-accent text-gradient-brand pr-[0.05em] text-[1.12em] font-normal">
+                list.
+              </span>
             </>
           ) : (
             <>
-              My <span className="font-serif-accent text-gradient-brand pr-[0.05em] text-[1.12em] font-normal">list.</span>
+              My{" "}
+              <span className="font-serif-accent text-gradient-brand pr-[0.05em] text-[1.12em] font-normal">
+                list.
+              </span>
             </>
           )}
         </h1>
@@ -174,29 +180,31 @@ function ListPage() {
           </div>
         )}
 
-        {!shared && signedIn && !isLoading && courses.length === 0 && (
-          shortlistError ? (
+        {!shared &&
+          signedIn &&
+          !isLoading &&
+          courses.length === 0 &&
+          (shortlistError ? (
             <QueryErrorState
               message="Could not load your shortlist."
               onRetry={() => void refetch()}
             />
           ) : (
-          <div className="mt-8 rounded-3xl glass p-6">
-            <h2 className="font-display text-2xl text-white font-bold tracking-tight">
-              Nothing saved yet
-            </h2>
-            <p className="text-sm text-neutral-400 mt-1">
-              Hit “Add to shortlist” on any course and it shows up here.
-            </p>
-            <Link
-              to="/"
-              className="mt-4 inline-flex rounded-full bg-brand px-5 py-2.5 text-sm font-semibold text-primary-foreground hover:bg-brand-glow transition focus-visible:ring-2 focus-visible:ring-red-600/50"
-            >
-              Browse courses
-            </Link>
-          </div>
-          )
-        )}
+            <div className="mt-8 rounded-3xl glass p-6">
+              <h2 className="font-display text-2xl text-white font-bold tracking-tight">
+                Nothing saved yet
+              </h2>
+              <p className="text-sm text-neutral-400 mt-1">
+                Hit “Add to shortlist” on any course and it shows up here.
+              </p>
+              <Link
+                to="/"
+                className="mt-4 inline-flex rounded-full bg-brand px-5 py-2.5 text-sm font-semibold text-primary-foreground hover:bg-brand-glow transition focus-visible:ring-2 focus-visible:ring-red-600/50"
+              >
+                Browse courses
+              </Link>
+            </div>
+          ))}
 
         {courses.length > 0 && (
           <div className="mt-8 flex flex-wrap gap-4">
@@ -211,7 +219,9 @@ function ListPage() {
                         await toggle.mutateAsync({ code: c.code, saved: true });
                         toast.success(`${c.code} removed`);
                       } catch (err) {
-                        toast.error(err instanceof Error ? err.message : `Could not remove ${c.code}`);
+                        toast.error(
+                          err instanceof Error ? err.message : `Could not remove ${c.code}`,
+                        );
                       }
                     }}
                     aria-label={`Remove ${c.code}`}
