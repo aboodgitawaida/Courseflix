@@ -119,6 +119,7 @@ export function useSubmitRating(code: string) {
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: ["ratings", code] });
       void queryClient.invalidateQueries({ queryKey: ["rating-stats", code] });
+      void queryClient.invalidateQueries({ queryKey: ["my-ratings"] });
     },
   });
 }
