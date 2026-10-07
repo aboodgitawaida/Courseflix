@@ -11,7 +11,8 @@
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
     "format": "prettier --write .",
-    "test": "vitest run"
+    "test": "vitest run",
+    "sitemap": "node scripts/generate-sitemap.mjs"
   },
   "dependencies": {
     "@radix-ui/react-avatar": "^1.1.11",
