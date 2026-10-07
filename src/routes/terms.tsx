@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { TopNav } from "@/components/TopNav";
+import { PageBackdrop } from "@/components/PageBackdrop";
 
 export const Route = createFileRoute("/terms")({
   head: () => ({
@@ -16,13 +17,16 @@ export const Route = createFileRoute("/terms")({
 
 function TermsPage() {
   return (
-    <div className="min-h-screen bg-background text-foreground">
+    <div className="relative min-h-screen overflow-x-clip text-foreground">
+      <PageBackdrop />
       <TopNav />
       <main className="mx-auto max-w-3xl px-6 pb-24 pt-10 md:px-10">
         <Link to="/" className="text-sm text-brand hover:underline">
           ← Back to Courseflix
         </Link>
-        <h1 className="mt-6 font-display text-4xl font-black md:text-5xl">Terms of Use</h1>
+        <h1 className="mt-6 font-mega text-[clamp(2.6rem,7vw,5.5rem)] font-black leading-[0.92] tracking-[-0.05em] animate-fade-in-up">
+          Terms <span className="font-serif-accent text-gradient-brand pr-[0.05em] text-[1.12em] font-normal">of use.</span>
+        </h1>
         <p className="mt-2 text-sm text-muted-foreground">Last updated: October 1, 2026</p>
 
         <div className="mt-8 space-y-8 text-sm leading-7 text-muted-foreground">

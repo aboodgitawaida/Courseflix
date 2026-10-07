@@ -3,6 +3,7 @@ import { Star, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 import { TopNav } from "@/components/TopNav";
+import { PageBackdrop } from "@/components/PageBackdrop";
 import { QueryErrorState } from "@/components/QueryErrorState";
 import { useAuth } from "@/hooks/use-auth";
 import { useDeleteRating, useMyRatings, useSubmitRating } from "@/lib/ratings";
@@ -89,16 +90,19 @@ function ReviewsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-background text-foreground">
+    <div className="relative min-h-screen overflow-x-clip text-foreground">
+      <PageBackdrop />
       <TopNav />
       <main className="mx-auto max-w-4xl px-6 pb-24 pt-10 md:px-10">
-        <h1 className="font-display text-4xl font-black md:text-5xl">My reviews</h1>
+        <h1 className="font-mega text-[clamp(2.6rem,7vw,5.5rem)] font-black leading-[0.92] tracking-[-0.05em] animate-fade-in-up">
+          My <span className="font-serif-accent text-gradient-brand pr-[0.05em] text-[1.12em] font-normal">reviews.</span>
+        </h1>
         <p className="mt-2 text-sm text-muted-foreground">
           Review the courses you have rated and remove anything you no longer want to keep.
         </p>
 
         {!signedIn ? (
-          <div className="mt-8 rounded-2xl border border-border/50 bg-surface p-6">
+          <div className="mt-8 rounded-3xl glass p-6">
             <h2 className="font-display text-2xl">Sign in to see your reviews</h2>
             <Link
               to="/auth"
@@ -118,7 +122,7 @@ function ReviewsPage() {
             <QueryErrorState message="Could not load your reviews." onRetry={() => void refetch()} />
           </div>
         ) : reviews.length === 0 ? (
-          <div className="mt-8 rounded-2xl border border-border/50 bg-surface p-6">
+          <div className="mt-8 rounded-3xl glass p-6">
             <h2 className="font-display text-2xl">No reviews yet</h2>
             <p className="mt-1 text-sm text-muted-foreground">
               Rate a course and it will appear here.
@@ -135,7 +139,7 @@ function ReviewsPage() {
             {reviews.map((review) => {
               const course = getCourse(review.course_code);
               return (
-                <article key={review.id} className="rounded-2xl border border-border/50 bg-surface p-5">
+                <article key={review.id} className="rounded-3xl glass p-5">
                   <div className="flex flex-wrap items-start justify-between gap-4">
                     <div>
                       <Link
