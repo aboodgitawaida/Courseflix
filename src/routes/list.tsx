@@ -62,8 +62,14 @@ function ListPage() {
   }, [courses.length, isLoading, shared, shortlistError, signedIn]);
 
   function copy(text: string, msg: string) {
-    navigator.clipboard?.writeText(text);
-    toast.success(msg);
+    if (!navigator.clipboard) {
+      toast.error("Copying isn't supported in this browser.");
+      return;
+    }
+    navigator.clipboard.writeText(text).then(
+      () => toast.success(msg),
+      () => toast.error("Could not copy. Check your browser permissions."),
+    );
   }
 
   return (
@@ -188,8 +194,12 @@ function ListPage() {
                   <button
                     disabled={toggle.isPending}
                     onClick={async () => {
-                      await toggle.mutateAsync({ code: c.code, saved: true });
-                      toast.success(`${c.code} removed`);
+                      try {
+                        await toggle.mutateAsync({ code: c.code, saved: true });
+                        toast.success(`${c.code} removed`);
+                      } catch (err) {
+                        toast.error(err instanceof Error ? err.message : `Could not remove ${c.code}`);
+                      }
                     }}
                     aria-label={`Remove ${c.code}`}
                     className="absolute bottom-3 right-3 z-20 h-9 w-9 rounded-full bg-black/70 border border-white/20 flex items-center justify-center hover:bg-black transition disabled:cursor-wait disabled:opacity-60"
