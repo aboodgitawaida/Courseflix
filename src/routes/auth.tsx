@@ -101,7 +101,7 @@ export function AuthPage() {
       }
     } catch (err) {
       if (mode === "signin" && err instanceof Error && err.message === "Invalid login credentials") {
-        toast.error("No account found with these credentials. Create an account to get started!");
+        toast.error("Incorrect email or password. New here? Create an account to get started.");
       } else {
         toast.error(err instanceof Error ? err.message : "Something went wrong");
       }
