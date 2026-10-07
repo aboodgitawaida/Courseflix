@@ -193,7 +193,7 @@ export function StudyEagle() {
     lastPointer.current = { x: event.clientX, y: event.clientY };
     setPosition({
       x: clamp(event.clientX - dragOffset.current.x, 8, window.innerWidth - 104),
-      y: clamp(event.clientY - dragOffset.current.y, 72, window.innerHeight - 112),
+      y: clamp(event.clientY - dragOffset.current.y, 72, window.innerHeight - 112 - tabBarClearance()),
     });
   }
 
@@ -271,7 +271,7 @@ export function StudyEagle() {
 
   return (
     <div
-      className={`study-eagle fixed z-[60] ${isDragging ? "study-eagle-dragging" : ""}`}
+      className={`study-eagle fixed z-[45] ${isDragging ? "study-eagle-dragging" : ""}`}
       style={{ left: position.x, top: position.y }}
     >
       {chatOpen && (
@@ -347,12 +347,17 @@ function lerp(start: number, end: number, progress: number) {
   return start + (end - start) * eased;
 }
 
+/** Extra clearance for the mobile tab bar (shown below the lg breakpoint). */
+function tabBarClearance() {
+  return window.innerWidth < 1024 ? 84 : 0;
+}
+
 function getNormalPerchPosition(): Position {
-  return { x: window.innerWidth - 132, y: window.innerHeight - 150 };
+  return { x: window.innerWidth - 132, y: window.innerHeight - 150 - tabBarClearance() };
 }
 
 function getSleepPerchPosition(): Position {
-  return { x: window.innerWidth - 132, y: window.innerHeight - 78 };
+  return { x: window.innerWidth - 132, y: window.innerHeight - 78 - tabBarClearance() };
 }
 
 function makeCourseSummary(course: Course) {
