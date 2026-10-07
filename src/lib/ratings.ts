@@ -85,7 +85,6 @@ export function useCourseStats(code: string) {
       } as RatingStats;
     },
     refetchInterval: 10_000,
-    refetchIntervalInBackground: true,
     retry: 1,
   });
 }
