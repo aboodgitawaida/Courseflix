@@ -37,8 +37,13 @@ function getReferrer() {
 export function captureFirstTouchAttribution() {
   if (typeof window === "undefined") return;
 
-  const existing = window.localStorage.getItem(STORAGE_KEY);
-  if (existing) return;
+  // localStorage can throw (blocked site data, private mode); attribution is
+  // best-effort and must never break the app.
+  try {
+    if (window.localStorage.getItem(STORAGE_KEY)) return;
+  } catch {
+    return;
+  }
 
   const params = new URLSearchParams(window.location.search);
   const attribution: Attribution = {
@@ -52,16 +57,19 @@ export function captureFirstTouchAttribution() {
     if (value) attribution[key] = value;
   }
 
-  window.localStorage.setItem(STORAGE_KEY, JSON.stringify(attribution));
+  try {
+    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(attribution));
+  } catch {
+    // Ignore: storage is unavailable.
+  }
 }
 
 export function getStoredAttribution(): Attribution | null {
   if (typeof window === "undefined") return null;
 
-  const stored = window.localStorage.getItem(STORAGE_KEY);
-  if (!stored) return null;
-
   try {
+    const stored = window.localStorage.getItem(STORAGE_KEY);
+    if (!stored) return null;
     const parsed: unknown = JSON.parse(stored);
     if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) return null;
     return parsed as Attribution;
