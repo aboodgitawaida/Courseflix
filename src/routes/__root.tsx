@@ -21,10 +21,8 @@ import { CoursePreviewModal } from "@/components/CoursePreviewModal";
 import { CompareDrawer } from "@/components/CompareDrawer";
 import { StudyEagle } from "@/components/StudyEagle";
 import { NetworkStatusBanner } from "@/components/NetworkStatusBanner";
-import { Cursor } from "@/components/Cursor";
 import { MobileTabBar } from "@/components/MobileTabBar";
 import { InstallPrompt } from "@/components/InstallPrompt";
-import { useSmoothScroll } from "@/hooks/use-smooth-scroll";
 import { supabase } from "@/integrations/supabase/client";
 import { captureFirstTouchAttribution } from "@/lib/attribution";
 import { A11Y_ANNOUNCE_EVENT } from "@/lib/a11y";
@@ -180,7 +178,6 @@ function RootComponent() {
   const router = useRouter();
   const [announcement, setAnnouncement] = useState("");
   const [termsAccepted, setTermsAccepted] = useState<boolean | null>(null);
-  useSmoothScroll();
 
   useEffect(() => {
     captureFirstTouchAttribution();
@@ -229,7 +226,6 @@ function RootComponent() {
             <CoursePreviewModal />
             <CompareDrawer />
             <StudyEagle />
-            <Cursor />
             <MobileTabBar />
             <InstallPrompt />
             <Toaster position="top-center" />
