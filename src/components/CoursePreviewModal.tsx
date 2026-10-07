@@ -53,7 +53,7 @@ export function CoursePreviewModal() {
 
   return (
     <Dialog open={open} onOpenChange={(v) => !v && closePreview()}>
-      <DialogContent className="max-w-3xl overflow-hidden border-white/10 bg-[#121216] p-0 sm:rounded-2xl">
+      <DialogContent className="max-w-3xl overflow-hidden border-white/10 bg-[#121216] p-0 shadow-2xl shadow-brand/10 sm:rounded-[2rem]">
         {course && (
           <div className="max-h-[85vh] overflow-y-auto">
             <div className={`relative aspect-[16/7] bg-gradient-to-br ${art.gradient}`}>
@@ -67,7 +67,7 @@ export function CoursePreviewModal() {
               />
               <div className="absolute inset-x-0 bottom-0 h-2/3 bg-gradient-to-t from-[#121216] via-[#121216]/70 to-transparent" />
               <div className="absolute inset-x-0 bottom-0 p-6">
-                <DialogTitle className="font-display text-4xl font-black md:text-5xl">{course.code}</DialogTitle>
+                <DialogTitle className="font-mega text-4xl font-black tracking-[-0.05em] md:text-6xl">{course.code}</DialogTitle>
                 <DialogDescription className="mt-1 text-base font-medium text-white/85">
                   {course.title}
                 </DialogDescription>
@@ -92,7 +92,7 @@ export function CoursePreviewModal() {
               <div className="flex flex-wrap gap-2">
                 <button
                   onClick={onShortlist}
-                  className="inline-flex items-center gap-2 rounded-full bg-brand px-5 py-2.5 text-sm font-semibold text-primary-foreground transition hover:bg-brand-glow focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70 focus-visible:ring-offset-2 focus-visible:ring-offset-[#121216]"
+                  className="shine inline-flex items-center gap-2 rounded-full bg-brand px-5 py-2.5 text-sm font-semibold text-primary-foreground shadow-lg shadow-brand/30 transition hover:bg-brand-glow focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70 focus-visible:ring-offset-2 focus-visible:ring-offset-[#121216]"
                 >
                   {inList ? <Check className="h-4 w-4" /> : <Plus className="h-4 w-4" />}
                   {inList ? "In your shortlist" : "Add to Shortlist"}
@@ -110,12 +110,12 @@ export function CoursePreviewModal() {
 
               <div className="flex flex-wrap gap-1.5">
                 {getBadges(course).map((b) => (
-                  <span key={b.label} className="rounded border border-white/10 bg-white/5 px-2 py-1 text-xs">
+                  <span key={b.label} className="rounded-full border border-white/10 bg-white/5 px-2.5 py-1 text-xs">
                     {b.emoji} {b.label}
                   </span>
                 ))}
                 {course.tags.map((t) => (
-                  <span key={t} className="rounded border border-white/10 bg-white/5 px-2 py-1 text-xs text-muted-foreground">
+                  <span key={t} className="rounded-full border border-white/10 bg-white/5 px-2.5 py-1 text-xs text-muted-foreground">
                     {t}
                   </span>
                 ))}

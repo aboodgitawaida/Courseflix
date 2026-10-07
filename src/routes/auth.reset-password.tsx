@@ -2,6 +2,7 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { PageBackdrop } from "@/components/PageBackdrop";
 
 export const Route = createFileRoute("/auth/reset-password")({
   head: () => ({
@@ -111,24 +112,21 @@ function ResetPasswordPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-background text-foreground flex flex-col items-center justify-center px-6 py-16 relative">
-        <div className="fixed inset-0 pointer-events-none">
-          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[300px] bg-brand/3 rounded-full blur-[100px]" />
-        </div>
+      <div className="relative flex min-h-screen flex-col items-center justify-center overflow-x-clip px-6 py-16 text-foreground">
+        <PageBackdrop />
         <div className="text-sm text-neutral-500 relative z-10">Loading...</div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-background text-foreground flex flex-col items-center justify-center px-6 py-16 relative">
-      <div className="fixed inset-0 pointer-events-none">
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[300px] bg-brand/3 rounded-full blur-[100px]" />
-      </div>
-      <div className="w-full max-w-sm rounded-3xl border border-white/[0.08] bg-surface p-6 md:p-8 relative z-10">
+    <div className="relative flex min-h-screen flex-col items-center justify-center overflow-x-clip px-6 py-16 text-foreground">
+      <PageBackdrop />
+      <div className="wordmark relative z-10 mb-10 text-3xl leading-none">Courseflix</div>
+      <div className="glass relative z-10 w-full max-w-md rounded-[2rem] p-7 md:p-10">
         {readyToVerify ? (
           <>
-            <h1 className="font-display text-2xl font-bold text-white tracking-tight">Continue password reset</h1>
+            <h1 className="font-mega text-3xl font-extrabold tracking-[-0.04em] text-white">Continue password reset</h1>
             <p className="text-sm text-neutral-500 mt-1">
               Click continue when you are ready to use this one-time reset link.
             </p>
@@ -136,14 +134,14 @@ function ResetPasswordPage() {
               type="button"
               disabled={busy}
               onClick={() => void verifyRecoveryLink()}
-              className="mt-6 w-full h-11 rounded-xl bg-brand text-primary-foreground font-semibold text-sm hover:bg-brand-glow transition disabled:opacity-60 active:scale-[0.98]"
+              className="mt-6 w-full shine h-12 rounded-2xl bg-brand text-primary-foreground font-semibold text-sm shadow-lg shadow-brand/30 hover:bg-brand-glow transition disabled:opacity-60 active:scale-[0.98]"
             >
               {busy ? "Verifying…" : "Continue to reset password"}
             </button>
           </>
         ) : (
           <>
-            <h1 className="font-display text-2xl font-bold text-white tracking-tight">Reset your password</h1>
+            <h1 className="font-mega text-3xl font-extrabold tracking-[-0.04em] text-white">Reset your password</h1>
             <p className="text-sm text-neutral-500 mt-1">
               Enter your new password below.
             </p>
@@ -155,11 +153,11 @@ function ResetPasswordPage() {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             placeholder="New password"
-            className="w-full h-11 rounded-xl bg-white/[0.04] border border-white/[0.08] px-3 text-sm outline-none focus:border-brand/60 focus:ring-2 focus:ring-white/30"
+            className="w-full h-12 rounded-2xl bg-white/[0.04] border border-white/[0.08] px-4 text-sm outline-none transition focus:border-brand/60 focus:ring-4 focus:ring-brand/15"
           />
           <button
             disabled={busy}
-            className="w-full h-11 rounded-xl bg-brand text-primary-foreground font-semibold text-sm hover:bg-brand-glow transition disabled:opacity-60 active:scale-[0.98]"
+            className="w-full shine h-12 rounded-2xl bg-brand text-primary-foreground font-semibold text-sm shadow-lg shadow-brand/30 hover:bg-brand-glow transition disabled:opacity-60 active:scale-[0.98]"
           >
             {busy ? "…" : "Update password"}
           </button>

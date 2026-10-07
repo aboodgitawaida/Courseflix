@@ -26,7 +26,7 @@ function SearchResult({
       value={`${course.code} ${course.title} ${course.subject} ${course.area} ${course.tags.join(" ")}`}
       onSelect={() => onSelect(course.code)}
     >
-      <span className="font-display text-base">{course.code}</span>
+      <span className="font-mega text-sm font-bold tracking-tight">{course.code}</span>
       <span className="ml-2 flex-1 truncate text-sm text-muted-foreground">{course.title}</span>
       <span className="ml-2 shrink-0 text-xs text-brand">
         {displayRating === null ? "No rating" : displayRating.toFixed(1)}

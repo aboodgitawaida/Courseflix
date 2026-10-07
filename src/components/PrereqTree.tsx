@@ -13,18 +13,18 @@ function Pill({
 }) {
   const tone =
     status === "This course"
-      ? "border-brand/60 bg-brand/15 text-foreground"
+      ? "glow-ring border-brand/60 bg-brand/15 text-foreground shadow-lg shadow-brand/20"
       : status === "Prerequisite"
-        ? "border-white/15 bg-white/5 text-muted-foreground"
-        : "border-emerald-500/40 bg-emerald-500/10 text-emerald-300";
+        ? "border-white/15 bg-white/[0.04] text-muted-foreground backdrop-blur"
+        : "border-emerald-500/40 bg-emerald-500/10 text-emerald-300 backdrop-blur";
   return (
     <button
       type="button"
       onClick={onClick}
       disabled={!onClick}
-      className={`rounded-lg border px-3 py-2 text-left transition ${tone} ${onClick ? "hover:border-brand/60" : "cursor-default"}`}
+      className={`rounded-2xl border px-4 py-3 text-left transition duration-300 ${tone} ${onClick ? "hover:-translate-y-0.5 hover:border-brand/60" : "cursor-default"}`}
     >
-      <div className="font-display text-sm font-bold">{code}</div>
+      <div className="font-mega text-sm font-bold tracking-tight">{code}</div>
       <div className="text-[10px] uppercase tracking-wider opacity-70">{status}</div>
     </button>
   );
@@ -55,13 +55,13 @@ export function PrereqTree({ code }: { code: string }) {
               <Pill key={p} code={p} status="Prerequisite" onClick={() => openPreview(p)} />
             ))}
           </div>
-          <ArrowRight className="h-4 w-4 shrink-0 text-muted-foreground" />
+          <ArrowRight className="h-4 w-4 shrink-0 text-brand" />
         </>
       )}
       <Pill code={course.code} status="This course" />
       {next.length > 0 && (
         <>
-          <ArrowRight className="h-4 w-4 shrink-0 text-muted-foreground" />
+          <ArrowRight className="h-4 w-4 shrink-0 text-brand" />
           <div className="flex flex-wrap gap-2">
             {next.map((n) => (
               <Pill key={n} code={n} status="Next Step" onClick={() => openPreview(n)} />

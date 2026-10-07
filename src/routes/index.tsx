@@ -66,7 +66,7 @@ export function Home() {
   const inMajorCount = rails[0]?.codes.length ?? 0;
 
   return (
-    <div className="relative min-h-screen overflow-x-clip bg-background text-foreground">
+    <div className="relative min-h-screen overflow-x-clip text-foreground">
       <CinematicIntro />
       <Spotlight />
       <TopNav />
