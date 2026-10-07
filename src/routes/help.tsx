@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Mail, MessageCircle, NotebookPen, Video } from "lucide-react";
 import { TopNav } from "@/components/TopNav";
+import { PageBackdrop } from "@/components/PageBackdrop";
 import { CREATOR_EMAIL, UTM_LINKS } from "@/lib/links";
 
 export const Route = createFileRoute("/help")({
@@ -45,15 +46,18 @@ const FAQ = [
 
 function HelpPage() {
   return (
-    <div className="min-h-screen bg-background text-foreground">
+    <div className="relative min-h-screen overflow-x-clip text-foreground">
+      <PageBackdrop />
       <TopNav />
       <div className="mx-auto max-w-3xl px-6 pb-24 pt-10 md:px-10">
-        <h1 className="font-display text-4xl font-black md:text-5xl">Help centre</h1>
+        <h1 className="font-mega text-[clamp(2.6rem,7vw,5.5rem)] font-black leading-[0.92] tracking-[-0.05em] animate-fade-in-up">
+          Help <span className="font-serif-accent text-gradient-brand pr-[0.05em] text-[1.12em] font-normal">centre.</span>
+        </h1>
         <p className="mt-2 text-sm text-muted-foreground">Everything about how Courseflix works.</p>
 
         <div className="mt-8 space-y-3">
           {FAQ.map((f) => (
-            <details key={f.q} className="rounded-2xl border border-border/50 bg-surface p-5">
+            <details key={f.q} className="rounded-3xl glass p-5">
               <summary className="cursor-pointer text-sm font-semibold">{f.q}</summary>
               <p className="mt-2 text-sm text-muted-foreground">{f.a}</p>
             </details>
@@ -74,7 +78,7 @@ function HelpPage() {
           </a>
         </section>
 
-        <section className="mt-6 rounded-2xl border border-border/50 bg-surface p-6">
+        <section className="mt-6 rounded-3xl glass p-6">
           <h2 className="font-display text-2xl">Coming soon: Student hub</h2>
           <p className="mt-1 text-sm text-muted-foreground">
             A shared space for course notes and recorded lectures, contributed by UTM students.

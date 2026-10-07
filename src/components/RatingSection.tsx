@@ -119,7 +119,7 @@ export function RatingSection({ code }: { code: string }) {
   return (
     <div>
       <div className="flex items-center justify-between gap-3 mb-4 flex-wrap">
-        <h2 className="font-display text-2xl font-bold">
+        <h2 className="font-display text-2xl font-bold tracking-tight md:text-3xl">
           Student ratings{" "}
           <span className="text-sm font-medium text-muted-foreground">
             ({stats?.rating_count ?? 0})
@@ -128,7 +128,7 @@ export function RatingSection({ code }: { code: string }) {
         {signedIn ? (
           <button
             onClick={() => setOpen((o) => !o)}
-            className="rounded-full bg-brand text-primary-foreground px-4 py-2 text-sm font-semibold hover:bg-brand-glow transition"
+            className="shine rounded-full bg-brand px-5 py-2.5 text-sm font-semibold text-primary-foreground shadow-lg shadow-brand/30 transition hover:bg-brand-glow"
           >
             {mine ? "Edit your rating" : "Rate this course"}
           </button>
@@ -144,7 +144,7 @@ export function RatingSection({ code }: { code: string }) {
       </div>
 
       {open && (
-        <div className="rounded-2xl bg-surface border border-brand/30 p-5 space-y-4 mb-4">
+        <div className="glass rounded-3xl border-brand/30 p-6 space-y-4 mb-4">
           <div>
             <div className="text-xs uppercase tracking-wider text-muted-foreground mb-1.5">Overall</div>
             <Stars value={rating} onChange={setRating} />
@@ -207,7 +207,7 @@ export function RatingSection({ code }: { code: string }) {
           />
         )}
         {reviews.length === 0 && (
-          <div className="rounded-2xl bg-surface border border-border/40 p-5 text-muted-foreground text-sm">
+          <div className="glass rounded-3xl p-5 text-muted-foreground text-sm">
             <div className="h-4 w-2/3 animate-pulse rounded bg-primary/10" />
             {signedIn && !open && (
               <button
@@ -221,7 +221,7 @@ export function RatingSection({ code }: { code: string }) {
           </div>
         )}
         {reviews.map((r) => (
-          <div key={r.id} className="rounded-2xl bg-surface border border-border/40 p-5">
+          <div key={r.id} className="glass rounded-3xl p-5">
             <div className="flex items-center gap-2 text-sm">
               <span className="flex items-center gap-1 text-brand font-semibold">
                 <Star className="h-3.5 w-3.5 fill-current" /> {r.rating}/5
