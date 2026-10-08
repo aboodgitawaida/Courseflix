@@ -1,4 +1,5 @@
 import { Link, useNavigate } from "@tanstack/react-router";
+import { VerifiedBadge } from "@/components/VerifiedBadge";
 import { useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import {
@@ -76,6 +77,9 @@ export function ProfileMenu() {
         <span className="hidden max-w-[110px] truncate text-xs font-semibold sm:inline">
           {name}
         </span>
+        {profile?.is_verified && (
+          <VerifiedBadge className="-ml-1 hidden h-3.5 w-3.5 sm:inline-block" />
+        )}
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-72 p-1.5">
         <DropdownMenuLabel className="p-0">
@@ -93,7 +97,10 @@ export function ProfileMenu() {
               className="h-12 w-12 shrink-0 rounded-full bg-surface-2 object-contain ring-2 ring-brand/40"
             />
             <span className="min-w-0 flex-1 leading-tight">
-              <span className="block truncate text-sm font-semibold">{name}</span>
+              <span className="block truncate text-sm font-semibold">
+                {name}
+                {profile?.is_verified && <VerifiedBadge className="ml-1 h-4 w-4" />}
+              </span>
               <span className="block truncate text-xs text-muted-foreground">{handle}</span>
             </span>
             <ChevronRight className="h-4 w-4 text-muted-foreground" />

@@ -1,4 +1,5 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { VerifiedBadge } from "@/components/VerifiedBadge";
 import { useEffect, useRef, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
@@ -224,7 +225,10 @@ function SettingsPage() {
                     className="h-16 w-16 rounded-full bg-surface-2 object-contain ring-2 ring-brand/40"
                   />
                   <div className="min-w-0">
-                    <div className="truncate font-semibold">{displayName || "UTM student"}</div>
+                    <div className="truncate font-semibold">
+                      {displayName || "UTM student"}
+                      {profile.is_verified && <VerifiedBadge className="ml-1 h-4 w-4" />}
+                    </div>
                     <div className="truncate text-sm text-muted-foreground">
                       {username ? `@${username}` : "No username yet"}
                     </div>

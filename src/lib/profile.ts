@@ -17,6 +17,7 @@ export type Profile = {
   major_id: string | null;
   year: number | null;
   is_private: boolean;
+  is_verified: boolean;
 };
 
 export const AVATARS = [
@@ -31,7 +32,8 @@ export const AVATARS = [
 export const avatarSrc = (id: string | null | undefined) =>
   AVATARS.find((a) => a.id === id)?.src ?? hmalc;
 
-const PROFILE_COLUMNS = "id, display_name, username, avatar_id, major_id, year, is_private";
+const PROFILE_COLUMNS =
+  "id, display_name, username, avatar_id, major_id, year, is_private, is_verified";
 
 const profilePatchSchema = z
   .object({
