@@ -20,6 +20,8 @@ import { CommandPalette } from "@/components/CommandPalette";
 import { CoursePreviewModal } from "@/components/CoursePreviewModal";
 import { CompareDrawer } from "@/components/CompareDrawer";
 import { StudyEagle } from "@/components/StudyEagle";
+import { ProgramPickerSheet } from "@/components/ProgramPicker";
+import { MajorProfileSync } from "@/components/MajorProfileSync";
 import { NetworkStatusBanner } from "@/components/NetworkStatusBanner";
 import { MobileTabBar } from "@/components/MobileTabBar";
 import { InstallPrompt } from "@/components/InstallPrompt";
@@ -224,6 +226,8 @@ function RootComponent() {
             <Outlet />
             <CommandPalette />
             <CoursePreviewModal />
+            <ProgramPickerSheet />
+            <MajorProfileSync />
             <CompareDrawer />
             <StudyEagle />
             <MobileTabBar />

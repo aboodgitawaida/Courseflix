@@ -2,6 +2,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { validateRatingInput } from "@/lib/validation";
 import { announce } from "@/lib/a11y";
+import { recordSubjectInterest } from "@/lib/interest";
 
 export type RatingRow = {
   id: string;
@@ -210,8 +211,10 @@ export function useToggleShortlist() {
     },
     onSuccess: (_data, { code, saved }) => {
       announce(saved ? `${code} removed from your shortlist.` : `${code} added to your shortlist.`);
-      if (!saved)
+      if (!saved) {
         window.dispatchEvent(new CustomEvent("study-eagle-celebrate", { detail: { code } }));
+        recordSubjectInterest(code.replace(/[0-9].*$/, ""), 2);
+      }
     },
     onSettled: () => {
       void queryClient.invalidateQueries({ queryKey: ["shortlist"] });

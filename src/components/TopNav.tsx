@@ -4,7 +4,8 @@ import { useEffect, useState } from "react";
 import { useAuth } from "@/hooks/use-auth";
 import { useCourseUI } from "@/hooks/use-course-ui";
 import { useMajor } from "@/hooks/use-major";
-import { MAJORS, getMajor } from "@/lib/majors";
+import { getMajor } from "@/lib/majors";
+import { ProgramButton } from "@/components/ProgramPicker";
 import { ProfileMenu } from "@/components/ProfileMenu";
 import { NotificationBell } from "@/components/NotificationBell";
 
@@ -12,7 +13,7 @@ export function TopNav() {
   const { signedIn } = useAuth();
   const navigate = useNavigate();
   const { setSearchOpen } = useCourseUI();
-  const { major, setMajor } = useMajor();
+  const { major } = useMajor();
   const currentMajor = getMajor(major);
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const [scrolled, setScrolled] = useState(false);
@@ -96,22 +97,7 @@ export function TopNav() {
           <Search className="h-4 w-4" />
         </button>
 
-        <label className="hidden items-center gap-2 md:flex">
-          <span className="sr-only">My program</span>
-          <select
-            value={major ?? ""}
-            onChange={(e) => setMajor(e.target.value || null)}
-            className="h-9 max-w-[180px] truncate rounded-full border border-white/[0.08] bg-white/[0.04] backdrop-blur-md px-3 text-xs font-semibold outline-none transition hover:border-brand/50 hover:bg-white/[0.06] focus-visible:ring-2 focus-visible:ring-white/30"
-            aria-label="My program"
-          >
-            <option value="">My Program: Select</option>
-            {MAJORS.map((m) => (
-              <option key={m.id} value={m.id} className="bg-[#121215]">
-                {m.emoji} {m.name}
-              </option>
-            ))}
-          </select>
-        </label>
+        <ProgramButton />
 
         <Link
           to="/list"

@@ -3,6 +3,26 @@ import { useEffect, useState } from "react";
 const KEY = "courseflix.major";
 const EVENT = "courseflix:major";
 
+/** Saves the selected program outside React (e.g. from a toast action). */
+export function saveMajor(id: string | null) {
+  try {
+    if (id) localStorage.setItem(KEY, id);
+    else localStorage.removeItem(KEY);
+    window.dispatchEvent(new Event(EVENT));
+  } catch {
+    // Keep the current in-memory preference when storage is unavailable.
+  }
+}
+
+/** The saved program without subscribing to changes. */
+export function readMajor(): string | null {
+  try {
+    return localStorage.getItem(KEY);
+  } catch {
+    return null;
+  }
+}
+
 export function useMajor() {
   const [major, setMajorState] = useState<string | null>(null);
   const [hydrated, setHydrated] = useState(false);
@@ -31,13 +51,7 @@ export function useMajor() {
 
   const setMajor = (id: string | null) => {
     setMajorState(id);
-    try {
-      if (id) localStorage.setItem(KEY, id);
-      else localStorage.removeItem(KEY);
-      window.dispatchEvent(new Event(EVENT));
-    } catch {
-      // Keep the current in-memory preference when storage is unavailable.
-    }
+    saveMajor(id);
   };
 
   return { major, setMajor, hydrated };
