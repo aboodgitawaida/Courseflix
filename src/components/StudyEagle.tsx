@@ -116,6 +116,7 @@ export function StudyEagle() {
       setActivityVersion((version) => version + 1);
       const celebrate = () => {
         showStatus("Nice pick!");
+        setPetting(false);
         setCelebrating(true);
         window.setTimeout(() => setCelebrating(false), 870);
       };
@@ -384,9 +385,11 @@ export function StudyEagle() {
             className={`study-eagle-sprite ${
               animation === "sleeping"
                 ? "study-eagle-sprite-sleeping"
-                : flightDirection
-                  ? `study-eagle-sprite-${flightDirection}`
-                  : ""
+                : celebrating
+                  ? "study-eagle-sprite-backflip"
+                  : flightDirection
+                    ? `study-eagle-sprite-${flightDirection}`
+                    : ""
             }`}
           />
         </button>

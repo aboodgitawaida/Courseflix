@@ -463,8 +463,54 @@
   background-position-y: 0%;
   --flap-duration: 2.8s;
 }
+/* eagle-backflip-spritesheet-hq.png: 1 row of 10 160x160px frames built only
+   from the real sheet (see scripts/draw-eagle-backflip.py): 0 crouch (front,
+   wings down), 1-8 the side-view eagle rotated backwards in 45deg steps,
+   9 landing (front, wings spread). Plays once per celebration. */
+.study-eagle-sprite-backflip {
+  background-image: url("/eagle-backflip-spritesheet-hq.png");
+  background-size: 1000% 100%;
+  background-position: 0% 0%;
+  animation: eagle-backflip 870ms step-end forwards;
+}
+@keyframes eagle-backflip {
+  0% {
+    background-position-x: 0%;
+  }
+  13.79% {
+    background-position-x: 11.111%;
+  }
+  21.84% {
+    background-position-x: 22.222%;
+  }
+  29.89% {
+    background-position-x: 33.333%;
+  }
+  37.93% {
+    background-position-x: 44.444%;
+  }
+  45.98% {
+    background-position-x: 55.556%;
+  }
+  54.02% {
+    background-position-x: 66.667%;
+  }
+  62.07% {
+    background-position-x: 77.778%;
+  }
+  70.11% {
+    background-position-x: 88.889%;
+  }
+  78.16% {
+    background-position-x: 100%;
+  }
+  100% {
+    background-position-x: 100%;
+  }
+}
 @media (prefers-reduced-motion: reduce) {
-  .study-eagle-sprite {
+  .study-eagle-sprite,
+  .study-eagle-sprite-backflip {
     animation: none;
   }
 }
@@ -627,8 +673,9 @@
   animation: eagle-dust 650ms ease-out forwards;
   pointer-events: none;
 }
+/* Backflip jump: crouch, spring up ~30px while the sprite spins, land with a squash. */
 .study-eagle-celebrating .study-eagle-button {
-  animation: eagle-celebrate-hop 870ms ease-out;
+  animation: eagle-backflip-jump 870ms ease-out;
 }
 @keyframes eagle-confetti {
   0% {
@@ -702,16 +749,30 @@
     opacity: 1;
   }
 }
-@keyframes eagle-celebrate-hop {
-  0%,
+@keyframes eagle-backflip-jump {
+  0% {
+    transform: translateY(0) scale(1, 1);
+  }
+  12% {
+    transform: translateY(3px) scale(1.08, 0.88);
+  }
+  20% {
+    transform: translateY(-14px) scale(0.96, 1.05);
+  }
+  45% {
+    transform: translateY(-30px) scale(1, 1);
+  }
+  76% {
+    transform: translateY(-4px) scale(1, 1);
+  }
+  82% {
+    transform: translateY(2px) scale(1.07, 0.9);
+  }
+  92% {
+    transform: translateY(-2px) scale(0.98, 1.02);
+  }
   100% {
-    transform: translateY(0);
-  }
-  35% {
-    transform: translateY(-16px);
-  }
-  70% {
-    transform: translateY(-5px);
+    transform: translateY(0) scale(1, 1);
   }
 }
 @keyframes eagle-dust {
