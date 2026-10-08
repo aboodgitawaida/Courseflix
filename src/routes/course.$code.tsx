@@ -21,9 +21,7 @@ import {
 } from "lucide-react";
 import { Spotlight } from "@/components/Spotlight";
 import { useReveal } from "@/hooks/use-reveal";
-import { ShareStoryButton } from "@/components/ShareStoryButton";
 import { Burst } from "@/components/Burst";
-import { renderCourseStory } from "@/lib/story-card";
 import { useEffect, useState } from "react";
 import { siteUrl } from "@/lib/site";
 import { rmpTorontoSearchUrl, rmpUtmSearchUrl, timetableUrl } from "@/lib/links";
@@ -211,16 +209,6 @@ function CoursePage() {
             >
               <Share2 className="h-4 w-4" /> Share
             </button>
-            <ShareStoryButton
-              render={() =>
-                renderCourseStory(
-                  course,
-                  hasReal ? { avg: stats!.avg_rating, count: stats!.rating_count } : null,
-                )
-              }
-              fileName={`courseflix-${course.code}.png`}
-              className="py-3.5 px-6"
-            />
           </div>
         </div>
       </section>
