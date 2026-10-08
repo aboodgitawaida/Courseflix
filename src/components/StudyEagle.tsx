@@ -11,7 +11,6 @@ import { getCourse, type Course } from "@/lib/courses";
 import { loadDescriptions, peekDescriptions } from "@/lib/course-description";
 
 type Position = { x: number; y: number };
-type Direction = "down" | "up" | "left" | "right";
 type EagleAnimation = "idle" | "sleeping";
 type SleepPhase = "awake" | "light" | "deep";
 
@@ -37,11 +36,8 @@ export function StudyEagle() {
   const [summaryCourseCode, setSummaryCourseCode] = useState<string | null>(null);
   const [summaryContext, setSummaryContext] = useState<"preview" | "page" | null>(null);
   const [summaryText, setSummaryText] = useState<string | null>(null);
-  const [direction, setDirection] = useState<Direction>("down");
-  const [flightAngle, setFlightAngle] = useState(0);
   const [animation, setAnimation] = useState<EagleAnimation>("idle");
   const dragOffset = useRef<Position>({ x: 0, y: 0 });
-  const lastPointer = useRef<Position>({ x: 0, y: 0 });
   const didDrag = useRef(false);
   const returnFrame = useRef<number | null>(null);
   const isReturningRef = useRef(false);
@@ -72,12 +68,11 @@ export function StudyEagle() {
     positionRef.current = position;
   }, [animation, position]);
 
+  // The base idle loop is pure CSS (see .study-eagle-sprite); only sleep steps here.
   useEffect(() => {
-    const frameDuration = animation === "sleeping" ? 900 : 220;
-    const timer = window.setInterval(
-      () => setFrame((current) => (current + 1) % (animation === "sleeping" ? 4 : 3)),
-      frameDuration,
-    );
+    if (animation !== "sleeping") return;
+    setFrame(0);
+    const timer = window.setInterval(() => setFrame((current) => (current + 1) % 4), 900);
     return () => window.clearInterval(timer);
   }, [animation]);
 
@@ -130,11 +125,7 @@ export function StudyEagle() {
       const celebrate = () => {
         showStatus("Nice pick!");
         setCelebrating(true);
-        setDirection("up");
-        window.setTimeout(() => {
-          setCelebrating(false);
-          setDirection("down");
-        }, 870);
+        window.setTimeout(() => setCelebrating(false), 870);
       };
       if (animationRef.current === "sleeping") {
         sleepSequence.current += 1;
@@ -193,7 +184,6 @@ export function StudyEagle() {
     setIsReturning(false);
     if (wasSleeping) startFlight(getNormalPerchPosition());
     dragOffset.current = { x: event.clientX - position.x, y: event.clientY - position.y };
-    lastPointer.current = { x: event.clientX, y: event.clientY };
     didDrag.current = false;
     setIsDragging(true);
   }
@@ -201,20 +191,6 @@ export function StudyEagle() {
   function onPointerMove(event: ReactPointerEvent<HTMLButtonElement>) {
     if (!isDragging) return;
     didDrag.current = true;
-    const deltaX = event.clientX - lastPointer.current.x;
-    const deltaY = event.clientY - lastPointer.current.y;
-    if (Math.abs(deltaX) > 2 || Math.abs(deltaY) > 2) {
-      setDirection(
-        Math.abs(deltaX) > Math.abs(deltaY)
-          ? deltaX > 0
-            ? "right"
-            : "left"
-          : deltaY > 0
-            ? "down"
-            : "up",
-      );
-    }
-    lastPointer.current = { x: event.clientX, y: event.clientY };
     setPosition({
       x: clamp(event.clientX - dragOffset.current.x, 8, window.innerWidth - 104),
       y: clamp(
@@ -259,8 +235,6 @@ export function StudyEagle() {
     if (Math.abs(target.x - start.x) < 1 && Math.abs(target.y - start.y) < 1) {
       setIsReturning(false);
       isReturningRef.current = false;
-      setFlightAngle(0);
-      setDirection("down");
       onArrive?.();
       return;
     }
@@ -268,12 +242,10 @@ export function StudyEagle() {
     const deltaX = target.x - start.x;
     const deltaY = target.y - start.y;
     const totalDuration = Math.max(420, Math.hypot(deltaX, deltaY) * 2.2);
-    setFlightAngle((Math.atan2(deltaY, deltaX) * 180) / Math.PI);
 
     const step = (now: number) => {
       const elapsed = Math.min(now - startedAt, totalDuration);
       const progress = elapsed / totalDuration;
-      setDirection(deltaX >= 0 ? "right" : "left");
       setPosition({ x: lerp(start.x, target.x, progress), y: lerp(start.y, target.y, progress) });
       if (elapsed < totalDuration) {
         returnFrame.current = requestAnimationFrame(step);
@@ -281,8 +253,6 @@ export function StudyEagle() {
         returnFrame.current = null;
         setIsReturning(false);
         isReturningRef.current = false;
-        setFlightAngle(0);
-        setDirection("down");
         setPosition(target);
         onArrive?.();
       }
@@ -397,13 +367,9 @@ export function StudyEagle() {
           <span
             className={`study-eagle-sprite ${animation === "sleeping" ? "study-eagle-sprite-sleeping" : ""}`}
             style={
-              {
-                "--flight-angle": `${flightAngle}deg`,
-                backgroundPosition:
-                  animation === "sleeping"
-                    ? `${frame * 33.333}% 0%`
-                    : `${frame * 50}% ${direction === "down" ? "0%" : direction === "up" ? "100%" : direction === "left" ? "33.333%" : "66.666%"}`,
-              } as CSSProperties
+              animation === "sleeping"
+                ? ({ backgroundPosition: `${frame * 33.333}% 0%` } as CSSProperties)
+                : undefined
             }
           />
         </button>
