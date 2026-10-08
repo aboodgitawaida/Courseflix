@@ -1,55 +1,51 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import tudum from "@/assets/tudum.mp3.asset.json";
+import { INTRO_PLAYED_CLASS as PLAYED_CLASS, INTRO_SESSION_KEY as SESSION_KEY } from "@/lib/intro";
 
 const INTRO_MS = 2500;
-const SESSION_KEY = "courseflix.intro.played";
-
 export function CinematicIntro() {
-  const [visible, setVisible] = useState(false);
+  const [visible, setVisible] = useState(true);
   const finishedRef = useRef(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
   const finish = useCallback((skipped = false) => {
     if (finishedRef.current) return;
     finishedRef.current = true;
+    // Later mounts this session (client navigation back home) stay hidden from frame one.
+    document.documentElement.classList.add(PLAYED_CLASS);
     // Let the sting ring out when the intro ends on its own; cut it on skip.
     if (skipped) audioRef.current?.pause();
     setVisible(false);
   }, []);
 
-  // Decide once per mount (refs survive StrictMode's effect replay).
-  const decidedRef = useRef(false);
   useEffect(() => {
-    if (decidedRef.current) return;
-    decidedRef.current = true;
-    // Once per session: storage that throws counts as "already played".
-    let played = "1";
-    try {
-      played = sessionStorage.getItem(SESSION_KEY) ?? "";
-    } catch {
-      played = "1";
+    let played = document.documentElement.classList.contains(PLAYED_CLASS);
+    if (!played) {
+      try {
+        played = Boolean(sessionStorage.getItem(SESSION_KEY));
+        sessionStorage.setItem(SESSION_KEY, "1");
+      } catch {
+        played = true;
+      }
     }
-    if (played) return;
-    try {
-      sessionStorage.setItem(SESSION_KEY, "1");
-    } catch {
-      // Storage may be unavailable in privacy-restricted browsers.
+    if (played) {
+      finishedRef.current = true;
+      document.documentElement.classList.add(PLAYED_CLASS);
+      setVisible(false);
+      return;
     }
-    setVisible(true);
-  }, []);
 
-  useEffect(() => {
-    if (!visible) return;
     const audio = new Audio(tudum.url);
     audio.volume = 0.55;
     audioRef.current = audio;
     void audio.play().catch(() => {});
 
     const hideTimer = window.setTimeout(() => finish(), INTRO_MS);
-    return () => window.clearTimeout(hideTimer);
-  }, [visible, finish]);
-
-  useEffect(() => () => audioRef.current?.pause(), []);
+    return () => {
+      window.clearTimeout(hideTimer);
+      audio.pause();
+    };
+  }, [finish]);
 
   if (!visible) return null;
 
