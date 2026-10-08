@@ -1,4 +1,4 @@
-import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
+import { Link, useRouterState } from "@tanstack/react-router";
 import { Search, Bookmark, User } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useAuth } from "@/hooks/use-auth";
@@ -8,15 +8,17 @@ import { getMajor } from "@/lib/majors";
 import { ProgramButton } from "@/components/ProgramPicker";
 import { ProfileMenu } from "@/components/ProfileMenu";
 import { NotificationBell } from "@/components/NotificationBell";
+import { useGoToHomeSection, useHomeSection } from "@/hooks/use-home-section";
 
 export function TopNav() {
   const { signedIn } = useAuth();
-  const navigate = useNavigate();
   const { setSearchOpen } = useCourseUI();
   const { major } = useMajor();
   const currentMajor = getMajor(major);
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const [scrolled, setScrolled] = useState(false);
+  const section = useHomeSection();
+  const goTo = useGoToHomeSection();
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 24);
@@ -30,20 +32,6 @@ export function TopNav() {
       active ? "bg-white/[0.08] text-foreground" : ""
     }`;
 
-  function scrollToCreator(e: React.MouseEvent) {
-    e.preventDefault();
-    const go = (tries = 0) => {
-      const el = document.getElementById("creator");
-      if (el) {
-        el.scrollIntoView({ behavior: "smooth", block: "start" });
-        return;
-      }
-      if (tries < 20) setTimeout(() => go(tries + 1), 100);
-    };
-    if (pathname === "/") go();
-    else navigate({ to: "/" }).then(() => go());
-  }
-
   return (
     <header className="sticky top-0 z-50 px-3 pt-3 md:px-6">
       <div
@@ -53,12 +41,21 @@ export function TopNav() {
             : "max-w-[1600px]"
         }`}
       >
-        <Link to="/" aria-label="Courseflix home" className="shrink-0">
+        <Link
+          to="/"
+          aria-label="Courseflix home"
+          onClick={(e) => goTo("browse", e)}
+          className="shrink-0"
+        >
           <span className="wordmark text-2xl leading-none md:text-[1.7rem]">Courseflix</span>
         </Link>
 
         <nav className="ml-2 hidden items-center gap-0.5 text-sm font-medium text-muted-foreground lg:flex">
-          <Link to="/" className={desktopLink(pathname === "/")}>
+          <Link
+            to="/"
+            onClick={(e) => goTo("browse", e)}
+            className={desktopLink(pathname === "/" && section === "browse")}
+          >
             Browse
           </Link>
           <Link to="/list" className={desktopLink(pathname === "/list")}>
@@ -74,7 +71,11 @@ export function TopNav() {
               Achievements
             </Link>
           )}
-          <a href="/#creator" onClick={scrollToCreator} className={desktopLink(false)}>
+          <a
+            href="/#creator"
+            onClick={(e) => goTo("creator", e)}
+            className={desktopLink(section === "creator")}
+          >
             Creator
           </a>
         </nav>
