@@ -12,7 +12,7 @@ import { Spotlight } from "@/components/Spotlight";
 import { Marquee } from "@/components/Marquee";
 import { FeatureBento } from "@/components/FeatureBento";
 import { Link } from "@tanstack/react-router";
-import { getRailsForMajor, getFeaturedForMajor, type FilterId } from "@/lib/courses";
+import { getRailsForMajor, getFeaturedDeckForMajor, type FilterId } from "@/lib/courses";
 import { getMajor } from "@/lib/majors";
 import { siteUrl } from "@/lib/site";
 import { useMajor } from "@/hooks/use-major";
@@ -64,7 +64,7 @@ export function Home() {
   }, [hydrated, currentMajor]);
 
   const rails = useMemo(() => getRailsForMajor(major, filter), [major, filter]);
-  const featured = useMemo(() => getFeaturedForMajor(major), [major]);
+  const deck = useMemo(() => getFeaturedDeckForMajor(major), [major]);
   const inMajorCount = rails[0]?.codes.length ?? 0;
 
   return (
@@ -72,7 +72,7 @@ export function Home() {
       <CinematicIntro />
       <Spotlight />
       <TopNav />
-      <Hero featured={featured} major={currentMajor?.name ?? "your program"} />
+      <Hero deck={deck} major={currentMajor?.name ?? "your program"} />
       <div className="hidden md:block">
         <Marquee />
       </div>

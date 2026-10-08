@@ -4,6 +4,7 @@ import { COURSES, type Rail } from "@/lib/courses";
 import { CourseCard } from "./CourseCard";
 import { CourseCardSkeleton } from "./CourseCardSkeleton";
 import { useReveal } from "@/hooks/use-reveal";
+import { useScrollVelocity } from "@/hooks/use-scroll-velocity";
 
 export const CourseRail = memo(function CourseRail({
   rail,
@@ -26,6 +27,7 @@ export const CourseRail = memo(function CourseRail({
   );
 
   const revealRef = useReveal<HTMLElement>();
+  useScrollVelocity(ref);
   const number = String(index + 1).padStart(2, "0");
 
   return (
@@ -71,11 +73,16 @@ export const CourseRail = memo(function CourseRail({
 
         <div
           ref={ref}
-          className="scroll-rail rail-fade flex gap-4 overflow-x-auto overflow-y-visible px-6 py-6 md:px-10"
+          className="rail-velocity scroll-rail rail-fade flex gap-4 overflow-x-auto overflow-y-visible px-6 py-6 md:px-10"
         >
           {loading
             ? Array.from({ length: 6 }).map((_, i) => <CourseCardSkeleton key={`skeleton-${i}`} />)
-            : courses.map((c) => <CourseCard key={c.code} course={c} />)}
+            : courses.map((c) => (
+                // The wrapper takes the velocity skew so the card keeps its own tilt transform.
+                <div key={c.code} className="rail-item shrink-0">
+                  <CourseCard course={c} />
+                </div>
+              ))}
         </div>
       </div>
     </section>

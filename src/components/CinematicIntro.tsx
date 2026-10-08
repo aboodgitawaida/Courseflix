@@ -1,31 +1,63 @@
 import { useCallback, useEffect, useRef, useState } from "react";
+import tudum from "@/assets/tudum.mp3.asset.json";
 
 const INTRO_MS = 2500;
+const SESSION_KEY = "courseflix.intro.played";
 
 export function CinematicIntro() {
-  const [visible, setVisible] = useState(true);
+  const [visible, setVisible] = useState(false);
   const finishedRef = useRef(false);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
 
-  const finish = useCallback(() => {
+  const finish = useCallback((skipped = false) => {
     if (finishedRef.current) return;
     finishedRef.current = true;
+    // Let the sting ring out when the intro ends on its own; cut it on skip.
+    if (skipped) audioRef.current?.pause();
     setVisible(false);
   }, []);
 
+  // Decide once per mount (refs survive StrictMode's effect replay).
+  const decidedRef = useRef(false);
   useEffect(() => {
-    const hideTimer = window.setTimeout(finish, INTRO_MS);
+    if (decidedRef.current) return;
+    decidedRef.current = true;
+    // Once per session: storage that throws counts as "already played".
+    let played = "1";
+    try {
+      played = sessionStorage.getItem(SESSION_KEY) ?? "";
+    } catch {
+      played = "1";
+    }
+    if (played) return;
+    try {
+      sessionStorage.setItem(SESSION_KEY, "1");
+    } catch {
+      // Storage may be unavailable in privacy-restricted browsers.
+    }
+    setVisible(true);
+  }, []);
+
+  useEffect(() => {
+    if (!visible) return;
+    const audio = new Audio(tudum.url);
+    audio.volume = 0.55;
+    audioRef.current = audio;
+    void audio.play().catch(() => {});
+
+    const hideTimer = window.setTimeout(() => finish(), INTRO_MS);
     return () => window.clearTimeout(hideTimer);
-  }, [finish]);
+  }, [visible, finish]);
+
+  useEffect(() => () => audioRef.current?.pause(), []);
 
   if (!visible) return null;
 
   return (
     <div
       role="presentation"
-      className={`cinematic-overlay fixed inset-0 z-[100] flex items-center justify-center overflow-hidden bg-black ${
-        !visible ? "pointer-events-none" : ""
-      }`}
-      onClick={finish}
+      className="cinematic-overlay fixed inset-0 z-[100] flex items-center justify-center overflow-hidden bg-black"
+      onClick={() => finish(true)}
     >
       <div className="cinematic-ambient pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-red-950/40 via-black to-black" />
 
@@ -53,7 +85,7 @@ export function CinematicIntro() {
         className="absolute bottom-8 right-8 z-20 rounded-full border border-white/15 px-4 py-1.5 text-xs font-semibold uppercase tracking-[0.2em] text-neutral-400 transition-colors hover:border-white/40 hover:text-white"
         onClick={(e) => {
           e.stopPropagation();
-          finish();
+          finish(true);
         }}
       >
         Skip
