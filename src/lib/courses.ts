@@ -355,12 +355,19 @@ const DEFAULT_FEATURED = STARTERS[0] ?? COURSES[0]!;
 /**
  * The hero deck: the program's core courses (alphabetical, subjects interleaved so a
  * multi-subject program doesn't show five of one), or the starter courses without one.
+ * Programs with only a handful of core courses are topped up from their support
+ * subjects, then the starters, so the deck still has cards to swipe through.
  */
 export function getFeaturedDeckForMajor(majorId: string | null, n = 5): Course[] {
   const major = MAJORS.find((m) => m.id === majorId);
-  const pool = coursesFor(major, "core");
-  if (!pool.length) return STARTERS.length ? STARTERS.slice(0, n) : [DEFAULT_FEATURED];
-  return diverse([...pool].sort((a, b) => a.code.localeCompare(b.code))).slice(0, n);
+  const ranked = (kind: "core" | "support") =>
+    diverse([...coursesFor(major, kind)].sort((a, b) => a.code.localeCompare(b.code)));
+  const deck = new Map<string, Course>();
+  for (const c of [...ranked("core"), ...ranked("support"), ...STARTERS]) {
+    if (deck.size >= n) break;
+    deck.set(c.code, c);
+  }
+  return deck.size ? [...deck.values()] : [DEFAULT_FEATURED];
 }
 
 export function getFeaturedForMajor(majorId: string | null): Course {
