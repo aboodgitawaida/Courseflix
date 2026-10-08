@@ -427,13 +427,30 @@
   display: block;
   width: 78px;
   height: 78px;
-  /* Base idle: 3 front-facing hover frames, 160x160px each, in one row. */
-  background-image: url("/eagle-idle-spritesheet.png");
-  background-size: 300% 100%;
+  /* eagle-spritesheet-hq.png: 3 columns x 4 rows of 160x160px frames.
+     Rows: 0 front (idle / fly down), 1 fly left, 2 fly right, 3 fly up. */
+  background-image: url("/eagle-spritesheet-hq.png");
+  background-size: 300% 400%;
   background-position: 0% 0%;
   background-repeat: no-repeat;
   image-rendering: pixelated;
-  animation: eagle-idle 720ms step-end infinite;
+  animation: eagle-flap var(--flap-duration, 720ms) step-end infinite;
+}
+.study-eagle-sprite-down {
+  background-position-y: 0%;
+  --flap-duration: 480ms;
+}
+.study-eagle-sprite-left {
+  background-position-y: 33.333%;
+  --flap-duration: 480ms;
+}
+.study-eagle-sprite-right {
+  background-position-y: 66.667%;
+  --flap-duration: 480ms;
+}
+.study-eagle-sprite-up {
+  background-position-y: 100%;
+  --flap-duration: 480ms;
 }
 .study-eagle-sprite-sleeping {
   background-image: url("/eagle-sleeping-spritesheet.png");
@@ -632,19 +649,20 @@
     transform: translateY(-12px) scale(1.2);
   }
 }
-/* Ping-pong flap 0 -> 1 -> 2 -> 1 so the loop never snaps from open wings to closed. */
-@keyframes eagle-idle {
+/* Ping-pong flap: column 0 -> 1 -> 2 -> 1, then back to 0. The row comes from
+   background-position-y, so every direction shares this one loop. */
+@keyframes eagle-flap {
   0% {
-    background-position: 0% 0%;
+    background-position-x: 0%;
   }
   25% {
-    background-position: 50% 0%;
+    background-position-x: 50%;
   }
   50% {
-    background-position: 100% 0%;
+    background-position-x: 100%;
   }
   75% {
-    background-position: 50% 0%;
+    background-position-x: 50%;
   }
 }
 @keyframes eagle-sleep {

@@ -11,6 +11,7 @@ import { getCourse, type Course } from "@/lib/courses";
 import { loadDescriptions, peekDescriptions } from "@/lib/course-description";
 
 type Position = { x: number; y: number };
+type Direction = "down" | "up" | "left" | "right";
 type EagleAnimation = "idle" | "sleeping";
 type SleepPhase = "awake" | "light" | "deep";
 
@@ -37,7 +38,10 @@ export function StudyEagle() {
   const [summaryContext, setSummaryContext] = useState<"preview" | "page" | null>(null);
   const [summaryText, setSummaryText] = useState<string | null>(null);
   const [animation, setAnimation] = useState<EagleAnimation>("idle");
+  // Set while dragged or gliding; null means hovering in place (base idle).
+  const [flightDirection, setFlightDirection] = useState<Direction | null>(null);
   const dragOffset = useRef<Position>({ x: 0, y: 0 });
+  const lastPointer = useRef<Position>({ x: 0, y: 0 });
   const didDrag = useRef(false);
   const returnFrame = useRef<number | null>(null);
   const isReturningRef = useRef(false);
@@ -184,6 +188,7 @@ export function StudyEagle() {
     setIsReturning(false);
     if (wasSleeping) startFlight(getNormalPerchPosition());
     dragOffset.current = { x: event.clientX - position.x, y: event.clientY - position.y };
+    lastPointer.current = { x: event.clientX, y: event.clientY };
     didDrag.current = false;
     setIsDragging(true);
   }
@@ -191,6 +196,12 @@ export function StudyEagle() {
   function onPointerMove(event: ReactPointerEvent<HTMLButtonElement>) {
     if (!isDragging) return;
     didDrag.current = true;
+    const deltaX = event.clientX - lastPointer.current.x;
+    const deltaY = event.clientY - lastPointer.current.y;
+    if (Math.abs(deltaX) > 2 || Math.abs(deltaY) > 2) {
+      setFlightDirection(getDirection(deltaX, deltaY));
+      lastPointer.current = { x: event.clientX, y: event.clientY };
+    }
     setPosition({
       x: clamp(event.clientX - dragOffset.current.x, 8, window.innerWidth - 104),
       y: clamp(
@@ -204,6 +215,7 @@ export function StudyEagle() {
   function onPointerUp() {
     isDraggingRef.current = false;
     setIsDragging(false);
+    if (!didDrag.current && !isReturningRef.current) setFlightDirection(null);
     if (didDrag.current) {
       startFlight(getNormalPerchPosition());
       window.setTimeout(() => {
@@ -235,6 +247,7 @@ export function StudyEagle() {
     if (Math.abs(target.x - start.x) < 1 && Math.abs(target.y - start.y) < 1) {
       setIsReturning(false);
       isReturningRef.current = false;
+      setFlightDirection(null);
       onArrive?.();
       return;
     }
@@ -242,6 +255,7 @@ export function StudyEagle() {
     const deltaX = target.x - start.x;
     const deltaY = target.y - start.y;
     const totalDuration = Math.max(420, Math.hypot(deltaX, deltaY) * 2.2);
+    setFlightDirection(getDirection(deltaX, deltaY));
 
     const step = (now: number) => {
       const elapsed = Math.min(now - startedAt, totalDuration);
@@ -253,6 +267,7 @@ export function StudyEagle() {
         returnFrame.current = null;
         setIsReturning(false);
         isReturningRef.current = false;
+        setFlightDirection(null);
         setPosition(target);
         onArrive?.();
       }
@@ -365,7 +380,13 @@ export function StudyEagle() {
           className="study-eagle-button"
         >
           <span
-            className={`study-eagle-sprite ${animation === "sleeping" ? "study-eagle-sprite-sleeping" : ""}`}
+            className={`study-eagle-sprite ${
+              animation === "sleeping"
+                ? "study-eagle-sprite-sleeping"
+                : flightDirection
+                  ? `study-eagle-sprite-${flightDirection}`
+                  : ""
+            }`}
             style={
               animation === "sleeping"
                 ? ({ backgroundPosition: `${frame * 33.333}% 0%` } as CSSProperties)
@@ -391,6 +412,11 @@ export function StudyEagle() {
 
 function clamp(value: number, min: number, max: number) {
   return Math.max(min, Math.min(max, value));
+}
+
+function getDirection(deltaX: number, deltaY: number): Direction {
+  if (Math.abs(deltaX) > Math.abs(deltaY)) return deltaX > 0 ? "right" : "left";
+  return deltaY > 0 ? "down" : "up";
 }
 
 function lerp(start: number, end: number, progress: number) {
