@@ -452,11 +452,11 @@
   background-position-y: 100%;
   --flap-duration: 480ms;
 }
-/* eagle-sleep-spritesheet-hq.png: 1 row of 3 160x160px frames, drawn on the
-   same 40x40 art-pixel grid and palette as the flight sheet (see
-   scripts/draw-eagle-sleep.py): 0 rest, 1 inhale start (back up 1px),
-   2 inhale peak (chest out 1px, feather shading shifted). The shared
-   eagle-flap keyframes ping-pong 0 -> 1 -> 2 -> 1, slowed to a breath. */
+/* eagle-sleep-spritesheet-hq.png: 1 row of 3 160x160px frames (see
+   scripts/draw-eagle-sleep.py): the real side-view head, eye closed, on a
+   resting body. 0 rest, 1 inhale start (back up), 2 inhale peak (chest out,
+   shading shifted). The shared eagle-flap keyframes ping-pong
+   0 -> 1 -> 2 -> 1, slowed to a breath. */
 .study-eagle-sprite-sleeping {
   background-image: url("/eagle-sleep-spritesheet-hq.png");
   background-size: 300% 100%;
