@@ -1,11 +1,5 @@
 import { MessageCircle, Sparkles, X } from "lucide-react";
-import {
-  useEffect,
-  useRef,
-  useState,
-  type CSSProperties,
-  type PointerEvent as ReactPointerEvent,
-} from "react";
+import { useEffect, useRef, useState, type PointerEvent as ReactPointerEvent } from "react";
 import { useRouterState } from "@tanstack/react-router";
 import { getCourse, type Course } from "@/lib/courses";
 import { loadDescriptions, peekDescriptions } from "@/lib/course-description";
@@ -23,7 +17,6 @@ const EAGLE_REPLIES = [
 
 export function StudyEagle() {
   const [position, setPosition] = useState<Position | null>(null);
-  const [frame, setFrame] = useState(0);
   const [chatOpen, setChatOpen] = useState(false);
   const [reply, setReply] = useState(EAGLE_REPLIES[0]);
   const [petCount, setPetCount] = useState(0);
@@ -71,14 +64,6 @@ export function StudyEagle() {
     animationRef.current = animation;
     positionRef.current = position;
   }, [animation, position]);
-
-  // The base idle loop is pure CSS (see .study-eagle-sprite); only sleep steps here.
-  useEffect(() => {
-    if (animation !== "sleeping") return;
-    setFrame(0);
-    const timer = window.setInterval(() => setFrame((current) => (current + 1) % 4), 900);
-    return () => window.clearInterval(timer);
-  }, [animation]);
 
   useEffect(() => {
     if (animation !== "idle") return;
@@ -387,11 +372,6 @@ export function StudyEagle() {
                   ? `study-eagle-sprite-${flightDirection}`
                   : ""
             }`}
-            style={
-              animation === "sleeping"
-                ? ({ backgroundPosition: `${frame * 33.333}% 0%` } as CSSProperties)
-                : undefined
-            }
           />
         </button>
         <div className="study-eagle-shadow" aria-hidden="true" />
