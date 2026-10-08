@@ -29,12 +29,14 @@ import { siteUrl } from "@/lib/site";
 import { rmpTorontoSearchUrl, rmpUtmSearchUrl, timetableUrl } from "@/lib/links";
 import { getProfessorRating } from "@/lib/professor-ratings";
 import { PUBLISHED_INSTRUCTORS } from "@/lib/course-instructors";
+import { loadDescriptions } from "@/lib/course-description";
 
 export const Route = createFileRoute("/course/$code")({
-  loader: ({ params }) => {
+  loader: async ({ params }) => {
     const course = getCourse(params.code);
     if (!course) throw notFound();
-    return { course };
+    const descriptions = await loadDescriptions();
+    return { course, description: descriptions[course.code] ?? "" };
   },
   head: ({ loaderData }) => ({
     meta: [
@@ -43,14 +45,14 @@ export const Route = createFileRoute("/course/$code")({
           ? `${loaderData.course.code} — ${loaderData.course.title} · courseflix`
           : "courseflix",
       },
-      { name: "description", content: loaderData?.course.description ?? "UTM course details" },
+      { name: "description", content: loaderData?.description || "UTM course details" },
       {
         property: "og:title",
         content: loaderData
           ? `${loaderData.course.code} · ${loaderData.course.title}`
           : "courseflix",
       },
-      { property: "og:description", content: loaderData?.course.description ?? "" },
+      { property: "og:description", content: loaderData?.description ?? "" },
       { property: "og:type", content: "article" },
       {
         property: "og:url",
@@ -79,7 +81,7 @@ export const Route = createFileRoute("/course/$code")({
 });
 
 function CoursePage() {
-  const { course } = Route.useLoaderData() as { course: import("@/lib/courses").Course };
+  const { course, description } = Route.useLoaderData();
   const publishedInstructors = PUBLISHED_INSTRUCTORS[course.code] ?? [];
   const [c1, c2] = course.poster;
   const [imageSrc, setImageSrc] = useState(() =>
@@ -263,7 +265,7 @@ function CoursePage() {
         <div className="space-y-14 md:col-span-2">
           <div>
             <SectionLabel n="01">About this course</SectionLabel>
-            <p className="text-lg leading-relaxed text-foreground/80">{course.description}</p>
+            <p className="text-lg leading-relaxed text-foreground/80">{description}</p>
           </div>
 
           <div>

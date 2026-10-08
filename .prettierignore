@@ -9,3 +9,5 @@ routeTree.gen.ts
 src/lib/course-instructors.ts
 src/lib/utm-catalog.ts
 src/lib/professor-ratings.ts
+src/lib/course-descriptions.ts
+src/lib/featured-descriptions.ts
