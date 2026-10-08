@@ -1,4 +1,4 @@
-import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
+import { Link, useRouterState } from "@tanstack/react-router";
 import { useState } from "react";
 import {
   Award,
@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
 import { useCourseUI } from "@/hooks/use-course-ui";
+import { useGoToHomeSection } from "@/hooks/use-home-section";
 import { useShortlist } from "@/lib/ratings";
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from "@/components/ui/dialog";
 
@@ -23,7 +24,7 @@ const ME_PATHS = ["/friends", "/achievements", "/reviews", "/settings", "/help",
 /** App-style bottom navigation for phones and tablets. */
 export function MobileTabBar() {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
-  const navigate = useNavigate();
+  const goTo = useGoToHomeSection();
   const { signedIn } = useAuth();
   const { searchOpen, setSearchOpen } = useCourseUI();
   const { data: saved = [] } = useShortlist();
@@ -47,13 +48,7 @@ export function MobileTabBar() {
 
   function goCreator() {
     setMeOpen(false);
-    const scroll = (tries = 0) => {
-      const el = document.getElementById("creator");
-      if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
-      else if (tries < 20) window.setTimeout(() => scroll(tries + 1), 100);
-    };
-    if (pathname === "/") scroll();
-    else void navigate({ to: "/" }).then(() => scroll());
+    goTo("creator");
   }
 
   const meLinks = [
@@ -81,6 +76,7 @@ export function MobileTabBar() {
           )}
           <Link
             to="/"
+            onClick={(e) => goTo("browse", e)}
             className={`${tab} ${tone(0)}`}
             aria-current={pathname === "/" ? "page" : undefined}
           >
