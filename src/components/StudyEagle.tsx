@@ -1,16 +1,11 @@
 import { MessageCircle, Sparkles, X } from "lucide-react";
-import {
-  useEffect,
-  useRef,
-  useState,
-  type CSSProperties,
-  type PointerEvent as ReactPointerEvent,
-} from "react";
+import { useEffect, useRef, useState, type PointerEvent as ReactPointerEvent } from "react";
 import { useRouterState } from "@tanstack/react-router";
 import { getCourse, type Course } from "@/lib/courses";
 import { loadDescriptions, peekDescriptions } from "@/lib/course-description";
 
 type Position = { x: number; y: number };
+type Direction = "down" | "up" | "left" | "right";
 type EagleAnimation = "idle" | "sleeping";
 type SleepPhase = "awake" | "light" | "deep";
 
@@ -22,7 +17,6 @@ const EAGLE_REPLIES = [
 
 export function StudyEagle() {
   const [position, setPosition] = useState<Position | null>(null);
-  const [frame, setFrame] = useState(0);
   const [chatOpen, setChatOpen] = useState(false);
   const [reply, setReply] = useState(EAGLE_REPLIES[0]);
   const [petCount, setPetCount] = useState(0);
@@ -37,7 +31,10 @@ export function StudyEagle() {
   const [summaryContext, setSummaryContext] = useState<"preview" | "page" | null>(null);
   const [summaryText, setSummaryText] = useState<string | null>(null);
   const [animation, setAnimation] = useState<EagleAnimation>("idle");
+  // Set while dragged or gliding; null means hovering in place (base idle).
+  const [flightDirection, setFlightDirection] = useState<Direction | null>(null);
   const dragOffset = useRef<Position>({ x: 0, y: 0 });
+  const lastPointer = useRef<Position>({ x: 0, y: 0 });
   const didDrag = useRef(false);
   const returnFrame = useRef<number | null>(null);
   const isReturningRef = useRef(false);
@@ -67,14 +64,6 @@ export function StudyEagle() {
     animationRef.current = animation;
     positionRef.current = position;
   }, [animation, position]);
-
-  // The base idle loop is pure CSS (see .study-eagle-sprite); only sleep steps here.
-  useEffect(() => {
-    if (animation !== "sleeping") return;
-    setFrame(0);
-    const timer = window.setInterval(() => setFrame((current) => (current + 1) % 4), 900);
-    return () => window.clearInterval(timer);
-  }, [animation]);
 
   useEffect(() => {
     if (animation !== "idle") return;
@@ -184,6 +173,7 @@ export function StudyEagle() {
     setIsReturning(false);
     if (wasSleeping) startFlight(getNormalPerchPosition());
     dragOffset.current = { x: event.clientX - position.x, y: event.clientY - position.y };
+    lastPointer.current = { x: event.clientX, y: event.clientY };
     didDrag.current = false;
     setIsDragging(true);
   }
@@ -191,6 +181,12 @@ export function StudyEagle() {
   function onPointerMove(event: ReactPointerEvent<HTMLButtonElement>) {
     if (!isDragging) return;
     didDrag.current = true;
+    const deltaX = event.clientX - lastPointer.current.x;
+    const deltaY = event.clientY - lastPointer.current.y;
+    if (Math.abs(deltaX) > 2 || Math.abs(deltaY) > 2) {
+      setFlightDirection(getDirection(deltaX, deltaY));
+      lastPointer.current = { x: event.clientX, y: event.clientY };
+    }
     setPosition({
       x: clamp(event.clientX - dragOffset.current.x, 8, window.innerWidth - 104),
       y: clamp(
@@ -204,6 +200,7 @@ export function StudyEagle() {
   function onPointerUp() {
     isDraggingRef.current = false;
     setIsDragging(false);
+    if (!didDrag.current && !isReturningRef.current) setFlightDirection(null);
     if (didDrag.current) {
       startFlight(getNormalPerchPosition());
       window.setTimeout(() => {
@@ -235,6 +232,7 @@ export function StudyEagle() {
     if (Math.abs(target.x - start.x) < 1 && Math.abs(target.y - start.y) < 1) {
       setIsReturning(false);
       isReturningRef.current = false;
+      setFlightDirection(null);
       onArrive?.();
       return;
     }
@@ -242,6 +240,7 @@ export function StudyEagle() {
     const deltaX = target.x - start.x;
     const deltaY = target.y - start.y;
     const totalDuration = Math.max(420, Math.hypot(deltaX, deltaY) * 2.2);
+    setFlightDirection(getDirection(deltaX, deltaY));
 
     const step = (now: number) => {
       const elapsed = Math.min(now - startedAt, totalDuration);
@@ -253,6 +252,7 @@ export function StudyEagle() {
         returnFrame.current = null;
         setIsReturning(false);
         isReturningRef.current = false;
+        setFlightDirection(null);
         setPosition(target);
         onArrive?.();
       }
@@ -365,12 +365,13 @@ export function StudyEagle() {
           className="study-eagle-button"
         >
           <span
-            className={`study-eagle-sprite ${animation === "sleeping" ? "study-eagle-sprite-sleeping" : ""}`}
-            style={
+            className={`study-eagle-sprite ${
               animation === "sleeping"
-                ? ({ backgroundPosition: `${frame * 33.333}% 0%` } as CSSProperties)
-                : undefined
-            }
+                ? "study-eagle-sprite-sleeping"
+                : flightDirection
+                  ? `study-eagle-sprite-${flightDirection}`
+                  : ""
+            }`}
           />
         </button>
         <div className="study-eagle-shadow" aria-hidden="true" />
@@ -391,6 +392,11 @@ export function StudyEagle() {
 
 function clamp(value: number, min: number, max: number) {
   return Math.max(min, Math.min(max, value));
+}
+
+function getDirection(deltaX: number, deltaY: number): Direction {
+  if (Math.abs(deltaX) > Math.abs(deltaY)) return deltaX > 0 ? "right" : "left";
+  return deltaY > 0 ? "down" : "up";
 }
 
 function lerp(start: number, end: number, progress: number) {
