@@ -73,7 +73,9 @@ export function Home() {
       <Spotlight />
       <TopNav />
       <Hero featured={featured} major={currentMajor?.name ?? "your program"} />
-      <Marquee />
+      <div className="hidden md:block">
+        <Marquee />
+      </div>
 
       <div className="px-6 pt-6 md:px-10 md:pt-10">
         <p className="text-xs font-semibold uppercase tracking-[0.3em] text-muted-foreground">

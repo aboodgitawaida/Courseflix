@@ -48,7 +48,9 @@ export function TopNav() {
     <header className="sticky top-0 z-50 px-3 pt-3 md:px-6">
       <div
         className={`glass mx-auto flex h-14 items-center gap-2 rounded-full pl-5 pr-2 transition-all duration-500 md:gap-3 ${
-          scrolled ? "max-w-6xl bg-background/70 shadow-2xl shadow-black/40" : "max-w-[1600px]"
+          scrolled
+            ? "max-w-6xl bg-background/95 shadow-2xl shadow-black/40 lg:bg-background/70"
+            : "max-w-[1600px]"
         }`}
       >
         <Link to="/" aria-label="Courseflix home" className="shrink-0">
