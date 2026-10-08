@@ -7,6 +7,7 @@ import { PageBackdrop } from "@/components/PageBackdrop";
 export const Route = createFileRoute("/auth/reset-password")({
   head: () => ({
     meta: [
+      { name: "robots", content: "noindex, nofollow" },
       { title: "Reset Password — courseflix UTM" },
       { name: "description", content: "Reset your courseflix password." },
     ],
