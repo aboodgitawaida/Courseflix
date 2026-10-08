@@ -218,6 +218,8 @@ export function useToggleShortlist() {
     },
     onSettled: () => {
       void queryClient.invalidateQueries({ queryKey: ["shortlist"] });
+      void queryClient.invalidateQueries({ queryKey: ["achievement-shortlist"] });
+      void queryClient.invalidateQueries({ queryKey: ["achievement-earned"] });
     },
   });
 }

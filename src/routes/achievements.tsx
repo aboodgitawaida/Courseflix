@@ -1,10 +1,9 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowRight, LockKeyhole, Sparkles, Trophy } from "lucide-react";
-import { useEffect } from "react";
 import { TopNav } from "@/components/TopNav";
 import { PageBackdrop } from "@/components/PageBackdrop";
 import { useAuth } from "@/hooks/use-auth";
-import { createAchievementNotifications, useAchievements } from "@/lib/achievements";
+import { useAchievements } from "@/lib/achievements";
 import { QueryErrorState } from "@/components/QueryErrorState";
 
 export const Route = createFileRoute("/achievements")({
@@ -25,15 +24,6 @@ function AchievementsPage() {
   const { signedIn } = useAuth();
   const { achievements, isLoading, error, refetch } = useAchievements(signedIn);
   const unlocked = achievements.filter((achievement) => achievement.unlocked).length;
-  useEffect(() => {
-    if (!signedIn || isLoading || error) return;
-    void createAchievementNotifications(
-      achievements
-        .filter((achievement) => achievement.unlocked)
-        .map((achievement) => achievement.id),
-    );
-  }, [achievements, error, isLoading, signedIn]);
-
   return (
     <div className="relative min-h-screen overflow-x-clip text-foreground">
       <PageBackdrop />
