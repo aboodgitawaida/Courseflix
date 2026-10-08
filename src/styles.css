@@ -333,6 +333,8 @@
   to {
     opacity: 0;
     transform: scale3d(1.08, 1.08, 1);
+    /* Stops blocking clicks even if the page is slow to hydrate. */
+    visibility: hidden;
   }
 }
 @utility cinematic-ambient {
@@ -347,6 +349,10 @@
 @utility cinematic-sheen {
   animation: cinematic-sheen 0.9s ease-in-out 0.7s forwards;
   will-change: transform;
+}
+/* Set by INTRO_HEAD_SCRIPT / CinematicIntro once the intro has played this session */
+.intro-played .cinematic-overlay {
+  display: none;
 }
 @utility cinematic-overlay {
   animation: cinematic-dissolve 0.7s ease-in 1.8s forwards;
