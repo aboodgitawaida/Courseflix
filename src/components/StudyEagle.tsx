@@ -23,6 +23,8 @@ export function StudyEagle() {
   const [isDragging, setIsDragging] = useState(false);
   const [isReturning, setIsReturning] = useState(false);
   const [celebrating, setCelebrating] = useState(false);
+  const [petting, setPetting] = useState(false);
+  const [petKey, setPetKey] = useState(0);
   const [landing, setLanding] = useState(false);
   const [sleepPhase, setSleepPhase] = useState<SleepPhase>("awake");
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
@@ -40,6 +42,7 @@ export function StudyEagle() {
   const isReturningRef = useRef(false);
   const isDraggingRef = useRef(false);
   const messageTimer = useRef<number | null>(null);
+  const petTimer = useRef<number | null>(null);
   const sleepTransitionTimer = useRef<number | null>(null);
   const sleepSequence = useRef(0);
   const animationRef = useRef<EagleAnimation>("idle");
@@ -149,6 +152,7 @@ export function StudyEagle() {
     return () => {
       if (returnFrame.current !== null) cancelAnimationFrame(returnFrame.current);
       if (messageTimer.current !== null) window.clearTimeout(messageTimer.current);
+      if (petTimer.current !== null) window.clearTimeout(petTimer.current);
       if (sleepTransitionTimer.current !== null) window.clearTimeout(sleepTransitionTimer.current);
       sleepSequence.current += 1;
     };
@@ -212,6 +216,17 @@ export function StudyEagle() {
   function petEagle() {
     if (isDragging || didDrag.current) return;
     setPetCount((count) => count + 1);
+    // Happy hop + flutter + hearts, only while awake and perched (waking up and
+    // flying home have their own motion).
+    if (animation === "idle" && !isReturningRef.current && !celebrating) {
+      setPetKey((key) => key + 1);
+      setPetting(true);
+      if (petTimer.current !== null) window.clearTimeout(petTimer.current);
+      petTimer.current = window.setTimeout(() => {
+        setPetting(false);
+        petTimer.current = null;
+      }, 700);
+    }
     showStatus(petCount % 2 === 0 ? "Krrr! That tickles." : "You got me.");
     setSummaryCourseCode(null);
     setSummaryText(null);
@@ -335,14 +350,15 @@ export function StudyEagle() {
         </div>
       )}
       <div
-        className={`relative ${celebrating ? "study-eagle-celebrating" : ""} ${landing ? "study-eagle-landing" : ""} study-eagle-${animation} study-eagle-sleep-${sleepPhase}`}
+        className={`relative ${celebrating ? "study-eagle-celebrating" : ""} ${petting ? `study-eagle-petting study-eagle-petting-${petKey % 2}` : ""} ${landing ? "study-eagle-landing" : ""} study-eagle-${animation} study-eagle-sleep-${sleepPhase}`}
       >
-        <div
-          className={`study-eagle-spark ${petCount ? "study-eagle-spark-visible" : ""}`}
-          aria-hidden="true"
-        >
-          ✦
-        </div>
+        {petKey > 0 && (
+          <div key={petKey} className="study-eagle-hearts" aria-hidden="true">
+            <PixelHeart />
+            <PixelHeart />
+            <PixelHeart />
+          </div>
+        )}
         {celebrating && (
           <div className="study-eagle-confetti" aria-hidden="true">
             ✦ · ✧ ✦ · ✧
@@ -387,6 +403,21 @@ export function StudyEagle() {
         </div>
       </div>
     </div>
+  );
+}
+
+const HEART_ROWS = [".XX.XX.", "XXXXXXX", "XXXXXXX", ".XXXXX.", "..XXX..", "...X..."];
+
+/** A 7x6 pixel heart, drawn with crisp squares to match the sprite. */
+function PixelHeart() {
+  return (
+    <svg viewBox="0 0 7 6" shapeRendering="crispEdges">
+      {HEART_ROWS.flatMap((row, y) =>
+        [...row].map((cell, x) =>
+          cell === "X" ? <rect key={`${x}-${y}`} x={x} y={y} width="1" height="1" /> : null,
+        ),
+      )}
+    </svg>
   );
 }
 
