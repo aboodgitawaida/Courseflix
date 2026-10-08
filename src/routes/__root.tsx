@@ -21,6 +21,7 @@ import { CompareDrawer } from "@/components/CompareDrawer";
 import { StudyEagle } from "@/components/StudyEagle";
 import { ProgramPickerSheet } from "@/components/ProgramPicker";
 import { MajorProfileSync } from "@/components/MajorProfileSync";
+import { INTRO_HEAD_SCRIPT } from "@/lib/intro";
 import { NetworkStatusBanner } from "@/components/NetworkStatusBanner";
 import { MobileTabBar } from "@/components/MobileTabBar";
 import { InstallPrompt } from "@/components/InstallPrompt";
@@ -162,8 +163,10 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
 
 function RootShell({ children }: { children: ReactNode }) {
   return (
-    <html lang="en">
+    // The intro script may add a class to <html> before hydration.
+    <html lang="en" suppressHydrationWarning>
       <head>
+        <script dangerouslySetInnerHTML={{ __html: INTRO_HEAD_SCRIPT }} />
         <HeadContent />
       </head>
       <body>
