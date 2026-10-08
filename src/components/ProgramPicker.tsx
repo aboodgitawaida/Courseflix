@@ -58,13 +58,15 @@ export function ProgramButton() {
       type="button"
       onClick={openProgramPicker}
       aria-label={current ? `Program: ${current.name}. Change program` : "Pick your program"}
-      className="flex h-9 max-w-[200px] shrink-0 items-center gap-1.5 rounded-full border border-white/[0.08] bg-white/[0.04] px-3 text-xs font-semibold backdrop-blur-md transition hover:border-brand/50 hover:bg-white/[0.06] focus-visible:ring-2 focus-visible:ring-white/30"
+      className="flex h-9 min-w-0 max-w-[200px] items-center gap-1.5 rounded-full border border-white/[0.08] bg-white/[0.04] px-3 text-xs font-semibold backdrop-blur-md transition hover:border-brand/50 hover:bg-white/[0.06] focus-visible:ring-2 focus-visible:ring-white/30"
     >
       <span aria-hidden className="text-sm leading-none">
         {current?.emoji ?? "✨"}
       </span>
       {!current && <span className="sm:hidden">Program</span>}
-      <span className="hidden truncate sm:inline">{current?.name ?? "Pick your program"}</span>
+      <span className="hidden min-w-0 truncate sm:block">
+        {current?.name ?? "Pick your program"}
+      </span>
       <ChevronDown aria-hidden className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
     </button>
   );
