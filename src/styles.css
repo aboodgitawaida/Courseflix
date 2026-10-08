@@ -411,13 +411,12 @@
   cursor: grab;
   image-rendering: pixelated;
   filter: drop-shadow(0 9px 4px rgb(0 0 0 / 0.35));
-  transform: rotate(var(--flight-angle, 0deg));
   transition:
     transform 160ms ease,
     filter 160ms ease;
 }
 .study-eagle-button:hover {
-  transform: rotate(var(--flight-angle, 0deg)) translateY(-4px) scale(1.04);
+  transform: translateY(-4px) scale(1.04);
   filter: drop-shadow(0 13px 6px rgb(0 0 0 / 0.4));
 }
 .study-eagle-dragging .study-eagle-button {
@@ -428,14 +427,23 @@
   display: block;
   width: 78px;
   height: 78px;
-  background-image: url("/eagle-spritesheet.png");
-  background-size: 300% 400%;
+  /* Base idle: 3 front-facing hover frames, 160x160px each, in one row. */
+  background-image: url("/eagle-idle-spritesheet.png");
+  background-size: 300% 100%;
+  background-position: 0% 0%;
   background-repeat: no-repeat;
   image-rendering: pixelated;
+  animation: eagle-idle 720ms step-end infinite;
 }
 .study-eagle-sprite-sleeping {
   background-image: url("/eagle-sleeping-spritesheet.png");
   background-size: 400% 100%;
+  animation: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  .study-eagle-sprite {
+    animation: none;
+  }
 }
 /* Phones: a smaller eagle so it never covers forms or course text. */
 @media (max-width: 1023px) {
@@ -622,6 +630,21 @@
   100% {
     opacity: 0;
     transform: translateY(-12px) scale(1.2);
+  }
+}
+/* Ping-pong flap 0 -> 1 -> 2 -> 1 so the loop never snaps from open wings to closed. */
+@keyframes eagle-idle {
+  0% {
+    background-position: 0% 0%;
+  }
+  25% {
+    background-position: 50% 0%;
+  }
+  50% {
+    background-position: 100% 0%;
+  }
+  75% {
+    background-position: 50% 0%;
   }
 }
 @keyframes eagle-sleep {
