@@ -6,6 +6,8 @@ import { useAuth } from "@/hooks/use-auth";
 import { useCourseUI } from "@/hooks/use-course-ui";
 import { prefersReducedMotion } from "@/hooks/use-reveal";
 import { useShortlist, useToggleShortlist } from "@/lib/ratings";
+import { useCourseDescription } from "@/lib/course-description";
+import { FEATURED_DESCRIPTIONS } from "@/lib/featured-descriptions";
 import { FALLBACK_SUBJECT_IMAGE, getCourseImage } from "@/lib/subject-images";
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 
@@ -74,6 +76,10 @@ export function Hero({ featured, major }: { featured: Course; major: string }) {
   const { data: saved = [] } = useShortlist();
   const toggle = useToggleShortlist();
   const inList = saved.includes(feat.code);
+  const bundledDescription = FEATURED_DESCRIPTIONS[feat.code];
+  // Only fall back to the full description file if this course isn't bundled.
+  const loadedDescription = useCourseDescription(bundledDescription ? undefined : feat.code);
+  const description = bundledDescription ?? loadedDescription;
   const heroImage = (subject: string) => getCourseImage(subject).replace("w=400", "w=900");
   const [imageSrc, setImageSrc] = useState(() => heroImage(feat.subject));
   const backSubjects = SUBJECTS.filter((s) => s !== feat.subject).slice(0, 2);
@@ -257,8 +263,9 @@ export function Hero({ featured, major }: { featured: Course; major: string }) {
                 <div className="mt-2 text-lg font-semibold leading-snug text-white">
                   {feat.title}
                 </div>
-                <p className="mt-2 line-clamp-2 text-sm leading-relaxed text-white/80">
-                  {feat.description}
+                {/* min-h reserves both lines so the card doesn't jump when the description loads. */}
+                <p className="mt-2 line-clamp-2 min-h-[2lh] text-sm leading-relaxed text-white/80">
+                  {description}
                 </p>
                 <div className="mt-5 flex items-center gap-2">
                   <Link

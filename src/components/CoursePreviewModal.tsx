@@ -8,6 +8,7 @@ import { useMajor } from "@/hooks/use-major";
 import { getMajor } from "@/lib/majors";
 import { useAuth } from "@/hooks/use-auth";
 import { useCourseStats, useShortlist, useToggleShortlist } from "@/lib/ratings";
+import { useCourseDescription } from "@/lib/course-description";
 import { FALLBACK_SUBJECT_IMAGE, getCourseImage } from "@/lib/subject-images";
 import { PrereqTree } from "./PrereqTree";
 import { useEffect, useState } from "react";
@@ -21,6 +22,7 @@ export function CoursePreviewModal() {
   const toggle = useToggleShortlist();
 
   const course = previewCode ? getCourse(previewCode) : undefined;
+  const description = useCourseDescription(course?.code);
   const { data: stats } = useCourseStats(course?.code ?? "");
   const open = !!course;
   const art = getArt(course?.subject ?? "");
@@ -134,7 +136,9 @@ export function CoursePreviewModal() {
                 ))}
               </div>
 
-              <p className="text-sm leading-relaxed text-muted-foreground">{course.description}</p>
+              <p className="min-h-[3lh] text-sm leading-relaxed text-muted-foreground">
+                {description}
+              </p>
 
               <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
                 <Stat label="Rating" value={hasStudentData ? `${displayRating}/5` : "No data"} />

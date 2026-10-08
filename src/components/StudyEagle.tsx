@@ -8,6 +8,7 @@ import {
 } from "react";
 import { useRouterState } from "@tanstack/react-router";
 import { getCourse, type Course } from "@/lib/courses";
+import { loadDescriptions, peekDescriptions } from "@/lib/course-description";
 
 type Position = { x: number; y: number };
 type Direction = "down" | "up" | "left" | "right";
@@ -111,9 +112,15 @@ export function StudyEagle() {
       if (!course) return;
       setSummaryCourseCode(course.code);
       setSummaryContext(context ?? "preview");
-      setSummaryText(makeCourseSummary(course));
+      const cached = peekDescriptions();
+      setSummaryText(makeCourseSummary(course, cached?.[course.code] ?? ""));
       setReply("");
       setChatOpen(true);
+      if (!cached) {
+        void loadDescriptions()
+          .then((loaded) => setSummaryText(makeCourseSummary(course, loaded[course.code] ?? "")))
+          .catch(() => {});
+      }
     };
     const onCelebration = () => {
       setActivityVersion((version) => version + 1);
@@ -435,8 +442,8 @@ function getSleepPerchPosition(): Position {
   return { x: window.innerWidth - 132, y: window.innerHeight - 78 - tabBarClearance() };
 }
 
-function makeCourseSummary(course: Course) {
-  const description = course.description
+function makeCourseSummary(course: Course, rawDescription: string) {
+  const description = rawDescription
     .replace(/\s+/g, " ")
     .replace(/\s*(?:\.\.\.|…)\s*$/, "")
     .replace(/^\([^)]*\)\s*/i, "")
