@@ -157,6 +157,23 @@ export function useRemoveFriend() {
   });
 }
 
+export function usePublicProfile(userId: string | null) {
+  return useQuery({
+    queryKey: ["public-profile", userId],
+    enabled: Boolean(userId),
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("profiles")
+        .select("id, display_name, username, avatar_id, major_id, year, is_private, is_verified")
+        .eq("id", userId!)
+        .maybeSingle();
+      if (error) throw new Error(`Could not load profile: ${error.message}`);
+      return (data as Profile | null) ?? null;
+    },
+    retry: 1,
+  });
+}
+
 export function useFriendShortlist(userId: string | null) {
   return useQuery({
     queryKey: ["friend-shortlist", userId],
