@@ -452,10 +452,16 @@
   background-position-y: 100%;
   --flap-duration: 480ms;
 }
+/* eagle-sleep-spritesheet-hq.png: 1 row of 3 160x160px frames, drawn on the
+   same 40x40 art-pixel grid and palette as the flight sheet (see
+   scripts/draw-eagle-sleep.py): 0 rest, 1 inhale start (back up 1px),
+   2 inhale peak (chest out 1px, feather shading shifted). The shared
+   eagle-flap keyframes ping-pong 0 -> 1 -> 2 -> 1, slowed to a breath. */
 .study-eagle-sprite-sleeping {
-  background-image: url("/eagle-sleeping-spritesheet.png");
-  background-size: 400% 100%;
-  animation: none;
+  background-image: url("/eagle-sleep-spritesheet-hq.png");
+  background-size: 300% 100%;
+  background-position-y: 0%;
+  --flap-duration: 2.8s;
 }
 @media (prefers-reduced-motion: reduce) {
   .study-eagle-sprite {
@@ -475,15 +481,6 @@
   .study-eagle-status {
     bottom: 62px;
   }
-}
-.study-eagle-sleeping .study-eagle-button {
-  animation: eagle-sleep 2.4s steps(2, end) infinite;
-}
-.study-eagle-sleeping .study-eagle-sprite {
-  filter: brightness(0.72) saturate(0.78);
-}
-.study-eagle-sleep-deep .study-eagle-sprite {
-  filter: brightness(0.62) saturate(0.68);
 }
 .study-eagle-sleeping::after {
   content: "z  z";
@@ -665,15 +662,6 @@
     background-position-x: 50%;
   }
 }
-@keyframes eagle-sleep {
-  0%,
-  100% {
-    transform: translateY(2px) rotate(0deg);
-  }
-  50% {
-    transform: translateY(5px) rotate(1deg);
-  }
-}
 @keyframes eagle-zzz {
   0% {
     opacity: 0;
@@ -694,7 +682,6 @@
   .study-eagle-spark,
   .study-eagle-celebrating .study-eagle-button,
   .study-eagle-confetti,
-  .study-eagle-sleeping .study-eagle-button,
   .study-eagle-sleeping::after {
     animation: none;
     transition: none;
