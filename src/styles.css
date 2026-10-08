@@ -551,20 +551,42 @@
   background: rgb(180 83 9 / 0.35);
   color: white;
 }
-.study-eagle-spark {
-  position: absolute;
-  top: -2px;
-  right: 5px;
-  color: rgb(253 230 138 / 0);
-  font-size: 16px;
-  transform: scale(0.4);
-  transition:
-    color 150ms ease,
-    transform 300ms ease;
+/* Pet reaction (~700ms): squash, happy hop with a fast flutter, settle.
+   Two identical keyframes alternate per pet so rapid pets restart cleanly. */
+.study-eagle-petting-0 .study-eagle-button {
+  animation: eagle-pet-hop-0 700ms ease-out;
 }
-.study-eagle-spark-visible {
-  color: rgb(253 230 138 / 0.95);
-  transform: scale(1.2) translateY(-9px);
+.study-eagle-petting-1 .study-eagle-button {
+  animation: eagle-pet-hop-1 700ms ease-out;
+}
+.study-eagle-petting .study-eagle-sprite {
+  --flap-duration: 280ms;
+}
+.study-eagle-hearts {
+  position: absolute;
+  top: -6px;
+  left: 50%;
+  display: flex;
+  gap: 6px;
+  transform: translateX(-50%);
+  color: #fbbf24;
+  pointer-events: none;
+}
+.study-eagle-hearts svg {
+  width: 14px;
+  height: 12px;
+  fill: currentColor;
+  filter: drop-shadow(0 1px 0 rgb(120 53 15 / 0.8));
+  opacity: 0;
+  animation: eagle-hearts 900ms ease-out forwards;
+}
+.study-eagle-hearts svg:nth-child(2) {
+  width: 10px;
+  height: 9px;
+  animation-delay: 120ms;
+}
+.study-eagle-hearts svg:nth-child(3) {
+  animation-delay: 220ms;
 }
 .study-eagle-confetti {
   position: absolute;
@@ -619,6 +641,65 @@
   100% {
     opacity: 0;
     transform: translateY(-52px) scale(1.25);
+  }
+}
+@keyframes eagle-pet-hop-0 {
+  0%,
+  100% {
+    transform: translateY(0) scale(1, 1);
+  }
+  13% {
+    transform: translateY(2px) scale(1.06, 0.9);
+  }
+  42% {
+    transform: translateY(-10px) scale(0.98, 1.04);
+  }
+  70% {
+    transform: translateY(0) scale(1, 1);
+  }
+  82% {
+    transform: translateY(2px) scale(1.02, 0.97);
+  }
+}
+@keyframes eagle-pet-hop-1 {
+  0%,
+  100% {
+    transform: translateY(0) scale(1, 1);
+  }
+  13% {
+    transform: translateY(2px) scale(1.06, 0.9);
+  }
+  42% {
+    transform: translateY(-10px) scale(0.98, 1.04);
+  }
+  70% {
+    transform: translateY(0) scale(1, 1);
+  }
+  82% {
+    transform: translateY(2px) scale(1.02, 0.97);
+  }
+}
+@keyframes eagle-hearts {
+  0% {
+    opacity: 0;
+    transform: translateY(8px) scale(0.6);
+  }
+  25% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-26px) scale(1);
+  }
+}
+@keyframes eagle-hearts-fade {
+  0%,
+  100% {
+    opacity: 0;
+  }
+  30% {
+    opacity: 1;
   }
 }
 @keyframes eagle-celebrate-hop {
@@ -679,12 +760,16 @@
 @media (prefers-reduced-motion: reduce) {
   .study-eagle-button,
   .study-eagle-controls,
-  .study-eagle-spark,
   .study-eagle-celebrating .study-eagle-button,
+  .study-eagle-petting-0 .study-eagle-button,
+  .study-eagle-petting-1 .study-eagle-button,
   .study-eagle-confetti,
   .study-eagle-sleeping::after {
     animation: none;
     transition: none;
+  }
+  .study-eagle-hearts svg {
+    animation-name: eagle-hearts-fade;
   }
 }
 
