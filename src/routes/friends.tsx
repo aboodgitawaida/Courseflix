@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { VerifiedBadge } from "@/components/VerifiedBadge";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { Check, Search, UserMinus, UserPlus, X } from "lucide-react";
@@ -21,6 +22,7 @@ import { announce } from "@/lib/a11y";
 export const Route = createFileRoute("/friends")({
   head: () => ({
     meta: [
+      { name: "robots", content: "noindex, nofollow" },
       { title: "Friends — Courseflix UTM" },
       {
         name: "description",
@@ -190,7 +192,10 @@ function FriendsPage() {
                             className="h-10 w-10 rounded-full object-contain"
                           />
                           <div className="min-w-0 flex-1">
-                            <div className="truncate text-sm font-semibold">{p.display_name}</div>
+                            <div className="truncate text-sm font-semibold">
+                              {p.display_name}
+                              {p.is_verified && <VerifiedBadge className="ml-1 h-4 w-4" />}
+                            </div>
                             <div className="truncate text-xs text-muted-foreground">
                               {p.username ? `@${p.username}` : "no username yet"}
                             </div>
@@ -231,6 +236,7 @@ function FriendsPage() {
                         />
                         <div className="min-w-0 flex-1 truncate text-sm font-semibold">
                           {p?.display_name ?? "A student"}
+                          {p?.is_verified && <VerifiedBadge className="ml-1 h-4 w-4" />}
                         </div>
                         <button
                           disabled={respond.isPending}
@@ -297,7 +303,10 @@ function FriendsPage() {
                           className="h-10 w-10 rounded-full object-contain"
                         />
                         <div className="min-w-0 flex-1">
-                          <div className="truncate text-sm font-semibold">{name}</div>
+                          <div className="truncate text-sm font-semibold">
+                            {name}
+                            {p?.is_verified && <VerifiedBadge className="ml-1 h-4 w-4" />}
+                          </div>
                           <div className="truncate text-xs text-muted-foreground">
                             {p?.username ? `@${p.username}` : ""}
                           </div>

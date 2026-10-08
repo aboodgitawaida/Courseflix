@@ -1,4 +1,5 @@
 import { Github, Linkedin, Mail, Code2, Instagram, ArrowUpRight } from "lucide-react";
+import { VerifiedBadge } from "@/components/VerifiedBadge";
 import { useReveal } from "@/hooks/use-reveal";
 
 const SOCIALS = [
@@ -39,6 +40,7 @@ export function CreatorSection() {
             <h2 className="mt-3 font-mega text-4xl font-extrabold leading-[0.95] md:text-6xl">
               Abood{" "}
               <span className="font-serif-accent text-gradient-brand text-[1.15em]">Awaida</span>
+              <VerifiedBadge className="ml-2 h-[0.6em] w-[0.6em]" />
             </h2>
             <p className="mt-2 text-sm font-semibold text-muted-foreground">
               Software developer · University of Toronto Mississauga
