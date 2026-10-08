@@ -14,8 +14,10 @@ const SOCIALS = [
 export function CreatorSection() {
   const ref = useReveal<HTMLElement>();
 
+  // scroll-mt keeps the Creator link from landing under the sticky nav and filter chips (plus the 28px
+  // the reveal animation lifts the section after the jump).
   return (
-    <section ref={ref} id="creator" className="reveal px-6 pb-24 md:px-10 md:pb-32">
+    <section ref={ref} id="creator" className="reveal scroll-mt-40 px-6 pb-24 md:px-10 md:pb-32">
       <div className="glass relative overflow-hidden rounded-[2rem] p-7 md:p-14">
         <div
           className="mesh-blob pointer-events-none -right-24 -top-24 h-80 w-80 bg-brand/25"
