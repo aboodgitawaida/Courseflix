@@ -21,7 +21,6 @@ export type CourseTag =
 export type Course = {
   code: string;
   title: string;
-  description: string;
   subject: string;
   area: string;
   level: number;
@@ -213,7 +212,7 @@ for (const m of MAJORS) {
 }
 
 function buildCourse(row: (typeof CATALOG)[number]): Course {
-  const [code, title, description, dist, prereqRaw, hours] = row;
+  const [code, title, dist, prereqRaw, hours, flags] = row;
   const subject = code.replace(/[0-9].*$/, "");
   const level = Number(code.replace(/^[A-Z]+/, "").slice(0, 1)) * 100;
   const credits = code.includes("Y5") ? 1 : 0.5;
@@ -235,8 +234,8 @@ function buildCourse(row: (typeof CATALOG)[number]): Course {
   if (practical >= 24) tags.push("Lab-Heavy");
   if (dist.includes("H") || ["ENG", "HIS", "PHL", "RLG", "WGS", "WRI"].includes(subject))
     tags.push("Essay-Heavy");
-  if (/seminar|discussion/i.test(description)) tags.push("Discussion");
-  if (/project|studio|practicum|field/i.test(description)) tags.push("Project");
+  if (flags.includes("D")) tags.push("Discussion");
+  if (flags.includes("P")) tags.push("Project");
   if (load >= 70) tags.push("Heavy");
 
   if (subject === "CSC" && level >= 200) {
@@ -255,7 +254,6 @@ function buildCourse(row: (typeof CATALOG)[number]): Course {
   return {
     code,
     title,
-    description,
     subject,
     area,
     level,
@@ -378,7 +376,11 @@ export function matchesFilter(c: Course, f: FilterId) {
   }
 }
 
-export function searchCourses(query: string, limit = 30): Course[] {
+export function searchCourses(
+  query: string,
+  limit = 30,
+  descriptions?: Record<string, string>,
+): Course[] {
   const s = query.trim().toLowerCase();
   if (!s) return [];
   const scored: Array<{ c: Course; score: number }> = [];
@@ -393,7 +395,7 @@ export function searchCourses(query: string, limit = 30): Course[] {
     else if (title.includes(s)) score = 40;
     else if (c.area.toLowerCase().includes(s)) score = 20;
     else if (c.tags.some((t) => t.toLowerCase().includes(s))) score = 18;
-    else if (c.description.toLowerCase().includes(s)) score = 15;
+    else if (descriptions?.[c.code]?.toLowerCase().includes(s)) score = 15;
     if (score) scored.push({ c, score });
   }
   return scored
