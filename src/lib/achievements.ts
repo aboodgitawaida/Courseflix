@@ -1,4 +1,4 @@
-import { useQueries } from "@tanstack/react-query";
+import { useQueries, useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import type { RatingRow } from "@/lib/ratings";
 
@@ -219,4 +219,26 @@ export function useAchievements(enabled: boolean) {
         earnedQuery.refetch(),
       ]),
   };
+}
+
+/** A friend's earned achievements (readable once you are accepted friends). */
+export function useFriendAchievements(userId: string | null) {
+  return useQuery({
+    queryKey: ["friend-achievements", userId],
+    enabled: Boolean(userId),
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("user_achievements")
+        .select("achievement_id, unlocked_at")
+        .eq("user_id", userId!);
+      if (error) throw new Error(`Could not load achievements: ${error.message}`);
+      const earned = new Map((data ?? []).map((row) => [row.achievement_id, row.unlocked_at]));
+      return definitions.map((definition) => ({
+        ...definition,
+        unlocked: earned.has(definition.id),
+        unlockedAt: earned.get(definition.id) ?? null,
+      }));
+    },
+    retry: 1,
+  });
 }
