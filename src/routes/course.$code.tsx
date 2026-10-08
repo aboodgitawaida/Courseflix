@@ -30,6 +30,7 @@ import { rmpTorontoSearchUrl, rmpUtmSearchUrl, timetableUrl } from "@/lib/links"
 import { getProfessorRating } from "@/lib/professor-ratings";
 import { PUBLISHED_INSTRUCTORS } from "@/lib/course-instructors";
 import { loadDescriptions } from "@/lib/course-description";
+import { recordSubjectInterest } from "@/lib/interest";
 
 export const Route = createFileRoute("/course/$code")({
   loader: async ({ params }) => {
@@ -107,6 +108,7 @@ function CoursePage() {
     window.dispatchEvent(
       new CustomEvent("study-eagle-summarize", { detail: { course, context: "page" } }),
     );
+    recordSubjectInterest(course.subject);
   }, [course]);
 
   async function onShortlist() {
