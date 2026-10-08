@@ -128,14 +128,14 @@ export function Hero({ featured, major }: { featured: Course; major: string }) {
       {/* Giant outlined code */}
       <div
         aria-hidden="true"
-        className="text-outline pointer-events-none absolute -bottom-6 right-[-2%] -z-10 select-none font-mega text-[16vw] font-black leading-none md:-bottom-10"
+        className="text-outline pointer-events-none absolute -bottom-10 right-[-2%] -z-10 hidden select-none font-mega text-[16vw] font-black leading-none md:block"
       >
         {feat.code}
       </div>
 
-      <div className="relative grid min-h-[calc(100svh-5rem)] items-center gap-12 px-6 pb-20 pt-10 md:px-10 lg:grid-cols-[1.25fr_1fr] lg:gap-8 lg:pb-24">
+      <div className="relative grid items-center gap-8 px-6 pb-10 pt-6 md:gap-12 md:px-10 md:pb-20 md:pt-10 lg:min-h-[calc(100svh-5rem)] lg:grid-cols-[1.25fr_1fr] lg:gap-8 lg:pb-24">
         <div>
-          <div className="glass mb-7 inline-flex items-center gap-2.5 rounded-full px-3.5 py-1.5 text-[11px] font-semibold uppercase tracking-[0.18em] text-foreground/80 animate-fade-in-up">
+          <div className="glass mb-5 inline-flex md:mb-7 items-center gap-2.5 rounded-full px-3.5 py-1.5 text-[11px] font-semibold uppercase tracking-[0.18em] text-foreground/80 animate-fade-in-up">
             <span className="relative flex h-2 w-2">
               <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-brand opacity-75" />
               <span className="relative inline-flex h-2 w-2 rounded-full bg-brand" />
@@ -162,12 +162,12 @@ export function Hero({ featured, major }: { featured: Course; major: string }) {
             </span>
           </h1>
 
-          <p className="mt-7 max-w-xl text-base leading-relaxed text-muted-foreground md:text-lg animate-fade-in-up [animation-delay:0.6s] opacity-0">
+          <p className="mt-5 max-w-xl text-base md:mt-7 leading-relaxed text-muted-foreground md:text-lg animate-fade-in-up [animation-delay:0.6s] opacity-0">
             Every UTM course in one feed, sorted into rows for your program. Student ratings,
             bird-course signals and prereq trees — no Reddit archaeology required.
           </p>
 
-          <div className="mt-9 flex flex-wrap items-center gap-3 animate-fade-in-up [animation-delay:0.75s] opacity-0">
+          <div className="mt-7 flex flex-wrap items-center gap-3 md:mt-9 animate-fade-in-up [animation-delay:0.75s] opacity-0">
             <Magnetic>
               <Link
                 to="/course/$code"
@@ -185,13 +185,13 @@ export function Hero({ featured, major }: { featured: Course; major: string }) {
               className="glass inline-flex items-center gap-2 rounded-full px-5 py-3.5 text-sm font-semibold transition hover:border-brand/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/30 active:scale-[0.98]"
             >
               <Search className="h-4 w-4" /> Search all courses
-              <kbd className="ml-1 rounded-md border border-white/[0.12] px-1.5 py-0.5 text-[10px] font-semibold text-muted-foreground">
+              <kbd className="ml-1 hidden rounded-md border sm:inline border-white/[0.12] px-1.5 py-0.5 text-[10px] font-semibold text-muted-foreground">
                 ⌘K
               </kbd>
             </button>
           </div>
 
-          <dl className="mt-12 grid max-w-lg grid-cols-3 gap-6 border-t border-white/[0.08] pt-6 animate-fade-in-up [animation-delay:0.9s] opacity-0">
+          <dl className="mt-12 hidden max-w-lg sm:grid grid-cols-3 gap-6 border-t border-white/[0.08] pt-6 animate-fade-in-up [animation-delay:0.9s] opacity-0">
             <div>
               <dt className="text-[11px] uppercase tracking-[0.18em] text-muted-foreground">
                 Courses

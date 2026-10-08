@@ -469,6 +469,20 @@
   background-image: url("/eagle-sleeping-spritesheet.png");
   background-size: 400% 100%;
 }
+/* Phones: a smaller eagle so it never covers forms or course text. */
+@media (max-width: 1023px) {
+  .study-eagle-button {
+    width: 60px;
+    height: 56px;
+  }
+  .study-eagle-sprite {
+    width: 48px;
+    height: 48px;
+  }
+  .study-eagle-status {
+    bottom: 62px;
+  }
+}
 .study-eagle-sleeping .study-eagle-button {
   animation: eagle-sleep 2.4s steps(2, end) infinite;
 }

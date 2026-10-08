@@ -174,7 +174,7 @@ export function AuthPage() {
   }
 
   return (
-    <div className="relative grid min-h-screen overflow-x-clip text-foreground lg:grid-cols-[1.1fr_1fr]">
+    <div className="relative grid min-h-screen overflow-x-clip pb-28 text-foreground lg:grid-cols-[1.1fr_1fr] lg:pb-0">
       <PageBackdrop />
 
       <aside className="relative hidden flex-col justify-between overflow-hidden border-r border-white/[0.08] p-10 lg:flex xl:p-14">
