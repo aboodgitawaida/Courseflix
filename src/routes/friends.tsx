@@ -295,22 +295,29 @@ function FriendsPage() {
                   return (
                     <div key={r.id} className="rounded-xl glass p-4">
                       <div className="flex items-center gap-3">
-                        <img
-                          src={avatarSrc(p?.avatar_id)}
-                          alt=""
-                          width={40}
-                          height={40}
-                          className="h-10 w-10 rounded-full object-contain"
-                        />
-                        <div className="min-w-0 flex-1">
-                          <div className="truncate text-sm font-semibold">
-                            {name}
-                            {p?.is_verified && <VerifiedBadge className="ml-1 h-4 w-4" />}
+                        <Link
+                          to="/profile/$id"
+                          params={{ id }}
+                          aria-label={`View ${name}'s profile`}
+                          className="group flex min-w-0 flex-1 items-center gap-3"
+                        >
+                          <img
+                            src={avatarSrc(p?.avatar_id)}
+                            alt=""
+                            width={40}
+                            height={40}
+                            className="h-10 w-10 rounded-full object-contain"
+                          />
+                          <div className="min-w-0 flex-1">
+                            <div className="truncate text-sm font-semibold transition group-hover:text-brand">
+                              {name}
+                              {p?.is_verified && <VerifiedBadge className="ml-1 h-4 w-4" />}
+                            </div>
+                            <div className="truncate text-xs text-muted-foreground">
+                              {p?.username ? `@${p.username}` : ""}
+                            </div>
                           </div>
-                          <div className="truncate text-xs text-muted-foreground">
-                            {p?.username ? `@${p.username}` : ""}
-                          </div>
-                        </div>
+                        </Link>
                         <button
                           disabled={remove.isPending}
                           onClick={() => remove.mutate(r.id)}
