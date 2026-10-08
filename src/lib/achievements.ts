@@ -121,6 +121,20 @@ async function loadShortlist() {
   return (data ?? []).map((row) => row.course_code as string);
 }
 
+/** Achievements recorded server-side when first earned; they never expire. */
+async function loadEarned() {
+  const { data: auth, error: authError } = await supabase.auth.getUser();
+  if (authError) throw authError;
+  if (!auth.user) return [] as string[];
+  const { data, error } = await supabase
+    .from("user_achievements")
+    .select("achievement_id")
+    .eq("user_id", auth.user.id);
+  // Before the permanent_achievements migration runs, fall back to live progress only.
+  if (error) return [] as string[];
+  return (data ?? []).map((row) => row.achievement_id);
+}
+
 async function loadRatings() {
   const { data: auth, error: authError } = await supabase.auth.getUser();
   if (authError) throw authError;
@@ -158,17 +172,20 @@ export function useAchievements(enabled: boolean) {
       { queryKey: ["achievement-shortlist"], queryFn: loadShortlist, enabled },
       { queryKey: ["achievement-ratings"], queryFn: loadRatings, enabled },
       { queryKey: ["achievement-friends"], queryFn: countFriends, enabled },
+      { queryKey: ["achievement-earned"], queryFn: loadEarned, enabled },
     ],
   });
   const shortlistCodes = results[0].data ?? [];
   const shortlist = shortlistCodes.length;
   const ratings = results[1].data ?? [];
   const friends = results[2].data ?? 0;
+  const earned = new Set(results[3].data ?? []);
   const reviewedSubjects = new Set(ratings.map((rating) => subject(rating.course_code)));
   const ratedOrSavedSubjects = new Set([...reviewedSubjects, ...shortlistCodes.map(subject)]);
   const ratingQuery = results[1];
   const shortlistQuery = results[0];
   const friendsQuery = results[2];
+  const earnedQuery = results[3];
   const isLoading = results.some((result) => result.isLoading);
   const error = results.find((result) => result.error)?.error ?? null;
   const values: Record<string, number> = {
@@ -182,14 +199,24 @@ export function useAchievements(enabled: boolean) {
     "campus-voice": ratings.length,
   };
   const achievements = definitions.map((definition) => {
-    const progress = Math.min(definition.requirement, values[definition.id] ?? 0);
-    return { ...definition, progress, unlocked: progress >= definition.requirement };
+    // Once earned, an achievement stays unlocked (and full) even if the count drops later.
+    const unlocked =
+      earned.has(definition.id) || (values[definition.id] ?? 0) >= definition.requirement;
+    const progress = unlocked
+      ? definition.requirement
+      : Math.min(definition.requirement, values[definition.id] ?? 0);
+    return { ...definition, progress, unlocked };
   });
   return {
     achievements,
     isLoading,
     error,
     refetch: () =>
-      Promise.all([ratingQuery.refetch(), shortlistQuery.refetch(), friendsQuery.refetch()]),
+      Promise.all([
+        ratingQuery.refetch(),
+        shortlistQuery.refetch(),
+        friendsQuery.refetch(),
+        earnedQuery.refetch(),
+      ]),
   };
 }

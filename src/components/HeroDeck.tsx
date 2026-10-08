@@ -159,6 +159,8 @@ export function HeroDeck({
 
   function onPointerDown(e: React.PointerEvent<HTMLDivElement>) {
     if (reduced || n < 2 || e.button !== 0) return;
+    // Presses on the card's links and buttons are always clicks, never drags.
+    if ((e.target as Element).closest("a, button")) return;
     drag.current = { id: e.pointerId, x: e.clientX, t: e.timeStamp, dx: 0, v: 0, active: false };
   }
 
@@ -204,7 +206,10 @@ export function HeroDeck({
     drag.current = null;
     const el = deckRef.current;
     if (!d.active || !el) return;
+    // Swallow the click this release may fire, but only that one: a drag that ends
+    // without a click (touch, release off the deck) mustn't eat the next real click.
     suppressClick.current = true;
+    window.setTimeout(() => (suppressClick.current = false), 0);
     delete el.dataset.dragging;
     const m = motion.current;
     const width = el.getBoundingClientRect().width;
