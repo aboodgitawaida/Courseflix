@@ -9,6 +9,7 @@ import {
   type ErrorComponentProps,
 } from "@tanstack/react-router";
 import { useEffect, useState, type ReactNode } from "react";
+import { Analytics } from "@vercel/analytics/react";
 
 import appCss from "../styles.css?url";
 import { Toaster } from "@/components/ui/sonner";
@@ -234,6 +235,7 @@ function RootComponent() {
             <MobileTabBar />
             <InstallPrompt />
             <Toaster position="top-center" />
+            <Analytics />
             {termsAccepted === false && (
               <div className="fixed inset-0 z-[100] grid place-items-center bg-black/75 p-4 backdrop-blur-sm">
                 <section
