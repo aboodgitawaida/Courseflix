@@ -17,12 +17,19 @@ const VISIBLE_DEPTH = 3;
 const THROW_RATIO = 0.3;
 const THROW_SPEED = 0.6;
 const DRAG_SLOP = 6;
+// Max hover tilt (deg) and how quickly tilt/drag ease toward the pointer (ms).
+const TILT_Y = 8;
+const TILT_X = 6;
+const EASE_MS = 120;
+
+type Motion = { rx: number; ry: number; px: number; py: number; dx: number };
+const REST: Motion = { rx: 0, ry: 0, px: 0, py: 0, dx: 0 };
 
 const heroImage = (subject: string) => getCourseImage(subject).replace("w=400", "w=900");
 
 type Leaving = { course: Course; dir: 1 | -1; dx: number; id: number };
 
-function DeckArt({ course, eager, named }: { course: Course; eager: boolean; named: boolean }) {
+function DeckArt({ course, eager }: { course: Course; eager: boolean }) {
   const [src, setSrc] = useState(() => heroImage(course.subject));
   return (
     <img
@@ -33,8 +40,6 @@ function DeckArt({ course, eager, named }: { course: Course; eager: boolean; nam
       loading={eager ? "eager" : "lazy"}
       decoding="async"
       onError={() => setSrc(FALLBACK_SUBJECT_IMAGE)}
-      // Pairs with the course page header so the poster grows into it on navigation.
-      style={named ? { viewTransitionName: `course-art-${course.code}` } : undefined}
       className="hero-course-image absolute inset-0 h-full w-full object-cover opacity-70"
     />
   );
@@ -64,7 +69,11 @@ export function HeroDeck({
   // Only the first card's description is bundled; the rest load once the deck moves.
   const descriptions = useDescriptions(index !== 0 || interacted);
 
-  const topRef = useRef<HTMLDivElement>(null);
+  // Pointer handling lives on this container, which never moves. Listening on the
+  // tilting card itself made its own rect feed back into the tilt (twitching) and
+  // fired pointerleave whenever a tilted edge slid out from under the cursor.
+  const deckRef = useRef<HTMLDivElement>(null);
+  const motion = useRef({ cur: { ...REST }, target: { ...REST }, frame: 0, last: 0 });
   const drag = useRef<{
     id: number;
     x: number;
@@ -107,9 +116,46 @@ export function HeroDeck({
     go(step, step === 1 ? -1 : 0);
   }
 
-  function setVars(dx: number) {
-    topRef.current?.style.setProperty("--dx", `${dx}`);
+  function write(m: Motion) {
+    const el = deckRef.current;
+    if (!el) return;
+    el.style.setProperty("--rx", m.rx.toFixed(3));
+    el.style.setProperty("--ry", m.ry.toFixed(3));
+    el.style.setProperty("--px", m.px.toFixed(4));
+    el.style.setProperty("--py", m.py.toFixed(4));
+    el.style.setProperty("--dx", m.dx.toFixed(2));
   }
+
+  // One rAF loop eases the motion toward its target and stops once settled, so
+  // nothing toggles CSS transitions mid-gesture.
+  function animate() {
+    const m = motion.current;
+    if (m.frame) return;
+    m.last = 0;
+    const tick = (t: number) => {
+      const dt = m.last ? t - m.last : 16;
+      m.last = t;
+      const k = 1 - Math.exp(-dt / EASE_MS);
+      let moving = false;
+      for (const key of Object.keys(m.cur) as (keyof Motion)[]) {
+        // A drag follows the pointer exactly; everything else eases.
+        if (key === "dx" && drag.current?.active) m.cur.dx = m.target.dx;
+        else m.cur[key] += (m.target[key] - m.cur[key]) * k;
+        if (Math.abs(m.target[key] - m.cur[key]) > 0.001) moving = true;
+      }
+      if (!moving && !drag.current?.active) {
+        m.cur = { ...m.target };
+        write(m.cur);
+        m.frame = 0;
+        return;
+      }
+      write(m.cur);
+      m.frame = requestAnimationFrame(tick);
+    };
+    m.frame = requestAnimationFrame(tick);
+  }
+
+  useEffect(() => () => cancelAnimationFrame(motion.current.frame), []);
 
   function onPointerDown(e: React.PointerEvent<HTMLDivElement>) {
     if (reduced || n < 2 || e.button !== 0) return;
@@ -117,8 +163,9 @@ export function HeroDeck({
   }
 
   function onPointerMove(e: React.PointerEvent<HTMLDivElement>) {
-    const el = topRef.current;
-    if (!el) return;
+    const el = deckRef.current;
+    if (!el || reduced) return;
+    const m = motion.current;
     const d = drag.current;
     if (d && d.id === e.pointerId) {
       const dx = e.clientX - d.x;
@@ -127,52 +174,56 @@ export function HeroDeck({
         // Capture only once it's a real drag, so plain clicks still reach the links.
         d.active = true;
         el.setPointerCapture(e.pointerId);
-        el.classList.add("is-dragging");
+        el.dataset.dragging = "";
         setInteracted(true);
       }
       const dt = Math.max(e.timeStamp - d.t, 1);
       d.v = (dx - d.dx) / dt;
       d.dx = dx;
       d.t = e.timeStamp;
-      setVars(dx);
-      return;
+      m.target.dx = dx;
+      animate();
     }
-    if (e.pointerType !== "mouse" || reduced) return;
+    if (e.pointerType !== "mouse") return;
     const r = el.getBoundingClientRect();
-    const px = (e.clientX - r.left) / r.width;
-    const py = (e.clientY - r.top) / r.height;
-    el.classList.add("is-tilting");
-    el.style.setProperty("--ry", `${(px - 0.5) * 12}deg`);
-    el.style.setProperty("--rx", `${(0.5 - py) * 10}deg`);
-    el.style.setProperty("--gx", `${px * 100}%`);
-    el.style.setProperty("--gy", `${py * 100}%`);
-    el.style.setProperty("--px", `${px - 0.5}`);
-    el.style.setProperty("--py", `${py - 0.5}`);
+    const px = Math.min(Math.max((e.clientX - r.left) / r.width, 0), 1) - 0.5;
+    const py = Math.min(Math.max((e.clientY - r.top) / r.height, 0), 1) - 0.5;
+    el.dataset.hover = "";
+    el.style.setProperty("--gx", `${(px + 0.5) * 100}%`);
+    el.style.setProperty("--gy", `${(py + 0.5) * 100}%`);
+    m.target.ry = px * 2 * TILT_Y;
+    m.target.rx = -py * 2 * TILT_X;
+    m.target.px = px;
+    m.target.py = py;
+    animate();
   }
 
   function endDrag(e: React.PointerEvent<HTMLDivElement>) {
     const d = drag.current;
     if (!d || d.id !== e.pointerId) return;
     drag.current = null;
-    const el = topRef.current;
+    const el = deckRef.current;
     if (!d.active || !el) return;
     suppressClick.current = true;
-    el.classList.remove("is-dragging");
+    delete el.dataset.dragging;
+    const m = motion.current;
     const width = el.getBoundingClientRect().width;
     if (Math.abs(d.dx) > width * THROW_RATIO || Math.abs(d.v) > THROW_SPEED) {
       go(1, d.dx || d.v);
+      // The thrown card animates out on its own; the next card starts centred.
+      m.cur.dx = 0;
+      write(m.cur);
     }
-    setVars(0);
+    m.target.dx = 0;
+    animate();
   }
 
   function onPointerLeave() {
-    const el = topRef.current;
+    const el = deckRef.current;
     if (!el || drag.current?.active) return;
-    el.classList.remove("is-tilting");
-    el.style.setProperty("--rx", "0deg");
-    el.style.setProperty("--ry", "0deg");
-    el.style.setProperty("--px", "0");
-    el.style.setProperty("--py", "0");
+    delete el.dataset.hover;
+    motion.current.target = { ...REST };
+    animate();
   }
 
   async function onToggleList() {
@@ -201,7 +252,7 @@ export function HeroDeck({
       <div
         className={`deck-face course-card-art relative aspect-[4/5] overflow-hidden rounded-[28px] bg-surface ${top ? "glow-ring shadow-2xl shadow-black/60" : ""}`}
       >
-        <DeckArt course={course} eager={top} named={top} />
+        <DeckArt course={course} eager={top} />
         <div className="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-black/10" />
         <div className="deck-glare" aria-hidden="true" />
         <div className="deck-pop absolute left-4 top-4 flex items-center gap-2 rounded-full bg-brand px-3 py-1 text-[10px] font-bold uppercase tracking-[0.2em] text-primary-foreground">
@@ -278,35 +329,34 @@ export function HeroDeck({
         {`Card ${(index % n) + 1} of ${n}: ${current.code}, ${current.title}`}
       </p>
 
-      <div className="hero-deck relative aspect-[4/5] select-none">
+      <div
+        ref={deckRef}
+        data-grab={!reduced && n > 1 ? "" : undefined}
+        className="hero-deck relative aspect-[4/5] select-none"
+        onPointerDown={onPointerDown}
+        onPointerMove={onPointerMove}
+        onPointerUp={endDrag}
+        onPointerCancel={endDrag}
+        onPointerLeave={onPointerLeave}
+        onClickCapture={(e) => {
+          if (!suppressClick.current) return;
+          suppressClick.current = false;
+          e.preventDefault();
+          e.stopPropagation();
+        }}
+      >
         {stack
           .map((course, d) => {
             const top = d === 0;
             return (
               <div
                 key={course.code}
-                ref={top ? topRef : undefined}
                 data-depth={d}
                 aria-hidden={top ? undefined : true}
                 inert={top ? undefined : true}
                 className={`deck-card absolute inset-0 ${top ? "deck-top" : ""}`}
-                onPointerDown={top ? onPointerDown : undefined}
-                onPointerMove={top ? onPointerMove : undefined}
-                onPointerUp={top ? endDrag : undefined}
-                onPointerCancel={top ? endDrag : undefined}
-                onPointerLeave={top ? onPointerLeave : undefined}
-                onClickCapture={
-                  top
-                    ? (e) => {
-                        if (!suppressClick.current) return;
-                        suppressClick.current = false;
-                        e.preventDefault();
-                        e.stopPropagation();
-                      }
-                    : undefined
-                }
               >
-                {face(course, top)}
+                <div className="deck-tilt h-full w-full">{face(course, top)}</div>
               </div>
             );
           })
@@ -324,7 +374,7 @@ export function HeroDeck({
               } as React.CSSProperties
             }
           >
-            {face(leaving.course, false)}
+            <div className="deck-tilt h-full w-full">{face(leaving.course, false)}</div>
           </div>
         )}
       </div>
