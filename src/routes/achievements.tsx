@@ -10,6 +10,7 @@ import { QueryErrorState } from "@/components/QueryErrorState";
 export const Route = createFileRoute("/achievements")({
   head: () => ({
     meta: [
+      { name: "robots", content: "noindex, nofollow" },
       { title: "Achievements — Courseflix UTM" },
       {
         name: "description",

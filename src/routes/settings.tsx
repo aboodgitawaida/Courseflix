@@ -19,7 +19,12 @@ import { deleteAccount } from "@/lib/delete-account";
 import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/settings")({
-  head: () => ({ meta: [{ title: "Account & settings — Courseflix UTM" }] }),
+  head: () => ({
+    meta: [
+      { title: "Account & settings — Courseflix UTM" },
+      { name: "robots", content: "noindex, nofollow" },
+    ],
+  }),
   component: SettingsPage,
 });
 
