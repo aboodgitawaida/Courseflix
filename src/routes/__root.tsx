@@ -12,7 +12,6 @@ import { useEffect, useState, type ReactNode } from "react";
 
 import appCss from "../styles.css?url";
 import { Toaster } from "@/components/ui/sonner";
-import { BrandIntro } from "@/components/BrandIntro";
 import { CourseUIProvider } from "@/hooks/use-course-ui";
 import { SoundProvider } from "@/hooks/use-sound";
 import { ThemeProvider } from "@/hooks/use-theme";
@@ -218,7 +217,6 @@ function RootComponent() {
       <ThemeProvider>
         <SoundProvider>
           <CourseUIProvider>
-            <BrandIntro />
             <NetworkStatusBanner />
             <p className="sr-only" role="status" aria-live="polite" aria-atomic="true">
               {announcement}
