@@ -298,11 +298,65 @@ function coursesFor(major: Major | undefined, kind: "core" | "support") {
   return COURSES.filter((c) => prefixes.includes(c.subject));
 }
 
+// How many courses list each course as a prerequisite: a proxy for how many
+// doors a course opens, used to rank the no-program feed.
+const unlockCount = new Map<string, number>();
+for (const c of COURSES)
+  for (const p of c.prereqs) unlockCount.set(p, (unlockCount.get(p) ?? 0) + 1);
+const unlocks = (c: Course) => unlockCount.get(c.code) ?? 0;
+const byUnlocks = (list: Course[]) =>
+  [...list].sort((a, b) => unlocks(b) - unlocks(a) || a.code.localeCompare(b.code));
+
+/** Interleaves subjects (round-robin, keeping each subject's order) for a varied row. */
+function diverse(list: Course[]): Course[] {
+  const bySubject = new Map<string, Course[]>();
+  for (const c of list) bySubject.set(c.subject, [...(bySubject.get(c.subject) ?? []), c]);
+  const queues = [...bySubject.values()];
+  const out: Course[] = [];
+  for (let i = 0; out.length < list.length; i++) {
+    for (const q of queues) if (q[i]) out.push(q[i]!);
+  }
+  return out;
+}
+
+// Big, well-known UTM first-year courses across faculties. They lead the feed for
+// visitors who haven't picked a program, so the first thing anyone sees is
+// recognisable rather than alphabetical (which put Anthropology first).
+const STARTER_CODES = [
+  "PSY100Y5",
+  "CSC108H5",
+  "ECO101H5",
+  "MGM101H5",
+  "BIO152H5",
+  "MAT135H5",
+  "SOC100H5",
+  "CCT109H5",
+  "POL111H5",
+  "CHM110H5",
+  "ENG110H5",
+  "MAT102H5",
+  "ECO102H5",
+  "ANT101H5",
+  "LIN101H5",
+  "GGR111H5",
+  "STA107H5",
+  "HIS101H5",
+  "PHY136H5",
+  "FAH101H5",
+  "CIN101H5",
+  "AST101H5",
+  "ENV100Y5",
+  "WRI173H5",
+];
+const STARTERS = STARTER_CODES.map((code) => byCode.get(code)).filter((c): c is Course => !!c);
+
+const DEFAULT_FEATURED = STARTERS[0] ?? COURSES[0]!;
+
 export function getFeaturedForMajor(majorId: string | null): Course {
   const major = MAJORS.find((m) => m.id === majorId);
   const pool = coursesFor(major, "core");
-  const list = pool.length ? pool : COURSES;
-  return [...list].sort((a, b) => a.code.localeCompare(b.code))[0] ?? COURSES[0]!;
+  if (!pool.length) return DEFAULT_FEATURED;
+  return [...pool].sort((a, b) => a.code.localeCompare(b.code))[0]!;
 }
 
 export function getProgramMatch(
@@ -413,31 +467,40 @@ export function getRailsForMajor(majorId: string | null, filter: FilterId = "all
   const byRating = (l: Course[]) => [...l].sort((a, b) => a.code.localeCompare(b.code));
 
   const scope = core.concat(support);
-  const pool = scope.length >= 10 ? scope : keep(COURSES);
+  const programScoped = scope.length >= 10;
+  const pool = programScoped ? scope : keep(COURSES);
+  // Without a program, alphabetical order put Anthropology first in every row.
+  // Rank by how many courses each one unlocks and mix subjects instead.
+  const order = (l: Course[]) => (programScoped ? byRating(l) : diverse(byUnlocks(l)));
 
-  const first = core.filter((c) => c.level <= 200).sort((a, b) => a.code.localeCompare(b.code));
+  const first = major
+    ? core.filter((c) => c.level <= 200).sort((a, b) => a.code.localeCompare(b.code))
+    : diverse(byUnlocks(pool.filter((c) => c.level <= 100 && !STARTERS.includes(c))));
   const upper = byRating(core.filter((c) => c.level >= 300));
   const seminars = byRating(core.filter((c) => c.level >= 400));
 
-  const trending = byRating(pool.filter((c) => c.level <= 300)).slice(0, 40);
-  const birds = byRating(pool.filter(isBird));
-  const coursework = byRating(pool.filter(isCourseworkHeavy));
-  const prereqCounts = new Map<string, number>();
-  for (const c of COURSES)
-    for (const p of c.prereqs) prereqCounts.set(p, (prereqCounts.get(p) ?? 0) + 1);
-  const gateways = pool
-    .filter((c) => (prereqCounts.get(c.code) ?? 0) > 0)
-    .sort((a, b) => (prereqCounts.get(b.code) ?? 0) - (prereqCounts.get(a.code) ?? 0));
+  const trending = programScoped
+    ? byRating(pool.filter((c) => c.level <= 300)).slice(0, 40)
+    : keep(STARTERS);
+  const birds = order(pool.filter(isBird));
+  const coursework = order(pool.filter(isCourseworkHeavy));
+  const gateways = programScoped
+    ? byUnlocks(pool.filter((c) => unlocks(c) > 0))
+    : diverse(byUnlocks(pool.filter((c) => unlocks(c) > 0)));
 
   const rails: Rail[] = [
     {
-      title: "🔥 Trending at UTM",
-      blurb: "What students are browsing most right now",
+      title: programScoped ? "🔥 Trending at UTM" : "🔥 UTM's big first-years",
+      blurb: programScoped
+        ? "What students are browsing most right now"
+        : "The courses almost everyone at UTM takes or considers",
       codes: codes(trending),
     },
     {
       title: "🎯 Start here",
-      blurb: `First- and second-year ${major?.name ?? "UTM"} courses`,
+      blurb: major
+        ? `First- and second-year ${major.name} courses`
+        : "More first-year courses that open doors across UTM",
       codes: codes(first),
     },
     {

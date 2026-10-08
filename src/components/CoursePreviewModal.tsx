@@ -13,6 +13,7 @@ import { FALLBACK_SUBJECT_IMAGE, getCourseImage } from "@/lib/subject-images";
 import { PrereqTree } from "./PrereqTree";
 import { useEffect, useState } from "react";
 import { calendarUrl } from "@/lib/links";
+import { recordSubjectInterest } from "@/lib/interest";
 
 export function CoursePreviewModal() {
   const { previewCode, closePreview } = useCourseUI();
@@ -38,6 +39,10 @@ export function CoursePreviewModal() {
   useEffect(() => {
     setImageSrc(getCourseImage(course?.subject ?? ""));
   }, [course?.subject]);
+
+  useEffect(() => {
+    if (course) recordSubjectInterest(course.subject);
+  }, [course]);
 
   async function onShortlist() {
     if (!course) return;
