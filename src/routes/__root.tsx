@@ -127,6 +127,9 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { property: "og:site_name", content: "Courseflix" },
       { property: "og:type", content: "website" },
       { property: "og:image", content: "https://www.courseflix.ca/og-image.png" },
+      { property: "og:image:width", content: "1200" },
+      { property: "og:image:height", content: "630" },
+      { property: "og:image:alt", content: "Courseflix: discover UTM courses like Netflix" },
       { name: "twitter:card", content: "summary_large_image" },
       { name: "twitter:url", content: "https://www.courseflix.ca/" },
       { name: "twitter:title", content: "CourseFlix | Browse & Discover UTM Courses Like Netflix" },
@@ -136,6 +139,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
           "Browse every UTM course like Netflix. Pick your major, get curated rows, save a shortlist, and share it with friends.",
       },
       { name: "twitter:image", content: "https://www.courseflix.ca/og-image.png" },
+      { name: "twitter:image:alt", content: "Courseflix: discover UTM courses like Netflix" },
       { name: "robots", content: "index, follow" },
     ],
     links: [
