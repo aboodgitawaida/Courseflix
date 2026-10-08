@@ -382,3 +382,33 @@ export const MAJOR_CATEGORIES = [
 ] as const;
 
 export const getMajor = (id: string | null) => MAJORS.find((m) => m.id === id);
+
+export const CATEGORY_META: Record<Major["category"], { emoji: string; short: string }> = {
+  "Math, CS & Data": { emoji: "💻", short: "Math & CS" },
+  "Life & Health Sciences": { emoji: "🧬", short: "Life Sci" },
+  "Physical & Earth Sciences": { emoji: "🔭", short: "Physical Sci" },
+  "Business & Economics": { emoji: "💼", short: "Business" },
+  "Social Sciences": { emoji: "🏛️", short: "Social Sci" },
+  Humanities: { emoji: "📜", short: "Humanities" },
+  Languages: { emoji: "🗣️", short: "Languages" },
+  "Arts & Media": { emoji: "🎬", short: "Arts & Media" },
+};
+
+// When several programs share a core subject, suggest the broadest one.
+const PREFERRED_FOR_SUBJECT: Record<string, string> = {
+  MAT: "mathematical-sciences",
+  BIO: "biology",
+  SOC: "sociology",
+  MGT: "commerce",
+  GGR: "geography",
+  FAH: "art-history",
+  ENV: "environmental-science",
+  CCT: "ccit",
+};
+
+/** The program to suggest for someone browsing a subject, if any. */
+export function programForSubject(subject: string): Major | undefined {
+  const preferred = PREFERRED_FOR_SUBJECT[subject];
+  if (preferred) return getMajor(preferred);
+  return MAJORS.find((m) => m.core.includes(subject));
+}

@@ -1,6 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { TopNav } from "@/components/TopNav";
 import { Hero } from "@/components/Hero";
+import { ProgramPromptCard } from "@/components/ProgramPicker";
+import { openProgramPicker } from "@/lib/program-picker";
 import { CourseRail } from "@/components/CourseRail";
 import { CreatorSection } from "@/components/CreatorSection";
 import { MemorialSection } from "@/components/MemorialSection";
@@ -14,7 +16,7 @@ import { getRailsForMajor, getFeaturedForMajor, type FilterId } from "@/lib/cour
 import { getMajor } from "@/lib/majors";
 import { siteUrl } from "@/lib/site";
 import { useMajor } from "@/hooks/use-major";
-import { useEffect, useState, useMemo } from "react";
+import { Fragment, useEffect, useState, useMemo } from "react";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -48,7 +50,7 @@ export const Route = createFileRoute("/")({
 });
 
 export function Home() {
-  const { major, setMajor, hydrated } = useMajor();
+  const { major, hydrated } = useMajor();
   const currentMajor = getMajor(major);
   const [filter, setFilter] = useState<FilterId>("all");
 
@@ -100,10 +102,10 @@ export function Home() {
               </p>
             </div>
             <button
-              onClick={() => setMajor(null)}
+              onClick={openProgramPicker}
               className="text-xs font-semibold text-brand hover:text-brand-glow underline underline-offset-4"
             >
-              Change major
+              Change program
             </button>
           </div>
         </div>
@@ -116,7 +118,10 @@ export function Home() {
           </p>
         )}
         {rails.map((r, index) => (
-          <CourseRail key={r.title} rail={r} index={index} />
+          <Fragment key={r.title}>
+            <CourseRail rail={r} index={index} />
+            {index === 0 && <ProgramPromptCard />}
+          </Fragment>
         ))}
       </main>
 
