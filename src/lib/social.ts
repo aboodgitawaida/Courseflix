@@ -129,6 +129,7 @@ export function useSendFriendRequest() {
     },
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: ["friendships"] });
+      void queryClient.invalidateQueries({ queryKey: ["profile-view"] });
       void queryClient.invalidateQueries({ queryKey: ["notifications"] });
     },
   });
@@ -151,8 +152,40 @@ export function useRespondToRequest() {
     },
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: ["friendships"] });
+      void queryClient.invalidateQueries({ queryKey: ["profile-view"] });
       void queryClient.invalidateQueries({ queryKey: ["notifications"] });
     },
+  });
+}
+
+export type ProfileView = {
+  id: string;
+  display_name: string;
+  username: string;
+  avatar_id: string;
+  is_private: boolean;
+  is_verified: boolean;
+  relationship: "self" | "friends" | "outgoing" | "incoming" | "none";
+  friendship_id: string | null;
+  can_view: boolean;
+  major_id: string | null;
+  year: number | null;
+  friend_count: number | null;
+  achievement_ids: string[] | null;
+};
+
+// The server decides which fields the viewer may see; hidden fields come back null.
+export function useProfileView(username: string) {
+  return useQuery({
+    queryKey: ["profile-view", username.toLowerCase()],
+    queryFn: async () => {
+      const { data, error } = await supabase.rpc("get_profile_by_username", {
+        _username: username,
+      });
+      if (error) throw new Error(`Could not load profile: ${error.message}`);
+      return ((data ?? [])[0] ?? null) as ProfileView | null;
+    },
+    retry: 1,
   });
 }
 
@@ -165,6 +198,7 @@ export function useRemoveFriend() {
     },
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: ["friendships"] });
+      void queryClient.invalidateQueries({ queryKey: ["profile-view"] });
     },
   });
 }

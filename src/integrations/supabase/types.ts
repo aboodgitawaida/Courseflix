@@ -215,6 +215,24 @@ export type Database = {
       };
     };
     Functions: {
+      get_profile_by_username: {
+        Args: { _username: string };
+        Returns: {
+          id: string;
+          display_name: string;
+          username: string;
+          avatar_id: string;
+          is_private: boolean;
+          is_verified: boolean;
+          relationship: string;
+          friendship_id: string | null;
+          can_view: boolean;
+          major_id: string | null;
+          year: number | null;
+          friend_count: number | null;
+          achievement_ids: string[] | null;
+        }[];
+      };
       find_profile_by_username: {
         Args: { _username: string };
         Returns: {

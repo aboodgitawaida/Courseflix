@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { VerifiedBadge } from "@/components/VerifiedBadge";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import { toast } from "sonner";
 import { Check, Search, UserMinus, UserPlus, X } from "lucide-react";
 import { TopNav } from "@/components/TopNav";
@@ -40,6 +40,15 @@ export const Route = createFileRoute("/friends")({
   }),
   component: FriendsPage,
 });
+
+function NameLink({ username, children }: { username?: string | null; children: ReactNode }) {
+  if (!username) return <>{children}</>;
+  return (
+    <Link to="/u/$username" params={{ username }} className="transition hover:text-brand">
+      {children}
+    </Link>
+  );
+}
 
 function FriendShortlist({ userId, name }: { userId: string; name: string }) {
   const { data: codes = [], isLoading, error } = useFriendShortlist(userId);
@@ -193,7 +202,7 @@ function FriendsPage() {
                           />
                           <div className="min-w-0 flex-1">
                             <div className="truncate text-sm font-semibold">
-                              {p.display_name}
+                              <NameLink username={p.username}>{p.display_name}</NameLink>
                               {p.is_verified && <VerifiedBadge className="ml-1 h-4 w-4" />}
                             </div>
                             <div className="truncate text-xs text-muted-foreground">
@@ -235,7 +244,9 @@ function FriendsPage() {
                           className="h-10 w-10 rounded-full object-contain"
                         />
                         <div className="min-w-0 flex-1 truncate text-sm font-semibold">
-                          {p?.display_name ?? "A student"}
+                          <NameLink username={p?.username}>
+                            {p?.display_name ?? "A student"}
+                          </NameLink>
                           {p?.is_verified && <VerifiedBadge className="ml-1 h-4 w-4" />}
                         </div>
                         <button
@@ -304,7 +315,7 @@ function FriendsPage() {
                         />
                         <div className="min-w-0 flex-1">
                           <div className="truncate text-sm font-semibold">
-                            {name}
+                            <NameLink username={p?.username}>{name}</NameLink>
                             {p?.is_verified && <VerifiedBadge className="ml-1 h-4 w-4" />}
                           </div>
                           <div className="truncate text-xs text-muted-foreground">
