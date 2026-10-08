@@ -22,6 +22,7 @@ import { announce } from "@/lib/a11y";
 export const Route = createFileRoute("/friends")({
   head: () => ({
     meta: [
+      { name: "robots", content: "noindex, nofollow" },
       { title: "Friends — Courseflix UTM" },
       {
         name: "description",
