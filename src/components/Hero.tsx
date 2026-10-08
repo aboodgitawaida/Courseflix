@@ -1,14 +1,9 @@
-import { Link, useNavigate } from "@tanstack/react-router";
+import { Link } from "@tanstack/react-router";
 import { COURSES, SUBJECTS, type Course } from "@/lib/courses";
-import { ArrowRight, ArrowUpRight, Plus, Check, Search } from "lucide-react";
-import { toast } from "sonner";
-import { useAuth } from "@/hooks/use-auth";
+import { ArrowRight, Search } from "lucide-react";
 import { useCourseUI } from "@/hooks/use-course-ui";
 import { prefersReducedMotion } from "@/hooks/use-reveal";
-import { useShortlist, useToggleShortlist } from "@/lib/ratings";
-import { useCourseDescription } from "@/lib/course-description";
-import { FEATURED_DESCRIPTIONS } from "@/lib/featured-descriptions";
-import { FALLBACK_SUBJECT_IMAGE, getCourseImage } from "@/lib/subject-images";
+import { HeroDeck } from "./HeroDeck";
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 
 const HEADLINE: Array<{ text: string; accent?: boolean }> = [
@@ -68,48 +63,21 @@ function Magnetic({ children, className = "" }: { children: React.ReactNode; cla
   );
 }
 
-export function Hero({ featured, major }: { featured: Course; major: string }) {
-  const feat = featured;
-  const navigate = useNavigate();
-  const { signedIn } = useAuth();
+export function Hero({ deck, major }: { deck: Course[]; major: string }) {
   const { setSearchOpen } = useCourseUI();
-  const { data: saved = [] } = useShortlist();
-  const toggle = useToggleShortlist();
-  const inList = saved.includes(feat.code);
-  const bundledDescription = FEATURED_DESCRIPTIONS[feat.code];
-  // Only fall back to the full description file if this course isn't bundled.
-  const loadedDescription = useCourseDescription(bundledDescription ? undefined : feat.code);
-  const description = bundledDescription ?? loadedDescription;
-  const heroImage = (subject: string) => getCourseImage(subject).replace("w=400", "w=900");
-  const [imageSrc, setImageSrc] = useState(() => heroImage(feat.subject));
-  const backSubjects = SUBJECTS.filter((s) => s !== feat.subject).slice(0, 2);
-
-  useEffect(() => {
-    setImageSrc(heroImage(feat.subject));
-  }, [feat.subject]);
-
-  async function onToggleList() {
-    if (!signedIn) {
-      navigate({ to: "/auth", search: { redirect: `/course/${feat.code}` } });
-      return;
-    }
-
-    try {
-      await toggle.mutateAsync({ code: feat.code, saved: inList });
-      toast.success(
-        inList
-          ? `${feat.code} removed from your shortlist`
-          : `${feat.code} added to your shortlist`,
-      );
-    } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Could not update shortlist");
-    }
-  }
+  const [index, setIndex] = useState(0);
+  const deckKey = deck.map((c) => c.code).join();
+  // A new program means a new deck: start it from the top.
+  useEffect(() => setIndex(0), [deckKey]);
+  const feat = deck[index % deck.length]!;
 
   return (
     <section className="relative isolate overflow-hidden">
       {/* Ambient mesh */}
-      <div className="pointer-events-none absolute inset-0 -z-10" aria-hidden="true">
+      <div
+        className="hero-scroll-mesh pointer-events-none absolute inset-0 -z-10"
+        aria-hidden="true"
+      >
         <div className="mesh-blob -left-40 -top-40 h-[520px] w-[520px] bg-brand/25" />
         <div className="mesh-blob right-[-10%] top-[10%] h-[460px] w-[460px] bg-brand-2/15 [animation-delay:-6s]" />
         <div className="mesh-blob bottom-[-20%] left-[30%] h-[380px] w-[380px] bg-violet/10 [animation-delay:-12s]" />
@@ -128,13 +96,15 @@ export function Hero({ featured, major }: { featured: Course; major: string }) {
       {/* Giant outlined code */}
       <div
         aria-hidden="true"
-        className="text-outline pointer-events-none absolute -bottom-10 right-[-2%] -z-10 hidden select-none font-mega text-[16vw] font-black leading-none md:block"
+        className="hero-scroll-code text-outline pointer-events-none absolute -bottom-10 right-[-2%] -z-10 hidden select-none font-mega text-[16vw] font-black leading-none md:block"
       >
-        {feat.code}
+        <span key={feat.code} className="inline-block animate-fade-in-up">
+          {feat.code}
+        </span>
       </div>
 
       <div className="relative grid items-center gap-8 px-6 pb-10 pt-6 md:gap-12 md:px-10 md:pb-20 md:pt-10 lg:min-h-[calc(100svh-5rem)] lg:grid-cols-[1.25fr_1fr] lg:gap-8 lg:pb-24">
-        <div>
+        <div className="hero-scroll-copy">
           <div className="glass mb-5 inline-flex md:mb-7 items-center gap-2.5 rounded-full px-3.5 py-1.5 text-[11px] font-semibold uppercase tracking-[0.18em] text-foreground/80 animate-fade-in-up">
             <span className="relative flex h-2 w-2">
               <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-brand opacity-75" />
@@ -219,76 +189,10 @@ export function Hero({ featured, major }: { featured: Course; major: string }) {
           </dl>
         </div>
 
-        {/* Featured poster stack */}
-        <div className="relative mx-auto w-full max-w-[420px] animate-fade-in-up [animation-delay:0.4s] opacity-0 lg:mr-0">
-          <div aria-hidden="true" className="absolute inset-0 hidden sm:block">
-            {backSubjects.map((s, i) => (
-              <div
-                key={s}
-                className={`absolute inset-0 overflow-hidden rounded-[28px] border border-white/[0.08] bg-surface-2 ${
-                  i === 0
-                    ? "float-slower -rotate-[8deg] -translate-x-10 translate-y-4"
-                    : "float-slow rotate-[7deg] translate-x-10 translate-y-6"
-                }`}
-              >
-                <img
-                  src={getCourseImage(s)}
-                  alt=""
-                  className="h-full w-full object-cover opacity-40"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/90 to-transparent" />
-              </div>
-            ))}
-          </div>
-
-          <div className="course-card-art glow-ring relative overflow-hidden rounded-[28px] bg-surface shadow-2xl shadow-black/60">
-            <div className="relative aspect-[4/5]">
-              <img
-                src={imageSrc}
-                alt=""
-                aria-hidden="true"
-                loading="eager"
-                decoding="async"
-                onError={() => setImageSrc(FALLBACK_SUBJECT_IMAGE)}
-                className="hero-course-image absolute inset-0 h-full w-full object-cover opacity-70"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-black/10" />
-              <div className="absolute left-4 top-4 flex items-center gap-2 rounded-full bg-brand px-3 py-1 text-[10px] font-bold uppercase tracking-[0.2em] text-primary-foreground">
-                Top pick
-              </div>
-              <div className="absolute inset-x-0 bottom-0 p-6">
-                <div className="font-mega text-4xl font-black leading-none tracking-tighter text-white md:text-5xl">
-                  {feat.code}
-                </div>
-                <div className="mt-2 text-lg font-semibold leading-snug text-white">
-                  {feat.title}
-                </div>
-                {/* min-h reserves both lines so the card doesn't jump when the description loads. */}
-                <p className="mt-2 line-clamp-2 min-h-[2lh] text-sm leading-relaxed text-white/80">
-                  {description}
-                </p>
-                <div className="mt-5 flex items-center gap-2">
-                  <Link
-                    to="/course/$code"
-                    params={{ code: feat.code }}
-                    className="inline-flex flex-1 items-center justify-center gap-1.5 rounded-full bg-white px-4 py-2.5 text-sm font-semibold text-black transition hover:bg-white/90 active:scale-[0.98]"
-                  >
-                    Course info <ArrowUpRight className="h-4 w-4" />
-                  </Link>
-                  <button
-                    onClick={() => void onToggleList()}
-                    disabled={toggle.isPending}
-                    aria-pressed={inList}
-                    aria-label={
-                      inList ? `Remove ${feat.code} from my list` : `Add ${feat.code} to my list`
-                    }
-                    className="grid h-10 w-10 place-items-center rounded-full border border-white/30 bg-black/45 text-white backdrop-blur transition hover:border-white active:scale-[0.95] disabled:opacity-60"
-                  >
-                    {inList ? <Check className="h-4 w-4" /> : <Plus className="h-4 w-4" />}
-                  </button>
-                </div>
-              </div>
-            </div>
+        {/* Featured course deck */}
+        <div className="animate-fade-in-up [animation-delay:0.4s] opacity-0">
+          <div className="hero-scroll-deck">
+            <HeroDeck courses={deck} index={index} onIndexChange={setIndex} />
           </div>
         </div>
       </div>

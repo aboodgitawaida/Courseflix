@@ -299,38 +299,6 @@
   display: inline-block;
 }
 
-@keyframes intro-in {
-  0% {
-    transform: scale3d(1.08, 1.08, 1);
-    opacity: 0;
-  }
-  100% {
-    transform: scale3d(1, 1, 1);
-    opacity: 1;
-  }
-}
-@keyframes intro-out {
-  0% {
-    opacity: 1;
-  }
-  100% {
-    opacity: 0;
-    visibility: hidden;
-  }
-}
-@keyframes sweep {
-  0% {
-    transform: translate3d(-100%, 0, 0);
-    opacity: 0;
-  }
-  40% {
-    opacity: 1;
-  }
-  100% {
-    transform: translate3d(100%, 0, 0);
-    opacity: 0;
-  }
-}
 @keyframes cinematic-ambient {
   from {
     opacity: 0;
@@ -366,12 +334,6 @@
     opacity: 0;
     transform: scale3d(1.08, 1.08, 1);
   }
-}
-@utility intro-word {
-  animation: intro-in 0.9s cubic-bezier(0.22, 1, 0.36, 1) forwards;
-}
-@utility intro-sweep {
-  animation: sweep 1.2s 0.35s ease-in-out forwards;
 }
 @utility cinematic-ambient {
   opacity: 0;
@@ -937,6 +899,105 @@
   opacity: 0.6;
 }
 
+/* Hero deck: a 3D stack of course posters you can throw off the top */
+.hero-deck {
+  perspective: 1200px;
+  transform-style: preserve-3d;
+}
+.deck-card {
+  touch-action: pan-y;
+  transform-origin: 50% 100%;
+  transition:
+    transform 0.75s cubic-bezier(0.22, 1, 0.36, 1),
+    opacity 0.5s ease,
+    filter 0.5s ease;
+  animation: deck-enter 0.6s cubic-bezier(0.22, 1, 0.36, 1) both;
+  will-change: transform;
+}
+.deck-card[data-depth="0"] {
+  z-index: 3;
+  cursor: grab;
+  transform: translate3d(calc(var(--dx, 0) * 1px), calc(var(--dx, 0) * var(--dx, 0) * 0.0004px), 0)
+    rotateZ(calc(var(--dx, 0) * 0.035deg)) rotateY(calc(var(--dx, 0) * 0.05deg))
+    rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg));
+}
+.deck-card[data-depth="1"] {
+  z-index: 2;
+  opacity: 0.8;
+  filter: brightness(0.55) saturate(0.8);
+  transform: translate3d(-34px, 18px, -80px) rotateZ(-7deg);
+}
+.deck-card[data-depth="2"] {
+  z-index: 1;
+  opacity: 0.55;
+  filter: brightness(0.4) saturate(0.6);
+  transform: translate3d(36px, 30px, -160px) rotateZ(6deg);
+}
+@media (max-width: 639px) {
+  .deck-card[data-depth="1"] {
+    transform: translate3d(-14px, 14px, -80px) rotateZ(-4deg);
+  }
+  .deck-card[data-depth="2"] {
+    transform: translate3d(14px, 24px, -160px) rotateZ(3.5deg);
+  }
+}
+.deck-card.is-tilting {
+  transition:
+    transform 0.1s linear,
+    opacity 0.5s ease,
+    filter 0.5s ease;
+}
+.deck-card.is-dragging {
+  cursor: grabbing;
+  transition: none;
+}
+.deck-card .deck-face > img {
+  transform: translate3d(calc(var(--px, 0) * 18px), calc(var(--py, 0) * 14px), 0) scale(1.08);
+  transition: transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.deck-card .deck-pop {
+  transform: translate3d(calc(var(--px, 0) * -12px), calc(var(--py, 0) * -10px), 0);
+  transition: transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.deck-card .deck-glare {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  pointer-events: none;
+  opacity: 0;
+  background: radial-gradient(
+    480px circle at var(--gx, 50%) var(--gy, 0%),
+    rgb(255 255 255 / 0.16),
+    transparent 40%
+  );
+  transition: opacity 0.3s ease;
+}
+.deck-card.is-tilting .deck-glare {
+  opacity: 1;
+}
+.deck-leaving {
+  z-index: 4;
+  pointer-events: none;
+  animation: deck-leave 0.6s cubic-bezier(0.22, 0.61, 0.36, 1) forwards;
+}
+@keyframes deck-enter {
+  from {
+    opacity: 0;
+  }
+}
+@keyframes deck-leave {
+  from {
+    transform: translate3d(calc(var(--dx, 0) * 1px), 0, 0) rotateZ(calc(var(--dx, 0) * 0.035deg))
+      rotateY(calc(var(--dx, 0) * 0.05deg));
+    opacity: 1;
+  }
+  to {
+    transform: translate3d(calc(var(--dir, 1) * 125%), -6%, 120px)
+      rotateZ(calc(var(--dir, 1) * 22deg)) rotateY(calc(var(--dir, 1) * 40deg));
+    opacity: 0;
+  }
+}
+
 .bento-tile {
   --x: 50%;
   --y: 50%;
@@ -1189,6 +1250,15 @@
   .tilt-card:hover {
     transform: none;
   }
+  .deck-card {
+    transition: opacity 0.3s ease;
+    animation-duration: 0.3s;
+  }
+  .deck-card[data-depth="0"],
+  .deck-card .deck-face > img,
+  .deck-card .deck-pop {
+    transform: none;
+  }
   .shine::after {
     display: none;
   }
@@ -1216,6 +1286,70 @@
     transform: scale(1.015);
     filter: blur(6px);
   }
+}
+
+/* Hero scroll choreography: the deck tips back and the layers part as you scroll away */
+@supports (animation-timeline: scroll()) {
+  .hero-scroll-deck,
+  .hero-scroll-copy,
+  .hero-scroll-code,
+  .hero-scroll-mesh {
+    animation-timing-function: linear;
+    animation-fill-mode: both;
+    animation-timeline: scroll(root block);
+    animation-range: 0 100vh;
+  }
+  .hero-scroll-deck {
+    animation-name: hero-deck-away;
+    transform-origin: 50% 100%;
+  }
+  .hero-scroll-copy {
+    animation-name: hero-copy-away;
+  }
+  .hero-scroll-code {
+    animation-name: hero-code-away;
+  }
+  .hero-scroll-mesh {
+    animation-name: hero-mesh-away;
+  }
+}
+@keyframes hero-deck-away {
+  to {
+    transform: perspective(1000px) translate3d(0, 12vh, 0) rotateX(14deg) scale(0.86);
+    opacity: 0.35;
+  }
+}
+@keyframes hero-copy-away {
+  to {
+    transform: translate3d(0, -8vh, 0);
+    opacity: 0.2;
+  }
+}
+@keyframes hero-code-away {
+  to {
+    transform: translate3d(-10vw, -14vh, 0);
+  }
+}
+@keyframes hero-mesh-away {
+  to {
+    transform: translate3d(0, 22vh, 0);
+  }
+}
+
+/* Rails lean with scroll speed (vars written by useScrollVelocity) */
+.rail-velocity .rail-item {
+  transform: skewX(calc(var(--rail-skew, 0) * -1deg)) skewY(calc(var(--page-skew, 0) * -0.4deg));
+}
+@media (pointer: coarse) {
+  .rail-velocity .rail-item {
+    transform: none;
+  }
+}
+
+/* Poster → course header morph (paired view-transition-names) */
+::view-transition-group(*) {
+  animation-duration: 0.55s;
+  animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 /* Shortlist add burst */
@@ -1287,8 +1421,18 @@
 
 @media (prefers-reduced-motion: reduce) {
   ::view-transition-old(root),
-  ::view-transition-new(root) {
+  ::view-transition-new(root),
+  ::view-transition-group(*) {
     animation: none;
+  }
+  .hero-scroll-deck,
+  .hero-scroll-copy,
+  .hero-scroll-code,
+  .hero-scroll-mesh {
+    animation: none;
+  }
+  .rail-velocity .rail-item {
+    transform: none;
   }
   .burst {
     display: none;
