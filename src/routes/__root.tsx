@@ -117,7 +117,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "apple-mobile-web-app-status-bar-style", content: "black-translucent" },
       { name: "apple-mobile-web-app-title", content: "Courseflix" },
       { name: "theme-color", content: "#060607" },
-      { property: "og:url", content: "https://courseflix.ca/" },
+      { property: "og:url", content: "https://www.courseflix.ca/" },
       { property: "og:title", content: "CourseFlix | Browse & Discover UTM Courses Like Netflix" },
       {
         property: "og:description",
@@ -128,7 +128,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { property: "og:type", content: "website" },
       { property: "og:image", content: "https://www.courseflix.ca/og-image.png" },
       { name: "twitter:card", content: "summary_large_image" },
-      { name: "twitter:url", content: "https://courseflix.ca/" },
+      { name: "twitter:url", content: "https://www.courseflix.ca/" },
       { name: "twitter:title", content: "CourseFlix | Browse & Discover UTM Courses Like Netflix" },
       {
         name: "twitter:description",
@@ -154,7 +154,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { rel: "icon", type: "image/x-icon", href: "/eagle-favicon-v4.ico" },
       { rel: "apple-touch-icon", sizes: "180x180", href: "/eagle-apple-touch-icon-v4.png" },
       { rel: "manifest", href: "/manifest.webmanifest" },
-      { rel: "canonical", href: "https://courseflix.ca/" },
+      { rel: "canonical", href: "https://www.courseflix.ca/" },
     ],
   }),
   shellComponent: RootShell,
