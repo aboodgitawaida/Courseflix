@@ -89,7 +89,8 @@ export function StudyEagle() {
       startFlight(getSleepPerchPosition(), () => {
         if (sequence !== sleepSequence.current || isDraggingRef.current) return;
         setLanding(true);
-        showStatus("Time for a study break.");
+        // On phones the bubble covers content, so the eagle naps quietly.
+        if (!isCompact()) showStatus("Time for a study break.");
         setSleepPhase("light");
         window.setTimeout(() => {
           if (sequence !== sleepSequence.current || isDraggingRef.current) return;
@@ -115,7 +116,9 @@ export function StudyEagle() {
       const cached = peekDescriptions();
       setSummaryText(makeCourseSummary(course, cached?.[course.code] ?? ""));
       setReply("");
-      setChatOpen(true);
+      // On phones an auto-opened panel covers the course itself; the summary
+      // waits until the eagle is tapped.
+      if (!isCompact()) setChatOpen(true);
       if (!cached) {
         void loadDescriptions()
           .then((loaded) => setSummaryText(makeCourseSummary(course, loaded[course.code] ?? "")))
@@ -304,7 +307,7 @@ export function StudyEagle() {
       style={{ left: position.x, top: position.y }}
     >
       {chatOpen && (
-        <div className="study-eagle-panel absolute bottom-[92px] right-0 w-[min(300px,calc(100vw-2rem))] rounded-2xl border border-amber-300/25 bg-[#17120d]/95 p-4 text-white shadow-2xl shadow-black/50 backdrop-blur-xl">
+        <div className="study-eagle-panel absolute bottom-[60px] right-0 lg:bottom-[92px] w-[min(300px,calc(100vw-2rem))] rounded-2xl border border-amber-300/25 bg-[#17120d]/95 p-4 text-white shadow-2xl shadow-black/50 backdrop-blur-xl">
           <div className="flex items-start justify-between gap-3">
             <div>
               <div className="flex items-center gap-2 text-sm font-bold text-amber-200">
@@ -429,16 +432,27 @@ function lerp(start: number, end: number, progress: number) {
   return start + (end - start) * eased;
 }
 
+/** Phones and small tablets: smaller, quieter eagle (matches the lg breakpoint). */
+function isCompact() {
+  return window.innerWidth < 1024;
+}
+
 /** Extra clearance for the mobile tab bar (shown below the lg breakpoint). */
 function tabBarClearance() {
-  return window.innerWidth < 1024 ? 84 : 0;
+  return isCompact() ? 84 : 0;
 }
 
 function getNormalPerchPosition(): Position {
+  if (isCompact()) {
+    return { x: window.innerWidth - 72, y: window.innerHeight - 70 - tabBarClearance() };
+  }
   return { x: window.innerWidth - 132, y: window.innerHeight - 150 - tabBarClearance() };
 }
 
 function getSleepPerchPosition(): Position {
+  if (isCompact()) {
+    return { x: window.innerWidth - 72, y: window.innerHeight - 62 - tabBarClearance() };
+  }
   return { x: window.innerWidth - 132, y: window.innerHeight - 78 - tabBarClearance() };
 }
 

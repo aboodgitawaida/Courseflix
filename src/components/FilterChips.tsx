@@ -26,7 +26,7 @@ export function FilterChips({
   }, [value]);
 
   return (
-    <div className="sticky top-[4.75rem] z-30 px-3 py-2 md:px-6">
+    <div className="relative z-30 px-3 py-2 md:px-6 lg:sticky lg:top-[4.75rem]">
       <div className="glass mx-auto max-w-max overflow-hidden rounded-full p-1">
         <div ref={trackRef} className="scroll-rail relative flex gap-1 overflow-x-auto">
           {indicator && (

@@ -204,14 +204,14 @@ export const CourseCard = memo(function CourseCard({
           {course.area}
         </div>
 
-        <div className="absolute top-2 right-2 flex items-center gap-1.5 opacity-0 transition group-hover:opacity-100 focus-within:opacity-100">
+        <div className="absolute top-2 right-2 flex items-center gap-1.5 transition lg:opacity-0 lg:group-hover:opacity-100 lg:focus-within:opacity-100">
           <button
             onClick={(e) => {
               e.stopPropagation();
               toggleCompare(course.code);
             }}
             aria-label={`${inCompare ? "Remove" : "Add"} ${course.code} ${inCompare ? "from" : "to"} comparison`}
-            className={`grid h-7 w-7 place-items-center rounded-full border border-white/[0.12] bg-white/[0.08] backdrop-blur-md transition active:scale-[0.95] ${inCompare ? "bg-brand text-primary-foreground" : "hover:bg-white/[0.12]"}`}
+            className={`grid h-10 w-10 place-items-center rounded-full border lg:h-7 lg:w-7 border-white/[0.12] bg-white/[0.08] backdrop-blur-md transition active:scale-[0.95] ${inCompare ? "bg-brand text-primary-foreground" : "hover:bg-white/[0.12]"}`}
           >
             <GitCompare className="h-3.5 w-3.5" />
           </button>
@@ -220,7 +220,7 @@ export const CourseCard = memo(function CourseCard({
             disabled={toggle.isPending}
             aria-label={`${inList ? "Remove" : "Add"} ${course.code} ${inList ? "from" : "to"} shortlist`}
             aria-busy={toggle.isPending}
-            className={`relative grid h-7 w-7 place-items-center rounded-full border border-white/[0.12] bg-white/[0.08] backdrop-blur-md transition active:scale-[0.95] disabled:cursor-wait disabled:opacity-60 ${inList ? "bg-brand text-primary-foreground" : "hover:bg-white/[0.12]"}`}
+            className={`relative grid h-10 w-10 place-items-center rounded-full border lg:h-7 lg:w-7 border-white/[0.12] bg-white/[0.08] backdrop-blur-md transition active:scale-[0.95] disabled:cursor-wait disabled:opacity-60 ${inList ? "bg-brand text-primary-foreground" : "hover:bg-white/[0.12]"}`}
           >
             {inList ? <Check className="h-3.5 w-3.5" /> : <Plus className="h-3.5 w-3.5" />}
             <Burst trigger={burst} />

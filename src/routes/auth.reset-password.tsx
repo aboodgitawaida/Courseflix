@@ -112,7 +112,7 @@ function ResetPasswordPage() {
 
   if (loading) {
     return (
-      <div className="relative flex min-h-screen flex-col items-center justify-center overflow-x-clip px-6 py-16 text-foreground">
+      <div className="relative flex min-h-screen flex-col items-center justify-center overflow-x-clip px-6 pb-32 pt-16 text-foreground lg:pb-16">
         <PageBackdrop />
         <div className="text-sm text-neutral-500 relative z-10">Loading...</div>
       </div>
@@ -120,7 +120,7 @@ function ResetPasswordPage() {
   }
 
   return (
-    <div className="relative flex min-h-screen flex-col items-center justify-center overflow-x-clip px-6 py-16 text-foreground">
+    <div className="relative flex min-h-screen flex-col items-center justify-center overflow-x-clip px-6 pb-32 pt-16 text-foreground lg:pb-16">
       <PageBackdrop />
       <div className="wordmark relative z-10 mb-10 text-3xl leading-none">Courseflix</div>
       <div className="glass relative z-10 w-full max-w-md rounded-[2rem] p-7 md:p-10">
