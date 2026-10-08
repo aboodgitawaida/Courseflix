@@ -20,6 +20,11 @@ describe("featured deck", () => {
     }
   });
 
+  it("tops up programs with few core courses so every deck is full", () => {
+    for (const id of ids) expect(getFeaturedDeckForMajor(id, 5), String(id)).toHaveLength(5);
+    expect(getFeaturedDeckForMajor("canadian-studies")[0]?.code).toBe("CBJ481Y5");
+  });
+
   it("falls back to the starter courses without a program", () => {
     expect(getFeaturedDeckForMajor(null)).toEqual(getFeaturedDeckForMajor("not-a-program"));
     expect(getFeaturedDeckForMajor(null)).toHaveLength(5);
