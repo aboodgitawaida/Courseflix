@@ -215,7 +215,19 @@ export type Database = {
       };
     };
     Functions: {
-      [_ in never]: never;
+      find_profile_by_username: {
+        Args: { _username: string };
+        Returns: {
+          id: string;
+          display_name: string;
+          username: string | null;
+          avatar_id: string;
+          major_id: string | null;
+          year: number | null;
+          is_private: boolean;
+          is_verified: boolean;
+        }[];
+      };
     };
     Enums: {
       [_ in never]: never;

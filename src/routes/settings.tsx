@@ -387,14 +387,17 @@ function SettingsPage() {
               </section>
 
               <section id="privacy" className="scroll-mt-28 rounded-3xl glass p-6">
-                <SectionHeading title="Privacy" hint="Control who can see your shortlist." />
+                <SectionHeading
+                  title="Privacy"
+                  hint="Control who can find you and see your shortlist."
+                />
                 <ToggleRow
                   className="mt-5"
                   label="Private account"
                   description={
                     profile.is_private
-                      ? "Only friends can see your shortlist"
-                      : "Anyone signed in can see your shortlist"
+                      ? "Hidden from search and only friends see your shortlist. People can still add you by exact @username."
+                      : "Signed-in students can find you and see your shortlist"
                   }
                   on={profile.is_private}
                   disabled={update.isPending}

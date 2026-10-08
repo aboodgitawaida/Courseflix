@@ -91,7 +91,19 @@ export function useProfileSearch(query: string) {
         .or(`username.ilike.%${q}%,display_name.ilike.%${q}%`)
         .limit(20);
       if (error) throw new Error(`Could not search profiles: ${error.message}`);
-      return (data ?? []) as Profile[];
+      const found = (data ?? []) as Profile[];
+
+      // Private accounts are hidden from search; an exact username still finds them.
+      const handle = normalizedQuery.replace(/^@/, "");
+      if (/^[a-zA-Z0-9_.]{3,24}$/.test(handle)) {
+        const { data: exact } = await supabase.rpc("find_profile_by_username", {
+          _username: handle,
+        });
+        for (const profile of (exact ?? []) as Profile[]) {
+          if (!found.some((p) => p.id === profile.id)) found.unshift(profile);
+        }
+      }
+      return found;
     },
     retry: 1,
   });
