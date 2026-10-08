@@ -905,27 +905,32 @@
   opacity: 0.6;
 }
 
-/* Hero deck: a 3D stack of course posters you can throw off the top */
+/* Hero deck: a 3D stack of course posters you can throw off the top.
+   .deck-card = stack position (CSS-transitioned); .deck-tilt = hover tilt and drag,
+   driven every frame by HeroDeck through vars on .hero-deck, so no transition. */
 .hero-deck {
   perspective: 1200px;
   transform-style: preserve-3d;
+  touch-action: pan-y;
+}
+.hero-deck[data-grab] {
+  cursor: grab;
+}
+.hero-deck[data-dragging] {
+  cursor: grabbing;
 }
 .deck-card {
-  touch-action: pan-y;
+  transform-style: preserve-3d;
   transform-origin: 50% 100%;
   transition:
     transform 0.75s cubic-bezier(0.22, 1, 0.36, 1),
     opacity 0.5s ease,
     filter 0.5s ease;
   animation: deck-enter 0.6s cubic-bezier(0.22, 1, 0.36, 1) both;
-  will-change: transform;
 }
 .deck-card[data-depth="0"] {
   z-index: 3;
-  cursor: grab;
-  transform: translate3d(calc(var(--dx, 0) * 1px), calc(var(--dx, 0) * var(--dx, 0) * 0.0004px), 0)
-    rotateZ(calc(var(--dx, 0) * 0.035deg)) rotateY(calc(var(--dx, 0) * 0.05deg))
-    rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg));
+  transform: translate3d(0, 0, 0);
 }
 .deck-card[data-depth="1"] {
   z-index: 2;
@@ -947,23 +952,21 @@
     transform: translate3d(14px, 24px, -160px) rotateZ(3.5deg);
   }
 }
-.deck-card.is-tilting {
-  transition:
-    transform 0.1s linear,
-    opacity 0.5s ease,
-    filter 0.5s ease;
-}
-.deck-card.is-dragging {
-  cursor: grabbing;
-  transition: none;
+.deck-card[data-depth="0"] .deck-tilt {
+  transform-origin: 50% 60%;
+  transform: translate3d(calc(var(--dx, 0) * 1px), calc(var(--dx, 0) * var(--dx, 0) * 0.0004px), 0)
+    rotateZ(calc(var(--dx, 0) * 0.035deg)) rotateY(calc(var(--dx, 0) * 0.05deg))
+    rotateX(calc(var(--rx, 0) * 1deg)) rotateY(calc(var(--ry, 0) * 1deg));
+  will-change: transform;
 }
 .deck-card .deck-face > img {
-  transform: translate3d(calc(var(--px, 0) * 18px), calc(var(--py, 0) * 14px), 0) scale(1.08);
-  transition: transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+  transform: scale(1.06);
 }
-.deck-card .deck-pop {
-  transform: translate3d(calc(var(--px, 0) * -12px), calc(var(--py, 0) * -10px), 0);
-  transition: transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+.deck-card[data-depth="0"] .deck-face > img {
+  transform: translate3d(calc(var(--px, 0) * 20px), calc(var(--py, 0) * 16px), 0) scale(1.06);
+}
+.deck-card[data-depth="0"] .deck-pop {
+  transform: translate3d(calc(var(--px, 0) * -10px), calc(var(--py, 0) * -8px), 0);
 }
 .deck-card .deck-glare {
   position: absolute;
@@ -973,12 +976,12 @@
   opacity: 0;
   background: radial-gradient(
     480px circle at var(--gx, 50%) var(--gy, 0%),
-    rgb(255 255 255 / 0.16),
+    rgb(255 255 255 / 0.14),
     transparent 40%
   );
-  transition: opacity 0.3s ease;
+  transition: opacity 0.4s ease;
 }
-.deck-card.is-tilting .deck-glare {
+.hero-deck[data-hover] .deck-card[data-depth="0"] .deck-glare {
   opacity: 1;
 }
 .deck-leaving {
@@ -994,7 +997,8 @@
 @keyframes deck-leave {
   from {
     transform: translate3d(calc(var(--dx, 0) * 1px), 0, 0) rotateZ(calc(var(--dx, 0) * 0.035deg))
-      rotateY(calc(var(--dx, 0) * 0.05deg));
+      rotateY(calc(var(--dx, 0) * 0.05deg)) rotateX(calc(var(--rx, 0) * 1deg))
+      rotateY(calc(var(--ry, 0) * 1deg));
     opacity: 1;
   }
   to {
@@ -1260,9 +1264,9 @@
     transition: opacity 0.3s ease;
     animation-duration: 0.3s;
   }
-  .deck-card[data-depth="0"],
-  .deck-card .deck-face > img,
-  .deck-card .deck-pop {
+  .deck-card[data-depth="0"] .deck-tilt,
+  .deck-card[data-depth="0"] .deck-face > img,
+  .deck-card[data-depth="0"] .deck-pop {
     transform: none;
   }
   .shine::after {
@@ -1292,70 +1296,6 @@
     transform: scale(1.015);
     filter: blur(6px);
   }
-}
-
-/* Hero scroll choreography: the deck tips back and the layers part as you scroll away */
-@supports (animation-timeline: scroll()) {
-  .hero-scroll-deck,
-  .hero-scroll-copy,
-  .hero-scroll-code,
-  .hero-scroll-mesh {
-    animation-timing-function: linear;
-    animation-fill-mode: both;
-    animation-timeline: scroll(root block);
-    animation-range: 0 100vh;
-  }
-  .hero-scroll-deck {
-    animation-name: hero-deck-away;
-    transform-origin: 50% 100%;
-  }
-  .hero-scroll-copy {
-    animation-name: hero-copy-away;
-  }
-  .hero-scroll-code {
-    animation-name: hero-code-away;
-  }
-  .hero-scroll-mesh {
-    animation-name: hero-mesh-away;
-  }
-}
-@keyframes hero-deck-away {
-  to {
-    transform: perspective(1000px) translate3d(0, 12vh, 0) rotateX(14deg) scale(0.86);
-    opacity: 0.35;
-  }
-}
-@keyframes hero-copy-away {
-  to {
-    transform: translate3d(0, -8vh, 0);
-    opacity: 0.2;
-  }
-}
-@keyframes hero-code-away {
-  to {
-    transform: translate3d(-10vw, -14vh, 0);
-  }
-}
-@keyframes hero-mesh-away {
-  to {
-    transform: translate3d(0, 22vh, 0);
-  }
-}
-
-/* Rails lean with scroll speed (vars written by useScrollVelocity) */
-.rail-velocity .rail-item {
-  transform: skewX(calc(var(--rail-skew, 0) * -1deg)) skewY(calc(var(--page-skew, 0) * -0.4deg));
-}
-@media (pointer: coarse) {
-  .rail-velocity .rail-item {
-    transform: none;
-  }
-}
-
-/* Poster → course header morph (paired view-transition-names) */
-::view-transition-group(*) {
-  animation-duration: 0.55s;
-  animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 /* Shortlist add burst */
@@ -1427,18 +1367,8 @@
 
 @media (prefers-reduced-motion: reduce) {
   ::view-transition-old(root),
-  ::view-transition-new(root),
-  ::view-transition-group(*) {
+  ::view-transition-new(root) {
     animation: none;
-  }
-  .hero-scroll-deck,
-  .hero-scroll-copy,
-  .hero-scroll-code,
-  .hero-scroll-mesh {
-    animation: none;
-  }
-  .rail-velocity .rail-item {
-    transform: none;
   }
   .burst {
     display: none;
