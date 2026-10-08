@@ -1,10 +1,8 @@
 import { Link, useRouterState } from "@tanstack/react-router";
-import { Search, Bookmark, User } from "lucide-react";
+import { Search, User } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useAuth } from "@/hooks/use-auth";
 import { useCourseUI } from "@/hooks/use-course-ui";
-import { useMajor } from "@/hooks/use-major";
-import { getMajor } from "@/lib/majors";
 import { ProgramButton } from "@/components/ProgramPicker";
 import { ProfileMenu } from "@/components/ProfileMenu";
 import { NotificationBell } from "@/components/NotificationBell";
@@ -13,8 +11,6 @@ import { useGoToHomeSection, useHomeSection } from "@/hooks/use-home-section";
 export function TopNav() {
   const { signedIn } = useAuth();
   const { setSearchOpen } = useCourseUI();
-  const { major } = useMajor();
-  const currentMajor = getMajor(major);
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const [scrolled, setScrolled] = useState(false);
   const section = useHomeSection();
@@ -28,7 +24,7 @@ export function TopNav() {
   }, []);
 
   const desktopLink = (active: boolean) =>
-    `relative rounded-full px-3 py-1.5 transition hover:text-foreground ${
+    `relative whitespace-nowrap rounded-full px-3 py-1.5 transition hover:text-foreground ${
       active ? "bg-white/[0.08] text-foreground" : ""
     }`;
 
@@ -50,7 +46,7 @@ export function TopNav() {
           <span className="wordmark text-2xl leading-none md:text-[1.7rem]">Courseflix</span>
         </Link>
 
-        <nav className="ml-2 hidden items-center gap-0.5 text-sm font-medium text-muted-foreground lg:flex">
+        <nav className="ml-2 hidden shrink-0 items-center gap-0.5 text-sm font-medium text-muted-foreground lg:flex">
           <Link
             to="/"
             onClick={(e) => goTo("browse", e)}
@@ -66,11 +62,6 @@ export function TopNav() {
               My Reviews
             </Link>
           )}
-          {signedIn && (
-            <Link to="/achievements" className={desktopLink(pathname === "/achievements")}>
-              Achievements
-            </Link>
-          )}
           <a
             href="/#creator"
             onClick={(e) => goTo("creator", e)}
@@ -83,7 +74,7 @@ export function TopNav() {
         <button
           onClick={() => setSearchOpen(true)}
           aria-label="Search courses"
-          className="glow-ring ml-auto hidden h-9 min-w-[220px] items-center gap-2 rounded-full border border-white/[0.08] bg-white/[0.04] px-3 text-left text-sm text-muted-foreground transition hover:border-brand/50 hover:bg-white/[0.06] focus-visible:ring-2 focus-visible:ring-white/30 sm:flex"
+          className="glow-ring ml-auto hidden h-9 min-w-[160px] max-w-[320px] flex-1 items-center gap-2 rounded-full border border-white/[0.08] bg-white/[0.04] px-3 text-left text-sm text-muted-foreground transition hover:border-brand/50 hover:bg-white/[0.06] focus-visible:ring-2 focus-visible:ring-white/30 sm:flex lg:hidden xl:flex"
         >
           <Search className="h-4 w-4" />
           <span className="flex-1 truncate">Search courses…</span>
@@ -95,21 +86,12 @@ export function TopNav() {
         <button
           onClick={() => setSearchOpen(true)}
           aria-label="Search courses"
-          className="ml-auto grid h-9 w-9 place-items-center rounded-full transition hover:bg-white/10 sm:hidden"
+          className="ml-auto grid h-9 w-9 place-items-center rounded-full transition hover:bg-white/10 sm:hidden lg:grid xl:hidden"
         >
           <Search className="h-4 w-4" />
         </button>
 
         <ProgramButton />
-
-        <Link
-          to="/list"
-          aria-label="My shortlist"
-          title={currentMajor ? `My shortlist · ${currentMajor.name}` : "My shortlist"}
-          className="hidden h-9 w-9 shrink-0 place-items-center rounded-full transition hover:bg-white/10 lg:grid"
-        >
-          <Bookmark className="h-4 w-4" />
-        </Link>
 
         {signedIn ? (
           <div className="flex shrink-0 items-center gap-1.5">

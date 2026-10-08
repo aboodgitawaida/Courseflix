@@ -1,4 +1,5 @@
-import { useQueries, useQuery } from "@tanstack/react-query";
+import { useEffect } from "react";
+import { useQueries, useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import type { RatingRow } from "@/lib/ratings";
 
@@ -121,18 +122,33 @@ async function loadShortlist() {
   return (data ?? []).map((row) => row.course_code as string);
 }
 
-/** Achievements recorded server-side when first earned; they never expire. */
+/**
+ * Achievements recorded when first earned; they never expire. user_achievements is
+ * written server-side by triggers. Unlock notifications are a second record, so
+ * earned badges stay put even where the permanent_achievements migration hasn't run.
+ */
 async function loadEarned() {
   const { data: auth, error: authError } = await supabase.auth.getUser();
   if (authError) throw authError;
   if (!auth.user) return [] as string[];
-  const { data, error } = await supabase
-    .from("user_achievements")
-    .select("achievement_id")
-    .eq("user_id", auth.user.id);
-  // Before the permanent_achievements migration runs, fall back to live progress only.
-  if (error) return [] as string[];
-  return (data ?? []).map((row) => row.achievement_id);
+  const [recorded, announced] = await Promise.all([
+    supabase.from("user_achievements").select("achievement_id").eq("user_id", auth.user.id),
+    supabase
+      .from("notifications")
+      .select("course_code")
+      .eq("user_id", auth.user.id)
+      .eq("kind", "achievement_unlocked"),
+  ]);
+  if (recorded.error) {
+    console.warn(
+      "user_achievements is unavailable; run the permanent_achievements migration.",
+      recorded.error.message,
+    );
+  }
+  return [
+    ...(recorded.data ?? []).map((row) => row.achievement_id),
+    ...(announced.data ?? []).map((row) => row.course_code).filter((id): id is string => !!id),
+  ];
 }
 
 async function loadRatings() {
@@ -167,6 +183,7 @@ function subject(code: string) {
 }
 
 export function useAchievements(enabled: boolean) {
+  const queryClient = useQueryClient();
   const results = useQueries({
     queries: [
       { queryKey: ["achievement-shortlist"], queryFn: loadShortlist, enabled },
@@ -207,6 +224,21 @@ export function useAchievements(enabled: boolean) {
       : Math.min(definition.requirement, values[definition.id] ?? 0);
     return { ...definition, progress, unlocked };
   });
+  const unlockedKey =
+    isLoading || error
+      ? ""
+      : achievements
+          .filter((a) => a.unlocked)
+          .map((a) => a.id)
+          .join(",");
+  const newlyUnlocked = unlockedKey.split(",").filter((id) => id && !earned.has(id));
+  const newlyUnlockedKey = newlyUnlocked.join(",");
+  useEffect(() => {
+    if (!enabled || !newlyUnlockedKey) return;
+    createAchievementNotifications(newlyUnlockedKey.split(","))
+      .then(() => queryClient.invalidateQueries({ queryKey: ["achievement-earned"] }))
+      .catch(() => undefined);
+  }, [enabled, newlyUnlockedKey, queryClient]);
   return {
     achievements,
     isLoading,
