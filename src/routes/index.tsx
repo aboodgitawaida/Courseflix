@@ -21,13 +21,13 @@ import { Fragment, useEffect, useState, useMemo } from "react";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Courseflix" },
+      { title: "Courseflix | Browse UTM Courses Like Netflix" },
       {
         name: "description",
         content:
           "Browse every UTM course like Netflix. Pick your major, get curated rows, save a shortlist and share it with friends.",
       },
-      { property: "og:title", content: "Courseflix" },
+      { property: "og:title", content: "Courseflix | Browse UTM Courses Like Netflix" },
       {
         property: "og:description",
         content:
@@ -37,7 +37,7 @@ export const Route = createFileRoute("/")({
       { property: "og:site_name", content: "Courseflix" },
       { property: "og:url", content: siteUrl() },
       { name: "twitter:card", content: "summary_large_image" },
-      { name: "twitter:title", content: "Courseflix" },
+      { name: "twitter:title", content: "Courseflix | Browse UTM Courses Like Netflix" },
       {
         name: "twitter:description",
         content:
