@@ -132,6 +132,7 @@ export type Database = {
           display_name: string;
           id: string;
           is_private: boolean;
+          is_verified: boolean;
           major_id: string | null;
           updated_at: string;
           username: string | null;
@@ -143,6 +144,7 @@ export type Database = {
           display_name?: string;
           id: string;
           is_private?: boolean;
+          is_verified?: boolean;
           major_id?: string | null;
           updated_at?: string;
           username?: string | null;
@@ -154,6 +156,7 @@ export type Database = {
           display_name?: string;
           id?: string;
           is_private?: boolean;
+          is_verified?: boolean;
           major_id?: string | null;
           updated_at?: string;
           username?: string | null;

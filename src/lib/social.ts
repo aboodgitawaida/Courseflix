@@ -31,7 +31,7 @@ async function profilesByIds(ids: string[]) {
 
   const { data, error } = await supabase
     .from("profiles")
-    .select("id, display_name, username, avatar_id, major_id, year, is_private")
+    .select("id, display_name, username, avatar_id, major_id, year, is_private, is_verified")
     .in("id", ids);
 
   // Notifications should still render when one actor profile is unavailable.
@@ -87,7 +87,7 @@ export function useProfileSearch(query: string) {
       const q = normalizedQuery.replace(/[\\%_,()]/g, "\\$&");
       const { data, error } = await supabase
         .from("profiles")
-        .select("id, display_name, username, avatar_id, major_id, year, is_private")
+        .select("id, display_name, username, avatar_id, major_id, year, is_private, is_verified")
         .or(`username.ilike.%${q}%,display_name.ilike.%${q}%`)
         .limit(20);
       if (error) throw new Error(`Could not search profiles: ${error.message}`);
