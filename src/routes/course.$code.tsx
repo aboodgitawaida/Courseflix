@@ -140,8 +140,6 @@ function CoursePage() {
           alt=""
           aria-hidden="true"
           onError={() => setImageSrc(FALLBACK_SUBJECT_IMAGE)}
-          // Matches the home deck's top poster so it grows into this header.
-          style={{ viewTransitionName: `course-art-${course.code}` }}
           className="hero-course-image absolute inset-0 -z-10 h-full w-full scale-105 object-cover opacity-40 blur-[2px]"
         />
         <div className="absolute inset-0 -z-10 bg-gradient-to-r from-background via-background/80 to-background/30" />
