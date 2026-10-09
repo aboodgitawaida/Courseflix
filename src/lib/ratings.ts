@@ -4,6 +4,7 @@ import { validateRatingInput } from "@/lib/validation";
 import { announce } from "@/lib/a11y";
 import { recordSubjectInterest } from "@/lib/interest";
 import { getSessionUser } from "@/lib/session";
+import { submitReview } from "@/lib/submit-review";
 
 export type RatingRow = {
   id: string;
@@ -129,10 +130,9 @@ export function useSubmitRating(code: string) {
       const userId = auth.user?.id;
       if (!userId) throw new Error("You need to sign in to rate a course.");
 
-      const { error } = await supabase
-        .from("course_ratings")
-        .upsert({ ...input, user_id: userId }, { onConflict: "user_id,course_code" });
-      if (error) throw new Error(`Could not save rating: ${error.message}`);
+      // Saved server-side so the moderation check always runs.
+      const result = await submitReview({ data: input });
+      if (result.error) throw new Error(result.error);
     },
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: ["ratings", code] });

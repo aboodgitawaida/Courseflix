@@ -11,6 +11,7 @@ Finding the right university courses shouldn't mean digging through Reddit threa
 - TanStack Start (React) deployed on Vercel
 - Supabase for auth and Postgres (row-level security on every table)
 - Resend for password-reset email
+- Claude API for review moderation
 
 ## Local development
 
@@ -25,6 +26,14 @@ Before pushing: `npm run typecheck && npm run lint && npm test`. CI runs the sam
 ## Database changes
 
 Vercel does not apply Supabase migrations. After merging anything in `supabase/migrations/`, run the new files in the Supabase SQL Editor (oldest first) or use `supabase db push`.
+
+## Review moderation
+
+New and edited reviews go through the `submitReview` server function, which asks Claude to check the comment and instructor field against a deliberately lenient policy in `src/lib/review-moderation.server.ts`: only threats, hate, sexual harassment, someone's private information, and spam are blocked, and the student sees a short note saying what to change. Harsh opinions, profanity, and criticism of instructors are published.
+
+- Set `ANTHROPIC_API_KEY` in Vercel (Production and Preview). Without it, reviews publish unchecked.
+- If the check fails (API error, timeout), the review is published and logged as `review_moderation_failed`; blocked attempts are logged as `review_blocked` with the category only, never the text.
+- After the code is deployed, run `20261013120000_review_moderation.sql` so reviews can't be written around the check.
 
 ## Handling reported reviews
 
