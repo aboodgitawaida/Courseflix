@@ -200,7 +200,7 @@ export const CourseCard = memo(function CourseCard({
         <Motif motif={art.motif} accent={art.accent} />
         <div className="absolute inset-x-0 bottom-0 h-2/3 bg-gradient-to-t from-black/90 via-black/40 to-transparent" />
 
-        <div className="absolute top-2 left-2 rounded-lg border border-white/[0.12] bg-white/[0.08] backdrop-blur-md px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-white/80">
+        <div className="absolute top-2 left-2 rounded-lg border border-white/[0.12] bg-white/[0.08] px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-white/80">
           {course.area}
         </div>
 
@@ -211,7 +211,7 @@ export const CourseCard = memo(function CourseCard({
               toggleCompare(course.code);
             }}
             aria-label={`${inCompare ? "Remove" : "Add"} ${course.code} ${inCompare ? "from" : "to"} comparison`}
-            className={`grid h-10 w-10 place-items-center rounded-full border lg:h-7 lg:w-7 border-white/[0.12] bg-white/[0.08] backdrop-blur-md transition active:scale-[0.95] ${inCompare ? "bg-brand text-primary-foreground" : "hover:bg-white/[0.12]"}`}
+            className={`grid h-10 w-10 place-items-center rounded-full border lg:h-7 lg:w-7 border-white/[0.12] bg-white/[0.08] transition active:scale-[0.95] ${inCompare ? "bg-brand text-primary-foreground" : "hover:bg-white/[0.12]"}`}
           >
             <GitCompare className="h-3.5 w-3.5" />
           </button>
@@ -220,7 +220,7 @@ export const CourseCard = memo(function CourseCard({
             disabled={toggle.isPending}
             aria-label={`${inList ? "Remove" : "Add"} ${course.code} ${inList ? "from" : "to"} shortlist`}
             aria-busy={toggle.isPending}
-            className={`relative grid h-10 w-10 place-items-center rounded-full border lg:h-7 lg:w-7 border-white/[0.12] bg-white/[0.08] backdrop-blur-md transition active:scale-[0.95] disabled:cursor-wait disabled:opacity-60 ${inList ? "bg-brand text-primary-foreground" : "hover:bg-white/[0.12]"}`}
+            className={`relative grid h-10 w-10 place-items-center rounded-full border lg:h-7 lg:w-7 border-white/[0.12] bg-white/[0.08] transition active:scale-[0.95] disabled:cursor-wait disabled:opacity-60 ${inList ? "bg-brand text-primary-foreground" : "hover:bg-white/[0.12]"}`}
           >
             {inList ? <Check className="h-3.5 w-3.5" /> : <Plus className="h-3.5 w-3.5" />}
             <Burst trigger={burst} />
@@ -241,11 +241,11 @@ export const CourseCard = memo(function CourseCard({
           {displayRating === null ? "—" : displayRating.toFixed(1)}
         </span>
         {match !== null && (
-          <span className="rounded-lg border border-white/[0.12] bg-white/[0.08] backdrop-blur-md px-1.5 py-0.5 text-[10px] font-semibold text-emerald-400">
+          <span className="rounded-lg border border-white/[0.12] bg-white/[0.08] px-1.5 py-0.5 text-[10px] font-semibold text-emerald-400">
             {match}
           </span>
         )}
-        <span className="rounded-lg border border-white/[0.12] bg-white/[0.08] backdrop-blur-md px-1.5 py-0.5 text-[10px] text-muted-foreground">
+        <span className="rounded-lg border border-white/[0.12] bg-white/[0.08] px-1.5 py-0.5 text-[10px] text-muted-foreground">
           {course.credits} cr
         </span>
       </div>
@@ -254,7 +254,7 @@ export const CourseCard = memo(function CourseCard({
         {badges.map((b) => (
           <span
             key={b.label}
-            className="rounded-lg border border-white/[0.12] bg-white/[0.08] backdrop-blur-md px-1.5 py-0.5 text-[10px] text-white/80"
+            className="rounded-lg border border-white/[0.12] bg-white/[0.08] px-1.5 py-0.5 text-[10px] text-white/80"
           >
             {b.emoji} {b.label}
           </span>
@@ -263,7 +263,7 @@ export const CourseCard = memo(function CourseCard({
           course.tags.slice(0, 2).map((t) => (
             <span
               key={t}
-              className="rounded-lg border border-white/[0.12] bg-white/[0.08] backdrop-blur-md px-1.5 py-0.5 text-[10px] text-white/70"
+              className="rounded-lg border border-white/[0.12] bg-white/[0.08] px-1.5 py-0.5 text-[10px] text-white/70"
             >
               {t}
             </span>

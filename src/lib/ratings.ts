@@ -3,6 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { validateRatingInput } from "@/lib/validation";
 import { announce } from "@/lib/a11y";
 import { recordSubjectInterest } from "@/lib/interest";
+import { getSessionUser } from "@/lib/session";
 
 export type RatingRow = {
   id: string;
@@ -66,28 +67,42 @@ export function useMyRatings(userId: string | undefined) {
   });
 }
 
-export function useCourseStats(code: string) {
-  return useQuery({
-    queryKey: ["rating-stats", code],
-    enabled: Boolean(code),
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("course_rating_stats")
-        .select("*")
-        .eq("course_code", code)
-        .maybeSingle();
-      if (error) throw new Error(`Could not load rating stats: ${error.message}`);
-      if (!data) return null;
+export type RatingStatsRow = NonNullable<RatingStats>;
 
-      const values = data as Record<string, unknown>;
-      return {
+const STATS_PAGE_SIZE = 1000;
+
+// The stats view has one row per rated course, so one cached request covers every
+// card on a page. Fetching per course used to fire ~100 requests per home visit.
+async function fetchAllCourseStats() {
+  const stats = new Map<string, RatingStatsRow>();
+  for (let from = 0; ; from += STATS_PAGE_SIZE) {
+    const { data, error } = await supabase
+      .from("course_rating_stats")
+      .select("*")
+      .order("course_code")
+      .range(from, from + STATS_PAGE_SIZE - 1);
+    if (error) throw new Error(`Could not load rating stats: ${error.message}`);
+    for (const row of data ?? []) {
+      const values = row as Record<string, unknown>;
+      if (typeof values["course_code"] !== "string") continue;
+      stats.set(values["course_code"], {
         rating_count: Number(values["rating_count"] ?? 0),
         avg_rating: Number(values["avg_rating"] ?? 0),
         avg_difficulty: Number(values["avg_difficulty"] ?? 0),
         avg_workload: Number(values["avg_workload"] ?? 0),
         pct_would_take_again: Number(values["pct_would_take_again"] ?? 0),
-      } as RatingStats;
-    },
+      });
+    }
+    if ((data ?? []).length < STATS_PAGE_SIZE) return stats;
+  }
+}
+
+export function useCourseStats(code: string) {
+  return useQuery({
+    queryKey: ["rating-stats"],
+    queryFn: fetchAllCourseStats,
+    select: (stats): RatingStats => stats.get(code) ?? null,
+    staleTime: 5 * 60_000,
     retry: 1,
   });
 }
@@ -109,7 +124,7 @@ export function useSubmitRating(code: string) {
     mutationFn: async (input: RatingInput) => {
       const validationError = validateRatingInput(input);
       if (validationError) throw new Error(validationError);
-      const { data: auth, error: authError } = await supabase.auth.getUser();
+      const { data: auth, error: authError } = await getSessionUser();
       if (authError) throw new Error(`Authentication failed: ${authError.message}`);
       const userId = auth.user?.id;
       if (!userId) throw new Error("You need to sign in to rate a course.");
@@ -121,7 +136,7 @@ export function useSubmitRating(code: string) {
     },
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: ["ratings", code] });
-      void queryClient.invalidateQueries({ queryKey: ["rating-stats", code] });
+      void queryClient.invalidateQueries({ queryKey: ["rating-stats"] });
       void queryClient.invalidateQueries({ queryKey: ["my-ratings"] });
     },
   });
@@ -139,7 +154,7 @@ export function useDeleteRating() {
     onSuccess: (courseCode) => {
       void queryClient.invalidateQueries({ queryKey: ["my-ratings"] });
       void queryClient.invalidateQueries({ queryKey: ["ratings", courseCode] });
-      void queryClient.invalidateQueries({ queryKey: ["rating-stats", courseCode] });
+      void queryClient.invalidateQueries({ queryKey: ["rating-stats"] });
       announce(`Your review for ${courseCode} was deleted.`);
     },
   });
@@ -149,7 +164,7 @@ export function useShortlist() {
   return useQuery({
     queryKey: ["shortlist"],
     queryFn: async () => {
-      const { data: auth, error: authError } = await supabase.auth.getUser();
+      const { data: auth, error: authError } = await getSessionUser();
       if (authError) throw new Error(`Authentication failed: ${authError.message}`);
       if (!auth.user) return [] as string[];
 
@@ -171,7 +186,7 @@ export function useToggleShortlist() {
 
   return useMutation({
     mutationFn: async ({ code, saved }: { code: string; saved: boolean }) => {
-      const { data: auth, error: authError } = await supabase.auth.getUser();
+      const { data: auth, error: authError } = await getSessionUser();
       if (authError) throw new Error(`Authentication failed: ${authError.message}`);
       const userId = auth.user?.id;
       if (!userId) throw new Error("You need to sign in to save courses.");

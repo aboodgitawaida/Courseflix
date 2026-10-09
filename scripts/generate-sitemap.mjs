@@ -14,6 +14,7 @@ const pages = [
   { path: "/list", changefreq: "weekly", priority: "0.8" },
   { path: "/help", changefreq: "monthly", priority: "0.3" },
   { path: "/terms", changefreq: "yearly", priority: "0.2" },
+  { path: "/privacy", changefreq: "yearly", priority: "0.2" },
   ...codes.map((code) => ({ path: `/course/${code}`, changefreq: "weekly", priority: "0.7" })),
 ];
 
