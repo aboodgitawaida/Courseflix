@@ -6,12 +6,12 @@ import { useCourseRatings, useCourseStats, useDeleteRating, useSubmitRating } fr
 import { toast } from "sonner";
 import { QueryErrorState } from "@/components/QueryErrorState";
 import { announce } from "@/lib/a11y";
-import { CREATOR_EMAIL } from "@/lib/links";
+import { REPORTS_EMAIL } from "@/lib/links";
 
 function reportReviewHref(code: string, reviewId: string) {
   const subject = `Report review on ${code}`;
   const body = `Review ID: ${reviewId}\nCourse: ${code}\n\nWhat's wrong with this review?\n`;
-  return `mailto:${CREATOR_EMAIL}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+  return `mailto:${REPORTS_EMAIL}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
 }
 
 function Stars({ value, onChange }: { value: number; onChange: (n: number) => void }) {
