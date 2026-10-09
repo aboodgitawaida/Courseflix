@@ -139,6 +139,9 @@ export function HomePage() {
             <Link to="/terms" className="transition hover:text-foreground">
               Terms
             </Link>
+            <Link to="/privacy" className="transition hover:text-foreground">
+              Privacy
+            </Link>
             <Link to="/settings" className="transition hover:text-foreground">
               Settings
             </Link>
