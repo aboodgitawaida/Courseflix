@@ -33,6 +33,8 @@ export function StudyEagle() {
   const [reply, setReply] = useState(EAGLE_REPLIES[0]);
   const [petCount, setPetCount] = useState(0);
   const [petKey, setPetKey] = useState(0);
+  // Bumped on every celebration so back-to-back ones restart the wing-flap.
+  const [celebrateKey, setCelebrateKey] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
   const [activityVersion, setActivityVersion] = useState(0);
@@ -107,6 +109,7 @@ export function StudyEagle() {
     const onCelebration = () => {
       setActivityVersion((version) => version + 1);
       showStatus("Nice pick!");
+      setCelebrateKey((key) => key + 1);
       setMode("celebrating");
       if (celebrateTimer.current !== null) window.clearTimeout(celebrateTimer.current);
       celebrateTimer.current = window.setTimeout(() => {
@@ -332,7 +335,10 @@ export function StudyEagle() {
           onPointerCancel={onPointerUp}
           className="study-eagle-button"
         >
-          <span className={`study-eagle-sprite study-eagle-sprite-${mode}`} />
+          <span
+            key={mode === "celebrating" ? `celebrate-${celebrateKey}` : mode}
+            className={`study-eagle-sprite study-eagle-sprite-${mode}`}
+          />
         </button>
         <div className="study-eagle-controls">
           <button

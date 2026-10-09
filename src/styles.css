@@ -430,22 +430,41 @@
 .study-eagle-sprite-awake {
   background-image: url("/eagle-awake.png");
   background-size: 800% 100%;
-  animation: eagle-frames 2.6s steps(8, jump-none) infinite;
+  animation: eagle-awake-frames 2.6s steps(8, jump-none) infinite;
 }
 /* Sleeping: 4 frames in order (the Z is in the art). */
 .study-eagle-sprite-sleeping {
   background-image: url("/eagle-sleep.png");
   background-size: 400% 100%;
-  animation: eagle-frames 2.8s steps(4, jump-none) infinite;
+  animation: eagle-sleep-frames 2.8s steps(4, jump-none) infinite;
 }
 /* Celebration: 8-frame wing-flap, played once (CELEBRATE_MS in StudyEagle.tsx). */
 .study-eagle-sprite-celebrating {
   background-image: url("/eagle-celebrate.png");
   background-size: 800% 100%;
-  animation: eagle-frames 1.1s steps(8, jump-none) forwards;
+  animation: eagle-celebrate-frames 1.1s steps(8, jump-none) forwards;
 }
-/* Walks a sheet left to right; steps(n, jump-none) lands exactly on each frame. */
-@keyframes eagle-frames {
+/* Each state walks its sheet left to right; steps(n, jump-none) lands exactly on
+   each frame. Every state needs its own keyframes name: if they shared one, the
+   browser would keep the running clock when the state changes, and the one-shot
+   celebration would jump straight to its last frame. */
+@keyframes eagle-awake-frames {
+  from {
+    background-position-x: 0%;
+  }
+  to {
+    background-position-x: 100%;
+  }
+}
+@keyframes eagle-sleep-frames {
+  from {
+    background-position-x: 0%;
+  }
+  to {
+    background-position-x: 100%;
+  }
+}
+@keyframes eagle-celebrate-frames {
   from {
     background-position-x: 0%;
   }
