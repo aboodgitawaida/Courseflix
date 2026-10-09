@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { Mail, MessageCircle, NotebookPen, Video } from "lucide-react";
 import { TopNav } from "@/components/TopNav";
 import { PageBackdrop } from "@/components/PageBackdrop";
+import { siteUrl } from "@/lib/site";
 import { CREATOR_EMAIL, UTM_LINKS } from "@/lib/links";
 
 export const Route = createFileRoute("/help")({
@@ -21,6 +22,7 @@ export const Route = createFileRoute("/help")({
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
     ],
+    links: [{ rel: "canonical", href: siteUrl("/help") }],
   }),
   component: HelpPage,
 });
@@ -28,7 +30,7 @@ export const Route = createFileRoute("/help")({
 const FAQ = [
   {
     q: "Where do the ratings come from?",
-    a: "Course titles, descriptions, prerequisites and listed hours come from the UTM Academic Calendar. Until students review a course on Courseflix, ratings and workload signals are estimates based on catalogue metadata only; they are not collected from Reddit or RateMyProfessors. Student reviews are shown separately once submitted.",
+    a: "Course titles, descriptions, prerequisites and listed hours come from the UTM Academic Calendar. Ratings, difficulty and workload scores come only from reviews students submit on Courseflix; a course with no reviews shows no score. Light-workload and essay/project signals are based on the calendar's listed hours and description, not on reviews, Reddit or RateMyProfessors.",
   },
   {
     q: "Is my shortlist private?",

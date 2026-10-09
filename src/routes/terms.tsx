@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { TopNav } from "@/components/TopNav";
 import { PageBackdrop } from "@/components/PageBackdrop";
+import { siteUrl } from "@/lib/site";
 
 export const Route = createFileRoute("/terms")({
   head: () => ({
@@ -11,6 +12,7 @@ export const Route = createFileRoute("/terms")({
         content: "The terms that apply when you use Courseflix.",
       },
     ],
+    links: [{ rel: "canonical", href: siteUrl("/terms") }],
   }),
   component: TermsPage,
 });
@@ -30,7 +32,7 @@ function TermsPage() {
             of use.
           </span>
         </h1>
-        <p className="mt-2 text-sm text-muted-foreground">Last updated: October 1, 2026</p>
+        <p className="mt-2 text-sm text-muted-foreground">Last updated: October 9, 2026</p>
 
         <div className="mt-8 space-y-8 text-sm leading-7 text-muted-foreground">
           <section>
@@ -38,28 +40,26 @@ function TermsPage() {
             <p className="mt-2">
               These Terms of Use govern your access to and use of Courseflix, including its website,
               course catalogue, ratings, reviews, shortlists, recommendations, and Study Eagle
-              features. By accessing Courseflix or selecting “I agree,” you confirm that you have
-              read and accepted these Terms. If you do not agree, please do not use the service.
+              features. By accessing Courseflix, you confirm that you have read and accepted these
+              Terms. If you do not agree, please do not use the service.
             </p>
           </section>
 
           <section className="rounded-2xl border border-brand/30 bg-brand/5 p-5">
             <h2 className="font-display text-2xl text-foreground">
-              2. Predicted ratings and student reviews
+              2. Ratings, signals and student reviews
             </h2>
             <p className="mt-2">
-              Before a student submits a review for a course, Courseflix may display predicted
-              rating, difficulty, workload, and “would take again” values. These are estimates
-              created from available course information and other signals; they are not verified
-              student experiences, promises, or statements by an instructor or the University of
-              Toronto.
+              Course rating, difficulty, workload, and “would take again” values on Courseflix are
+              calculated only from reviews submitted by students on Courseflix. A course with no
+              reviews shows no score. Workload, essay, and project signals are derived from the
+              official listed hours and course descriptions; they are not verified student
+              experiences, promises, or statements by an instructor or the University of Toronto.
             </p>
             <p className="mt-2">
-              When students submit reviews, the applicable predicted values are replaced or
-              supplemented by values calculated from those student reviews. Review-based results can
-              change as more reviews are submitted, and a small number of reviews may not represent
-              the experience of most students. Use ratings as guidance, not as a guarantee of your
-              grade, workload, instructor, or experience.
+              Review-based results can change as more reviews are submitted, and a small number of
+              reviews may not represent the experience of most students. Use ratings as guidance,
+              not as a guarantee of your grade, workload, instructor, or experience.
             </p>
           </section>
 

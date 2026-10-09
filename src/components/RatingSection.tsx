@@ -6,6 +6,13 @@ import { useCourseRatings, useCourseStats, useDeleteRating, useSubmitRating } fr
 import { toast } from "sonner";
 import { QueryErrorState } from "@/components/QueryErrorState";
 import { announce } from "@/lib/a11y";
+import { CREATOR_EMAIL } from "@/lib/links";
+
+function reportReviewHref(code: string, reviewId: string) {
+  const subject = `Report review on ${code}`;
+  const body = `Review ID: ${reviewId}\nCourse: ${code}\n\nWhat's wrong with this review?\n`;
+  return `mailto:${CREATOR_EMAIL}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+}
 
 function Stars({ value, onChange }: { value: number; onChange: (n: number) => void }) {
   return (
@@ -63,6 +70,7 @@ export function RatingSection({ code }: { code: string }) {
   const { signedIn, user } = useAuth();
   const {
     data: reviews = [],
+    isPending: reviewsLoading,
     error: reviewsError,
     refetch: refetchReviews,
   } = useCourseRatings(code);
@@ -228,9 +236,13 @@ export function RatingSection({ code }: { code: string }) {
             }}
           />
         )}
-        {reviews.length === 0 && (
+        {reviews.length === 0 && !reviewsError && (
           <div className="glass rounded-3xl p-5 text-muted-foreground text-sm">
-            <div className="h-4 w-2/3 animate-pulse rounded bg-primary/10" />
+            {reviewsLoading ? (
+              <div className="h-4 w-2/3 animate-pulse rounded bg-primary/10" />
+            ) : (
+              <p>No student reviews yet. Taken {code}? Yours would be the first.</p>
+            )}
             {signedIn && !open && (
               <button
                 type="button"
@@ -254,6 +266,14 @@ export function RatingSection({ code }: { code: string }) {
               </span>
             </div>
             {r.comment && <p className="text-foreground/90 leading-relaxed mt-2">{r.comment}</p>}
+            {!r.is_mine && (
+              <a
+                href={reportReviewHref(code, r.id)}
+                className="mt-3 inline-block text-xs text-muted-foreground underline-offset-2 hover:text-foreground hover:underline"
+              >
+                Report review
+              </a>
+            )}
           </div>
         ))}
       </div>

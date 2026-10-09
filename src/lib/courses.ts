@@ -29,13 +29,7 @@ export type Course = {
   prereqs: string[];
   hours: string;
   tags: CourseTag[];
-  rating: number;
-  difficulty: number;
   workload: number;
-  wouldTakeAgain: number;
-  vibe: string;
-  topProfs: Array<{ name: string; rmp: number; tags: string[] }>;
-  reviews: Array<{ source: "reddit" | "rmp"; quote: string }>;
   poster: [string, string];
   majors: string[];
 };
@@ -129,52 +123,6 @@ function hash(s: string) {
   return Math.abs(h);
 }
 
-const RATING_OVERRIDES: Record<string, number> = {
-  CSC108H5: 4.5,
-  CSC148H5: 4.0,
-  CSC207H5: 3.9,
-  CSC236H5: 3.4,
-  CSC263H5: 3.3,
-  CSC290H5: 3.0,
-  CSC301H5: 4.1,
-  CSC343H5: 3.8,
-  MAT102H5: 3.2,
-  MAT134H5: 3.0,
-  MAT135H5: 3.1,
-  MAT137Y5: 3.4,
-  MAT223H5: 3.6,
-  MAT232H5: 3.3,
-  STA215H5: 3.5,
-  STA256H5: 3.1,
-  STA260H5: 3.0,
-  ANT101H5: 4.4,
-  ANT102H5: 4.2,
-  ANT222H5: 4.6,
-  PSY100H5: 4.3,
-  PSY201H5: 3.2,
-  BIO152H5: 3.7,
-  BIO153H5: 3.6,
-  CHM110H5: 3.3,
-  CHM120H5: 3.2,
-  PHY136H5: 3.1,
-  ECO100Y5: 3.4,
-  ECO101H5: 3.5,
-  ECO200Y5: 2.9,
-  MGT120H5: 3.6,
-  MGM101H5: 4.0,
-  SOC100H5: 4.1,
-  POL112H5: 4.2,
-  POL113H5: 4.0,
-  PHL101H5: 4.3,
-  RLG101H5: 4.4,
-  ENG100H5: 4.0,
-  WRI173H5: 4.5,
-  CCT109H5: 4.2,
-  DRE121H5: 4.6,
-  FAH101H5: 4.4,
-  CIN101H5: 4.7,
-};
-
 const BIRD_BLOCKLIST = new Set([
   "CSC263H5",
   "CSC236H5",
@@ -190,19 +138,6 @@ const BIRD_BLOCKLIST = new Set([
   "CHM110H5",
   "ECO200Y5",
 ]);
-
-const HARD_SUBJECTS = ["MAT", "STA", "CSC", "PHY", "AST", "CHM"];
-
-function sampleRating(code: string, level: number, subject: string) {
-  const override = RATING_OVERRIDES[code];
-  if (override) return override;
-  const h = hash(code);
-  let r = 3.2 + ((h >> 3) % 15) / 10;
-  if (HARD_SUBJECTS.includes(subject)) r -= 0.45;
-  if (level >= 300) r -= 0.15;
-  if (level <= 200 && !HARD_SUBJECTS.includes(subject)) r += 0.25;
-  return Math.round(Math.min(4.9, Math.max(2.8, r)) * 10) / 10;
-}
 
 const coreByPrefix = new Map<string, string[]>();
 const supportByPrefix = new Map<string, string[]>();
@@ -220,7 +155,6 @@ function buildCourse(row: (typeof CATALOG)[number]): Course {
   const areas = [...dist].map((d) => DIST_NAME[d]).filter(Boolean);
   const area = areas.length ? areas.join(" / ") : subject;
 
-  const h = hash(code);
   const lecture = Number(hours.match(/(\d+)L/)?.[1] ?? 24);
   const practical = Number(hours.match(/(\d+)P/)?.[1] ?? 0);
   const load = lecture + practical * 1.2 + (credits === 1 ? 24 : 0);
@@ -242,10 +176,8 @@ function buildCourse(row: (typeof CATALOG)[number]): Course {
     if (!tags.includes("Upper-year")) tags.push("Upper-year");
     tags.push("Core CS");
   }
-  const difficulty = Math.min(5, Math.max(1.5, level / 130 + (h % 7) / 8));
-  const workload = Math.min(5, Math.max(1.5, load / 22 + (h % 5) / 8));
-  const rating = sampleRating(code, level, subject);
-  const wouldTakeAgain = Math.round(Math.min(96, Math.max(42, rating * 18 + ((h >> 5) % 9))));
+  // Derived only from listed contact hours; drives the light-workload signal.
+  const workload = Math.min(5, Math.max(1.5, load / 22));
 
   const majorIds = [
     ...new Set([...(coreByPrefix.get(subject) ?? []), ...(supportByPrefix.get(subject) ?? [])]),
@@ -262,13 +194,7 @@ function buildCourse(row: (typeof CATALOG)[number]): Course {
     prereqs,
     hours,
     tags: [...new Set(tags)],
-    rating,
-    difficulty: Math.round(difficulty * 10) / 10,
     workload: Math.round(workload * 10) / 10,
-    wouldTakeAgain,
-    vibe: "",
-    topProfs: [],
-    reviews: [],
     poster: PALETTE[hash(subject) % PALETTE.length]!,
     majors: majorIds,
   };
@@ -479,23 +405,23 @@ export function getRailsForMajor(majorId: string | null, filter: FilterId = "all
   const core = keep(coursesFor(major, "core"));
   const support = keep(coursesFor(major, "support"));
   const codes = (list: Course[], n = 14) => uniq(list.slice(0, n).map((c) => c.code));
-  const byRating = (l: Course[]) => [...l].sort((a, b) => a.code.localeCompare(b.code));
+  const byCode = (l: Course[]) => [...l].sort((a, b) => a.code.localeCompare(b.code));
 
   const scope = core.concat(support);
   const programScoped = scope.length >= 10;
   const pool = programScoped ? scope : keep(COURSES);
   // Without a program, alphabetical order put Anthropology first in every row.
   // Rank by how many courses each one unlocks and mix subjects instead.
-  const order = (l: Course[]) => (programScoped ? byRating(l) : diverse(byUnlocks(l)));
+  const order = (l: Course[]) => (programScoped ? byCode(l) : diverse(byUnlocks(l)));
 
   const first = major
     ? core.filter((c) => c.level <= 200).sort((a, b) => a.code.localeCompare(b.code))
     : diverse(byUnlocks(pool.filter((c) => c.level <= 100 && !STARTERS.includes(c))));
-  const upper = byRating(core.filter((c) => c.level >= 300));
-  const seminars = byRating(core.filter((c) => c.level >= 400));
+  const upper = byCode(core.filter((c) => c.level >= 300));
+  const seminars = byCode(core.filter((c) => c.level >= 400));
 
   const trending = programScoped
-    ? byRating(pool.filter((c) => c.level <= 300)).slice(0, 40)
+    ? byCode(pool.filter((c) => c.level <= 300)).slice(0, 40)
     : keep(STARTERS);
   const birds = order(pool.filter(isBird));
   const coursework = order(pool.filter(isCourseworkHeavy));
@@ -505,9 +431,9 @@ export function getRailsForMajor(majorId: string | null, filter: FilterId = "all
 
   const rails: Rail[] = [
     {
-      title: programScoped ? "🔥 Trending at UTM" : "🔥 UTM's big first-years",
+      title: programScoped ? "📚 Your program at a glance" : "🔥 UTM's big first-years",
       blurb: programScoped
-        ? "What students are browsing most right now"
+        ? "First-, second- and third-year courses across your program's subjects"
         : "The courses almost everyone at UTM takes or considers",
       codes: codes(trending),
     },
@@ -538,7 +464,7 @@ export function getRailsForMajor(majorId: string | null, filter: FilterId = "all
     {
       title: "🧩 Required support courses",
       blurb: "The other subjects your program needs",
-      codes: codes(byRating(support)),
+      codes: codes(byCode(support)),
     },
     { title: "🚀 Upper-year picks", blurb: "Once you've cleared the prereqs", codes: codes(upper) },
     { title: "🎓 Seminars & capstones", blurb: "400-level, small classes", codes: codes(seminars) },
