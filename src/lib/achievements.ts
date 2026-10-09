@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import { useQueries, useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import type { RatingRow } from "@/lib/ratings";
+import { getSessionUser } from "@/lib/session";
 
 export type Achievement = {
   id: string;
@@ -87,7 +88,7 @@ export function achievementDefinition(id: string) {
 
 export async function createAchievementNotifications(ids: string[]) {
   if (ids.length === 0) return;
-  const { data: auth, error: authError } = await supabase.auth.getUser();
+  const { data: auth, error: authError } = await getSessionUser();
   if (authError) throw authError;
   if (!auth.user) return;
   const { data: existing, error: existingError } = await supabase
@@ -111,7 +112,7 @@ export async function createAchievementNotifications(ids: string[]) {
 }
 
 async function loadShortlist() {
-  const { data: auth, error: authError } = await supabase.auth.getUser();
+  const { data: auth, error: authError } = await getSessionUser();
   if (authError) throw authError;
   if (!auth.user) return [] as string[];
   const { data, error } = await supabase
@@ -128,7 +129,7 @@ async function loadShortlist() {
  * earned badges stay put even where the permanent_achievements migration hasn't run.
  */
 async function loadEarned() {
-  const { data: auth, error: authError } = await supabase.auth.getUser();
+  const { data: auth, error: authError } = await getSessionUser();
   if (authError) throw authError;
   if (!auth.user) return [] as string[];
   const [recorded, announced] = await Promise.all([
@@ -152,7 +153,7 @@ async function loadEarned() {
 }
 
 async function loadRatings() {
-  const { data: auth, error: authError } = await supabase.auth.getUser();
+  const { data: auth, error: authError } = await getSessionUser();
   if (authError) throw authError;
   if (!auth.user) return [] as RatingRow[];
   const { data, error } = await supabase
@@ -166,7 +167,7 @@ async function loadRatings() {
 }
 
 async function countFriends() {
-  const { data: auth, error: authError } = await supabase.auth.getUser();
+  const { data: auth, error: authError } = await getSessionUser();
   if (authError) throw authError;
   if (!auth.user) return 0;
   const { count, error } = await supabase

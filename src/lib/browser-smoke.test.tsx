@@ -76,7 +76,7 @@ vi.mock("@/lib/reset-password", () => ({
   resetPassword: vi.fn(),
 }));
 
-import { Home } from "../routes/index";
+import { HomePage as Home } from "@/components/HomePage";
 import { AuthPage } from "../routes/auth";
 import { useAuth } from "@/hooks/use-auth";
 import { useMajor } from "@/hooks/use-major";

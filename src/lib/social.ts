@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import type { Profile } from "@/lib/profile";
+import { getSessionUser } from "@/lib/session";
 
 export type Friendship = {
   id: string;
@@ -21,7 +22,7 @@ export type NotificationRow = {
 };
 
 async function currentUserId() {
-  const { data, error } = await supabase.auth.getUser();
+  const { data, error } = await getSessionUser();
   if (error) throw error;
   return data.user?.id ?? null;
 }
