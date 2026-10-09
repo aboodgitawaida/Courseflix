@@ -14,6 +14,7 @@ import appCss from "../styles.css?url";
 import { Toaster } from "@/components/ui/sonner";
 import { CourseUIProvider } from "@/hooks/use-course-ui";
 import { SoundProvider } from "@/hooks/use-sound";
+import { EagleProvider } from "@/hooks/use-eagle";
 import { ThemeProvider } from "@/hooks/use-theme";
 import { CommandPalette } from "@/components/CommandPalette";
 import { CoursePreviewModal } from "@/components/CoursePreviewModal";
@@ -228,59 +229,61 @@ function RootComponent() {
     <QueryClientProvider client={queryClient}>
       <ThemeProvider>
         <SoundProvider>
-          <CourseUIProvider>
-            <NetworkStatusBanner />
-            <p className="sr-only" role="status" aria-live="polite" aria-atomic="true">
-              {announcement}
-            </p>
-            <Outlet />
-            <CommandPalette />
-            <CoursePreviewModal />
-            <ProgramPickerSheet />
-            <MajorProfileSync />
-            <CompareDrawer />
-            <StudyEagle />
-            <MobileTabBar />
-            <InstallPrompt />
-            <Toaster position="top-center" />
-            {termsAccepted === false && (
-              <div className="fixed inset-0 z-[100] grid place-items-center bg-black/75 p-4 backdrop-blur-sm">
-                <section
-                  role="dialog"
-                  aria-modal="true"
-                  aria-labelledby="terms-notice-title"
-                  className="max-h-[min(720px,90vh)] w-full max-w-lg overflow-y-auto rounded-2xl border border-brand/40 bg-surface p-6 shadow-2xl"
-                >
-                  <p className="text-xs font-bold uppercase tracking-[0.2em] text-brand">
-                    Before you continue
-                  </p>
-                  <h1 id="terms-notice-title" className="mt-2 font-display text-3xl font-black">
-                    Welcome to Courseflix
-                  </h1>
-                  <p className="mt-3 text-sm leading-6 text-muted-foreground">
-                    Please review and accept our{" "}
-                    <Link to="/terms" className="font-semibold text-brand hover:underline">
-                      Terms of Use
-                    </Link>{" "}
-                    before using the site.
-                  </p>
-                  <div className="mt-4 rounded-xl border border-brand/30 bg-brand/5 p-4 text-sm leading-6 text-foreground/85">
-                    Course ratings shown before student reviews are predictions, not verified
-                    experiences. As student reviews are submitted, review-based values replace or
-                    supplement those estimates. Always confirm official course information before
-                    making academic decisions.
-                  </div>
-                  <button
-                    type="button"
-                    onClick={acceptTerms}
-                    className="mt-6 w-full rounded-full bg-brand px-5 py-3 text-sm font-bold text-primary-foreground transition hover:bg-brand-glow"
+          <EagleProvider>
+            <CourseUIProvider>
+              <NetworkStatusBanner />
+              <p className="sr-only" role="status" aria-live="polite" aria-atomic="true">
+                {announcement}
+              </p>
+              <Outlet />
+              <CommandPalette />
+              <CoursePreviewModal />
+              <ProgramPickerSheet />
+              <MajorProfileSync />
+              <CompareDrawer />
+              <StudyEagle />
+              <MobileTabBar />
+              <InstallPrompt />
+              <Toaster position="top-center" />
+              {termsAccepted === false && (
+                <div className="fixed inset-0 z-[100] grid place-items-center bg-black/75 p-4 backdrop-blur-sm">
+                  <section
+                    role="dialog"
+                    aria-modal="true"
+                    aria-labelledby="terms-notice-title"
+                    className="max-h-[min(720px,90vh)] w-full max-w-lg overflow-y-auto rounded-2xl border border-brand/40 bg-surface p-6 shadow-2xl"
                   >
-                    I agree and continue
-                  </button>
-                </section>
-              </div>
-            )}
-          </CourseUIProvider>
+                    <p className="text-xs font-bold uppercase tracking-[0.2em] text-brand">
+                      Before you continue
+                    </p>
+                    <h1 id="terms-notice-title" className="mt-2 font-display text-3xl font-black">
+                      Welcome to Courseflix
+                    </h1>
+                    <p className="mt-3 text-sm leading-6 text-muted-foreground">
+                      Please review and accept our{" "}
+                      <Link to="/terms" className="font-semibold text-brand hover:underline">
+                        Terms of Use
+                      </Link>{" "}
+                      before using the site.
+                    </p>
+                    <div className="mt-4 rounded-xl border border-brand/30 bg-brand/5 p-4 text-sm leading-6 text-foreground/85">
+                      Course ratings shown before student reviews are predictions, not verified
+                      experiences. As student reviews are submitted, review-based values replace or
+                      supplement those estimates. Always confirm official course information before
+                      making academic decisions.
+                    </div>
+                    <button
+                      type="button"
+                      onClick={acceptTerms}
+                      className="mt-6 w-full rounded-full bg-brand px-5 py-3 text-sm font-bold text-primary-foreground transition hover:bg-brand-glow"
+                    >
+                      I agree and continue
+                    </button>
+                  </section>
+                </div>
+              )}
+            </CourseUIProvider>
+          </EagleProvider>
         </SoundProvider>
       </ThemeProvider>
     </QueryClientProvider>

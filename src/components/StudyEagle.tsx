@@ -3,11 +3,9 @@ import { useEffect, useRef, useState, type PointerEvent as ReactPointerEvent } f
 import { useRouterState } from "@tanstack/react-router";
 import { getCourse, type Course } from "@/lib/courses";
 import { loadDescriptions, peekDescriptions } from "@/lib/course-description";
+import { useEagle } from "@/hooks/use-eagle";
 
-type Position = { x: number; y: number };
-type Direction = "down" | "up" | "left" | "right";
-type EagleAnimation = "idle" | "sleeping";
-type SleepPhase = "awake" | "light" | "deep";
+type EagleMode = "awake" | "sleeping" | "celebrating";
 
 const EAGLE_REPLIES = [
   "Try the course preview first, then shortlist anything that still feels like a good fit.",
@@ -15,40 +13,43 @@ const EAGLE_REPLIES = [
   "Compare workload and difficulty together. A high rating is not always an easy semester.",
 ];
 
+/** Where the perch sits on the right edge, as a fraction of the viewport height. */
+const PERCH_KEY = "courseflix.eagle.perchY";
+const DEFAULT_PERCH = 0.62;
+const SLEEP_AFTER_MS = 20_000;
+const CELEBRATE_MS = 1_100;
+/** Frame size of the eagle sheets (art pixels) and how much they are scaled up. */
+const FRAME = { w: 47, h: 61 };
+const SCALE = { desktop: 2, compact: 1.5 };
+
 export function StudyEagle() {
-  const [position, setPosition] = useState<Position | null>(null);
+  const { enabled } = useEagle();
+  const [perch, setPerch] = useState<number | null>(null);
+  const [compact, setCompact] = useState(false);
+  // On phones the eagle stays tucked away as a small button until tapped.
+  const [revealed, setRevealed] = useState(false);
+  const [mode, setMode] = useState<EagleMode>("awake");
   const [chatOpen, setChatOpen] = useState(false);
   const [reply, setReply] = useState(EAGLE_REPLIES[0]);
   const [petCount, setPetCount] = useState(0);
-  const [isDragging, setIsDragging] = useState(false);
-  const [isReturning, setIsReturning] = useState(false);
-  const [celebrating, setCelebrating] = useState(false);
-  const [petting, setPetting] = useState(false);
   const [petKey, setPetKey] = useState(0);
-  const [landing, setLanding] = useState(false);
-  const [sleepPhase, setSleepPhase] = useState<SleepPhase>("awake");
+  const [isDragging, setIsDragging] = useState(false);
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
   const [activityVersion, setActivityVersion] = useState(0);
   const [summaryCourseCode, setSummaryCourseCode] = useState<string | null>(null);
   const [summaryContext, setSummaryContext] = useState<"preview" | "page" | null>(null);
   const [summaryText, setSummaryText] = useState<string | null>(null);
-  const [animation, setAnimation] = useState<EagleAnimation>("idle");
-  // Set while dragged or gliding; null means hovering in place (base idle).
-  const [flightDirection, setFlightDirection] = useState<Direction | null>(null);
-  const dragOffset = useRef<Position>({ x: 0, y: 0 });
-  const lastPointer = useRef<Position>({ x: 0, y: 0 });
+  const drag = useRef<{ offset: number; startY: number; moved: boolean } | null>(null);
   const didDrag = useRef(false);
-  const returnFrame = useRef<number | null>(null);
-  const isReturningRef = useRef(false);
-  const isDraggingRef = useRef(false);
   const messageTimer = useRef<number | null>(null);
-  const petTimer = useRef<number | null>(null);
-  const sleepTransitionTimer = useRef<number | null>(null);
-  const sleepSequence = useRef(0);
-  const animationRef = useRef<EagleAnimation>("idle");
-  const positionRef = useRef<Position | null>(null);
+  const celebrateTimer = useRef<number | null>(null);
+  const modeRef = useRef<EagleMode>("awake");
   const pathname = useRouterState({ select: (state) => state.location.pathname });
   const course = getCurrentCourse(pathname);
+
+  useEffect(() => {
+    modeRef.current = mode;
+  }, [mode]);
 
   useEffect(() => {
     if (!course && summaryCourseCode && summaryContext === "page") {
@@ -60,38 +61,23 @@ export function StudyEagle() {
   }, [course, summaryContext, summaryCourseCode]);
 
   useEffect(() => {
-    setPosition(getNormalPerchPosition());
+    const saved = Number(window.localStorage.getItem(PERCH_KEY));
+    setPerch(saved > 0 && saved < 1 ? saved : DEFAULT_PERCH);
+    const onResize = () => setCompact(isCompact());
+    onResize();
+    window.addEventListener("resize", onResize);
+    return () => window.removeEventListener("resize", onResize);
   }, []);
 
+  // Nods off after a while with nothing happening; any activity resets the clock.
   useEffect(() => {
-    animationRef.current = animation;
-    positionRef.current = position;
-  }, [animation, position]);
-
-  useEffect(() => {
-    if (animation !== "idle") return;
+    if (mode !== "awake" || chatOpen || isDragging) return;
     const timer = window.setTimeout(() => {
-      if (isReturningRef.current || isDraggingRef.current) return;
-      const sequence = ++sleepSequence.current;
-      startFlight(getSleepPerchPosition(), () => {
-        if (sequence !== sleepSequence.current || isDraggingRef.current) return;
-        setLanding(true);
-        // On phones the bubble covers content, so the eagle naps quietly.
-        if (!isCompact()) showStatus("Time for a study break.");
-        setSleepPhase("light");
-        window.setTimeout(() => {
-          if (sequence !== sleepSequence.current || isDraggingRef.current) return;
-          setLanding(false);
-          setAnimation("sleeping");
-          window.setTimeout(() => {
-            if (sequence === sleepSequence.current) setSleepPhase("deep");
-          }, 5_000);
-        }, 650);
-      });
-    }, 10_000);
-    sleepTransitionTimer.current = timer;
+      setMode("sleeping");
+      if (!isCompact()) showStatus("Time for a study break.");
+    }, SLEEP_AFTER_MS);
     return () => window.clearTimeout(timer);
-  }, [activityVersion, animation, chatOpen, isDragging, isReturning]);
+  }, [activityVersion, mode, chatOpen, isDragging]);
 
   useEffect(() => {
     const onSummary = (event: Event) => {
@@ -112,34 +98,23 @@ export function StudyEagle() {
           .catch(() => {});
       }
     };
-    const onCelebration = () => {
-      setActivityVersion((version) => version + 1);
-      const celebrate = () => {
-        showStatus("Nice pick!");
-        setPetting(false);
-        setCelebrating(true);
-        window.setTimeout(() => setCelebrating(false), 870);
-      };
-      if (animationRef.current === "sleeping") {
-        sleepSequence.current += 1;
-        setAnimation("idle");
-        setSleepPhase("awake");
-        setLanding(false);
-        if (returnFrame.current !== null) cancelAnimationFrame(returnFrame.current);
-        isReturningRef.current = false;
-        setIsReturning(false);
-        startFlight(getNormalPerchPosition(), celebrate);
-      } else {
-        celebrate();
-      }
-    };
-    window.addEventListener("study-eagle-summarize", onSummary);
     const onClearSummary = () => {
       setSummaryCourseCode(null);
       setSummaryContext(null);
       setSummaryText(null);
       setReply(EAGLE_REPLIES[0]);
     };
+    const onCelebration = () => {
+      setActivityVersion((version) => version + 1);
+      showStatus("Nice pick!");
+      setMode("celebrating");
+      if (celebrateTimer.current !== null) window.clearTimeout(celebrateTimer.current);
+      celebrateTimer.current = window.setTimeout(() => {
+        setMode("awake");
+        celebrateTimer.current = null;
+      }, CELEBRATE_MS);
+    };
+    window.addEventListener("study-eagle-summarize", onSummary);
     window.addEventListener("study-eagle-clear", onClearSummary);
     window.addEventListener("study-eagle-celebrate", onCelebration);
     return () => {
@@ -151,83 +126,70 @@ export function StudyEagle() {
 
   useEffect(() => {
     return () => {
-      if (returnFrame.current !== null) cancelAnimationFrame(returnFrame.current);
       if (messageTimer.current !== null) window.clearTimeout(messageTimer.current);
-      if (petTimer.current !== null) window.clearTimeout(petTimer.current);
-      if (sleepTransitionTimer.current !== null) window.clearTimeout(sleepTransitionTimer.current);
-      sleepSequence.current += 1;
+      if (celebrateTimer.current !== null) window.clearTimeout(celebrateTimer.current);
     };
   }, []);
 
+  function eagleSize() {
+    const scale = isCompact() ? SCALE.compact : SCALE.desktop;
+    return { w: FRAME.w * scale, h: FRAME.h * scale };
+  }
+
+  /** Keep the whole perch on screen, below the header and above the phone tab bar. */
+  function clampTop(top: number) {
+    const min = 72;
+    const max = window.innerHeight - eagleSize().h - 16 - tabBarClearance();
+    return clamp(top, min, Math.max(min, max));
+  }
+
+  // The branch only slides up and down its edge; it can't be pulled into the page.
   function onPointerDown(event: ReactPointerEvent<HTMLButtonElement>) {
-    if (!position) return;
-    const wasSleeping = animation === "sleeping";
-    sleepSequence.current += 1;
-    isDraggingRef.current = true;
-    setAnimation("idle");
-    setSleepPhase("awake");
-    setLanding(false);
-    showStatus(wasSleeping ? "Back already?" : "Krrr!");
-    if (sleepTransitionTimer.current !== null) {
-      window.clearTimeout(sleepTransitionTimer.current);
-      sleepTransitionTimer.current = null;
-    }
+    if (perch === null) return;
     event.currentTarget.setPointerCapture(event.pointerId);
-    if (returnFrame.current !== null) cancelAnimationFrame(returnFrame.current);
-    isReturningRef.current = false;
-    setIsReturning(false);
-    if (wasSleeping) startFlight(getNormalPerchPosition());
-    dragOffset.current = { x: event.clientX - position.x, y: event.clientY - position.y };
-    lastPointer.current = { x: event.clientX, y: event.clientY };
+    const top = clampTop(perch * window.innerHeight);
+    drag.current = { offset: event.clientY - top, startY: event.clientY, moved: false };
     didDrag.current = false;
-    setIsDragging(true);
   }
 
   function onPointerMove(event: ReactPointerEvent<HTMLButtonElement>) {
-    if (!isDragging) return;
-    didDrag.current = true;
-    const deltaX = event.clientX - lastPointer.current.x;
-    const deltaY = event.clientY - lastPointer.current.y;
-    if (Math.abs(deltaX) > 2 || Math.abs(deltaY) > 2) {
-      setFlightDirection(getDirection(deltaX, deltaY));
-      lastPointer.current = { x: event.clientX, y: event.clientY };
+    const d = drag.current;
+    if (!d) return;
+    if (!d.moved && Math.abs(event.clientY - d.startY) < 4) return;
+    if (!d.moved) {
+      d.moved = true;
+      didDrag.current = true;
+      setIsDragging(true);
     }
-    setPosition({
-      x: clamp(event.clientX - dragOffset.current.x, 8, window.innerWidth - 104),
-      y: clamp(
-        event.clientY - dragOffset.current.y,
-        72,
-        window.innerHeight - 112 - tabBarClearance(),
-      ),
-    });
+    setPerch(clampTop(event.clientY - d.offset) / window.innerHeight);
   }
 
   function onPointerUp() {
-    isDraggingRef.current = false;
+    const d = drag.current;
+    drag.current = null;
+    if (!d?.moved) return;
     setIsDragging(false);
-    if (!didDrag.current && !isReturningRef.current) setFlightDirection(null);
-    if (didDrag.current) {
-      startFlight(getNormalPerchPosition());
-      window.setTimeout(() => {
-        didDrag.current = false;
-      }, 0);
-    }
+    setActivityVersion((version) => version + 1);
+    setPerch((current) => {
+      if (current !== null) window.localStorage.setItem(PERCH_KEY, current.toFixed(4));
+      return current;
+    });
+    // The click that ends a drag is not a pet.
+    window.setTimeout(() => {
+      didDrag.current = false;
+    }, 0);
   }
 
   function petEagle() {
-    if (isDragging || didDrag.current) return;
-    setPetCount((count) => count + 1);
-    // Happy hop + flutter + hearts, only while awake and perched (waking up and
-    // flying home have their own motion).
-    if (animation === "idle" && !isReturningRef.current && !celebrating) {
-      setPetKey((key) => key + 1);
-      setPetting(true);
-      if (petTimer.current !== null) window.clearTimeout(petTimer.current);
-      petTimer.current = window.setTimeout(() => {
-        setPetting(false);
-        petTimer.current = null;
-      }, 700);
+    if (didDrag.current) return;
+    setActivityVersion((version) => version + 1);
+    if (modeRef.current === "sleeping") {
+      setMode("awake");
+      showStatus("Back already?");
+      return;
     }
+    setPetKey((key) => key + 1);
+    setPetCount((count) => count + 1);
     showStatus(petCount % 2 === 0 ? "Krrr! That tickles." : "You got me.");
     setSummaryCourseCode(null);
     setSummaryText(null);
@@ -238,42 +200,9 @@ export function StudyEagle() {
     );
   }
 
-  function startFlight(target: Position, onArrive?: () => void) {
-    const currentPosition = positionRef.current;
-    if (!currentPosition) return;
-    if (returnFrame.current !== null) cancelAnimationFrame(returnFrame.current);
-    isReturningRef.current = true;
-    setIsReturning(true);
-    const start = currentPosition;
-    if (Math.abs(target.x - start.x) < 1 && Math.abs(target.y - start.y) < 1) {
-      setIsReturning(false);
-      isReturningRef.current = false;
-      setFlightDirection(null);
-      onArrive?.();
-      return;
-    }
-    const startedAt = performance.now();
-    const deltaX = target.x - start.x;
-    const deltaY = target.y - start.y;
-    const totalDuration = Math.max(420, Math.hypot(deltaX, deltaY) * 2.2);
-    setFlightDirection(getDirection(deltaX, deltaY));
-
-    const step = (now: number) => {
-      const elapsed = Math.min(now - startedAt, totalDuration);
-      const progress = elapsed / totalDuration;
-      setPosition({ x: lerp(start.x, target.x, progress), y: lerp(start.y, target.y, progress) });
-      if (elapsed < totalDuration) {
-        returnFrame.current = requestAnimationFrame(step);
-      } else {
-        returnFrame.current = null;
-        setIsReturning(false);
-        isReturningRef.current = false;
-        setFlightDirection(null);
-        setPosition(target);
-        onArrive?.();
-      }
-    };
-    returnFrame.current = requestAnimationFrame(step);
+  function closeChat() {
+    setChatOpen(false);
+    if (isCompact()) setRevealed(false);
   }
 
   function showStatus(message: string) {
@@ -285,15 +214,43 @@ export function StudyEagle() {
     }, 2_800);
   }
 
-  if (!position) return null;
+  if (!enabled || perch === null) return null;
+
+  if (compact && !revealed) {
+    return (
+      <button
+        type="button"
+        className="study-eagle-tuck"
+        onClick={() => {
+          setRevealed(true);
+          setChatOpen(true);
+          setMode("awake");
+          setActivityVersion((version) => version + 1);
+        }}
+        aria-label="Open Study Eagle"
+        title="Study Eagle"
+      >
+        <span className="study-eagle-tuck-face" aria-hidden="true" />
+      </button>
+    );
+  }
+
+  const size = eagleSize();
+  const top = clampTop(perch * window.innerHeight);
+  // Open the chat away from the nearest screen edge.
+  const panelBelow = top < window.innerHeight / 2;
 
   return (
     <div
       className={`study-eagle fixed z-[45] ${isDragging ? "study-eagle-dragging" : ""}`}
-      style={{ left: position.x, top: position.y }}
+      style={{ right: compact ? 6 : 12, top, width: size.w }}
     >
       {chatOpen && (
-        <div className="study-eagle-panel absolute bottom-[60px] right-0 lg:bottom-[92px] w-[min(300px,calc(100vw-2rem))] rounded-2xl border border-amber-300/25 bg-[#17120d]/95 p-4 text-white shadow-2xl shadow-black/50 backdrop-blur-xl">
+        <div
+          className={`study-eagle-panel absolute right-0 w-[min(300px,calc(100vw-2rem))] rounded-2xl border border-amber-300/25 bg-[#17120d]/95 p-4 text-white shadow-2xl shadow-black/50 backdrop-blur-xl ${
+            panelBelow ? "top-[calc(100%+8px)]" : "bottom-[calc(100%+8px)]"
+          }`}
+        >
           <div className="flex items-start justify-between gap-3">
             <div>
               <div className="flex items-center gap-2 text-sm font-bold text-amber-200">
@@ -303,8 +260,8 @@ export function StudyEagle() {
             </div>
             <button
               type="button"
-              onClick={() => setChatOpen(false)}
-              aria-label="Close Study Eagle chat"
+              onClick={closeChat}
+              aria-label={compact ? "Tuck Study Eagle away" : "Close Study Eagle chat"}
               className="rounded-md p-1 text-white/50 hover:bg-white/10 hover:text-white"
             >
               <X className="h-4 w-4" />
@@ -350,9 +307,7 @@ export function StudyEagle() {
           {statusMessage}
         </div>
       )}
-      <div
-        className={`relative ${celebrating ? "study-eagle-celebrating" : ""} ${petting ? `study-eagle-petting study-eagle-petting-${petKey % 2}` : ""} ${landing ? "study-eagle-landing" : ""} study-eagle-${animation} study-eagle-sleep-${sleepPhase}`}
-      >
+      <div className={`relative study-eagle-${mode}`}>
         {petKey > 0 && (
           <div key={petKey} className="study-eagle-hearts" aria-hidden="true">
             <PixelHeart />
@@ -360,20 +315,15 @@ export function StudyEagle() {
             <PixelHeart />
           </div>
         )}
-        {celebrating && (
+        {mode === "celebrating" && (
           <div className="study-eagle-confetti" aria-hidden="true">
             ✦ · ✧ ✦ · ✧
           </div>
         )}
-        {landing && (
-          <div className="study-eagle-dust" aria-hidden="true">
-            · ｡ ·
-          </div>
-        )}
         <button
           type="button"
-          aria-label={`Study Eagle. ${animation === "sleeping" ? "Sleeping. " : ""}Click to pet, drag to fly.`}
-          title="Click to pet · drag to fly"
+          aria-label={`Study Eagle. ${mode === "sleeping" ? "Sleeping. " : ""}Tap to pet, drag the branch up or down.`}
+          title="Tap to pet · drag the branch up or down"
           onClick={petEagle}
           onPointerDown={onPointerDown}
           onPointerMove={onPointerMove}
@@ -381,19 +331,8 @@ export function StudyEagle() {
           onPointerCancel={onPointerUp}
           className="study-eagle-button"
         >
-          <span
-            className={`study-eagle-sprite ${
-              animation === "sleeping"
-                ? "study-eagle-sprite-sleeping"
-                : celebrating
-                  ? "study-eagle-sprite-backflip"
-                  : flightDirection
-                    ? `study-eagle-sprite-${flightDirection}`
-                    : ""
-            }`}
-          />
+          <span className={`study-eagle-sprite study-eagle-sprite-${mode}`} />
         </button>
-        <div className="study-eagle-shadow" aria-hidden="true" />
         <div className="study-eagle-controls">
           <button
             type="button"
@@ -428,17 +367,7 @@ function clamp(value: number, min: number, max: number) {
   return Math.max(min, Math.min(max, value));
 }
 
-function getDirection(deltaX: number, deltaY: number): Direction {
-  if (Math.abs(deltaX) > Math.abs(deltaY)) return deltaX > 0 ? "right" : "left";
-  return deltaY > 0 ? "down" : "up";
-}
-
-function lerp(start: number, end: number, progress: number) {
-  const eased = 1 - (1 - Math.max(0, Math.min(1, progress))) ** 3;
-  return start + (end - start) * eased;
-}
-
-/** Phones and small tablets: smaller, quieter eagle (matches the lg breakpoint). */
+/** Phones and small tablets: tucked-away eagle (matches the lg breakpoint). */
 function isCompact() {
   return window.innerWidth < 1024;
 }
@@ -446,20 +375,6 @@ function isCompact() {
 /** Extra clearance for the mobile tab bar (shown below the lg breakpoint). */
 function tabBarClearance() {
   return isCompact() ? 84 : 0;
-}
-
-function getNormalPerchPosition(): Position {
-  if (isCompact()) {
-    return { x: window.innerWidth - 72, y: window.innerHeight - 70 - tabBarClearance() };
-  }
-  return { x: window.innerWidth - 132, y: window.innerHeight - 150 - tabBarClearance() };
-}
-
-function getSleepPerchPosition(): Position {
-  if (isCompact()) {
-    return { x: window.innerWidth - 72, y: window.innerHeight - 62 - tabBarClearance() };
-  }
-  return { x: window.innerWidth - 132, y: window.innerHeight - 78 - tabBarClearance() };
 }
 
 function makeCourseSummary(course: Course, rawDescription: string) {
