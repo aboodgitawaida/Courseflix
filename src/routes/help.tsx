@@ -42,7 +42,7 @@ const FAQ = [
   },
   {
     q: "How do I report a review?",
-    a: "Use the Report review link under any review, or email the creator with the course code. Reviews that break the Terms (personal attacks, someone's private information, spam, or fake reviews) are removed, usually within 48 hours.",
+    a: "Use the Report review link under any review. New reviews are checked automatically, and only threats, hate, sexual harassment, someone's private information or spam are held back; harsh but honest opinions about a course or instructor are always allowed. Reported reviews that break those rules are removed, usually within 48 hours.",
   },
   {
     q: "Why is a course missing?",

@@ -31,3 +31,5 @@ export const facultySearchUrl = (subject: string) =>
   `https://www.google.com/search?q=${encodeURIComponent(`University of Toronto Mississauga ${subject} department faculty directory`)}`;
 
 export const CREATOR_EMAIL = "Abood.awaida@mail.utoronto.ca";
+// Where "Report review" emails go.
+export const REPORTS_EMAIL = "aboodemail@gmail.com";
