@@ -2,10 +2,15 @@
 
   sleeping-eagle-source.jpg   the 4-frame sleeping eagle (a blurry JPEG of ~7.5px art pixels)
   pixellab-awake-edit.png     PixelLab edit of sleep frame 1 with the eyes opened (80x80)
+  pixellab-idle.png           PixelLab animation from the awake frame: blink + head turn (8 x 80x80)
+  pixellab-celebrate.png      PixelLab animation from the awake frame: wing-flap (8 x 80x80)
 
-Outputs (all 47x61 frames, transparent, crisp pixels, aligned on the branch):
+Outputs share one frame size, transparent with crisp pixels and one palette. The
+branch is identical in every frame and the sheets are mirrored so the branch's
+cut end sits against the right edge of the screen:
+  public/eagle-awake.png      8 frames (idle loop)
   public/eagle-sleep.png      4 frames
-  public/eagle-awake.png      1 frame
+  public/eagle-celebrate.png  8 frames (played once)
 
 Run: python3 scripts/build-eagle-sprites.py
 """
@@ -126,11 +131,113 @@ put(30, 27, "e3ad2b"); put(31, 27, "0a0001"); put(32, 27, "ffffff")
 put(30, 28, "e3ad2b"); put(31, 28, "0a0001"); put(32, 28, "0a0001")
 awake = np.asarray(ImageOps.mirror(Image.fromarray(awake, "RGBA"))).copy()   # face the sleep frames' way
 
-# align on the branch with sleep frame 1 (both placed on the same 80x80 canvas)
-base = np.zeros((80, 80, 4), np.uint8); base[15:76, 16:63] = sleep[0]
-dy, dx = best_shift((base[..., 3] > 0)[45:], (awake[..., 3] > 0)[45:], 6)
-awake = np.roll(np.roll(awake, dy, 0), dx, 1)[15:76, 16:63]
+# ---------- 3. put everything on one 80x80 canvas in the sleep frames' coordinates ----------
+def on_canvas(frame47):
+    c = np.zeros((80, 80, 4), np.uint8); c[15:76, 16:63] = frame47; return c
 
-Image.fromarray(np.concatenate(sleep, 1), "RGBA").save(OUT / "eagle-sleep.png", optimize=True)
-Image.fromarray(awake, "RGBA").save(OUT / "eagle-awake.png", optimize=True)
-print("wrote", OUT / "eagle-sleep.png", OUT / "eagle-awake.png")
+
+sleep80 = [on_canvas(f) for f in sleep]
+dy, dx = best_shift((sleep80[0][..., 3] > 0)[45:], (awake[..., 3] > 0)[45:], 6)
+shift = lambda f: np.roll(np.roll(f, dy, 0), dx, 1)
+
+
+def pixellab_frames(name):
+    sheet = np.asarray(Image.open(SRC / f"pixellab-{name}.png").convert("RGBA"))
+    return [shift(sheet[:, 80 * i:80 * i + 80].copy()) for i in range(sheet.shape[1] // 80)]
+
+
+awake80 = shift(awake)
+idle80, celebrate80 = pixellab_frames("idle"), pixellab_frames("celebrate")
+
+
+def drop_specks(f, min_size=15):
+    """Remove loose clusters of pixels the animation model leaves floating around."""
+    al = f[..., 3] > 0; seen = np.zeros_like(al)
+    for y, x in zip(*np.nonzero(al)):
+        if seen[y, x]: continue
+        comp, q = [], deque([(y, x)]); seen[y, x] = True
+        while q:
+            cy, cx = q.popleft(); comp.append((cy, cx))
+            for ny in (cy - 1, cy, cy + 1):
+                for nx in (cx - 1, cx, cx + 1):
+                    if 0 <= ny < 80 and 0 <= nx < 80 and al[ny, nx] and not seen[ny, nx]:
+                        seen[ny, nx] = True; q.append((ny, nx))
+        if len(comp) < min_size:
+            for cy, cx in comp: f[cy, cx] = 0
+    return f
+
+
+idle80 = [drop_specks(f) for f in idle80]
+celebrate80 = [drop_specks(f) for f in celebrate80]
+
+# lock the branch (and tail) below the feet to the awake frame, so it never flickers
+LOCK = 61 + dy
+for f in idle80 + celebrate80 + sleep80:
+    f[LOCK:] = awake80[LOCK:]
+
+# one shared palette for all four art sources
+everything = sleep80 + [awake80] + idle80 + celebrate80
+opaque = np.concatenate([f[f[..., 3] > 0][:, :3].astype(float) for f in everything])
+cent2 = opaque[np.random.default_rng(2).choice(len(opaque), 40, replace=False)]
+for _ in range(30):
+    lab = ((opaque[:, None] - cent2[None]) ** 2).sum(2).argmin(1)
+    cent2 = np.array([opaque[lab == k].mean(0) if (lab == k).any() else cent2[k] for k in range(len(cent2))])
+cent2 = cent2.round().clip(0, 255).astype(np.uint8)
+
+
+# moss greens only belong on the branch: above it, a feather may never snap to green
+c2 = cent2.astype(int)
+GREEN = (c2[:, 1] > c2[:, 0] + 8) & (c2[:, 1] > c2[:, 2] + 8)
+
+
+def snap2(f):
+    f = f.copy(); a = f[..., 3] > 0
+    d = ((f[..., None, :3].astype(int) - c2[None, None]) ** 2).sum(-1)
+    rows = np.arange(80)[:, None, None]
+    d = np.where((rows < LOCK - 2) & GREEN[None, None], 1 << 30, d)
+    f[a, :3] = cent2[d.argmin(-1)][a]
+    f[..., 3] = np.where(a, 255, 0)
+    return f
+
+
+sleep80, idle80, celebrate80 = ([snap2(f) for f in group] for group in (sleep80, idle80, celebrate80))
+
+# one shared frame: starts at the branch's cut end (wing tips past it go "off screen")
+STUB_X = 16 + 1
+al = np.any([f[..., 3] > 0 for f in sleep80 + idle80 + celebrate80], axis=0)
+ys, xs = np.nonzero(al)
+y0, y1, x1 = ys.min(), ys.max() + 1, xs.max() + 1
+
+
+def small_parts(f, max_size=40):
+    """Bounding boxes of small detached pixel clusters (the floating Z letters)."""
+    al = f[..., 3] > 0; seen = np.zeros_like(al); boxes = []
+    for y, x in zip(*np.nonzero(al)):
+        if seen[y, x]: continue
+        comp, q = [], deque([(y, x)]); seen[y, x] = True
+        while q:
+            cy, cx = q.popleft(); comp.append((cy, cx))
+            for ny in (cy - 1, cy, cy + 1):
+                for nx in (cx - 1, cx, cx + 1):
+                    if 0 <= ny < f.shape[0] and 0 <= nx < f.shape[1] and al[ny, nx] and not seen[ny, nx]:
+                        seen[ny, nx] = True; q.append((ny, nx))
+        if len(comp) <= max_size:
+            ys_, xs_ = zip(*comp); boxes.append((min(ys_), max(ys_) + 1, min(xs_), max(xs_) + 1))
+    return boxes
+
+
+def finish(frames):
+    """Crop to the shared frame and mirror so the branch grows out of the right edge.
+    Letters (the sleeping Z) are flipped back so they still read the right way."""
+    out = []
+    for f in frames:
+        m = f[y0:y1, STUB_X:x1][:, ::-1].copy()
+        for t, b, l, r in small_parts(m):
+            m[t:b, l:r] = m[t:b, l:r][:, ::-1]
+        out.append(m)
+    return np.concatenate(out, 1)
+
+
+for name, frames in (("eagle-awake", idle80), ("eagle-sleep", sleep80), ("eagle-celebrate", celebrate80)):
+    Image.fromarray(finish(frames), "RGBA").save(OUT / f"{name}.png", optimize=True)
+print("frame size", x1 - STUB_X, "x", y1 - y0, "| wrote eagle-awake, eagle-sleep, eagle-celebrate")
