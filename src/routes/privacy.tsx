@@ -135,9 +135,10 @@ function PrivacyPage() {
           <Section title="5. How we use it">
             <p>
               Only to run Courseflix: to sign you in, show your shortlist and profile, calculate
-              course ratings from student reviews, power friends and notifications, send
-              password-reset emails, prevent abuse, and understand which pages are used so we can
-              improve the site. We don&apos;t sell personal information or use it for advertising.
+              course ratings from student reviews, power friends and notifications, screen reviews
+              for threats and personal information, send password-reset emails, prevent abuse, and
+              understand which pages are used so we can improve the site. We don&apos;t sell
+              personal information or use it for advertising.
             </p>
           </Section>
 
@@ -147,6 +148,11 @@ function PrivacyPage() {
               <li>Supabase: database and sign-in.</li>
               <li>Vercel: website hosting, analytics and performance measurement.</li>
               <li>Resend: sending password-reset emails.</li>
+              <li>
+                Anthropic: before a review is published, its comment and instructor field are sent
+                to Anthropic&apos;s Claude API to check for threats, hate, and other people&apos;s
+                private information. Your name and account details are not sent.
+              </li>
               <li>Google: optional “Sign in with Google”.</li>
               <li>
                 Google Fonts: the site&apos;s fonts are loaded from Google, which receives your IP
