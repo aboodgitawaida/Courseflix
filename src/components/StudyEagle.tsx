@@ -17,9 +17,9 @@ const EAGLE_REPLIES = [
 const PERCH_KEY = "courseflix.eagle.perchY";
 const DEFAULT_PERCH = 0.62;
 const SLEEP_AFTER_MS = 20_000;
-const CELEBRATE_MS = 1_100;
+const CELEBRATE_MS = 1_100; // matches the 8-frame wing-flap in styles.css
 /** Frame size of the eagle sheets (art pixels) and how much they are scaled up. */
-const FRAME = { w: 47, h: 61 };
+const FRAME = { w: 56, h: 68 };
 const SCALE = { desktop: 2, compact: 1.5 };
 
 export function StudyEagle() {
@@ -243,7 +243,8 @@ export function StudyEagle() {
   return (
     <div
       className={`study-eagle fixed z-[45] ${isDragging ? "study-eagle-dragging" : ""}`}
-      style={{ right: compact ? 6 : 12, top, width: size.w }}
+      // Flush to the edge: the branch grows out of the side of the screen.
+      style={{ right: 0, top, width: size.w }}
     >
       {chatOpen && (
         <div
