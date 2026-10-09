@@ -2,12 +2,13 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { z } from "zod";
 import { supabase } from "@/integrations/supabase/client";
 import { MAJORS } from "@/lib/majors";
-import hmalc from "@/assets/avatars/hmalc.png";
-import cntower from "@/assets/avatars/cntower.png";
-import squirrel from "@/assets/avatars/squirrel.png";
-import goose from "@/assets/avatars/goose.png";
-import maanjiwe from "@/assets/avatars/maanjiwe.png";
-import coffee from "@/assets/avatars/coffee.png";
+import hmalc from "@/assets/avatars/hmalc.webp";
+import cntower from "@/assets/avatars/cntower.webp";
+import squirrel from "@/assets/avatars/squirrel.webp";
+import goose from "@/assets/avatars/goose.webp";
+import maanjiwe from "@/assets/avatars/maanjiwe.webp";
+import coffee from "@/assets/avatars/coffee.webp";
+import { getSessionUser } from "@/lib/session";
 
 export type Profile = {
   id: string;
@@ -64,10 +65,11 @@ export function useProfile(userId?: string) {
     enabled: Boolean(userId),
     queryFn: async () => {
       if (!userId) return null;
-      const { data: authData, error: authError } = await supabase.auth.getUser();
+      const { data: authData, error: authError } = await getSessionUser();
       if (authError) throw authError;
-      const uid = authData.user?.id;
-      if (!uid) return null;
+      const authUser = authData.user;
+      const uid = authUser?.id;
+      if (!authUser || !uid) return null;
 
       const { data, error } = await supabase
         .from("profiles")
@@ -82,7 +84,7 @@ export function useProfile(userId?: string) {
         .insert({
           id: uid,
           display_name:
-            String(authData.user.user_metadata?.display_name ?? "")
+            String(authUser.user_metadata?.display_name ?? "")
               .trim()
               .slice(0, 40) || "UTM student",
           avatar_id: "hmalc",
@@ -101,7 +103,7 @@ export function useUpdateProfile() {
   return useMutation({
     mutationFn: async (patch: Partial<Omit<Profile, "id">>) => {
       const validatedPatch = profilePatchSchema.parse(patch);
-      const { data: auth } = await supabase.auth.getUser();
+      const { data: auth } = await getSessionUser();
       const user = auth.user;
       const uid = user?.id;
       if (!uid) throw new Error("You need to sign in first.");
@@ -128,7 +130,9 @@ export function useUpdateProfile() {
         .insert({
           id: uid,
           display_name:
-            user.user_metadata?.display_name ?? user.email?.split("@")[0] ?? "UTM student",
+            String(user.user_metadata?.display_name ?? "")
+              .trim()
+              .slice(0, 40) || "UTM student",
           avatar_id: "hmalc",
           is_private: false,
           ...validatedPatch,

@@ -32,8 +32,6 @@ import { inject as injectAnalytics } from "@vercel/analytics";
 import { injectSpeedInsights } from "@vercel/speed-insights";
 import { A11Y_ANNOUNCE_EVENT } from "@/lib/a11y";
 
-const TERMS_NOTICE_ENABLED = false;
-
 function NotFoundComponent() {
   return (
     <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-background px-4">
@@ -118,7 +116,6 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "apple-mobile-web-app-status-bar-style", content: "black-translucent" },
       { name: "apple-mobile-web-app-title", content: "Courseflix" },
       { name: "theme-color", content: "#060607" },
-      { property: "og:url", content: "https://www.courseflix.ca/" },
       { property: "og:title", content: "CourseFlix | Browse & Discover UTM Courses Like Netflix" },
       {
         property: "og:description",
@@ -127,19 +124,18 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       },
       { property: "og:site_name", content: "Courseflix" },
       { property: "og:type", content: "website" },
-      { property: "og:image", content: "https://www.courseflix.ca/og-image.png" },
+      { property: "og:image", content: "https://www.courseflix.ca/og-image.jpg" },
       { property: "og:image:width", content: "1200" },
       { property: "og:image:height", content: "630" },
       { property: "og:image:alt", content: "Courseflix: discover UTM courses like Netflix" },
       { name: "twitter:card", content: "summary_large_image" },
-      { name: "twitter:url", content: "https://www.courseflix.ca/" },
       { name: "twitter:title", content: "CourseFlix | Browse & Discover UTM Courses Like Netflix" },
       {
         name: "twitter:description",
         content:
           "Browse every UTM course like Netflix. Pick your major, get curated rows, save a shortlist, and share it with friends.",
       },
-      { name: "twitter:image", content: "https://www.courseflix.ca/og-image.png" },
+      { name: "twitter:image", content: "https://www.courseflix.ca/og-image.jpg" },
       { name: "twitter:image:alt", content: "Courseflix: discover UTM courses like Netflix" },
       { name: "robots", content: "index, follow" },
     ],
@@ -159,7 +155,6 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { rel: "icon", type: "image/x-icon", href: "/eagle-favicon-v4.ico" },
       { rel: "apple-touch-icon", sizes: "180x180", href: "/eagle-apple-touch-icon-v4.png" },
       { rel: "manifest", href: "/manifest.webmanifest" },
-      { rel: "canonical", href: "https://www.courseflix.ca/" },
     ],
   }),
   shellComponent: RootShell,
@@ -188,24 +183,13 @@ function RootComponent() {
   const { queryClient } = Route.useRouteContext();
   const router = useRouter();
   const [announcement, setAnnouncement] = useState("");
-  const [termsAccepted, setTermsAccepted] = useState<boolean | null>(null);
 
   useEffect(() => {
     captureFirstTouchAttribution();
     // Cookieless page-view and web-vitals tracking; no-ops outside Vercel.
     injectAnalytics();
     injectSpeedInsights();
-    if (TERMS_NOTICE_ENABLED) {
-      setTermsAccepted(window.localStorage.getItem("courseflix-terms-accepted") === "2026-10-01");
-    } else {
-      setTermsAccepted(true);
-    }
   }, []);
-
-  function acceptTerms() {
-    window.localStorage.setItem("courseflix-terms-accepted", "2026-10-01");
-    setTermsAccepted(true);
-  }
 
   useEffect(() => {
     const onAnnouncement = (event: Event) => {
@@ -245,43 +229,6 @@ function RootComponent() {
               <MobileTabBar />
               <InstallPrompt />
               <Toaster position="top-center" />
-              {termsAccepted === false && (
-                <div className="fixed inset-0 z-[100] grid place-items-center bg-black/75 p-4 backdrop-blur-sm">
-                  <section
-                    role="dialog"
-                    aria-modal="true"
-                    aria-labelledby="terms-notice-title"
-                    className="max-h-[min(720px,90vh)] w-full max-w-lg overflow-y-auto rounded-2xl border border-brand/40 bg-surface p-6 shadow-2xl"
-                  >
-                    <p className="text-xs font-bold uppercase tracking-[0.2em] text-brand">
-                      Before you continue
-                    </p>
-                    <h1 id="terms-notice-title" className="mt-2 font-display text-3xl font-black">
-                      Welcome to Courseflix
-                    </h1>
-                    <p className="mt-3 text-sm leading-6 text-muted-foreground">
-                      Please review and accept our{" "}
-                      <Link to="/terms" className="font-semibold text-brand hover:underline">
-                        Terms of Use
-                      </Link>{" "}
-                      before using the site.
-                    </p>
-                    <div className="mt-4 rounded-xl border border-brand/30 bg-brand/5 p-4 text-sm leading-6 text-foreground/85">
-                      Course ratings shown before student reviews are predictions, not verified
-                      experiences. As student reviews are submitted, review-based values replace or
-                      supplement those estimates. Always confirm official course information before
-                      making academic decisions.
-                    </div>
-                    <button
-                      type="button"
-                      onClick={acceptTerms}
-                      className="mt-6 w-full rounded-full bg-brand px-5 py-3 text-sm font-bold text-primary-foreground transition hover:bg-brand-glow"
-                    >
-                      I agree and continue
-                    </button>
-                  </section>
-                </div>
-              )}
             </CourseUIProvider>
           </EagleProvider>
         </SoundProvider>

@@ -15,6 +15,7 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as FriendsRouteImport } from './routes/friends'
 import { Route as HelpRouteImport } from './routes/help'
 import { Route as ListRouteImport } from './routes/list'
+import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as ReviewsRouteImport } from './routes/reviews'
 import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as TermsRouteImport } from './routes/terms'
@@ -50,6 +51,11 @@ const HelpRoute = HelpRouteImport.update({
 const ListRoute = ListRouteImport.update({
   id: '/list',
   path: '/list',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PrivacyRoute = PrivacyRouteImport.update({
+  id: '/privacy',
+  path: '/privacy',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ReviewsRoute = ReviewsRouteImport.update({
@@ -90,6 +96,7 @@ export interface FileRoutesByFullPath {
   '/friends': typeof FriendsRoute
   '/help': typeof HelpRoute
   '/list': typeof ListRoute
+  '/privacy': typeof PrivacyRoute
   '/reviews': typeof ReviewsRoute
   '/settings': typeof SettingsRoute
   '/terms': typeof TermsRoute
@@ -104,6 +111,7 @@ export interface FileRoutesByTo {
   '/friends': typeof FriendsRoute
   '/help': typeof HelpRoute
   '/list': typeof ListRoute
+  '/privacy': typeof PrivacyRoute
   '/reviews': typeof ReviewsRoute
   '/settings': typeof SettingsRoute
   '/terms': typeof TermsRoute
@@ -119,6 +127,7 @@ export interface FileRoutesById {
   '/friends': typeof FriendsRoute
   '/help': typeof HelpRoute
   '/list': typeof ListRoute
+  '/privacy': typeof PrivacyRoute
   '/reviews': typeof ReviewsRoute
   '/settings': typeof SettingsRoute
   '/terms': typeof TermsRoute
@@ -135,6 +144,7 @@ export interface FileRouteTypes {
     | '/friends'
     | '/help'
     | '/list'
+    | '/privacy'
     | '/reviews'
     | '/settings'
     | '/terms'
@@ -149,6 +159,7 @@ export interface FileRouteTypes {
     | '/friends'
     | '/help'
     | '/list'
+    | '/privacy'
     | '/reviews'
     | '/settings'
     | '/terms'
@@ -163,6 +174,7 @@ export interface FileRouteTypes {
     | '/friends'
     | '/help'
     | '/list'
+    | '/privacy'
     | '/reviews'
     | '/settings'
     | '/terms'
@@ -178,6 +190,7 @@ export interface RootRouteChildren {
   FriendsRoute: typeof FriendsRoute
   HelpRoute: typeof HelpRoute
   ListRoute: typeof ListRoute
+  PrivacyRoute: typeof PrivacyRoute
   ReviewsRoute: typeof ReviewsRoute
   SettingsRoute: typeof SettingsRoute
   TermsRoute: typeof TermsRoute
@@ -227,6 +240,13 @@ declare module '@tanstack/react-router' {
       path: '/list'
       fullPath: '/list'
       preLoaderRoute: typeof ListRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/privacy': {
+      id: '/privacy'
+      path: '/privacy'
+      fullPath: '/privacy'
+      preLoaderRoute: typeof PrivacyRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/reviews': {
@@ -291,6 +311,7 @@ const rootRouteChildren: RootRouteChildren = {
   FriendsRoute: FriendsRoute,
   HelpRoute: HelpRoute,
   ListRoute: ListRoute,
+  PrivacyRoute: PrivacyRoute,
   ReviewsRoute: ReviewsRoute,
   SettingsRoute: SettingsRoute,
   TermsRoute: TermsRoute,

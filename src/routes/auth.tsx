@@ -303,6 +303,19 @@ export function AuthPage() {
               >
                 {busy ? "…" : mode === "signin" ? "Sign in" : "Create account"}
               </button>
+              {mode === "signup" && (
+                <p className="text-center text-[11px] leading-5 text-neutral-500">
+                  By creating an account you agree to the{" "}
+                  <Link to="/terms" className="underline hover:text-brand">
+                    Terms
+                  </Link>{" "}
+                  and{" "}
+                  <Link to="/privacy" className="underline hover:text-brand">
+                    Privacy Policy
+                  </Link>
+                  .
+                </p>
+              )}
             </form>
           )}
           {forgotPassword ? (

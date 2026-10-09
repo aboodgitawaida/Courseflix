@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { Mail, MessageCircle, NotebookPen, Video } from "lucide-react";
 import { TopNav } from "@/components/TopNav";
 import { PageBackdrop } from "@/components/PageBackdrop";
+import { siteUrl } from "@/lib/site";
 import { CREATOR_EMAIL, UTM_LINKS } from "@/lib/links";
 
 export const Route = createFileRoute("/help")({
@@ -21,6 +22,7 @@ export const Route = createFileRoute("/help")({
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
     ],
+    links: [{ rel: "canonical", href: siteUrl("/help") }],
   }),
   component: HelpPage,
 });
@@ -28,11 +30,19 @@ export const Route = createFileRoute("/help")({
 const FAQ = [
   {
     q: "Where do the ratings come from?",
-    a: "Course titles, descriptions, prerequisites and listed hours come from the UTM Academic Calendar. Until students review a course on Courseflix, ratings and workload signals are estimates based on catalogue metadata only; they are not collected from Reddit or RateMyProfessors. Student reviews are shown separately once submitted.",
+    a: "Course titles, descriptions, prerequisites and listed hours come from the UTM Academic Calendar. Ratings, difficulty and workload scores come only from reviews students submit on Courseflix; a course with no reviews shows no score. Light-workload and essay/project signals are based on the calendar's listed hours and description, not on reviews, Reddit or RateMyProfessors.",
   },
   {
     q: "Is my shortlist private?",
     a: "You control it in Account settings. A private account means only accepted friends can see your shortlist. A public account means any signed-in student can. Shared links you generate yourself always work for anyone with the link.",
+  },
+  {
+    q: "What do you do with my data?",
+    a: "Only what's needed to run the site: your account, profile, saved courses, reviews and friends. Reviews are shown without your name, nothing is sold, and you can delete your account and all of it from Settings. The full details are in the Privacy Policy at courseflix.ca/privacy.",
+  },
+  {
+    q: "How do I report a review?",
+    a: "Use the Report review link under any review, or email the creator with the course code. Reviews that break the Terms (personal attacks, someone's private information, spam, or fake reviews) are removed, usually within 48 hours.",
   },
   {
     q: "Why is a course missing?",

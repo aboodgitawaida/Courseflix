@@ -57,9 +57,9 @@ export const Route = createFileRoute("/course/$code")({
         property: "og:url",
         content: loaderData ? siteUrl(`/course/${loaderData.course.code}`) : siteUrl(),
       },
-      { property: "og:image", content: siteUrl("/og-image.png") },
+      { property: "og:image", content: siteUrl("/og-image.jpg") },
       { name: "twitter:card", content: "summary_large_image" },
-      { name: "twitter:image", content: siteUrl("/og-image.png") },
+      { name: "twitter:image", content: siteUrl("/og-image.jpg") },
     ],
     links: loaderData
       ? [{ rel: "canonical", href: siteUrl(`/course/${loaderData.course.code}`) }]
