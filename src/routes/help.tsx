@@ -37,6 +37,14 @@ const FAQ = [
     a: "You control it in Account settings. A private account means only accepted friends can see your shortlist. A public account means any signed-in student can. Shared links you generate yourself always work for anyone with the link.",
   },
   {
+    q: "What do you do with my data?",
+    a: "Only what's needed to run the site: your account, profile, saved courses, reviews and friends. Reviews are shown without your name, nothing is sold, and you can delete your account and all of it from Settings. The full details are in the Privacy Policy at courseflix.ca/privacy.",
+  },
+  {
+    q: "How do I report a review?",
+    a: "Use the Report review link under any review, or email the creator with the course code. Reviews that break the Terms (personal attacks, someone's private information, spam, or fake reviews) are removed, usually within 48 hours.",
+  },
+  {
     q: "Why is a course missing?",
     a: "Courseflix only covers UTM courses (codes ending in H5 or Y5) from the current Academic Calendar. Courses offered only at St. George or Scarborough are intentionally left out.",
   },

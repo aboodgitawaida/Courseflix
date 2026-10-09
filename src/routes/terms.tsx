@@ -120,9 +120,11 @@ function TermsPage() {
               usage information needed to provide the service. We do not sell personal information.
               We handle personal information in accordance with applicable Canadian privacy laws,
               which may include the federal Personal Information Protection and Electronic Documents
-              Act (PIPEDA) and applicable Ontario law. Use of the service is also subject to any
-              privacy notice made available by Courseflix, which explains applicable collection,
-              use, retention, and deletion practices.
+              Act (PIPEDA) and applicable Ontario law. Our{" "}
+              <Link to="/privacy" className="text-brand hover:underline">
+                Privacy Policy
+              </Link>{" "}
+              explains what we collect, what is public, and how to delete your account.
             </p>
           </section>
 
