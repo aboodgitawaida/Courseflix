@@ -14,6 +14,7 @@ import appCss from "../styles.css?url";
 import { Toaster } from "@/components/ui/sonner";
 import { CourseUIProvider } from "@/hooks/use-course-ui";
 import { SoundProvider } from "@/hooks/use-sound";
+import { EagleProvider } from "@/hooks/use-eagle";
 import { ThemeProvider } from "@/hooks/use-theme";
 import { CommandPalette } from "@/components/CommandPalette";
 import { CoursePreviewModal } from "@/components/CoursePreviewModal";
@@ -212,22 +213,24 @@ function RootComponent() {
     <QueryClientProvider client={queryClient}>
       <ThemeProvider>
         <SoundProvider>
-          <CourseUIProvider>
-            <NetworkStatusBanner />
-            <p className="sr-only" role="status" aria-live="polite" aria-atomic="true">
-              {announcement}
-            </p>
-            <Outlet />
-            <CommandPalette />
-            <CoursePreviewModal />
-            <ProgramPickerSheet />
-            <MajorProfileSync />
-            <CompareDrawer />
-            <StudyEagle />
-            <MobileTabBar />
-            <InstallPrompt />
-            <Toaster position="top-center" />
-          </CourseUIProvider>
+          <EagleProvider>
+            <CourseUIProvider>
+              <NetworkStatusBanner />
+              <p className="sr-only" role="status" aria-live="polite" aria-atomic="true">
+                {announcement}
+              </p>
+              <Outlet />
+              <CommandPalette />
+              <CoursePreviewModal />
+              <ProgramPickerSheet />
+              <MajorProfileSync />
+              <CompareDrawer />
+              <StudyEagle />
+              <MobileTabBar />
+              <InstallPrompt />
+              <Toaster position="top-center" />
+            </CourseUIProvider>
+          </EagleProvider>
         </SoundProvider>
       </ThemeProvider>
     </QueryClientProvider>

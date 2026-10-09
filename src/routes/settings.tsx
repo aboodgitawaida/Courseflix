@@ -3,7 +3,18 @@ import { VerifiedBadge } from "@/components/VerifiedBadge";
 import { useEffect, useRef, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { Check, Lock, LogOut, Moon, Palette, ShieldCheck, Sun, User, Volume2 } from "lucide-react";
+import {
+  Bird,
+  Check,
+  Lock,
+  LogOut,
+  Moon,
+  Palette,
+  ShieldCheck,
+  Sun,
+  User,
+  Volume2,
+} from "lucide-react";
 import { SwitchTrack } from "@/components/ui/switch";
 import { TopNav } from "@/components/TopNav";
 import { PageBackdrop } from "@/components/PageBackdrop";
@@ -11,6 +22,7 @@ import { QueryErrorState } from "@/components/QueryErrorState";
 import { useAuth } from "@/hooks/use-auth";
 import { useTheme } from "@/hooks/use-theme";
 import { useSound } from "@/hooks/use-sound";
+import { useEagle } from "@/hooks/use-eagle";
 import { AVATARS, useProfile, useUpdateProfile } from "@/lib/profile";
 import { MAJORS } from "@/lib/majors";
 import { useMajor } from "@/hooks/use-major";
@@ -34,6 +46,7 @@ function SettingsPage() {
   const update = useUpdateProfile();
   const { theme, toggleTheme } = useTheme();
   const { muted, toggleMuted, play } = useSound();
+  const { enabled: eagleOn, toggleEnabled: toggleEagle } = useEagle();
   const { setMajor } = useMajor();
   const initializedUserId = useRef<string | null>(null);
   const navigate = useNavigate();
@@ -386,6 +399,24 @@ function SettingsPage() {
                 />
               </section>
 
+              <section id="eagle" className="scroll-mt-28 rounded-3xl glass p-6">
+                <SectionHeading
+                  title="Study Eagle"
+                  hint="The little eagle perched at the edge of the screen."
+                />
+                <ToggleRow
+                  className="mt-5"
+                  label="Show the Study Eagle"
+                  description={
+                    eagleOn
+                      ? "On: course summaries, celebrations and a nap now and then"
+                      : "Off: the eagle is hidden"
+                  }
+                  on={eagleOn}
+                  onToggle={toggleEagle}
+                />
+              </section>
+
               <section id="privacy" className="scroll-mt-28 rounded-3xl glass p-6">
                 <SectionHeading title="Privacy" hint="Control who can see your shortlist." />
                 <ToggleRow
@@ -443,6 +474,7 @@ const SECTIONS = [
   { id: "profile", label: "Profile", icon: User },
   { id: "appearance", label: "Appearance", icon: Palette },
   { id: "sound", label: "Sound", icon: Volume2 },
+  { id: "eagle", label: "Study Eagle", icon: Bird },
   { id: "privacy", label: "Privacy", icon: ShieldCheck },
   { id: "account", label: "Account", icon: Lock },
 ] as const;
