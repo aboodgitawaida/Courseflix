@@ -55,3 +55,7 @@ from public.course_ratings where user_id = '<user-id>' order by created_at desc;
 ```
 
 For repeat or clearly malicious accounts, delete the user under Authentication → Users in the Supabase dashboard; their profile, reviews, shortlist and friendships are removed with it. Negative but honest reviews ("hard tests, unclear lectures") stay up.
+
+## License
+
+Copyright (c) 2026 Abood Awaida. All rights reserved. See [LICENSE](LICENSE).

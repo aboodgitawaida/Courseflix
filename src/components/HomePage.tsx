@@ -4,7 +4,6 @@ import { ProgramPromptCard } from "@/components/ProgramPicker";
 import { openProgramPicker } from "@/lib/program-picker";
 import { CourseRail } from "@/components/CourseRail";
 import { CreatorSection } from "@/components/CreatorSection";
-import { MemorialSection } from "@/components/MemorialSection";
 import { FilterChips } from "@/components/FilterChips";
 import { CinematicIntro } from "@/components/CinematicIntro";
 import { Spotlight } from "@/components/Spotlight";
@@ -96,7 +95,6 @@ export function HomePage() {
 
       <FeatureBento />
       <CreatorSection />
-      <MemorialSection />
 
       <footer className="relative overflow-hidden border-t border-white/[0.08] px-6 pt-14 md:px-10 md:pt-20">
         <div className="grid gap-10 md:grid-cols-[1.5fr_1fr_1fr]">
