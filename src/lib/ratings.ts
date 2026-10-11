@@ -5,6 +5,7 @@ import { announce } from "@/lib/a11y";
 import { recordSubjectInterest } from "@/lib/interest";
 import { getSessionUser } from "@/lib/session";
 import { submitReview } from "@/lib/submit-review";
+import type { User } from "@supabase/supabase-js";
 
 export type RatingRow = {
   id: string;
@@ -237,4 +238,32 @@ export function useToggleShortlist() {
       void queryClient.invalidateQueries({ queryKey: ["achievement-earned"] });
     },
   });
+}
+
+/**
+ * Whether the signed-in user can post reviews: Google-style sign-ins count as
+ * verified; email sign-ups need to have confirmed the link we email them. The
+ * server enforces this too, so on a read error the form is shown and the
+ * server has the final say.
+ */
+export function useReviewVerification(user: User | null) {
+  const providers = (user?.app_metadata?.providers ?? []) as string[];
+  const viaProvider = providers.some((provider) => provider !== "email");
+  const query = useQuery({
+    queryKey: ["review-verified", user?.id ?? null],
+    enabled: Boolean(user) && !viaProvider,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("review_email_verifications")
+        .select("user_id")
+        .eq("user_id", user!.id)
+        .maybeSingle();
+      if (error) return true;
+      return Boolean(data);
+    },
+    staleTime: 5 * 60_000,
+  });
+  if (!user) return { verified: false, loading: false };
+  if (viaProvider) return { verified: true, loading: false };
+  return { verified: query.data ?? false, loading: query.isPending };
 }

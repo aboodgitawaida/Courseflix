@@ -125,6 +125,42 @@ export type Database = {
         };
         Relationships: [];
       };
+      review_email_verifications: {
+        Row: {
+          user_id: string;
+          verified_at: string;
+        };
+        Insert: {
+          user_id: string;
+          verified_at?: string;
+        };
+        Update: {
+          user_id?: string;
+          verified_at?: string;
+        };
+        Relationships: [];
+      };
+      email_verification_tokens: {
+        Row: {
+          created_at: string;
+          expires_at: string;
+          token_hash: string;
+          user_id: string;
+        };
+        Insert: {
+          created_at?: string;
+          expires_at: string;
+          token_hash: string;
+          user_id: string;
+        };
+        Update: {
+          created_at?: string;
+          expires_at?: string;
+          token_hash?: string;
+          user_id?: string;
+        };
+        Relationships: [];
+      };
       profiles: {
         Row: {
           avatar_id: string;
