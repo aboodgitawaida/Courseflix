@@ -1,12 +1,10 @@
-import { useEffect, useRef, useState } from "react";
-import tudum from "@/assets/tudum.mp3.asset.json";
+import { useEffect, useState } from "react";
 
 const SESSION_KEY = "courseflix.intro.played";
 
 export function BrandIntro() {
   const [visible, setVisible] = useState(false);
   const [done, setDone] = useState(false);
-  const audioRef = useRef<HTMLAudioElement | null>(null);
 
   useEffect(() => {
     let played = "1";
@@ -23,17 +21,11 @@ export function BrandIntro() {
       // Storage may be unavailable in privacy-restricted browsers.
     }
 
-    const audio = new Audio(tudum.url);
-    audio.volume = 0.55;
-    audioRef.current = audio;
-    void audio.play().catch(() => {});
-
     const t = window.setTimeout(() => setDone(true), 2600);
     const t2 = window.setTimeout(() => setVisible(false), 3200);
     return () => {
       window.clearTimeout(t);
       window.clearTimeout(t2);
-      audio.pause();
     };
   }, []);
 
