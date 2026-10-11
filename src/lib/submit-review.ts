@@ -38,6 +38,12 @@ export const submitReview = createServerFn({ method: "POST" })
     return input;
   })
   .handler(async ({ data, context }): Promise<{ success?: boolean; error?: string }> => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { canPostReviews } = await import("./review-verification.server");
+    if (!(await canPostReviews(supabaseAdmin, context.userId))) {
+      return { error: "Confirm your email before posting a review." };
+    }
+
     const { moderateReview } = await import("./review-moderation.server");
     const verdict = await moderateReview({
       courseCode: data.course_code,
@@ -47,7 +53,6 @@ export const submitReview = createServerFn({ method: "POST" })
     if (!verdict.allowed) return { error: verdict.message };
 
     try {
-      const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
       const { error } = await supabaseAdmin
         .from("course_ratings")
         .upsert({ ...data, user_id: context.userId }, { onConflict: "user_id,course_code" });

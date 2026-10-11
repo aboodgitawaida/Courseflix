@@ -19,6 +19,7 @@ import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as ReviewsRouteImport } from './routes/reviews'
 import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as TermsRouteImport } from './routes/terms'
+import { Route as VerifyEmailRouteImport } from './routes/verify-email'
 import { Route as AuthResetPasswordRouteImport } from './routes/auth.reset-password'
 import { Route as CourseCodeRouteImport } from './routes/course.$code'
 import { Route as ProfileIdRouteImport } from './routes/profile.$id'
@@ -73,6 +74,11 @@ const TermsRoute = TermsRouteImport.update({
   path: '/terms',
   getParentRoute: () => rootRouteImport,
 } as any)
+const VerifyEmailRoute = VerifyEmailRouteImport.update({
+  id: '/verify-email',
+  path: '/verify-email',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthResetPasswordRoute = AuthResetPasswordRouteImport.update({
   id: '/reset-password',
   path: '/reset-password',
@@ -100,6 +106,7 @@ export interface FileRoutesByFullPath {
   '/reviews': typeof ReviewsRoute
   '/settings': typeof SettingsRoute
   '/terms': typeof TermsRoute
+  '/verify-email': typeof VerifyEmailRoute
   '/auth/reset-password': typeof AuthResetPasswordRoute
   '/course/$code': typeof CourseCodeRoute
   '/profile/$id': typeof ProfileIdRoute
@@ -115,6 +122,7 @@ export interface FileRoutesByTo {
   '/reviews': typeof ReviewsRoute
   '/settings': typeof SettingsRoute
   '/terms': typeof TermsRoute
+  '/verify-email': typeof VerifyEmailRoute
   '/auth/reset-password': typeof AuthResetPasswordRoute
   '/course/$code': typeof CourseCodeRoute
   '/profile/$id': typeof ProfileIdRoute
@@ -131,6 +139,7 @@ export interface FileRoutesById {
   '/reviews': typeof ReviewsRoute
   '/settings': typeof SettingsRoute
   '/terms': typeof TermsRoute
+  '/verify-email': typeof VerifyEmailRoute
   '/auth/reset-password': typeof AuthResetPasswordRoute
   '/course/$code': typeof CourseCodeRoute
   '/profile/$id': typeof ProfileIdRoute
@@ -148,6 +157,7 @@ export interface FileRouteTypes {
     | '/reviews'
     | '/settings'
     | '/terms'
+    | '/verify-email'
     | '/auth/reset-password'
     | '/course/$code'
     | '/profile/$id'
@@ -163,6 +173,7 @@ export interface FileRouteTypes {
     | '/reviews'
     | '/settings'
     | '/terms'
+    | '/verify-email'
     | '/auth/reset-password'
     | '/course/$code'
     | '/profile/$id'
@@ -178,6 +189,7 @@ export interface FileRouteTypes {
     | '/reviews'
     | '/settings'
     | '/terms'
+    | '/verify-email'
     | '/auth/reset-password'
     | '/course/$code'
     | '/profile/$id'
@@ -194,6 +206,7 @@ export interface RootRouteChildren {
   ReviewsRoute: typeof ReviewsRoute
   SettingsRoute: typeof SettingsRoute
   TermsRoute: typeof TermsRoute
+  VerifyEmailRoute: typeof VerifyEmailRoute
   CourseCodeRoute: typeof CourseCodeRoute
   ProfileIdRoute: typeof ProfileIdRoute
 }
@@ -270,6 +283,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof TermsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/verify-email': {
+      id: '/verify-email'
+      path: '/verify-email'
+      fullPath: '/verify-email'
+      preLoaderRoute: typeof VerifyEmailRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/auth/reset-password': {
       id: '/auth/reset-password'
       path: '/reset-password'
@@ -315,6 +335,7 @@ const rootRouteChildren: RootRouteChildren = {
   ReviewsRoute: ReviewsRoute,
   SettingsRoute: SettingsRoute,
   TermsRoute: TermsRoute,
+  VerifyEmailRoute: VerifyEmailRoute,
   CourseCodeRoute: CourseCodeRoute,
   ProfileIdRoute: ProfileIdRoute,
 }
