@@ -2,7 +2,14 @@ import { useEffect, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { Star } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
-import { useCourseRatings, useCourseStats, useDeleteRating, useSubmitRating } from "@/lib/ratings";
+import {
+  useCourseRatings,
+  useCourseStats,
+  useDeleteRating,
+  useReviewVerification,
+  useSubmitRating,
+} from "@/lib/ratings";
+import { sendReviewVerification } from "@/lib/review-verification";
 import { toast } from "sonner";
 import { QueryErrorState } from "@/components/QueryErrorState";
 import { announce } from "@/lib/a11y";
@@ -66,6 +73,57 @@ function Scale({
   );
 }
 
+function VerifyEmailPrompt({ email, loading }: { email?: string; loading: boolean }) {
+  const [sending, setSending] = useState(false);
+  const [sent, setSent] = useState(false);
+
+  async function send() {
+    setSending(true);
+    try {
+      const result = await sendReviewVerification();
+      if (result.error) toast.error(result.error);
+      else if (result.alreadyVerified) window.location.reload();
+      else {
+        setSent(true);
+        toast.success("Check your inbox for the confirmation link.");
+      }
+    } catch {
+      toast.error("Could not send the email. Please try again.");
+    } finally {
+      setSending(false);
+    }
+  }
+
+  if (loading) {
+    return <div className="glass mb-4 h-24 animate-pulse rounded-3xl" />;
+  }
+
+  return (
+    <div className="glass mb-4 space-y-3 rounded-3xl border-brand/30 p-6">
+      <h3 className="font-semibold">Confirm your email to post reviews</h3>
+      <p className="text-sm text-muted-foreground">
+        Reviews are only open to confirmed accounts, so nobody can post under someone else&apos;s
+        email. We&apos;ll send a one-click link{email ? ` to ${email}` : ""}. Saving courses and
+        adding friends work without it.
+      </p>
+      {sent ? (
+        <p className="text-sm text-emerald-400">
+          Link sent. Open it on any device, then come back here to rate.
+        </p>
+      ) : (
+        <button
+          type="button"
+          onClick={send}
+          disabled={sending}
+          className="rounded-full bg-brand px-5 py-2.5 text-sm font-semibold text-primary-foreground transition hover:bg-brand-glow disabled:opacity-60"
+        >
+          {sending ? "Sending…" : "Send confirmation link"}
+        </button>
+      )}
+    </div>
+  );
+}
+
 export function RatingSection({ code }: { code: string }) {
   const { signedIn, user } = useAuth();
   const {
@@ -77,6 +135,7 @@ export function RatingSection({ code }: { code: string }) {
   const { data: stats, error: statsError, refetch: refetchStats } = useCourseStats(code);
   const submit = useSubmitRating(code);
   const remove = useDeleteRating();
+  const verification = useReviewVerification(user);
 
   const mine = user ? reviews.find((r) => r.is_mine) : undefined;
   const [open, setOpen] = useState(false);
@@ -163,7 +222,10 @@ export function RatingSection({ code }: { code: string }) {
         )}
       </div>
 
-      {open && (
+      {open && !verification.verified && (
+        <VerifyEmailPrompt email={user?.email} loading={verification.loading} />
+      )}
+      {open && verification.verified && (
         <div className="glass rounded-3xl border-brand/30 p-6 space-y-4 mb-4">
           <div>
             <div className="text-xs uppercase tracking-wider text-muted-foreground mb-1.5">

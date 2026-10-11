@@ -27,6 +27,12 @@ Before pushing: `npm run typecheck && npm run lint && npm test`. CI runs the sam
 
 Vercel does not apply Supabase migrations. After merging anything in `supabase/migrations/`, run the new files in the Supabase SQL Editor (oldest first) or use `supabase db push`.
 
+## Who can post reviews
+
+Sign-up is instant ("Confirm email" is off in Supabase), so anyone can browse, save courses and add friends straight away. Posting a review requires a confirmed email: Google sign-ins count automatically, and email sign-ups click a one-time link the site sends through Resend (`src/lib/review-verification.ts`). The check runs in `submitReview` and in the `course_ratings` insert/update policies.
+
+Run `20261014120000_review_email_verification.sql` **before** turning "Confirm email" off, so everyone who already confirmed is recorded as verified.
+
 ## Review moderation
 
 New and edited reviews go through the `submitReview` server function, which asks Claude to check the comment and instructor field against a deliberately lenient policy in `src/lib/review-moderation.server.ts`: only threats, hate, sexual harassment, someone's private information, and spam are blocked, and the student sees a short note saying what to change. Harsh opinions, profanity, and criticism of instructors are published.
