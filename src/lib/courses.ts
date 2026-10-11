@@ -1,6 +1,5 @@
 import { CATALOG } from "./utm-catalog";
 import { MAJORS, type Major } from "./majors";
-import { PUBLISHED_INSTRUCTORS, type PublishedInstructor } from "./course-instructors";
 
 export type CourseTag =
   | "Bird"
@@ -22,7 +21,6 @@ export type CourseTag =
 export type Course = {
   code: string;
   title: string;
-  description: string;
   subject: string;
   area: string;
   level: number;
@@ -31,14 +29,7 @@ export type Course = {
   prereqs: string[];
   hours: string;
   tags: CourseTag[];
-  rating: number;
-  difficulty: number;
   workload: number;
-  wouldTakeAgain: number;
-  vibe: string;
-  topProfs: Array<{ name: string; rmp: number; tags: string[] }>;
-  publishedInstructors: PublishedInstructor[];
-  reviews: Array<{ source: "reddit" | "rmp"; quote: string }>;
   poster: [string, string];
   majors: string[];
 };
@@ -62,20 +53,64 @@ const PALETTE: Array<[string, string]> = [
 
 export const SUBJECT_ART: Record<string, { gradient: string; accent: string; motif: string }> = {
   CSC: { gradient: "from-cyan-950/90 via-cyan-950/40 to-black", accent: "#22d3ee", motif: "grid" },
-  POL: { gradient: "from-amber-950/90 via-amber-950/40 to-black", accent: "#f59e0b", motif: "columns" },
-  ANT: { gradient: "from-orange-950/90 via-orange-950/40 to-black", accent: "#fb923c", motif: "relic" },
+  POL: {
+    gradient: "from-amber-950/90 via-amber-950/40 to-black",
+    accent: "#f59e0b",
+    motif: "columns",
+  },
+  ANT: {
+    gradient: "from-orange-950/90 via-orange-950/40 to-black",
+    accent: "#fb923c",
+    motif: "relic",
+  },
   ENG: { gradient: "from-stone-900 via-stone-900/50 to-black", accent: "#d6bfa3", motif: "books" },
-  BIO: { gradient: "from-emerald-950/90 via-emerald-950/40 to-black", accent: "#34d399", motif: "cells" },
-  MAT: { gradient: "from-blue-950/90 via-blue-950/40 to-black", accent: "#60a5fa", motif: "geometry" },
-  STA: { gradient: "from-blue-950/90 via-indigo-950/40 to-black", accent: "#818cf8", motif: "geometry" },
-  SOC: { gradient: "from-purple-950/90 via-purple-950/40 to-black", accent: "#c084fc", motif: "neural" },
-  PSY: { gradient: "from-purple-950/90 via-violet-950/40 to-black", accent: "#a78bfa", motif: "neural" },
-  ECO: { gradient: "from-teal-950/90 via-teal-950/40 to-black", accent: "#2dd4bf", motif: "finance" },
-  MGT: { gradient: "from-teal-950/90 via-emerald-950/40 to-black", accent: "#14b8a6", motif: "finance" },
-  MGM: { gradient: "from-teal-950/90 via-emerald-950/40 to-black", accent: "#14b8a6", motif: "finance" },
+  BIO: {
+    gradient: "from-emerald-950/90 via-emerald-950/40 to-black",
+    accent: "#34d399",
+    motif: "cells",
+  },
+  MAT: {
+    gradient: "from-blue-950/90 via-blue-950/40 to-black",
+    accent: "#60a5fa",
+    motif: "geometry",
+  },
+  STA: {
+    gradient: "from-blue-950/90 via-indigo-950/40 to-black",
+    accent: "#818cf8",
+    motif: "geometry",
+  },
+  SOC: {
+    gradient: "from-purple-950/90 via-purple-950/40 to-black",
+    accent: "#c084fc",
+    motif: "neural",
+  },
+  PSY: {
+    gradient: "from-purple-950/90 via-violet-950/40 to-black",
+    accent: "#a78bfa",
+    motif: "neural",
+  },
+  ECO: {
+    gradient: "from-teal-950/90 via-teal-950/40 to-black",
+    accent: "#2dd4bf",
+    motif: "finance",
+  },
+  MGT: {
+    gradient: "from-teal-950/90 via-emerald-950/40 to-black",
+    accent: "#14b8a6",
+    motif: "finance",
+  },
+  MGM: {
+    gradient: "from-teal-950/90 via-emerald-950/40 to-black",
+    accent: "#14b8a6",
+    motif: "finance",
+  },
 };
 
-const DEFAULT_ART = { gradient: "from-zinc-900 via-zinc-900/50 to-black", accent: "#e50914", motif: "grid" };
+const DEFAULT_ART = {
+  gradient: "from-zinc-900 via-zinc-900/50 to-black",
+  accent: "#e50914",
+  motif: "grid",
+};
 
 export const getArt = (subject: string) => SUBJECT_ART[subject] ?? DEFAULT_ART;
 
@@ -87,52 +122,6 @@ function hash(s: string) {
   }
   return Math.abs(h);
 }
-
-const RATING_OVERRIDES: Record<string, number> = {
-  CSC108H5: 4.5,
-  CSC148H5: 4.0,
-  CSC207H5: 3.9,
-  CSC236H5: 3.4,
-  CSC263H5: 3.3,
-  CSC290H5: 3.0,
-  CSC301H5: 4.1,
-  CSC343H5: 3.8,
-  MAT102H5: 3.2,
-  MAT134H5: 3.0,
-  MAT135H5: 3.1,
-  MAT137Y5: 3.4,
-  MAT223H5: 3.6,
-  MAT232H5: 3.3,
-  STA215H5: 3.5,
-  STA256H5: 3.1,
-  STA260H5: 3.0,
-  ANT101H5: 4.4,
-  ANT102H5: 4.2,
-  ANT222H5: 4.6,
-  PSY100H5: 4.3,
-  PSY201H5: 3.2,
-  BIO152H5: 3.7,
-  BIO153H5: 3.6,
-  CHM110H5: 3.3,
-  CHM120H5: 3.2,
-  PHY136H5: 3.1,
-  ECO100Y5: 3.4,
-  ECO101H5: 3.5,
-  ECO200Y5: 2.9,
-  MGT120H5: 3.6,
-  MGM101H5: 4.0,
-  SOC100H5: 4.1,
-  POL112H5: 4.2,
-  POL113H5: 4.0,
-  PHL101H5: 4.3,
-  RLG101H5: 4.4,
-  ENG100H5: 4.0,
-  WRI173H5: 4.5,
-  CCT109H5: 4.2,
-  DRE121H5: 4.6,
-  FAH101H5: 4.4,
-  CIN101H5: 4.7,
-};
 
 const BIRD_BLOCKLIST = new Set([
   "CSC263H5",
@@ -150,19 +139,6 @@ const BIRD_BLOCKLIST = new Set([
   "ECO200Y5",
 ]);
 
-const HARD_SUBJECTS = ["MAT", "STA", "CSC", "PHY", "AST", "CHM"];
-
-function sampleRating(code: string, level: number, subject: string) {
-  const override = RATING_OVERRIDES[code];
-  if (override) return override;
-  const h = hash(code);
-  let r = 3.2 + ((h >> 3) % 15) / 10;
-  if (HARD_SUBJECTS.includes(subject)) r -= 0.45;
-  if (level >= 300) r -= 0.15;
-  if (level <= 200 && !HARD_SUBJECTS.includes(subject)) r += 0.25;
-  return Math.round(Math.min(4.9, Math.max(2.8, r)) * 10) / 10;
-}
-
 const coreByPrefix = new Map<string, string[]>();
 const supportByPrefix = new Map<string, string[]>();
 for (const m of MAJORS) {
@@ -171,7 +147,7 @@ for (const m of MAJORS) {
 }
 
 function buildCourse(row: (typeof CATALOG)[number]): Course {
-  const [code, title, description, dist, prereqRaw, hours] = row;
+  const [code, title, dist, prereqRaw, hours, flags] = row;
   const subject = code.replace(/[0-9].*$/, "");
   const level = Number(code.replace(/^[A-Z]+/, "").slice(0, 1)) * 100;
   const credits = code.includes("Y5") ? 1 : 0.5;
@@ -179,7 +155,6 @@ function buildCourse(row: (typeof CATALOG)[number]): Course {
   const areas = [...dist].map((d) => DIST_NAME[d]).filter(Boolean);
   const area = areas.length ? areas.join(" / ") : subject;
 
-  const h = hash(code);
   const lecture = Number(hours.match(/(\d+)L/)?.[1] ?? 24);
   const practical = Number(hours.match(/(\d+)P/)?.[1] ?? 0);
   const load = lecture + practical * 1.2 + (credits === 1 ? 24 : 0);
@@ -188,21 +163,21 @@ function buildCourse(row: (typeof CATALOG)[number]): Course {
   if (level <= 100) tags.push("Intro");
   if (level >= 400) tags.push("Seminar");
   else if (level >= 300) tags.push("Upper-year");
-  if (dist.includes("S") && ["MAT", "STA", "CSC", "PHY", "AST", "ECO"].includes(subject)) tags.push("Math-Heavy");
+  if (dist.includes("S") && ["MAT", "STA", "CSC", "PHY", "AST", "ECO"].includes(subject))
+    tags.push("Math-Heavy");
   if (practical >= 24) tags.push("Lab-Heavy");
-  if (dist.includes("H") || ["ENG", "HIS", "PHL", "RLG", "WGS", "WRI"].includes(subject)) tags.push("Essay-Heavy");
-  if (/seminar|discussion/i.test(description)) tags.push("Discussion");
-  if (/project|studio|practicum|field/i.test(description)) tags.push("Project");
+  if (dist.includes("H") || ["ENG", "HIS", "PHL", "RLG", "WGS", "WRI"].includes(subject))
+    tags.push("Essay-Heavy");
+  if (flags.includes("D")) tags.push("Discussion");
+  if (flags.includes("P")) tags.push("Project");
   if (load >= 70) tags.push("Heavy");
 
   if (subject === "CSC" && level >= 200) {
     if (!tags.includes("Upper-year")) tags.push("Upper-year");
     tags.push("Core CS");
   }
-  const difficulty = Math.min(5, Math.max(1.5, level / 130 + (h % 7) / 8));
-  const workload = Math.min(5, Math.max(1.5, load / 22 + (h % 5) / 8));
-  const rating = sampleRating(code, level, subject);
-  const wouldTakeAgain = Math.round(Math.min(96, Math.max(42, rating * 18 + ((h >> 5) % 9))));
+  // Derived only from listed contact hours; drives the light-workload signal.
+  const workload = Math.min(5, Math.max(1.5, load / 22));
 
   const majorIds = [
     ...new Set([...(coreByPrefix.get(subject) ?? []), ...(supportByPrefix.get(subject) ?? [])]),
@@ -211,7 +186,6 @@ function buildCourse(row: (typeof CATALOG)[number]): Course {
   return {
     code,
     title,
-    description,
     subject,
     area,
     level,
@@ -220,14 +194,7 @@ function buildCourse(row: (typeof CATALOG)[number]): Course {
     prereqs,
     hours,
     tags: [...new Set(tags)],
-    rating,
-    difficulty: Math.round(difficulty * 10) / 10,
     workload: Math.round(workload * 10) / 10,
-    wouldTakeAgain,
-    vibe: "",
-    topProfs: [],
-    publishedInstructors: PUBLISHED_INSTRUCTORS[code] ?? [],
-    reviews: [],
     poster: PALETTE[hash(subject) % PALETTE.length]!,
     majors: majorIds,
   };
@@ -237,13 +204,15 @@ export const COURSES: Course[] = CATALOG.map(buildCourse);
 
 const byCode = new Map(COURSES.map((c) => [c.code, c]));
 export const getCourse = (code: string) =>
-  byCode.get(code.toUpperCase()) ?? COURSES.find((c) => c.code.toLowerCase() === code.toLowerCase());
+  byCode.get(code.toUpperCase()) ??
+  COURSES.find((c) => c.code.toLowerCase() === code.toLowerCase());
 
 const unlockedBy = new Map<string, string[]>();
 for (const c of COURSES) {
   for (const p of c.prereqs) unlockedBy.set(p, [...(unlockedBy.get(p) ?? []), c.code]);
 }
-export const getNextSteps = (code: string) => (unlockedBy.get(code.toUpperCase()) ?? []).slice(0, 6);
+export const getNextSteps = (code: string) =>
+  (unlockedBy.get(code.toUpperCase()) ?? []).slice(0, 6);
 
 export type Rail = { title: string; blurb?: string; codes: string[] };
 
@@ -255,14 +224,86 @@ function coursesFor(major: Major | undefined, kind: "core" | "support") {
   return COURSES.filter((c) => prefixes.includes(c.subject));
 }
 
-export function getFeaturedForMajor(majorId: string | null): Course {
-  const major = MAJORS.find((m) => m.id === majorId);
-  const pool = coursesFor(major, "core");
-  const list = pool.length ? pool : COURSES;
-  return [...list].sort((a, b) => a.code.localeCompare(b.code))[0] ?? COURSES[0]!;
+// How many courses list each course as a prerequisite: a proxy for how many
+// doors a course opens, used to rank the no-program feed.
+const unlockCount = new Map<string, number>();
+for (const c of COURSES)
+  for (const p of c.prereqs) unlockCount.set(p, (unlockCount.get(p) ?? 0) + 1);
+const unlocks = (c: Course) => unlockCount.get(c.code) ?? 0;
+const byUnlocks = (list: Course[]) =>
+  [...list].sort((a, b) => unlocks(b) - unlocks(a) || a.code.localeCompare(b.code));
+
+/** Interleaves subjects (round-robin, keeping each subject's order) for a varied row. */
+function diverse(list: Course[]): Course[] {
+  const bySubject = new Map<string, Course[]>();
+  for (const c of list) bySubject.set(c.subject, [...(bySubject.get(c.subject) ?? []), c]);
+  const queues = [...bySubject.values()];
+  const out: Course[] = [];
+  for (let i = 0; out.length < list.length; i++) {
+    for (const q of queues) if (q[i]) out.push(q[i]!);
+  }
+  return out;
 }
 
-export function getProgramMatch(course: Course, majorId: string | null): "Core program subject" | "Program support subject" | "Outside selected program" | null {
+// Big, well-known UTM first-year courses across faculties. They lead the feed for
+// visitors who haven't picked a program, so the first thing anyone sees is
+// recognisable rather than alphabetical (which put Anthropology first).
+const STARTER_CODES = [
+  "PSY100Y5",
+  "CSC108H5",
+  "ECO101H5",
+  "MGM101H5",
+  "BIO152H5",
+  "MAT135H5",
+  "SOC100H5",
+  "CCT109H5",
+  "POL111H5",
+  "CHM110H5",
+  "ENG110H5",
+  "MAT102H5",
+  "ECO102H5",
+  "ANT101H5",
+  "LIN101H5",
+  "GGR111H5",
+  "STA107H5",
+  "HIS101H5",
+  "PHY136H5",
+  "FAH101H5",
+  "CIN101H5",
+  "AST101H5",
+  "ENV100Y5",
+  "WRI173H5",
+];
+const STARTERS = STARTER_CODES.map((code) => byCode.get(code)).filter((c): c is Course => !!c);
+
+const DEFAULT_FEATURED = STARTERS[0] ?? COURSES[0]!;
+
+/**
+ * The hero deck: the program's core courses (alphabetical, subjects interleaved so a
+ * multi-subject program doesn't show five of one), or the starter courses without one.
+ * Programs with only a handful of core courses are topped up from their support
+ * subjects, then the starters, so the deck still has cards to swipe through.
+ */
+export function getFeaturedDeckForMajor(majorId: string | null, n = 5): Course[] {
+  const major = MAJORS.find((m) => m.id === majorId);
+  const ranked = (kind: "core" | "support") =>
+    diverse([...coursesFor(major, kind)].sort((a, b) => a.code.localeCompare(b.code)));
+  const deck = new Map<string, Course>();
+  for (const c of [...ranked("core"), ...ranked("support"), ...STARTERS]) {
+    if (deck.size >= n) break;
+    deck.set(c.code, c);
+  }
+  return deck.size ? [...deck.values()] : [DEFAULT_FEATURED];
+}
+
+export function getFeaturedForMajor(majorId: string | null): Course {
+  return getFeaturedDeckForMajor(majorId, 1)[0]!;
+}
+
+export function getProgramMatch(
+  course: Course,
+  majorId: string | null,
+): "Core program subject" | "Program support subject" | "Outside selected program" | null {
   const major = MAJORS.find((m) => m.id === majorId);
   if (!major) return null;
   if (major.core.includes(course.subject)) return "Core program subject";
@@ -274,7 +315,8 @@ export type Badge = { label: string; emoji: string; tone: "bird" | "essay" | "ex
 
 export function isBird(c: Course) {
   if (BIRD_BLOCKLIST.has(c.code)) return false;
-  if (c.tags.includes("Math-Heavy") || c.tags.includes("Heavy") || c.tags.includes("Exam-Heavy")) return false;
+  if (c.tags.includes("Math-Heavy") || c.tags.includes("Heavy") || c.tags.includes("Exam-Heavy"))
+    return false;
   if (c.level > 200) return false;
   return c.tags.includes("Easy") || c.workload <= 2.6;
 }
@@ -282,14 +324,20 @@ export function isBird(c: Course) {
 export function getBadges(c: Course): Badge[] {
   const out: Badge[] = [];
   if (isBird(c)) out.push({ label: "Light workload signal", emoji: "🦅", tone: "bird" });
-  if (c.tags.includes("Essay-Heavy")) out.push({ label: "Essay signal", emoji: "📝", tone: "essay" });
+  if (c.tags.includes("Essay-Heavy"))
+    out.push({ label: "Essay signal", emoji: "📝", tone: "essay" });
   if (c.tags.includes("Project") || c.tags.includes("Lab-Heavy"))
     out.push({ label: "Project/lab signal", emoji: "💻", tone: "project" });
   return out.slice(0, 2);
 }
 
 export function isCourseworkHeavy(c: Course) {
-  return c.tags.includes("Project") || c.tags.includes("Lab-Heavy") || c.tags.includes("Seminar") || c.tags.includes("Discussion");
+  return (
+    c.tags.includes("Project") ||
+    c.tags.includes("Lab-Heavy") ||
+    c.tags.includes("Seminar") ||
+    c.tags.includes("Discussion")
+  );
 }
 
 export type FilterId = "all" | "bird" | "science" | "social" | "humanities" | "l100" | "l200";
@@ -323,7 +371,11 @@ export function matchesFilter(c: Course, f: FilterId) {
   }
 }
 
-export function searchCourses(query: string, limit = 30): Course[] {
+export function searchCourses(
+  query: string,
+  limit = 30,
+  descriptions?: Record<string, string>,
+): Course[] {
   const s = query.trim().toLowerCase();
   if (!s) return [];
   const scored: Array<{ c: Course; score: number }> = [];
@@ -338,7 +390,7 @@ export function searchCourses(query: string, limit = 30): Course[] {
     else if (title.includes(s)) score = 40;
     else if (c.area.toLowerCase().includes(s)) score = 20;
     else if (c.tags.some((t) => t.toLowerCase().includes(s))) score = 18;
-    else if (c.description.toLowerCase().includes(s)) score = 15;
+    else if (descriptions?.[c.code]?.toLowerCase().includes(s)) score = 15;
     if (score) scored.push({ c, score });
   }
   return scored
@@ -353,31 +405,67 @@ export function getRailsForMajor(majorId: string | null, filter: FilterId = "all
   const core = keep(coursesFor(major, "core"));
   const support = keep(coursesFor(major, "support"));
   const codes = (list: Course[], n = 14) => uniq(list.slice(0, n).map((c) => c.code));
-  const byRating = (l: Course[]) => [...l].sort((a, b) => a.code.localeCompare(b.code));
+  const byCode = (l: Course[]) => [...l].sort((a, b) => a.code.localeCompare(b.code));
 
   const scope = core.concat(support);
-  const pool = scope.length >= 10 ? scope : keep(COURSES);
+  const programScoped = scope.length >= 10;
+  const pool = programScoped ? scope : keep(COURSES);
+  // Without a program, alphabetical order put Anthropology first in every row.
+  // Rank by how many courses each one unlocks and mix subjects instead.
+  const order = (l: Course[]) => (programScoped ? byCode(l) : diverse(byUnlocks(l)));
 
-  const first = core.filter((c) => c.level <= 200).sort((a, b) => a.code.localeCompare(b.code));
-  const upper = byRating(core.filter((c) => c.level >= 300));
-  const seminars = byRating(core.filter((c) => c.level >= 400));
+  const first = major
+    ? core.filter((c) => c.level <= 200).sort((a, b) => a.code.localeCompare(b.code))
+    : diverse(byUnlocks(pool.filter((c) => c.level <= 100 && !STARTERS.includes(c))));
+  const upper = byCode(core.filter((c) => c.level >= 300));
+  const seminars = byCode(core.filter((c) => c.level >= 400));
 
-  const trending = byRating(pool.filter((c) => c.level <= 300)).slice(0, 40);
-  const birds = byRating(pool.filter(isBird));
-  const coursework = byRating(pool.filter(isCourseworkHeavy));
-  const prereqCounts = new Map<string, number>();
-  for (const c of COURSES) for (const p of c.prereqs) prereqCounts.set(p, (prereqCounts.get(p) ?? 0) + 1);
-  const gateways = pool
-    .filter((c) => (prereqCounts.get(c.code) ?? 0) > 0)
-    .sort((a, b) => (prereqCounts.get(b.code) ?? 0) - (prereqCounts.get(a.code) ?? 0));
+  const trending = programScoped
+    ? byCode(pool.filter((c) => c.level <= 300)).slice(0, 40)
+    : keep(STARTERS);
+  const birds = order(pool.filter(isBird));
+  const coursework = order(pool.filter(isCourseworkHeavy));
+  const gateways = programScoped
+    ? byUnlocks(pool.filter((c) => unlocks(c) > 0))
+    : diverse(byUnlocks(pool.filter((c) => unlocks(c) > 0)));
 
   const rails: Rail[] = [
-    { title: "🔥 Trending at UTM", blurb: "What students are browsing most right now", codes: codes(trending) },
-    { title: "🎯 Start here", blurb: `First- and second-year ${major?.name ?? "UTM"} courses`, codes: codes(first) },
-    { title: "🦅 Lighter workload signals", blurb: "Intro courses with lighter listed contact-hour signals — verify the workload yourself", codes: codes(birds) },
-    { title: "🧪 Coursework signals", blurb: "Descriptions mention projects, labs, seminars, or discussion; assessment details are not verified", codes: codes(coursework) },
-    { title: "📚 Popular program prerequisites", blurb: "Courses that unlock the most upper-year options", codes: codes(gateways) },
-    { title: "🧩 Required support courses", blurb: "The other subjects your program needs", codes: codes(byRating(support)) },
+    {
+      title: programScoped ? "📚 Your program at a glance" : "🔥 UTM's big first-years",
+      blurb: programScoped
+        ? "First-, second- and third-year courses across your program's subjects"
+        : "The courses almost everyone at UTM takes or considers",
+      codes: codes(trending),
+    },
+    {
+      title: "🎯 Start here",
+      blurb: major
+        ? `First- and second-year ${major.name} courses`
+        : "More first-year courses that open doors across UTM",
+      codes: codes(first),
+    },
+    {
+      title: "🦅 Lighter workload signals",
+      blurb:
+        "Intro courses with lighter listed contact-hour signals — verify the workload yourself",
+      codes: codes(birds),
+    },
+    {
+      title: "🧪 Coursework signals",
+      blurb:
+        "Descriptions mention projects, labs, seminars, or discussion; assessment details are not verified",
+      codes: codes(coursework),
+    },
+    {
+      title: "📚 Popular program prerequisites",
+      blurb: "Courses that unlock the most upper-year options",
+      codes: codes(gateways),
+    },
+    {
+      title: "🧩 Required support courses",
+      blurb: "The other subjects your program needs",
+      codes: codes(byCode(support)),
+    },
     { title: "🚀 Upper-year picks", blurb: "Once you've cleared the prereqs", codes: codes(upper) },
     { title: "🎓 Seminars & capstones", blurb: "400-level, small classes", codes: codes(seminars) },
   ];

@@ -1,24 +1,64 @@
 import { createServerFn } from "@tanstack/react-start";
-import { createClient } from "@supabase/supabase-js";
+import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 import { Resend } from "resend";
 import { SITE_URL } from "./site";
 import { serverLog } from "./server-log";
 
 const RESET_WINDOW_MS = 15 * 60 * 1_000;
-const MAX_RESETS_PER_WINDOW = 3;
-const resetAttempts = new Map<string, number[]>();
+const MAX_RESETS_PER_EMAIL = 3;
+const MAX_RESETS_PER_IP = 10;
+type ResetResult = { success?: boolean; error?: string };
+const GENERIC_SUCCESS: ResetResult = { success: true };
 
-function isRateLimited(email: string) {
-  const now = Date.now();
-  const recent = (resetAttempts.get(email) ?? []).filter(
-    (timestamp) => now - timestamp < RESET_WINDOW_MS,
-  );
-  if (recent.length >= MAX_RESETS_PER_WINDOW) {
-    resetAttempts.set(email, recent);
-    return true;
+async function sha256(value: string) {
+  const bytes = new TextEncoder().encode(value);
+  const digest = await crypto.subtle.digest("SHA-256", bytes);
+  return [...new Uint8Array(digest)].map((b) => b.toString(16).padStart(2, "0")).join("");
+}
+
+async function clientIp() {
+  const { getRequest } = await import("@tanstack/react-start/server");
+  const forwarded = getRequest()?.headers.get("x-forwarded-for");
+  return forwarded?.split(",")[0]?.trim() || null;
+}
+
+// Counts recent attempts in Postgres so the limit holds across serverless
+// instances. Fails open (logs and allows) if the table is unavailable so a
+// missing migration cannot lock everyone out of password reset.
+async function isRateLimited(
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  admin: SupabaseClient<any>,
+  emailHash: string,
+  ipHash: string | null,
+) {
+  const since = new Date(Date.now() - RESET_WINDOW_MS).toISOString();
+
+  const emailCount = await admin
+    .from("password_reset_attempts")
+    .select("id", { count: "exact", head: true })
+    .eq("email_hash", emailHash)
+    .gte("created_at", since);
+  if (emailCount.error) {
+    serverLog.error("password_reset_rate_limit_unavailable", { code: emailCount.error.code });
+    return false;
   }
-  recent.push(now);
-  resetAttempts.set(email, recent);
+  if ((emailCount.count ?? 0) >= MAX_RESETS_PER_EMAIL) return true;
+
+  if (ipHash) {
+    const ipCount = await admin
+      .from("password_reset_attempts")
+      .select("id", { count: "exact", head: true })
+      .eq("ip_hash", ipHash)
+      .gte("created_at", since);
+    if (!ipCount.error && (ipCount.count ?? 0) >= MAX_RESETS_PER_IP) return true;
+  }
+
+  await admin.from("password_reset_attempts").insert({ email_hash: emailHash, ip_hash: ipHash });
+  // Opportunistic cleanup keeps the table small without a cron job.
+  await admin
+    .from("password_reset_attempts")
+    .delete()
+    .lt("created_at", new Date(Date.now() - 24 * 60 * 60 * 1_000).toISOString());
   return false;
 }
 
@@ -30,13 +70,8 @@ export const resetPassword = createServerFn()
     }
     return normalized;
   })
-  .handler(async ({ data: email }) => {
+  .handler(async ({ data: email }): Promise<ResetResult> => {
     try {
-      if (isRateLimited(email)) {
-        serverLog.warn("password_reset_rate_limited");
-        return { error: "If an account exists for that email, a reset message has been sent." };
-      }
-
       const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
       const resendApiKey = process.env.RESEND_API_KEY;
       const supabaseUrl =
@@ -50,6 +85,14 @@ export const resetPassword = createServerFn()
       }
 
       const supabaseAdmin = createClient(supabaseUrl, serviceRoleKey);
+
+      const [emailHash, ip] = await Promise.all([sha256(email), clientIp()]);
+      const ipHash = ip ? await sha256(ip) : null;
+      if (await isRateLimited(supabaseAdmin, emailHash, ipHash)) {
+        serverLog.warn("password_reset_rate_limited");
+        return GENERIC_SUCCESS;
+      }
+
       const resend = new Resend(resendApiKey);
 
       const { data, error } = await supabaseAdmin.auth.admin.generateLink({
@@ -60,10 +103,11 @@ export const resetPassword = createServerFn()
         },
       });
 
-      const hashedToken = data.properties?.hashed_token;
+      const hashedToken = data?.properties?.hashed_token;
       if (error || !hashedToken) {
-        serverLog.error("password_reset_link_failed", { provider_code: error?.code ?? null });
-        return { error: "If an account exists for that email, a reset message has been sent." };
+        // Same response as success so callers cannot tell which emails have accounts.
+        serverLog.warn("password_reset_link_failed", { provider_code: error?.code ?? null });
+        return GENERIC_SUCCESS;
       }
 
       const resetLink = `${SITE_URL}/auth/reset-password?token_hash=${encodeURIComponent(hashedToken)}&type=recovery`;
@@ -86,7 +130,7 @@ export const resetPassword = createServerFn()
         return { error: "Password reset is temporarily unavailable. Please try again later." };
       }
 
-      return { success: true };
+      return GENERIC_SUCCESS;
     } catch (err: unknown) {
       serverLog.error("password_reset_unexpected_failure", {
         error_type: err instanceof Error ? err.name : typeof err,

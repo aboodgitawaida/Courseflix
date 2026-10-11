@@ -6,6 +6,13 @@ import { useCourseRatings, useCourseStats, useDeleteRating, useSubmitRating } fr
 import { toast } from "sonner";
 import { QueryErrorState } from "@/components/QueryErrorState";
 import { announce } from "@/lib/a11y";
+import { REPORTS_EMAIL } from "@/lib/links";
+
+function reportReviewHref(code: string, reviewId: string) {
+  const subject = `Report review on ${code}`;
+  const body = `Review ID: ${reviewId}\nCourse: ${code}\n\nWhat's wrong with this review?\n`;
+  return `mailto:${REPORTS_EMAIL}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+}
 
 function Stars({ value, onChange }: { value: number; onChange: (n: number) => void }) {
   return (
@@ -27,7 +34,15 @@ function Stars({ value, onChange }: { value: number; onChange: (n: number) => vo
   );
 }
 
-function Scale({ label, value, onChange }: { label: string; value: number; onChange: (n: number) => void }) {
+function Scale({
+  label,
+  value,
+  onChange,
+}: {
+  label: string;
+  value: number;
+  onChange: (n: number) => void;
+}) {
   return (
     <div>
       <div className="text-xs uppercase tracking-wider text-muted-foreground mb-1.5">{label}</div>
@@ -53,12 +68,17 @@ function Scale({ label, value, onChange }: { label: string; value: number; onCha
 
 export function RatingSection({ code }: { code: string }) {
   const { signedIn, user } = useAuth();
-  const { data: reviews = [], error: reviewsError, refetch: refetchReviews } = useCourseRatings(code);
+  const {
+    data: reviews = [],
+    isPending: reviewsLoading,
+    error: reviewsError,
+    refetch: refetchReviews,
+  } = useCourseRatings(code);
   const { data: stats, error: statsError, refetch: refetchStats } = useCourseStats(code);
   const submit = useSubmitRating(code);
   const remove = useDeleteRating();
 
-  const mine = reviews.find((r) => r.user_id === user?.id);
+  const mine = user ? reviews.find((r) => r.is_mine) : undefined;
   const [open, setOpen] = useState(false);
   const [rating, setRating] = useState(mine?.rating ?? 0);
   const [difficulty, setDifficulty] = useState(mine?.difficulty ?? 3);
@@ -119,16 +139,16 @@ export function RatingSection({ code }: { code: string }) {
   return (
     <div>
       <div className="flex items-center justify-between gap-3 mb-4 flex-wrap">
-        <h2 className="font-display text-2xl font-bold">
+        <h2 className="font-display text-2xl font-bold tracking-tight md:text-3xl">
           Student ratings{" "}
           <span className="text-sm font-medium text-muted-foreground">
-            ({stats?.rating_count ?? 0})
+            ({stats?.rating_count ?? reviews.length})
           </span>
         </h2>
         {signedIn ? (
           <button
             onClick={() => setOpen((o) => !o)}
-            className="rounded-full bg-brand text-primary-foreground px-4 py-2 text-sm font-semibold hover:bg-brand-glow transition"
+            className="shine rounded-full bg-brand px-5 py-2.5 text-sm font-semibold text-primary-foreground shadow-lg shadow-brand/30 transition hover:bg-brand-glow"
           >
             {mine ? "Edit your rating" : "Rate this course"}
           </button>
@@ -144,9 +164,11 @@ export function RatingSection({ code }: { code: string }) {
       </div>
 
       {open && (
-        <div className="rounded-2xl bg-surface border border-brand/30 p-5 space-y-4 mb-4">
+        <div className="glass rounded-3xl border-brand/30 p-6 space-y-4 mb-4">
           <div>
-            <div className="text-xs uppercase tracking-wider text-muted-foreground mb-1.5">Overall</div>
+            <div className="text-xs uppercase tracking-wider text-muted-foreground mb-1.5">
+              Overall
+            </div>
             <Stars value={rating} onChange={setRating} />
           </div>
           <div className="grid grid-cols-2 gap-4">
@@ -154,7 +176,12 @@ export function RatingSection({ code }: { code: string }) {
             <Scale label="Workload" value={workload} onChange={setWorkload} />
           </div>
           <label className="flex items-center gap-2 text-sm">
-            <input type="checkbox" checked={again} onChange={(e) => setAgain(e.target.checked)} className="accent-brand h-4 w-4" />
+            <input
+              type="checkbox"
+              checked={again}
+              onChange={(e) => setAgain(e.target.checked)}
+              className="accent-brand h-4 w-4"
+            />
             I'd take this course again
           </label>
           <input
@@ -180,7 +207,10 @@ export function RatingSection({ code }: { code: string }) {
             >
               {submit.isPending ? "Saving…" : "Post rating"}
             </button>
-            <button onClick={() => setOpen(false)} className="rounded-full px-5 py-2 text-sm font-semibold text-muted-foreground hover:text-foreground">
+            <button
+              onClick={() => setOpen(false)}
+              className="rounded-full px-5 py-2 text-sm font-semibold text-muted-foreground hover:text-foreground"
+            >
               Cancel
             </button>
             {mine && (
@@ -206,9 +236,13 @@ export function RatingSection({ code }: { code: string }) {
             }}
           />
         )}
-        {reviews.length === 0 && (
-          <div className="rounded-2xl bg-surface border border-border/40 p-5 text-muted-foreground text-sm">
-            <div className="h-4 w-2/3 animate-pulse rounded bg-primary/10" />
+        {reviews.length === 0 && !reviewsError && (
+          <div className="glass rounded-3xl p-5 text-muted-foreground text-sm">
+            {reviewsLoading ? (
+              <div className="h-4 w-2/3 animate-pulse rounded bg-primary/10" />
+            ) : (
+              <p>No student reviews yet. Taken {code}? Yours would be the first.</p>
+            )}
             {signedIn && !open && (
               <button
                 type="button"
@@ -221,7 +255,7 @@ export function RatingSection({ code }: { code: string }) {
           </div>
         )}
         {reviews.map((r) => (
-          <div key={r.id} className="rounded-2xl bg-surface border border-border/40 p-5">
+          <div key={r.id} className="glass rounded-3xl p-5">
             <div className="flex items-center gap-2 text-sm">
               <span className="flex items-center gap-1 text-brand font-semibold">
                 <Star className="h-3.5 w-3.5 fill-current" /> {r.rating}/5
@@ -232,6 +266,14 @@ export function RatingSection({ code }: { code: string }) {
               </span>
             </div>
             {r.comment && <p className="text-foreground/90 leading-relaxed mt-2">{r.comment}</p>}
+            {!r.is_mine && (
+              <a
+                href={reportReviewHref(code, r.id)}
+                className="mt-3 inline-block text-xs text-muted-foreground underline-offset-2 hover:text-foreground hover:underline"
+              >
+                Report review
+              </a>
+            )}
           </div>
         ))}
       </div>

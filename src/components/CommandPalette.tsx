@@ -9,6 +9,7 @@ import {
 } from "@/components/ui/command";
 import { searchCourses, COURSES } from "@/lib/courses";
 import { useCourseUI } from "@/hooks/use-course-ui";
+import { useDescriptions } from "@/lib/course-description";
 import { useCourseStats } from "@/lib/ratings";
 
 function SearchResult({
@@ -26,7 +27,7 @@ function SearchResult({
       value={`${course.code} ${course.title} ${course.subject} ${course.area} ${course.tags.join(" ")}`}
       onSelect={() => onSelect(course.code)}
     >
-      <span className="font-display text-base">{course.code}</span>
+      <span className="font-mega text-sm font-bold tracking-tight">{course.code}</span>
       <span className="ml-2 flex-1 truncate text-sm text-muted-foreground">{course.title}</span>
       <span className="ml-2 shrink-0 text-xs text-brand">
         {displayRating === null ? "No rating" : displayRating.toFixed(1)}
@@ -50,7 +51,12 @@ export function CommandPalette() {
     return () => window.removeEventListener("keydown", onKey);
   }, [searchOpen, setSearchOpen]);
 
-  const results = useMemo(() => (q.trim() ? searchCourses(q, 25) : COURSES.slice(0, 8)), [q]);
+  // Descriptions load the first time search opens so matches can include them.
+  const descriptions = useDescriptions(searchOpen);
+  const results = useMemo(
+    () => (q.trim() ? searchCourses(q, 25, descriptions) : COURSES.slice(0, 8)),
+    [q, descriptions],
+  );
 
   return (
     <CommandDialog

@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import type { Profile } from "@/lib/profile";
+import { getSessionUser } from "@/lib/session";
 
 export type Friendship = {
   id: string;
@@ -21,7 +22,7 @@ export type NotificationRow = {
 };
 
 async function currentUserId() {
-  const { data, error } = await supabase.auth.getUser();
+  const { data, error } = await getSessionUser();
   if (error) throw error;
   return data.user?.id ?? null;
 }
@@ -31,7 +32,7 @@ async function profilesByIds(ids: string[]) {
 
   const { data, error } = await supabase
     .from("profiles")
-    .select("id, display_name, username, avatar_id, major_id, year, is_private")
+    .select("id, display_name, username, avatar_id, major_id, year, is_private, is_verified")
     .in("id", ids);
 
   // Notifications should still render when one actor profile is unavailable.
@@ -73,8 +74,7 @@ export function useFriendships() {
         people,
       };
     },
-    refetchInterval: 5_000,
-    refetchIntervalInBackground: true,
+    refetchInterval: 60_000,
     retry: 1,
   });
 }
@@ -88,7 +88,7 @@ export function useProfileSearch(query: string) {
       const q = normalizedQuery.replace(/[\\%_,()]/g, "\\$&");
       const { data, error } = await supabase
         .from("profiles")
-        .select("id, display_name, username, avatar_id, major_id, year, is_private")
+        .select("id, display_name, username, avatar_id, major_id, year, is_private, is_verified")
         .or(`username.ilike.%${q}%,display_name.ilike.%${q}%`)
         .limit(20);
       if (error) throw new Error(`Could not search profiles: ${error.message}`);
@@ -158,6 +158,23 @@ export function useRemoveFriend() {
   });
 }
 
+export function usePublicProfile(userId: string | null) {
+  return useQuery({
+    queryKey: ["public-profile", userId],
+    enabled: Boolean(userId),
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("profiles")
+        .select("id, display_name, username, avatar_id, major_id, year, is_private, is_verified")
+        .eq("id", userId!)
+        .maybeSingle();
+      if (error) throw new Error(`Could not load profile: ${error.message}`);
+      return (data as Profile | null) ?? null;
+    },
+    retry: 1,
+  });
+}
+
 export function useFriendShortlist(userId: string | null) {
   return useQuery({
     queryKey: ["friend-shortlist", userId],
@@ -196,8 +213,7 @@ export function useNotifications() {
       ]);
       return { rows, people };
     },
-    refetchInterval: 10_000,
-    refetchIntervalInBackground: true,
+    refetchInterval: 30_000,
     staleTime: 15_000,
     retry: 1,
   });
@@ -230,10 +246,7 @@ export function useClearNotifications() {
       const uid = await currentUserId();
       if (!uid) return;
 
-      const { error } = await supabase
-        .from("notifications")
-        .delete()
-        .eq("user_id", uid);
+      const { error } = await supabase.from("notifications").delete().eq("user_id", uid);
       if (error) throw new Error(`Could not clear notifications: ${error.message}`);
     },
     onSuccess: () => {
