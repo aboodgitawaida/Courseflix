@@ -438,6 +438,12 @@
   background-size: 400% 100%;
   animation: eagle-sleep-frames 2.8s steps(4, jump-none) infinite;
 }
+/* Pet: 8-frame happy head-bob, played once per tap (PET_MS in StudyEagle.tsx). */
+.study-eagle-sprite-petting {
+  background-image: url("/eagle-pet.png");
+  background-size: 800% 100%;
+  animation: eagle-pet-frames 0.9s steps(8, jump-none) forwards;
+}
 /* Celebration: 8-frame wing-flap, played once (CELEBRATE_MS in StudyEagle.tsx). */
 .study-eagle-sprite-celebrating {
   background-image: url("/eagle-celebrate.png");
@@ -457,6 +463,14 @@
   }
 }
 @keyframes eagle-sleep-frames {
+  from {
+    background-position-x: 0%;
+  }
+  to {
+    background-position-x: 100%;
+  }
+}
+@keyframes eagle-pet-frames {
   from {
     background-position-x: 0%;
   }

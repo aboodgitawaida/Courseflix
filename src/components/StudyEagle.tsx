@@ -5,7 +5,7 @@ import { getCourse, type Course } from "@/lib/courses";
 import { loadDescriptions, peekDescriptions } from "@/lib/course-description";
 import { useEagle } from "@/hooks/use-eagle";
 
-type EagleMode = "awake" | "sleeping" | "celebrating";
+type EagleMode = "awake" | "sleeping" | "celebrating" | "petting";
 
 const EAGLE_REPLIES = [
   "Try the course preview first, then shortlist anything that still feels like a good fit.",
@@ -18,6 +18,7 @@ const PERCH_KEY = "courseflix.eagle.perchY";
 const DEFAULT_PERCH = 0.62;
 const SLEEP_AFTER_MS = 20_000;
 const CELEBRATE_MS = 1_100; // matches the 8-frame wing-flap in styles.css
+const PET_MS = 900; // matches the 8-frame head-bob in styles.css
 /** Frame size of the eagle sheets (art pixels) and how much they are scaled up. */
 const FRAME = { w: 56, h: 68 };
 const SCALE = { desktop: 2, compact: 1.5 };
@@ -45,6 +46,7 @@ export function StudyEagle() {
   const didDrag = useRef(false);
   const messageTimer = useRef<number | null>(null);
   const celebrateTimer = useRef<number | null>(null);
+  const petTimer = useRef<number | null>(null);
   const modeRef = useRef<EagleMode>("awake");
   const pathname = useRouterState({ select: (state) => state.location.pathname });
   const course = getCurrentCourse(pathname);
@@ -110,6 +112,8 @@ export function StudyEagle() {
       setActivityVersion((version) => version + 1);
       showStatus("Nice pick!");
       setCelebrateKey((key) => key + 1);
+      if (petTimer.current !== null) window.clearTimeout(petTimer.current);
+      petTimer.current = null;
       setMode("celebrating");
       if (celebrateTimer.current !== null) window.clearTimeout(celebrateTimer.current);
       celebrateTimer.current = window.setTimeout(() => {
@@ -131,6 +135,7 @@ export function StudyEagle() {
     return () => {
       if (messageTimer.current !== null) window.clearTimeout(messageTimer.current);
       if (celebrateTimer.current !== null) window.clearTimeout(celebrateTimer.current);
+      if (petTimer.current !== null) window.clearTimeout(petTimer.current);
     };
   }, []);
 
@@ -192,6 +197,15 @@ export function StudyEagle() {
       return;
     }
     setPetKey((key) => key + 1);
+    // Happy head-bob, unless it is mid-celebration (that wins).
+    if (modeRef.current !== "celebrating") {
+      setMode("petting");
+      if (petTimer.current !== null) window.clearTimeout(petTimer.current);
+      petTimer.current = window.setTimeout(() => {
+        setMode("awake");
+        petTimer.current = null;
+      }, PET_MS);
+    }
     setPetCount((count) => count + 1);
     showStatus(petCount % 2 === 0 ? "Krrr! That tickles." : "You got me.");
     setSummaryCourseCode(null);
@@ -336,7 +350,13 @@ export function StudyEagle() {
           className="study-eagle-button"
         >
           <span
-            key={mode === "celebrating" ? `celebrate-${celebrateKey}` : mode}
+            key={
+              mode === "celebrating"
+                ? `celebrate-${celebrateKey}`
+                : mode === "petting"
+                  ? `pet-${petKey}`
+                  : mode
+            }
             className={`study-eagle-sprite study-eagle-sprite-${mode}`}
           />
         </button>
