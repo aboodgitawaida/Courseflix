@@ -22,6 +22,26 @@ const PET_MS = 900; // matches the 8-frame head-bob in styles.css
 /** Frame size of the eagle sheets (art pixels) and how much they are scaled up. */
 const FRAME = { w: 56, h: 68 };
 const SCALE = { desktop: 2, compact: 1.5 };
+/** Every sheet the eagle can switch to. Loaded up front so the first pet or
+ * celebration doesn't flash an empty frame while its sheet downloads. */
+const EAGLE_SHEETS = [
+  "/eagle-awake.png",
+  "/eagle-sleep.png",
+  "/eagle-celebrate.png",
+  "/eagle-pet.png",
+];
+// Holding the decoded images keeps them in memory for the life of the page.
+let preloadedSheets: HTMLImageElement[] | null = null;
+
+function preloadEagleSheets() {
+  if (preloadedSheets) return;
+  preloadedSheets = EAGLE_SHEETS.map((src) => {
+    const img = new Image();
+    img.src = src;
+    img.decode().catch(() => {});
+    return img;
+  });
+}
 
 export function StudyEagle() {
   const { enabled } = useEagle();
@@ -54,6 +74,10 @@ export function StudyEagle() {
   useEffect(() => {
     modeRef.current = mode;
   }, [mode]);
+
+  useEffect(() => {
+    if (enabled) preloadEagleSheets();
+  }, [enabled]);
 
   useEffect(() => {
     if (!course && summaryCourseCode && summaryContext === "page") {
