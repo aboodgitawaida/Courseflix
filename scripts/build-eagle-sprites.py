@@ -15,7 +15,8 @@ cut end sits against the right edge of the screen:
   public/eagle-pet.png        8 frames (played once per tap)
 
 The animated frames get one consistent eye drawn in (fix_eye), because the
-animation model's eyes sat under a low, slanted brow that looked sad.
+animation model's eyes sat under a low, slanted brow that looked sad. The beak and
+eye colours get their own slice of the palette so they keep their shading.
 
 Run: python3 scripts/build-eagle-sprites.py
 """
@@ -181,19 +182,32 @@ LOCK = 61 + dy
 for f in idle80 + celebrate80 + pet80 + sleep80:
     f[LOCK:] = awake80[LOCK:]
 
-# one shared palette for all four art sources
+# one shared palette for all four art sources. The beak and eyes (warm oranges and
+# yellows) get their own share of colours, so a few hundred beak pixels are not
+# outvoted by thousands of feather pixels and flattened into one orange.
+def is_warm(rgb):
+    rgb = rgb.astype(int)
+    return (rgb[..., 0] > rgb[..., 2] + 60) & (rgb[..., 1] > rgb[..., 2] + 20)
+
+
+def kmeans(px, k, seed):
+    cent = px[np.random.default_rng(seed).choice(len(px), k, replace=False)]
+    for _ in range(30):
+        lab = ((px[:, None] - cent[None]) ** 2).sum(2).argmin(1)
+        cent = np.array([px[lab == j].mean(0) if (lab == j).any() else cent[j] for j in range(k)])
+    return cent.round().clip(0, 255).astype(np.uint8)
+
+
 everything = sleep80 + [awake80] + idle80 + celebrate80 + pet80
 opaque = np.concatenate([f[f[..., 3] > 0][:, :3].astype(float) for f in everything])
-cent2 = opaque[np.random.default_rng(2).choice(len(opaque), 40, replace=False)]
-for _ in range(30):
-    lab = ((opaque[:, None] - cent2[None]) ** 2).sum(2).argmin(1)
-    cent2 = np.array([opaque[lab == k].mean(0) if (lab == k).any() else cent2[k] for k in range(len(cent2))])
-cent2 = cent2.round().clip(0, 255).astype(np.uint8)
+warm_px = is_warm(opaque)
+cent2 = np.concatenate([kmeans(opaque[~warm_px], 40, 2), kmeans(opaque[warm_px], 12, 2)])
 
 
 # moss greens only belong on the branch: above it, a feather may never snap to green
 c2 = cent2.astype(int)
 GREEN = (c2[:, 1] > c2[:, 0] + 8) & (c2[:, 1] > c2[:, 2] + 8)
+WARM = np.arange(len(cent2)) >= 40
 
 
 def snap2(f):
@@ -201,6 +215,7 @@ def snap2(f):
     d = ((f[..., None, :3].astype(int) - c2[None, None]) ** 2).sum(-1)
     rows = np.arange(80)[:, None, None]
     d = np.where((rows < LOCK - 2) & GREEN[None, None], 1 << 30, d)
+    d = np.where(is_warm(f[..., :3])[..., None] != WARM[None, None], 1 << 30, d)
     f[a, :3] = cent2[d.argmin(-1)][a]
     f[..., 3] = np.where(a, 255, 0)
     return f
@@ -238,23 +253,32 @@ def eye_clusters(f):
     return out
 
 
-def fix_eye(f):
+def fix_eye(f, blink=False):
     """Redraw the open eye: round yellow eye, dark pupil, glint, and a curved brow
-    (an arch above the eye instead of a low slanted line). Closed eyes are left alone."""
+    (an arch above the eye instead of a low slanted line). A blink frame is left alone;
+    any other frame whose eye the model squeezed shut (mid wing-flap) gets an open eye,
+    placed from the two old brow marks that sit above it in every frame."""
+    if blink:
+        return f
     f = f.copy(); rgb = f[..., :3].astype(int)
     clusters = eye_clusters(f)
     dark = lambda c: sum(1 for y, x in c if rgb[y, x].sum() < 120)
     eyes = [c for c in clusters if dark(c) > 0 and len(c) <= 24]   # eye, sometimes joined to its brow
-    if not eyes:
-        return f                                   # blink / squint frame
-    eye = max(eyes, key=dark)
+    if eyes:
+        eye = max(eyes, key=dark)
+        dk = [(y, x) for y, x in eye if rgb[y, x].sum() < 120]
+        py = min(y for y, x in dk); px = round(np.mean([x for y, x in dk]))
+    else:
+        marks = [c for c in clusters if len(c) == 2 and c[0][0] == c[1][0]]
+        top = min(c[0][0] for c in marks)
+        xs = [x for c in marks if c[0][0] == top for y, x in c]
+        py, px = top + 3, round(np.mean(xs))
+        eye = [(py + dy, px + dx) for dy in (0, 1) for dx in (-1, 0, 1)]
     ey = [y for y, x in eye]; ex = [x for y, x in eye]
-    dk = [(y, x) for y, x in eye if rgb[y, x].sum() < 120]
-    py = min(y for y, x in dk); px = round(np.mean([x for y, x in dk]))
     # clear the old eye, the slanted brow mark above it and the grey streak behind it
     for c in clusters:
         cy = [y for y, x in c]; cx = [x for y, x in c]
-        brow = max(cy) <= max(ey) and min(cy) >= min(ey) - 5 and min(cx) >= min(ex) - 5 and max(cx) <= max(ex) + 1
+        brow = max(cy) <= max(ey) and min(cy) >= min(ey) - 5 and min(cx) >= min(ex) - 5 and max(cx) <= max(ex) + 3
         cheek = max(cx) < min(ex) and min(cx) >= min(ex) - 10 and min(ey) - 2 <= min(cy) <= max(ey) + 3
         if c is eye or (dark(c) == 0 and (brow or cheek)):
             for y, x in c: f[y, x, :3] = HEAD_WHITE
@@ -270,7 +294,8 @@ def fix_eye(f):
     return f
 
 
-idle80, celebrate80, pet80 = ([fix_eye(f) for f in group] for group in (idle80, celebrate80, pet80))
+idle80 = [fix_eye(f, blink=i == 0) for i, f in enumerate(idle80)]   # idle frame 0 is the blink
+celebrate80, pet80 = ([fix_eye(f) for f in group] for group in (celebrate80, pet80))
 
 # one shared frame: starts at the branch's cut end (wing tips past it go "off screen")
 STUB_X = 16 + 1
