@@ -1,20 +1,16 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import tudum from "@/assets/tudum.mp3.asset.json";
 import { INTRO_PLAYED_CLASS as PLAYED_CLASS, INTRO_SESSION_KEY as SESSION_KEY } from "@/lib/intro";
 
 const INTRO_MS = 2500;
 export function CinematicIntro() {
   const [visible, setVisible] = useState(true);
   const finishedRef = useRef(false);
-  const audioRef = useRef<HTMLAudioElement | null>(null);
 
-  const finish = useCallback((skipped = false) => {
+  const finish = useCallback(() => {
     if (finishedRef.current) return;
     finishedRef.current = true;
     // Later mounts this session (client navigation back home) stay hidden from frame one.
     document.documentElement.classList.add(PLAYED_CLASS);
-    // Let the sting ring out when the intro ends on its own; cut it on skip.
-    if (skipped) audioRef.current?.pause();
     setVisible(false);
   }, []);
 
@@ -35,15 +31,9 @@ export function CinematicIntro() {
       return;
     }
 
-    const audio = new Audio(tudum.url);
-    audio.volume = 0.55;
-    audioRef.current = audio;
-    void audio.play().catch(() => {});
-
     const hideTimer = window.setTimeout(() => finish(), INTRO_MS);
     return () => {
       window.clearTimeout(hideTimer);
-      audio.pause();
     };
   }, [finish]);
 
@@ -53,7 +43,7 @@ export function CinematicIntro() {
     <div
       role="presentation"
       className="cinematic-overlay fixed inset-0 z-[100] flex items-center justify-center overflow-hidden bg-black"
-      onClick={() => finish(true)}
+      onClick={() => finish()}
     >
       <div className="cinematic-ambient pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-red-950/40 via-black to-black" />
 
@@ -81,7 +71,7 @@ export function CinematicIntro() {
         className="absolute bottom-8 right-8 z-20 rounded-full border border-white/15 px-4 py-1.5 text-xs font-semibold uppercase tracking-[0.2em] text-neutral-400 transition-colors hover:border-white/40 hover:text-white"
         onClick={(e) => {
           e.stopPropagation();
-          finish(true);
+          finish();
         }}
       >
         Skip
