@@ -1,6 +1,8 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Mail, MessageCircle, NotebookPen, Video } from "lucide-react";
 import { TopNav } from "@/components/TopNav";
+import { PageBackdrop } from "@/components/PageBackdrop";
+import { siteUrl } from "@/lib/site";
 import { CREATOR_EMAIL, UTM_LINKS } from "@/lib/links";
 
 export const Route = createFileRoute("/help")({
@@ -20,6 +22,7 @@ export const Route = createFileRoute("/help")({
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
     ],
+    links: [{ rel: "canonical", href: siteUrl("/help") }],
   }),
   component: HelpPage,
 });
@@ -27,11 +30,19 @@ export const Route = createFileRoute("/help")({
 const FAQ = [
   {
     q: "Where do the ratings come from?",
-    a: "Course titles, descriptions, prerequisites and listed hours come from the UTM Academic Calendar. Until students review a course on Courseflix, ratings and workload signals are estimates based on catalogue metadata only; they are not collected from Reddit or RateMyProfessors. Student reviews are shown separately once submitted.",
+    a: "Course titles, descriptions, prerequisites and listed hours come from the UTM Academic Calendar. Ratings, difficulty and workload scores come only from reviews students submit on Courseflix; a course with no reviews shows no score. Light-workload and essay/project signals are based on the calendar's listed hours and description, not on reviews, Reddit or RateMyProfessors.",
   },
   {
     q: "Is my shortlist private?",
     a: "You control it in Account settings. A private account means only accepted friends can see your shortlist. A public account means any signed-in student can. Shared links you generate yourself always work for anyone with the link.",
+  },
+  {
+    q: "What do you do with my data?",
+    a: "Only what's needed to run the site: your account, profile, saved courses, reviews and friends. Reviews are shown without your name, nothing is sold, and you can delete your account and all of it from Settings. The full details are in the Privacy Policy at courseflix.ca/privacy.",
+  },
+  {
+    q: "How do I report a review?",
+    a: "Use the Report review link under any review. New reviews are checked automatically, and only threats, hate, sexual harassment, someone's private information or spam are held back; harsh but honest opinions about a course or instructor are always allowed. Reported reviews that break those rules are removed, usually within 48 hours.",
   },
   {
     q: "Why is a course missing?",
@@ -45,15 +56,21 @@ const FAQ = [
 
 function HelpPage() {
   return (
-    <div className="min-h-screen bg-background text-foreground">
+    <div className="relative min-h-screen overflow-x-clip text-foreground">
+      <PageBackdrop />
       <TopNav />
       <div className="mx-auto max-w-3xl px-6 pb-24 pt-10 md:px-10">
-        <h1 className="font-display text-4xl font-black md:text-5xl">Help centre</h1>
+        <h1 className="font-mega text-[clamp(2.6rem,7vw,5.5rem)] font-black leading-[0.92] tracking-[-0.05em] animate-fade-in-up">
+          Help{" "}
+          <span className="font-serif-accent text-gradient-brand pr-[0.05em] text-[1.12em] font-normal">
+            centre.
+          </span>
+        </h1>
         <p className="mt-2 text-sm text-muted-foreground">Everything about how Courseflix works.</p>
 
         <div className="mt-8 space-y-3">
           {FAQ.map((f) => (
-            <details key={f.q} className="rounded-2xl border border-border/50 bg-surface p-5">
+            <details key={f.q} className="rounded-3xl glass p-5">
               <summary className="cursor-pointer text-sm font-semibold">{f.q}</summary>
               <p className="mt-2 text-sm text-muted-foreground">{f.a}</p>
             </details>
@@ -74,7 +91,7 @@ function HelpPage() {
           </a>
         </section>
 
-        <section className="mt-6 rounded-2xl border border-border/50 bg-surface p-6">
+        <section className="mt-6 rounded-3xl glass p-6">
           <h2 className="font-display text-2xl">Coming soon: Student hub</h2>
           <p className="mt-1 text-sm text-muted-foreground">
             A shared space for course notes and recorded lectures, contributed by UTM students.

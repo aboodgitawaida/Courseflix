@@ -3,6 +3,7 @@ import { useEffect, useMemo } from "react";
 import { toast } from "sonner";
 import { Bookmark, Copy, Link2, MessageCircle, Share2, Trash2, Users } from "lucide-react";
 import { TopNav } from "@/components/TopNav";
+import { PageBackdrop } from "@/components/PageBackdrop";
 import { CourseCard } from "@/components/CourseCard";
 import { getCourse } from "@/lib/courses";
 import { useAuth } from "@/hooks/use-auth";
@@ -11,6 +12,8 @@ import { siteUrl } from "@/lib/site";
 import { parseShortlistCodesWithStats, parseShortlistSearch } from "@/lib/validation";
 import { QueryErrorState } from "@/components/QueryErrorState";
 import { announce } from "@/lib/a11y";
+import { ShareStoryButton } from "@/components/ShareStoryButton";
+import { renderShortlistStory } from "@/lib/story-card";
 
 export const Route = createFileRoute("/list")({
   validateSearch: parseShortlistSearch,
@@ -62,23 +65,41 @@ function ListPage() {
   }, [courses.length, isLoading, shared, shortlistError, signedIn]);
 
   function copy(text: string, msg: string) {
-    navigator.clipboard?.writeText(text);
-    toast.success(msg);
+    if (!navigator.clipboard) {
+      toast.error("Copying isn't supported in this browser.");
+      return;
+    }
+    navigator.clipboard.writeText(text).then(
+      () => toast.success(msg),
+      () => toast.error("Could not copy. Check your browser permissions."),
+    );
   }
 
   return (
-    <div className="min-h-screen bg-background text-foreground relative">
-      <div className="fixed inset-0 pointer-events-none">
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[300px] bg-brand/3 rounded-full blur-[100px]" />
-      </div>
+    <div className="relative min-h-screen overflow-x-clip text-foreground">
+      <PageBackdrop />
       <TopNav />
 
       <div className="relative px-6 md:px-10 pt-10 pb-20 max-w-6xl">
-        <div className="inline-flex items-center gap-2 rounded-full border border-brand/30 bg-brand/10 px-3 py-1 text-xs font-semibold text-brand backdrop-blur-md">
+        <div className="glass inline-flex items-center gap-2 rounded-full px-3.5 py-1.5 text-[11px] font-semibold uppercase tracking-[0.18em] text-brand">
           <Bookmark className="h-3 w-3" /> {shared ? "SHARED SHORTLIST" : "MY SHORTLIST"}
         </div>
-        <h1 className="font-display text-4xl md:text-6xl font-black mt-3 leading-[0.95] text-white tracking-tight">
-          {shared ? "A friend's course list" : "My List"}
+        <h1 className="mt-5 font-mega text-[clamp(2.6rem,7vw,5.5rem)] font-black leading-[0.92] tracking-[-0.05em] animate-fade-in-up">
+          {shared ? (
+            <>
+              A friend's{" "}
+              <span className="font-serif-accent text-gradient-brand pr-[0.05em] text-[1.12em] font-normal">
+                list.
+              </span>
+            </>
+          ) : (
+            <>
+              My{" "}
+              <span className="font-serif-accent text-gradient-brand pr-[0.05em] text-[1.12em] font-normal">
+                list.
+              </span>
+            </>
+          )}
         </h1>
         <p className="text-sm text-neutral-500 mt-2" role="status" aria-live="polite">
           {courses.length} course{courses.length === 1 ? "" : "s"}
@@ -93,6 +114,10 @@ function ListPage() {
 
         {courses.length > 0 && (
           <div className="mt-6 flex flex-wrap gap-2">
+            <ShareStoryButton
+              render={() => renderShortlistStory(courses, { shared })}
+              fileName="courseflix-lineup.png"
+            />
             <button
               onClick={() => copy(shareUrl, "Shortlist link copied")}
               className="inline-flex items-center gap-2 rounded-full bg-brand px-5 py-2.5 text-sm font-semibold text-primary-foreground transition hover:bg-brand-glow focus-visible:ring-2 focus-visible:ring-red-600/50"
@@ -131,7 +156,7 @@ function ListPage() {
         </div>
 
         {!shared && !signedIn && (
-          <div className="mt-8 rounded-2xl border border-neutral-800 bg-surface p-6">
+          <div className="mt-8 rounded-3xl glass p-6">
             <h2 className="font-display text-2xl text-white font-bold tracking-tight">
               Sign in to save courses
             </h2>
@@ -155,29 +180,31 @@ function ListPage() {
           </div>
         )}
 
-        {!shared && signedIn && !isLoading && courses.length === 0 && (
-          shortlistError ? (
+        {!shared &&
+          signedIn &&
+          !isLoading &&
+          courses.length === 0 &&
+          (shortlistError ? (
             <QueryErrorState
               message="Could not load your shortlist."
               onRetry={() => void refetch()}
             />
           ) : (
-          <div className="mt-8 rounded-2xl border border-neutral-800 bg-surface p-6">
-            <h2 className="font-display text-2xl text-white font-bold tracking-tight">
-              Nothing saved yet
-            </h2>
-            <p className="text-sm text-neutral-400 mt-1">
-              Hit “Add to shortlist” on any course and it shows up here.
-            </p>
-            <Link
-              to="/"
-              className="mt-4 inline-flex rounded-full bg-brand px-5 py-2.5 text-sm font-semibold text-primary-foreground hover:bg-brand-glow transition focus-visible:ring-2 focus-visible:ring-red-600/50"
-            >
-              Browse courses
-            </Link>
-          </div>
-          )
-        )}
+            <div className="mt-8 rounded-3xl glass p-6">
+              <h2 className="font-display text-2xl text-white font-bold tracking-tight">
+                Nothing saved yet
+              </h2>
+              <p className="text-sm text-neutral-400 mt-1">
+                Hit “Add to shortlist” on any course and it shows up here.
+              </p>
+              <Link
+                to="/"
+                className="mt-4 inline-flex rounded-full bg-brand px-5 py-2.5 text-sm font-semibold text-primary-foreground hover:bg-brand-glow transition focus-visible:ring-2 focus-visible:ring-red-600/50"
+              >
+                Browse courses
+              </Link>
+            </div>
+          ))}
 
         {courses.length > 0 && (
           <div className="mt-8 flex flex-wrap gap-4">
@@ -188,8 +215,14 @@ function ListPage() {
                   <button
                     disabled={toggle.isPending}
                     onClick={async () => {
-                      await toggle.mutateAsync({ code: c.code, saved: true });
-                      toast.success(`${c.code} removed`);
+                      try {
+                        await toggle.mutateAsync({ code: c.code, saved: true });
+                        toast.success(`${c.code} removed`);
+                      } catch (err) {
+                        toast.error(
+                          err instanceof Error ? err.message : `Could not remove ${c.code}`,
+                        );
+                      }
                     }}
                     aria-label={`Remove ${c.code}`}
                     className="absolute bottom-3 right-3 z-20 h-9 w-9 rounded-full bg-black/70 border border-white/20 flex items-center justify-center hover:bg-black transition disabled:cursor-wait disabled:opacity-60"

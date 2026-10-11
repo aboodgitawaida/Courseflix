@@ -8,10 +8,12 @@ import { useMajor } from "@/hooks/use-major";
 import { getMajor } from "@/lib/majors";
 import { useAuth } from "@/hooks/use-auth";
 import { useCourseStats, useShortlist, useToggleShortlist } from "@/lib/ratings";
+import { useCourseDescription } from "@/lib/course-description";
 import { FALLBACK_SUBJECT_IMAGE, getCourseImage } from "@/lib/subject-images";
 import { PrereqTree } from "./PrereqTree";
 import { useEffect, useState } from "react";
 import { calendarUrl } from "@/lib/links";
+import { recordSubjectInterest } from "@/lib/interest";
 
 export function CoursePreviewModal() {
   const { previewCode, closePreview } = useCourseUI();
@@ -21,6 +23,7 @@ export function CoursePreviewModal() {
   const toggle = useToggleShortlist();
 
   const course = previewCode ? getCourse(previewCode) : undefined;
+  const description = useCourseDescription(course?.code);
   const { data: stats } = useCourseStats(course?.code ?? "");
   const open = !!course;
   const art = getArt(course?.subject ?? "");
@@ -36,6 +39,10 @@ export function CoursePreviewModal() {
   useEffect(() => {
     setImageSrc(getCourseImage(course?.subject ?? ""));
   }, [course?.subject]);
+
+  useEffect(() => {
+    if (course) recordSubjectInterest(course.subject);
+  }, [course]);
 
   async function onShortlist() {
     if (!course) return;
@@ -53,7 +60,7 @@ export function CoursePreviewModal() {
 
   return (
     <Dialog open={open} onOpenChange={(v) => !v && closePreview()}>
-      <DialogContent className="max-w-3xl overflow-hidden border-white/10 bg-[#121216] p-0 sm:rounded-2xl">
+      <DialogContent className="max-w-3xl overflow-hidden border-white/10 bg-[#121216] p-0 shadow-2xl shadow-brand/10 sm:rounded-[2rem]">
         {course && (
           <div className="max-h-[85vh] overflow-y-auto">
             <div className={`relative aspect-[16/7] bg-gradient-to-br ${art.gradient}`}>
@@ -67,19 +74,26 @@ export function CoursePreviewModal() {
               />
               <div className="absolute inset-x-0 bottom-0 h-2/3 bg-gradient-to-t from-[#121216] via-[#121216]/70 to-transparent" />
               <div className="absolute inset-x-0 bottom-0 p-6">
-                <DialogTitle className="font-display text-4xl font-black md:text-5xl">{course.code}</DialogTitle>
+                <DialogTitle className="font-mega text-4xl font-black tracking-[-0.05em] md:text-6xl">
+                  {course.code}
+                </DialogTitle>
                 <DialogDescription className="mt-1 text-base font-medium text-white/85">
                   {course.title}
                 </DialogDescription>
                 <div className="mt-3 flex flex-wrap items-center gap-3 text-xs">
                   {match !== null && (
                     <span className="font-semibold text-emerald-400">
-                      {match}{majorName ? ` · ${majorName}` : ""}
+                      {match}
+                      {majorName ? ` · ${majorName}` : ""}
                     </span>
                   )}
-                  <span className="rounded border border-white/15 bg-black/40 px-2 py-0.5">{course.area}</span>
+                  <span className="rounded border border-white/15 bg-black/40 px-2 py-0.5">
+                    {course.area}
+                  </span>
                   <span className="text-white/70">
-                    {hasStudentData ? `${stats!.pct_would_take_again}% would retake` : "No student data yet"}
+                    {hasStudentData
+                      ? `${stats!.pct_would_take_again}% would retake`
+                      : "No student data yet"}
                   </span>
                   <span className="flex items-center gap-1 font-semibold text-brand">
                     <Star className="h-3 w-3 fill-current" /> {displayRating}
@@ -92,7 +106,7 @@ export function CoursePreviewModal() {
               <div className="flex flex-wrap gap-2">
                 <button
                   onClick={onShortlist}
-                  className="inline-flex items-center gap-2 rounded-full bg-brand px-5 py-2.5 text-sm font-semibold text-primary-foreground transition hover:bg-brand-glow focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70 focus-visible:ring-offset-2 focus-visible:ring-offset-[#121216]"
+                  className="shine inline-flex items-center gap-2 rounded-full bg-brand px-5 py-2.5 text-sm font-semibold text-primary-foreground shadow-lg shadow-brand/30 transition hover:bg-brand-glow focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70 focus-visible:ring-offset-2 focus-visible:ring-offset-[#121216]"
                 >
                   {inList ? <Check className="h-4 w-4" /> : <Plus className="h-4 w-4" />}
                   {inList ? "In your shortlist" : "Add to Shortlist"}
@@ -110,30 +124,45 @@ export function CoursePreviewModal() {
 
               <div className="flex flex-wrap gap-1.5">
                 {getBadges(course).map((b) => (
-                  <span key={b.label} className="rounded border border-white/10 bg-white/5 px-2 py-1 text-xs">
+                  <span
+                    key={b.label}
+                    className="rounded-full border border-white/10 bg-white/5 px-2.5 py-1 text-xs"
+                  >
                     {b.emoji} {b.label}
                   </span>
                 ))}
                 {course.tags.map((t) => (
-                  <span key={t} className="rounded border border-white/10 bg-white/5 px-2 py-1 text-xs text-muted-foreground">
+                  <span
+                    key={t}
+                    className="rounded-full border border-white/10 bg-white/5 px-2.5 py-1 text-xs text-muted-foreground"
+                  >
                     {t}
                   </span>
                 ))}
               </div>
 
-              <p className="text-sm leading-relaxed text-muted-foreground">{course.description}</p>
+              <p className="min-h-[3lh] text-sm leading-relaxed text-muted-foreground">
+                {description}
+              </p>
 
               <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
                 <Stat label="Rating" value={hasStudentData ? `${displayRating}/5` : "No data"} />
-                <Stat label="Difficulty" value={hasStudentData ? `${displayDifficulty}/5` : "No data"} />
-                <Stat label="Workload" value={hasStudentData ? `${displayWorkload}/5` : "No data"} />
+                <Stat
+                  label="Difficulty"
+                  value={hasStudentData ? `${displayDifficulty}/5` : "No data"}
+                />
+                <Stat
+                  label="Workload"
+                  value={hasStudentData ? `${displayWorkload}/5` : "No data"}
+                />
                 <Stat label="Assessment data" value="Not verified" />
               </div>
 
               <div>
                 <h3 className="font-display text-lg font-bold">Contact hours</h3>
                 <p className="mt-1 text-sm text-muted-foreground">
-                  {course.hours || "Hours not listed"} · {course.credits} credit{course.credits === 1 ? "" : "s"}
+                  {course.hours || "Hours not listed"} · {course.credits} credit
+                  {course.credits === 1 ? "" : "s"}
                 </p>
               </div>
 

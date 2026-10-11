@@ -8,10 +8,15 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 const mockNavigate = vi.fn();
 
 vi.mock("@tanstack/react-router", async () => {
-  const actual = await vi.importActual<typeof import("@tanstack/react-router")>("@tanstack/react-router");
+  const actual =
+    await vi.importActual<typeof import("@tanstack/react-router")>("@tanstack/react-router");
   return {
     ...actual,
-    Link: ({ children, to, ...props }: any) => <a href={String(to)} {...props}>{children}</a>,
+    Link: ({ children, to, ...props }: any) => (
+      <a href={String(to)} {...props}>
+        {children}
+      </a>
+    ),
     useNavigate: () => mockNavigate,
     useSearch: () => ({ redirect: "/settings" }),
     useLocation: () => ({ pathname: "/auth" }),
@@ -42,6 +47,10 @@ vi.mock("@/components/CreatorSection", () => ({
   CreatorSection: () => <section>Creator</section>,
 }));
 
+vi.mock("@/components/FeatureBento", () => ({
+  FeatureBento: () => <section>Features</section>,
+}));
+
 vi.mock("@/components/FilterChips", () => ({
   FilterChips: () => <div>Filters</div>,
 }));
@@ -67,7 +76,7 @@ vi.mock("@/lib/reset-password", () => ({
   resetPassword: vi.fn(),
 }));
 
-import { Home } from "../routes/index";
+import { HomePage as Home } from "@/components/HomePage";
 import { AuthPage } from "../routes/auth";
 import { useAuth } from "@/hooks/use-auth";
 import { useMajor } from "@/hooks/use-major";

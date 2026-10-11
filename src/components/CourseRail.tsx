@@ -3,6 +3,7 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 import { COURSES, type Rail } from "@/lib/courses";
 import { CourseCard } from "./CourseCard";
 import { CourseCardSkeleton } from "./CourseCardSkeleton";
+import { useReveal } from "@/hooks/use-reveal";
 
 export const CourseRail = memo(function CourseRail({
   rail,
@@ -18,47 +19,59 @@ export const CourseRail = memo(function CourseRail({
   const scroll = (dir: 1 | -1) => {
     ref.current?.scrollBy({ left: dir * 320, behavior: "smooth" });
   };
-  const courses = useMemo(() => rail.codes
-    .map((c) => COURSES.find((x) => x.code === c))
-    .filter(Boolean) as typeof COURSES, [rail.codes]);
+  const courses = useMemo(
+    () =>
+      rail.codes.map((c) => COURSES.find((x) => x.code === c)).filter(Boolean) as typeof COURSES,
+    [rail.codes],
+  );
 
-  const animationDelay = Math.min(index * 0.04, 0.2);
+  const revealRef = useReveal<HTMLElement>();
+  const number = String(index + 1).padStart(2, "0");
 
   return (
     <section
-      className="relative animate-fade-in-up"
-      style={{ animationDelay: `${animationDelay}s` }}
+      ref={revealRef}
+      className="reveal relative"
       onMouseEnter={() => setHover(true)}
       onMouseLeave={() => setHover(false)}
     >
-      <div className="mb-2 flex items-end justify-between px-6 md:px-10">
-        <div>
-          <h2 className="font-display text-xl font-bold md:text-2xl text-white tracking-tight">
+      <div className="mb-1 flex items-end gap-4 px-6 md:gap-6 md:px-10">
+        <span
+          aria-hidden="true"
+          className="text-outline hidden font-mega text-5xl font-black leading-[0.8] sm:block md:text-7xl"
+        >
+          {number}
+        </span>
+        <div className="min-w-0 flex-1 border-b border-white/[0.08] pb-3">
+          <h2 className="font-display text-xl font-bold tracking-tight text-white md:text-3xl">
             {rail.title}
           </h2>
-          {rail.blurb && <p className="mt-0.5 text-sm text-neutral-500">{rail.blurb}</p>}
+          {rail.blurb && <p className="mt-1 text-sm text-neutral-500">{rail.blurb}</p>}
         </div>
+        <span className="hidden shrink-0 pb-3 text-xs font-semibold uppercase tracking-[0.2em] text-muted-foreground md:block">
+          {courses.length} courses
+        </span>
       </div>
 
       <div className="relative">
         <button
           onClick={() => scroll(-1)}
           aria-label={`Scroll ${rail.title} left`}
-          className={`absolute left-1 top-1/2 z-40 hidden h-11 w-11 -translate-y-1/2 place-items-center rounded-full border border-white/15 bg-white/10 backdrop-blur-md transition md:grid ${hover ? "opacity-100" : "opacity-0"} hover:bg-white/20`}
+          className={`glass absolute left-3 top-1/2 z-40 hidden h-12 w-12 -translate-y-1/2 place-items-center rounded-full transition duration-300 md:grid ${hover ? "opacity-100 translate-x-0" : "opacity-0 -translate-x-2"} hover:bg-brand hover:text-primary-foreground`}
         >
           <ChevronLeft className="h-5 w-5" />
         </button>
         <button
           onClick={() => scroll(1)}
           aria-label={`Scroll ${rail.title} right`}
-          className={`absolute right-1 top-1/2 z-40 hidden h-11 w-11 -translate-y-1/2 place-items-center rounded-full border border-white/15 bg-white/10 backdrop-blur-md transition md:grid ${hover ? "opacity-100" : "opacity-0"} hover:bg-white/20`}
+          className={`glass absolute right-3 top-1/2 z-40 hidden h-12 w-12 -translate-y-1/2 place-items-center rounded-full transition duration-300 md:grid ${hover ? "opacity-100 translate-x-0" : "opacity-0 translate-x-2"} hover:bg-brand hover:text-primary-foreground`}
         >
           <ChevronRight className="h-5 w-5" />
         </button>
 
         <div
           ref={ref}
-          className="scroll-rail flex gap-4 overflow-x-auto overflow-y-visible px-6 py-4 md:px-10"
+          className="scroll-rail rail-fade flex gap-4 overflow-x-auto overflow-y-visible px-6 py-6 md:px-10"
         >
           {loading
             ? Array.from({ length: 6 }).map((_, i) => <CourseCardSkeleton key={`skeleton-${i}`} />)

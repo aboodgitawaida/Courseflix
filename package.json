@@ -1,5 +1,5 @@
 {
-  "name": "tanstack_start_ts",
+  "name": "courseflix",
   "private": true,
   "sideEffects": false,
   "type": "module",
@@ -11,10 +11,11 @@
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
     "format": "prettier --write .",
-    "test": "vitest run"
+    "test": "vitest run",
+    "sitemap": "node scripts/generate-sitemap.mjs"
   },
   "dependencies": {
-    "@lovable.dev/cloud-auth-js": "^1.1.2",
+    "@anthropic-ai/sdk": "^0.132.1",
     "@radix-ui/react-avatar": "^1.1.11",
     "@radix-ui/react-dialog": "^1.1.15",
     "@radix-ui/react-dropdown-menu": "^2.1.16",
@@ -26,6 +27,8 @@
     "@tanstack/react-router": "1.170.41",
     "@tanstack/react-start": "1.168.60",
     "@tanstack/router-plugin": "1.168.42",
+    "@vercel/analytics": "^2.0.1",
+    "@vercel/speed-insights": "^2.0.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "cmdk": "^1.1.1",
