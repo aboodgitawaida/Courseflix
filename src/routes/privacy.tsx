@@ -50,7 +50,7 @@ function PrivacyPage() {
             policy.
           </span>
         </h1>
-        <p className="mt-2 text-sm text-muted-foreground">Last updated: October 9, 2026</p>
+        <p className="mt-2 text-sm text-muted-foreground">Last updated: October 11, 2026</p>
 
         <div className="mt-8 space-y-8 text-sm leading-7 text-muted-foreground">
           <Section title="The short version">
@@ -91,6 +91,11 @@ function PrivacyPage() {
               <strong className="text-foreground">Password resets.</strong> To stop abuse, we keep a
               one-way hash of the email address and IP address for each reset request. These are not
               readable as your email or IP and are deleted after about a day.
+            </p>
+            <p>
+              <strong className="text-foreground">Email confirmation.</strong> Before you can post
+              reviews, we email you a one-time link and record when you confirmed it. We store only
+              a one-way hash of the link, and it expires after 24 hours.
             </p>
             <p>
               <strong className="text-foreground">Usage statistics.</strong> We use Vercel Web
