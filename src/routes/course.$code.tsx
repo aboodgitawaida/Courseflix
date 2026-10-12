@@ -25,7 +25,7 @@ import { Burst } from "@/components/Burst";
 import { useEffect, useState } from "react";
 import { siteUrl } from "@/lib/site";
 import { rmpTorontoSearchUrl, rmpUtmSearchUrl, timetableUrl } from "@/lib/links";
-import { getProfessorRating } from "@/lib/professor-ratings";
+import { getProfessorRating, SHOW_RMP_SCORES } from "@/lib/professor-ratings";
 import { PUBLISHED_INSTRUCTORS } from "@/lib/course-instructors";
 import { loadDescriptions } from "@/lib/course-description";
 import { recordSubjectInterest } from "@/lib/interest";
@@ -291,7 +291,7 @@ function CoursePage() {
                           <div className="font-semibold">{p.name}</div>
                           <div className="flex items-center gap-2 text-xs font-semibold">
                             <span className="text-brand">{p.term}</span>
-                            {rating && (
+                            {rating && SHOW_RMP_SCORES && (
                               <span
                                 className="flex items-center gap-1 text-amber-500"
                                 title={`${rating.rating.toFixed(1)} out of 5`}
@@ -316,8 +316,9 @@ function CoursePage() {
                               rel="noopener noreferrer"
                               className="inline-flex text-xs text-brand hover:underline"
                             >
-                              {rating.reviewCount} Rate My Professors reviews · retrieved{" "}
-                              {rating.retrievedAt}
+                              {SHOW_RMP_SCORES
+                                ? `${rating.reviewCount} Rate My Professors reviews · retrieved ${rating.retrievedAt}`
+                                : "View on Rate My Professors"}
                             </a>
                           </div>
                         ) : (
