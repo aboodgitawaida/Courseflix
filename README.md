@@ -1,66 +1,67 @@
 # CourseFlix
 
-A "Netflix-style" course recommendation and discovery platform built for University of Toronto Mississauga (UTM) students.
+**Browse every UTM course like you browse Netflix.** Pick your program, scroll curated rows, check what students and Rate My Professors say, and build a shortlist you can share with friends.
 
-Finding the right university courses shouldn't mean digging through Reddit threads and RateMyProf separately. CourseFlix brings everything together into a clean, personalized recommendation engine based on your major, past classes, and aggregated student reviews.
+**Live:** [courseflix.ca](https://www.courseflix.ca)
 
-**Live App**: [courseflix.ca](https://www.courseflix.ca)
+<!-- Add screenshots here, e.g. docs/screenshots/home.png, course.png, list.png -->
 
-## Stack
+## Why
 
-- TanStack Start (React) deployed on Vercel
-- Supabase for auth and Postgres (row-level security on every table)
-- Resend for password-reset email
-- Claude API for review moderation
+Choosing courses at the University of Toronto Mississauga means jumping between the Academic Calendar, the Timetable Builder, Rate My Professors and r/UTM. CourseFlix puts all of it on one page per course, and turns 2,491 courses into something you can actually browse.
 
-## Local development
+## Features
 
-```sh
-cp .env.example .env   # fill in your Supabase and Resend keys
-npm install
-npm run dev
+- **Program-aware home feed.** Pick from 40+ UTM programs and the home page rebuilds into rows for your core courses, first- and second-year picks, upper-year seminars, lighter-workload options and courses that unlock the most others.
+- **A page for every course.** Official description, prerequisites drawn as a "what this unlocks" path, this term's published instructors with their Rate My Professors ratings, and links to the calendar, timetable and Reddit.
+- **Student reviews.** Rate difficulty, workload and "would take again". Reviews are anonymous to the public, and posting needs a confirmed email so ratings stay trustworthy.
+- **Shortlist and sharing.** Save courses, compare them side by side, share your list as a link, or export it as an Instagram-story image.
+- **Friends.** Add classmates, see each other's shortlists (unless set to private) and get notified when a friend saves a course.
+- **Search everywhere.** A ⌘K command palette searches codes, titles and descriptions.
+- **The little things.** Achievements, the Study Eagle mascot, light and dark themes, and installable as a phone app.
+
+## Tech stack
+
+| Layer         | Choice                                                                  |
+| ------------- | ----------------------------------------------------------------------- |
+| App           | React 19, TanStack Start (SSR) and Router, TanStack Query, Tailwind CSS |
+| Data and auth | Supabase (Postgres, row-level security, email and Google sign-in)       |
+| Email         | Resend                                                                  |
+| Hosting       | Vercel, with Vercel Analytics and Speed Insights                        |
+| Quality       | TypeScript, ESLint, Prettier, Vitest, GitHub Actions CI                 |
+
+## Engineering notes
+
+A few decisions worth calling out:
+
+- **Privacy by design in the database.** Every table has row-level security. Reviews are read through a view that drops the author's ID, so they're public without being traceable, while each user can still edit and delete their own.
+- **Trust without friction.** Sign-up is instant so anyone can try the site, but posting a review requires a confirmed email (Google sign-ins count automatically). The check is enforced in both the server function and the database policies, so it can't be bypassed through the API.
+- **Abuse limits that live in Postgres.** Friend requests, password resets and verification emails are rate-limited with database-backed counters rather than per-instance memory, so the limits hold across serverless instances.
+- **Performance.** Rating stats for every visible course load in one cached request instead of one per card (the home page used to make about 100). Course descriptions are code-split and lazy-loaded because they're about two-thirds of the catalogue's size.
+- **SEO.** Each of the 2,491 course pages is server-rendered with its own title, description, canonical URL and social preview, and listed in a generated sitemap.
+- **Honest data.** Ratings come only from real student reviews or Rate My Professors, never placeholders, and the site says so when a course has none yet.
+
+Day-to-day running (migrations, moderation, reported reviews) is documented in [docs/operations.md](docs/operations.md).
+
+## How it was built
+
+I designed and run CourseFlix: the product, the data model, the privacy and security decisions, and what ships. I build with AI coding tools: the project started from a Lovable scaffold, and much of the implementation was written with Claude Code, which is why many commits are authored by Claude. I review, test and deploy every change.
+
+## Project layout
+
+```
+src/
+  routes/          file-based pages (home, course, list, friends, settings, ...)
+  components/      UI: course cards, rails, hero, search palette, Study Eagle
+  lib/             catalogue data, ratings, reviews, auth helpers, server functions
+  integrations/    Supabase clients and generated types
+supabase/migrations/  database schema, policies and functions
+docs/              operations guide
 ```
 
-Before pushing: `npm run typecheck && npm run lint && npm test`. CI runs the same checks on every PR.
+## Data sources
 
-## Database changes
-
-Vercel does not apply Supabase migrations. After merging anything in `supabase/migrations/`, run the new files in the Supabase SQL Editor (oldest first) or use `supabase db push`.
-
-## Who can post reviews
-
-Sign-up is instant ("Confirm email" is off in Supabase), so anyone can browse, save courses and add friends straight away. Posting a review requires a confirmed email: Google sign-ins count automatically, and email sign-ups click a one-time link the site sends through Resend (`src/lib/review-verification.ts`). The check runs in `submitReview` and in the `course_ratings` insert/update policies.
-
-Run `20261014120000_review_email_verification.sql` **before** turning "Confirm email" off, so everyone who already confirmed is recorded as verified.
-
-## Review moderation
-
-New and edited reviews go through the `submitReview` server function, which asks Claude to check the comment and instructor field against a deliberately lenient policy in `src/lib/review-moderation.server.ts`: only threats, hate, sexual harassment, someone's private information, and spam are blocked, and the student sees a short note saying what to change. Harsh opinions, profanity, and criticism of instructors are published.
-
-- Set `ANTHROPIC_API_KEY` in Vercel (Production and Preview). Without it, reviews publish unchecked.
-- If the check fails (API error, timeout), the review is published and logged as `review_moderation_failed`; blocked attempts are logged as `review_blocked` with the category only, never the text.
-- After the code is deployed, run `20261013120000_review_moderation.sql` so reviews can't be written around the check.
-
-## Handling reported reviews
-
-Reports arrive by email (the "Report review" link under each review) with the review ID and course code. The Help page promises a response within 48 hours.
-
-Remove a review that breaks the Terms (personal attacks, someone's private information, spam, fake or duplicate reviews) in the Supabase SQL Editor:
-
-```sql
--- Look at it first, including who wrote it (never shown on the site).
-select id, user_id, course_code, prof_name, comment, created_at
-from public.course_ratings where id = '<review-id>';
-
--- Remove it. Stats update automatically.
-delete from public.course_ratings where id = '<review-id>';
-
--- Everything else that account has written, if it looks like a pattern.
-select id, course_code, comment, created_at
-from public.course_ratings where user_id = '<user-id>' order by created_at desc;
-```
-
-For repeat or clearly malicious accounts, delete the user under Authentication → Users in the Supabase dashboard; their profile, reviews, shortlist and friendships are removed with it. Negative but honest reviews ("hard tests, unclear lectures") stay up.
+Course information comes from the [UTM Academic Calendar](https://utm.calendar.utoronto.ca/) and instructors from the [UTM Timetable Builder](https://ttb.utoronto.ca/). Professor ratings are from [Rate My Professors](https://www.ratemyprofessors.com/), shown with a link to each profile and the date they were retrieved. CourseFlix is an independent student project, not affiliated with the University of Toronto or Netflix.
 
 ## License
 
