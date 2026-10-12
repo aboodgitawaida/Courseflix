@@ -283,7 +283,7 @@ export function StudyEagle() {
 
   return (
     <div
-      className={`study-eagle fixed z-[45] ${isDragging ? "study-eagle-dragging" : ""}`}
+      className={`study-eagle fixed z-[55] ${isDragging ? "study-eagle-dragging" : ""}`}
       // Flush to the edge: the branch grows out of the side of the screen.
       style={{ right: 0, top, width: size.w }}
     >
