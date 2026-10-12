@@ -454,6 +454,18 @@
   background-size: 800% 100%;
   animation: eagle-celebrate-frames 1.1s steps(8, jump-none) forwards;
 }
+/* Nodding off: 8-frame droop into the sleeping pose, played once (FALL_ASLEEP_MS). */
+.study-eagle-sprite-fallingAsleep {
+  background-image: url("/eagle-fallasleep.png");
+  background-size: 800% 100%;
+  animation: eagle-fallasleep-frames 1.6s steps(8, jump-none) forwards;
+}
+/* Waking up: 8-frame head-lift and wing stretch, played once (WAKE_UP_MS). */
+.study-eagle-sprite-wakingUp {
+  background-image: url("/eagle-wakeup.png");
+  background-size: 800% 100%;
+  animation: eagle-wakeup-frames 1.2s steps(8, jump-none) forwards;
+}
 /* Each state walks its sheet left to right; steps(n, jump-none) lands exactly on
    each frame. Every state needs its own keyframes name: if they shared one, the
    browser would keep the running clock when the state changes, and the one-shot
@@ -488,6 +500,39 @@
   }
   to {
     background-position-x: 100%;
+  }
+}
+@keyframes eagle-fallasleep-frames {
+  from {
+    background-position-x: 0%;
+  }
+  to {
+    background-position-x: 100%;
+  }
+}
+@keyframes eagle-wakeup-frames {
+  from {
+    background-position-x: 0%;
+  }
+  to {
+    background-position-x: 100%;
+  }
+}
+/* Phones: a celebration slides the tucked-away eagle out from the edge, then back. */
+.study-eagle-pop-in {
+  animation: eagle-pop-in 0.3s ease-out;
+}
+.study-eagle-pop-out {
+  animation: eagle-pop-out 0.25s ease-in forwards;
+}
+@keyframes eagle-pop-in {
+  from {
+    transform: translateX(100%);
+  }
+}
+@keyframes eagle-pop-out {
+  to {
+    transform: translateX(100%);
   }
 }
 /* Phones: tucked away as a small round button above the tab bar until tapped. */
@@ -667,6 +712,8 @@
   .study-eagle-sprite,
   .study-eagle-controls,
   .study-eagle-celebrating .study-eagle-button,
+  .study-eagle-pop-in,
+  .study-eagle-pop-out,
   .study-eagle-confetti {
     animation: none;
     transition: none;

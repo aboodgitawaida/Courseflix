@@ -5,7 +5,7 @@ import { getCourse, type Course } from "@/lib/courses";
 import { loadDescriptions, peekDescriptions } from "@/lib/course-description";
 import { useEagle } from "@/hooks/use-eagle";
 
-type EagleMode = "awake" | "sleeping" | "celebrating" | "petting";
+type EagleMode = "awake" | "fallingAsleep" | "sleeping" | "wakingUp" | "celebrating" | "petting";
 
 const EAGLE_REPLIES = [
   "Try the course preview first, then shortlist anything that still feels like a good fit.",
@@ -19,6 +19,11 @@ const DEFAULT_PERCH = 0.62;
 const SLEEP_AFTER_MS = 20_000;
 const CELEBRATE_MS = 1_100; // matches the 8-frame wing-flap in styles.css
 const PET_MS = 900; // matches the 8-frame head-bob in styles.css
+const FALL_ASLEEP_MS = 1_600; // matches the 8-frame droop in styles.css
+const WAKE_UP_MS = 1_200; // matches the 8-frame stretch in styles.css
+/** On phones a celebration pops the tucked-away eagle out for this long. */
+const POP_OUT_MS = 3_000;
+const POP_OUT_EXIT_MS = 250; // the slide back out in styles.css
 /** Frame size of the eagle sheets (art pixels) and how much they are scaled up. */
 const FRAME = { w: 56, h: 68 };
 const SCALE = { desktop: 2, compact: 1.5 };
@@ -29,6 +34,8 @@ const EAGLE_SHEETS = [
   "/eagle-sleep.png",
   "/eagle-celebrate.png",
   "/eagle-pet.png",
+  "/eagle-fallasleep.png",
+  "/eagle-wakeup.png",
 ];
 // Holding the decoded images keeps them in memory for the life of the page.
 let preloadedSheets: HTMLImageElement[] | null = null;
@@ -49,6 +56,8 @@ export function StudyEagle() {
   const [compact, setCompact] = useState(false);
   // On phones the eagle stays tucked away as a small button until tapped.
   const [revealed, setRevealed] = useState(false);
+  // A celebration on a phone briefly pops the eagle out, then slides it back.
+  const [popOut, setPopOut] = useState<"in" | "out" | null>(null);
   const [mode, setMode] = useState<EagleMode>("awake");
   const [chatOpen, setChatOpen] = useState(false);
   const [reply, setReply] = useState(EAGLE_REPLIES[0]);
@@ -67,12 +76,28 @@ export function StudyEagle() {
   const messageTimer = useRef<number | null>(null);
   const celebrateTimer = useRef<number | null>(null);
   const petTimer = useRef<number | null>(null);
+  const popTimer = useRef<number | null>(null);
+  const revealedRef = useRef(false);
   const modeRef = useRef<EagleMode>("awake");
   const pathname = useRouterState({ select: (state) => state.location.pathname });
   const course = getCurrentCourse(pathname);
 
   useEffect(() => {
     modeRef.current = mode;
+  }, [mode]);
+
+  useEffect(() => {
+    revealedRef.current = revealed;
+  }, [revealed]);
+
+  // The sleep and wake transitions play once, then settle into the next state.
+  useEffect(() => {
+    if (mode !== "fallingAsleep" && mode !== "wakingUp") return;
+    const timer = window.setTimeout(
+      () => setMode(mode === "fallingAsleep" ? "sleeping" : "awake"),
+      mode === "fallingAsleep" ? FALL_ASLEEP_MS : WAKE_UP_MS,
+    );
+    return () => window.clearTimeout(timer);
   }, [mode]);
 
   useEffect(() => {
@@ -101,7 +126,7 @@ export function StudyEagle() {
   useEffect(() => {
     if (mode !== "awake" || chatOpen || isDragging) return;
     const timer = window.setTimeout(() => {
-      setMode("sleeping");
+      setMode("fallingAsleep");
       if (!isCompact()) showStatus("Time for a study break.");
     }, SLEEP_AFTER_MS);
     return () => window.clearTimeout(timer);
@@ -114,7 +139,7 @@ export function StudyEagle() {
       if (!course) return;
       // A new course is activity: wake up before reading it out.
       setActivityVersion((version) => version + 1);
-      if (modeRef.current === "sleeping") setMode("awake");
+      if (isDozing(modeRef.current)) setMode("wakingUp");
       setSummaryCourseCode(course.code);
       setSummaryContext(context ?? "preview");
       const cached = peekDescriptions();
@@ -135,9 +160,21 @@ export function StudyEagle() {
       setSummaryText(null);
       setReply(EAGLE_REPLIES[0]);
     };
-    const onCelebration = () => {
+    const onCelebration = (event: Event) => {
+      const { message } = (event as CustomEvent<{ message?: string }>).detail ?? {};
       setActivityVersion((version) => version + 1);
-      showStatus("Nice pick!");
+      showStatus(message ?? "Nice pick!");
+      if (isCompact() && !revealedRef.current) {
+        setPopOut("in");
+        if (popTimer.current !== null) window.clearTimeout(popTimer.current);
+        popTimer.current = window.setTimeout(() => {
+          setPopOut("out");
+          popTimer.current = window.setTimeout(() => {
+            setPopOut(null);
+            popTimer.current = null;
+          }, POP_OUT_EXIT_MS);
+        }, POP_OUT_MS);
+      }
       setCelebrateKey((key) => key + 1);
       if (petTimer.current !== null) window.clearTimeout(petTimer.current);
       petTimer.current = null;
@@ -163,6 +200,7 @@ export function StudyEagle() {
       if (messageTimer.current !== null) window.clearTimeout(messageTimer.current);
       if (celebrateTimer.current !== null) window.clearTimeout(celebrateTimer.current);
       if (petTimer.current !== null) window.clearTimeout(petTimer.current);
+      if (popTimer.current !== null) window.clearTimeout(popTimer.current);
     };
   }, []);
 
@@ -218,8 +256,15 @@ export function StudyEagle() {
   function petEagle() {
     if (didDrag.current) return;
     setActivityVersion((version) => version + 1);
-    if (modeRef.current === "sleeping") {
-      setMode("awake");
+    // Tapping a popped-out eagle on a phone keeps it out.
+    if (popOut !== null) {
+      if (popTimer.current !== null) window.clearTimeout(popTimer.current);
+      popTimer.current = null;
+      setPopOut(null);
+      setRevealed(true);
+    }
+    if (isDozing(modeRef.current)) {
+      setMode("wakingUp");
       showStatus("Back already?");
       return;
     }
@@ -260,7 +305,7 @@ export function StudyEagle() {
 
   if (!enabled || perch === null) return null;
 
-  if (compact && !revealed) {
+  if (compact && !revealed && popOut === null) {
     return (
       <button
         type="button"
@@ -268,7 +313,7 @@ export function StudyEagle() {
         onClick={() => {
           setRevealed(true);
           setChatOpen(true);
-          setMode("awake");
+          if (isDozing(modeRef.current)) setMode("wakingUp");
           setActivityVersion((version) => version + 1);
         }}
         aria-label="Open Study Eagle"
@@ -286,7 +331,9 @@ export function StudyEagle() {
 
   return (
     <div
-      className={`study-eagle fixed z-[55] ${isDragging ? "study-eagle-dragging" : ""}`}
+      className={`study-eagle fixed z-[55] ${isDragging ? "study-eagle-dragging" : ""} ${
+        popOut ? `study-eagle-pop-${popOut}` : ""
+      }`}
       // Flush to the edge: the branch grows out of the side of the screen.
       style={{ right: 0, top, width: size.w }}
     >
@@ -367,7 +414,7 @@ export function StudyEagle() {
         )}
         <button
           type="button"
-          aria-label={`Study Eagle. ${mode === "sleeping" ? "Sleeping. " : ""}Tap to pet, drag the branch up or down.`}
+          aria-label={`Study Eagle. ${isDozing(mode) ? "Sleeping. " : ""}Tap to pet, drag the branch up or down.`}
           title="Tap to pet · drag the branch up or down"
           onClick={petEagle}
           onPointerDown={onPointerDown}
@@ -415,6 +462,11 @@ function PixelHeart() {
       )}
     </svg>
   );
+}
+
+/** Asleep or nodding off: anything that should wake it plays the wake-up. */
+function isDozing(mode: EagleMode) {
+  return mode === "sleeping" || mode === "fallingAsleep";
 }
 
 function clamp(value: number, min: number, max: number) {
