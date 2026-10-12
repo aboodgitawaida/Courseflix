@@ -2,7 +2,7 @@ import { Star, Plus, Check, GitCompare } from "lucide-react";
 import { toast } from "sonner";
 import { memo, useRef, useState } from "react";
 import { getArt, getBadges, getProgramMatch, type Course } from "@/lib/courses";
-import { FALLBACK_SUBJECT_IMAGE, getCourseImage } from "@/lib/subject-images";
+import { OFFLINE_SUBJECT_IMAGE, getCourseImage } from "@/lib/subject-images";
 import { useCourseUI } from "@/hooks/use-course-ui";
 import { useMajor } from "@/hooks/use-major";
 import { useAuth } from "@/hooks/use-auth";
@@ -194,7 +194,7 @@ export const CourseCard = memo(function CourseCard({
           alt={`${course.subject} department`}
           loading="lazy"
           decoding="async"
-          onError={() => setImageSrc(FALLBACK_SUBJECT_IMAGE)}
+          onError={() => setImageSrc(OFFLINE_SUBJECT_IMAGE)}
           className="absolute inset-0 h-full w-full object-cover opacity-45"
         />
         <Motif motif={art.motif} accent={art.accent} />

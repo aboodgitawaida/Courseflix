@@ -9,7 +9,7 @@ import { getMajor } from "@/lib/majors";
 import { useAuth } from "@/hooks/use-auth";
 import { useCourseStats, useShortlist, useToggleShortlist } from "@/lib/ratings";
 import { useCourseDescription } from "@/lib/course-description";
-import { FALLBACK_SUBJECT_IMAGE, getCourseImage } from "@/lib/subject-images";
+import { OFFLINE_SUBJECT_IMAGE, getCourseImage } from "@/lib/subject-images";
 import { PrereqTree } from "./PrereqTree";
 import { useEffect, useState } from "react";
 import { calendarUrl } from "@/lib/links";
@@ -78,7 +78,7 @@ export function CoursePreviewModal() {
                 alt={`${course.subject} department`}
                 loading="lazy"
                 decoding="async"
-                onError={() => setImageSrc(FALLBACK_SUBJECT_IMAGE)}
+                onError={() => setImageSrc(OFFLINE_SUBJECT_IMAGE)}
                 className="absolute inset-0 h-full w-full object-cover opacity-35"
               />
               <div className="absolute inset-x-0 bottom-0 h-2/3 bg-gradient-to-t from-[#121216] via-[#121216]/70 to-transparent" />
