@@ -112,6 +112,9 @@ export function StudyEagle() {
       const { course, context } =
         (event as CustomEvent<{ course?: Course; context?: "preview" | "page" }>).detail ?? {};
       if (!course) return;
+      // A new course is activity: wake up before reading it out.
+      setActivityVersion((version) => version + 1);
+      if (modeRef.current === "sleeping") setMode("awake");
       setSummaryCourseCode(course.code);
       setSummaryContext(context ?? "preview");
       const cached = peekDescriptions();
