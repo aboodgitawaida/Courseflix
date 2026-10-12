@@ -3,6 +3,7 @@ import { useQueries, useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import type { RatingRow } from "@/lib/ratings";
 import { getSessionUser } from "@/lib/session";
+import { celebrateEagle } from "@/lib/study-eagle";
 
 export type Achievement = {
   id: string;
@@ -108,7 +109,15 @@ export async function createAchievementNotifications(ids: string[]) {
       course_code: id,
     })),
   );
-  if (error && error.code !== "23505") throw error;
+  if (error) {
+    if (error.code !== "23505") throw error;
+    return; // another tab announced them first
+  }
+  celebrateEagle(
+    newIds.length === 1
+      ? `Unlocked: ${achievementDefinition(newIds[0])?.name ?? "a new badge"}!`
+      : `${newIds.length} achievements unlocked!`,
+  );
 }
 
 async function loadShortlist() {
