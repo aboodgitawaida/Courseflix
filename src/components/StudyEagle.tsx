@@ -5,7 +5,15 @@ import { getCourse, type Course } from "@/lib/courses";
 import { loadDescriptions, peekDescriptions } from "@/lib/course-description";
 import { useEagle } from "@/hooks/use-eagle";
 
-type EagleMode = "awake" | "fallingAsleep" | "sleeping" | "wakingUp" | "celebrating" | "petting";
+const SPRITE_MODES = [
+  "awake",
+  "fallingAsleep",
+  "sleeping",
+  "wakingUp",
+  "celebrating",
+  "petting",
+] as const;
+type EagleMode = (typeof SPRITE_MODES)[number];
 
 const EAGLE_REPLIES = [
   "Try the course preview first, then shortlist anything that still feels like a good fit.",
@@ -423,16 +431,24 @@ export function StudyEagle() {
           onPointerCancel={onPointerUp}
           className="study-eagle-button"
         >
-          <span
-            key={
-              mode === "celebrating"
-                ? `celebrate-${celebrateKey}`
-                : mode === "petting"
-                  ? `pet-${petKey}`
-                  : mode
-            }
-            className={`study-eagle-sprite study-eagle-sprite-${mode}`}
-          />
+          {/* One layer per sheet, always mounted, so switching states never swaps the
+              image on an element (some browsers draw a blank frame while they do).
+              Only the active layer shows and animates; becoming active starts its
+              animation from frame 1. A repeat pet or celebration remounts that layer. */}
+          {SPRITE_MODES.map((sprite) => (
+            <span
+              key={
+                sprite === "celebrating"
+                  ? `celebrate-${celebrateKey}`
+                  : sprite === "petting"
+                    ? `pet-${petKey}`
+                    : sprite
+              }
+              className={`study-eagle-sprite study-eagle-sprite-${sprite} ${
+                sprite === mode ? "is-active" : ""
+              }`}
+            />
+          ))}
         </button>
         <div className="study-eagle-controls">
           <button
