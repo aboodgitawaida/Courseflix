@@ -22,7 +22,18 @@ The animated frames get one consistent eye drawn in (fix_eye), because the
 animation model's eyes sat under a low, slanted brow that looked sad. The beak and
 eye colours get their own slice of the palette so they keep their shading.
 
-Run: python3 scripts/build-eagle-sprites.py
+Run: python3 -I scripts/build-eagle-sprites.py
+
+Making new eagle animations (PixelLab, see scripts/pixellab.py):
+  1. The request bodies live in assets/eagle-src/requests/. Every animation starts and
+     ends on pixellab-base-awake.png and/or pixellab-base-sleep.png (80x80, branch in the
+     same place), so the branch can be locked and the frames line up with the others.
+  2. python3 -I scripts/pixellab.py call animate-with-text-v3 assets/eagle-src/requests/<name>.json /tmp/<name>
+     One generation per call; one job at a time. Frame 0 of the output is the input
+     frame, so keep frames 1-8 and save them side by side as assets/eagle-src/pixellab-<name>.png.
+  3. Add <name> to pixellab_frames(...) below and follow how fallasleep80 is handled
+     (specks, branch lock, palette snap, fix_eye, crop box, output), then add its CSS
+     class and timing in src/styles.css and src/components/StudyEagle.tsx.
 """
 from collections import deque
 from pathlib import Path
