@@ -1,3 +1,9 @@
+/**
+ * Set to false to hide Rate My Professors scores and review counts site-wide
+ * (for example, if RMP asks us to stop). Profiles still link to RMP.
+ */
+export const SHOW_RMP_SCORES = true;
+
 export type ProfessorRating = {
   name: string;
   institution: "University of Toronto at Mississauga" | "University of Toronto - St. George Campus";

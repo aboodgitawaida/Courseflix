@@ -55,3 +55,7 @@ Free Supabase projects pause after about a week without activity. `.github/workf
 
 - Course catalogue and descriptions: `src/lib/utm-catalog.ts` and `src/lib/course-descriptions.ts`, generated from the UTM Academic Calendar.
 - After changing the catalogue, run `npm run sitemap` to regenerate `public/sitemap.xml`.
+
+## Rate My Professors scores
+
+Professor ratings shown on course pages come from Rate My Professors (`src/lib/professor-ratings.ts`). To hide every score and review count, for example if RMP asks, set `SHOW_RMP_SCORES = false` in that file and deploy. Professors then show a plain "View on Rate My Professors" link instead.
