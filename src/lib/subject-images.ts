@@ -1,3 +1,5 @@
+import offlineImage from "@/assets/subjects/default.jpg";
+
 export type SubjectCode =
   | "CSC"
   | "CS"
@@ -73,6 +75,10 @@ export type SubjectCode =
   | "UTM";
 
 const UNSPLASH_PARAMS = "?auto=format&fit=crop&w=400&q=80";
+
+// Shown when a remote photo fails to load (offline, slow or blocked network),
+// so cards never fall back to broken-image alt text.
+export const OFFLINE_SUBJECT_IMAGE = offlineImage;
 
 export const FALLBACK_SUBJECT_IMAGE = `https://images.unsplash.com/photo-1451187580459-43490279c0fa${UNSPLASH_PARAMS}`;
 

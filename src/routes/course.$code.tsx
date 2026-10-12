@@ -6,7 +6,7 @@ import { PrereqTree } from "@/components/PrereqTree";
 import { COURSES, getCourse } from "@/lib/courses";
 import { useAuth } from "@/hooks/use-auth";
 import { useCourseStats, useShortlist, useToggleShortlist } from "@/lib/ratings";
-import { FALLBACK_SUBJECT_IMAGE, getCourseImage } from "@/lib/subject-images";
+import { OFFLINE_SUBJECT_IMAGE, getCourseImage } from "@/lib/subject-images";
 import { calendarUrl } from "@/lib/links";
 import { toast } from "sonner";
 import {
@@ -137,7 +137,7 @@ function CoursePage() {
           src={imageSrc}
           alt=""
           aria-hidden="true"
-          onError={() => setImageSrc(FALLBACK_SUBJECT_IMAGE)}
+          onError={() => setImageSrc(OFFLINE_SUBJECT_IMAGE)}
           className="hero-course-image absolute inset-0 -z-10 h-full w-full scale-105 object-cover opacity-40 blur-[2px]"
         />
         <div className="absolute inset-0 -z-10 bg-gradient-to-r from-background via-background/80 to-background/30" />

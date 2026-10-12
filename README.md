@@ -45,7 +45,14 @@ Day-to-day running (migrations, moderation, reported reviews) is documented in [
 
 ## How it was built
 
-I designed and run CourseFlix: the product, the data model, the privacy and security decisions, and what ships. I build with AI coding tools: the project started from a Lovable scaffold, and much of the implementation was written with Claude Code, which is why many commits are authored by Claude. I review, test and deploy every change.
+I built CourseFlix with AI coding tools. It started from a Lovable scaffold, and much of the code was written with Claude Code, which is why many commits are authored by Claude. My job was deciding what the product should be and holding the work to that: I set the requirements, made the trade-offs, reviewed and tested changes on the live site, and ran the database and launch setup myself.
+
+Some of the calls I made along the way:
+
+- **Instant sign-up, verified reviews.** Forcing email confirmation up front made signing up feel like a chore, but dropping it entirely would let anyone post reviews under someone else's email. I chose the middle ground: anyone can browse, save and add friends instantly, and only posting a review needs a confirmed email.
+- **Any email, not just UofT.** Students shouldn't need a school address to plan courses.
+- **Lenient moderation.** Students should be able to say a course or professor is bad. Only threats, hate, harassment, someone's private information and spam are blocked; everything else is published, and anything that slips through can be reported.
+- **Free to run.** The whole stack runs on free tiers. A scheduled job keeps the free database from pausing, and paid features (like automated moderation) are optional switches rather than requirements.
 
 ## Project layout
 
