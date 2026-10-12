@@ -6,6 +6,7 @@ import { recordSubjectInterest } from "@/lib/interest";
 import { getSessionUser } from "@/lib/session";
 import { submitReview } from "@/lib/submit-review";
 import type { User } from "@supabase/supabase-js";
+import { celebrateEagle } from "@/lib/study-eagle";
 
 export type RatingRow = {
   id: string;
@@ -135,7 +136,18 @@ export function useSubmitRating(code: string) {
       const result = await submitReview({ data: input });
       if (result.error) throw new Error(result.error);
     },
-    onSuccess: () => {
+    // Remember whether this is a first review of the course (not an edit) before
+    // the caches refresh, so only new reviews get a celebration.
+    onMutate: () => {
+      const onCourse = queryClient.getQueryData<PublicReview[]>(["ratings", code]) ?? [];
+      const mine = queryClient.getQueriesData<RatingRow[]>({ queryKey: ["my-ratings"] });
+      const reviewedBefore =
+        onCourse.some((review) => review.is_mine) ||
+        mine.some(([, rows]) => rows?.some((row) => row.course_code === code));
+      return { reviewedBefore };
+    },
+    onSuccess: (_data, _input, context) => {
+      if (!context?.reviewedBefore) celebrateEagle("Thanks for the review!");
       void queryClient.invalidateQueries({ queryKey: ["ratings", code] });
       void queryClient.invalidateQueries({ queryKey: ["rating-stats"] });
       void queryClient.invalidateQueries({ queryKey: ["my-ratings"] });
@@ -228,7 +240,7 @@ export function useToggleShortlist() {
     onSuccess: (_data, { code, saved }) => {
       announce(saved ? `${code} removed from your shortlist.` : `${code} added to your shortlist.`);
       if (!saved) {
-        window.dispatchEvent(new CustomEvent("study-eagle-celebrate", { detail: { code } }));
+        celebrateEagle("Nice pick!");
         recordSubjectInterest(code.replace(/[0-9].*$/, ""), 2);
       }
     },
