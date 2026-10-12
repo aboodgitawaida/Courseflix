@@ -390,9 +390,13 @@
   background-size: 200% 100%;
 }
 
+/* Above dialog overlays (z-50), so the eagle and its course summary stay
+   visible and tappable while a course preview is open. Radix turns off
+   pointer events on <body> for modal dialogs, so opt back in. */
 .study-eagle {
   user-select: none;
   touch-action: none;
+  pointer-events: auto;
 }
 .study-eagle-panel,
 .study-eagle-controls,
@@ -489,7 +493,8 @@
 /* Phones: tucked away as a small round button above the tab bar until tapped. */
 .study-eagle-tuck {
   position: fixed;
-  z-index: 45;
+  z-index: 55;
+  pointer-events: auto;
   right: 12px;
   bottom: calc(88px + env(safe-area-inset-bottom));
   display: grid;
