@@ -60,7 +60,16 @@ export function CoursePreviewModal() {
 
   return (
     <Dialog open={open} onOpenChange={(v) => !v && closePreview()}>
-      <DialogContent className="max-w-3xl overflow-hidden border-white/10 bg-[#121216] p-0 shadow-2xl shadow-brand/10 sm:rounded-[2rem]">
+      <DialogContent
+        className="max-w-3xl overflow-hidden border-white/10 bg-[#121216] p-0 shadow-2xl shadow-brand/10 sm:rounded-[2rem]"
+        // The Study Eagle sits above the preview with a summary of this course;
+        // tapping it shouldn't count as a click outside that closes the preview.
+        onInteractOutside={(event) => {
+          if ((event.target as Element | null)?.closest?.(".study-eagle, .study-eagle-tuck")) {
+            event.preventDefault();
+          }
+        }}
+      >
         {course && (
           <div className="max-h-[85vh] overflow-y-auto">
             <div className={`relative aspect-[16/7] bg-gradient-to-br ${art.gradient}`}>
