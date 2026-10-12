@@ -5,6 +5,8 @@
   pixellab-idle.png           PixelLab animation from the awake frame: blink + head turn (8 x 80x80)
   pixellab-celebrate.png      PixelLab animation from the awake frame: wing-flap (8 x 80x80)
   pixellab-pet.png            PixelLab animation from the awake frame: happy head-bob (8 x 80x80)
+  pixellab-fallasleep.png     PixelLab animation, awake frame -> sleep frame 1: eyes droop, head sinks (8 x 80x80)
+  pixellab-wakeup.png         PixelLab animation, sleep frame 1 -> awake frame: head up, wing stretch (8 x 80x80)
 
 Outputs share one frame size, transparent with crisp pixels and one palette. The
 branch is identical in every frame and the sheets are mirrored so the branch's
@@ -13,6 +15,8 @@ cut end sits against the right edge of the screen:
   public/eagle-sleep.png      4 frames
   public/eagle-celebrate.png  8 frames (played once)
   public/eagle-pet.png        8 frames (played once per tap)
+  public/eagle-fallasleep.png 8 frames (played once, awake -> sleeping)
+  public/eagle-wakeup.png     8 frames (played once, sleeping -> awake)
 
 The animated frames get one consistent eye drawn in (fix_eye), because the
 animation model's eyes sat under a low, slanted brow that looked sad. The beak and
@@ -153,7 +157,8 @@ def pixellab_frames(name):
 
 
 awake80 = shift(awake)
-idle80, celebrate80, pet80 = (pixellab_frames(n) for n in ("idle", "celebrate", "pet"))
+idle80, celebrate80, pet80, fallasleep80, wakeup80 = (
+    pixellab_frames(n) for n in ("idle", "celebrate", "pet", "fallasleep", "wakeup"))
 
 
 def drop_specks(f, min_size=40):
@@ -176,10 +181,12 @@ def drop_specks(f, min_size=40):
 idle80 = [drop_specks(f) for f in idle80]
 celebrate80 = [drop_specks(f) for f in celebrate80]
 pet80 = [drop_specks(f) for f in pet80]
+fallasleep80 = [drop_specks(f) for f in fallasleep80]
+wakeup80 = [drop_specks(f) for f in wakeup80]
 
 # lock the branch (and tail) below the feet to the awake frame, so it never flickers
 LOCK = 61 + dy
-for f in idle80 + celebrate80 + pet80 + sleep80:
+for f in idle80 + celebrate80 + pet80 + fallasleep80 + wakeup80 + sleep80:
     f[LOCK:] = awake80[LOCK:]
 
 # one shared palette for all four art sources. The beak and eyes (warm oranges and
@@ -221,8 +228,11 @@ def snap2(f):
     return f
 
 
-sleep80, idle80, celebrate80, pet80 = (
-    [snap2(f) for f in group] for group in (sleep80, idle80, celebrate80, pet80))
+# (the sleep/wake transitions came later; they snap to the same palette rather than
+# re-running it, so adding them left the other sheets unchanged)
+sleep80, idle80, celebrate80, pet80, fallasleep80, wakeup80 = (
+    [snap2(f) for f in group]
+    for group in (sleep80, idle80, celebrate80, pet80, fallasleep80, wakeup80))
 
 
 # ---------- 4. one friendly eye for every animated frame ----------
@@ -253,17 +263,20 @@ def eye_clusters(f):
     return out
 
 
-def fix_eye(f, blink=False):
+def fix_eye(f, blink=False, reopen=False):
     """Redraw the open eye: round yellow eye, dark pupil, glint, and a curved brow
-    (an arch above the eye instead of a low slanted line). A blink frame is left alone;
-    any other frame whose eye the model squeezed shut (mid wing-flap) gets an open eye,
-    placed from the two old brow marks that sit above it in every frame."""
+    (an arch above the eye instead of a low slanted line). Blinks and closed eyes are
+    left alone, unless reopen is set: the celebration's mid wing-flap frame, where the
+    model squeezed the eye shut, gets an open eye placed from the two old brow marks
+    that sit above it in every frame."""
     if blink:
         return f
     f = f.copy(); rgb = f[..., :3].astype(int)
     clusters = eye_clusters(f)
     dark = lambda c: sum(1 for y, x in c if rgb[y, x].sum() < 120)
     eyes = [c for c in clusters if dark(c) > 0 and len(c) <= 24]   # eye, sometimes joined to its brow
+    if not eyes and not reopen:
+        return f
     if eyes:
         eye = max(eyes, key=dark)
         dk = [(y, x) for y, x in eye if rgb[y, x].sum() < 120]
@@ -295,11 +308,15 @@ def fix_eye(f, blink=False):
 
 
 idle80 = [fix_eye(f, blink=i == 0) for i, f in enumerate(idle80)]   # idle frame 0 is the blink
-celebrate80, pet80 = ([fix_eye(f) for f in group] for group in (celebrate80, pet80))
+celebrate80 = [fix_eye(f, reopen=True) for f in celebrate80]
+pet80, wakeup80 = ([fix_eye(f) for f in group] for group in (pet80, wakeup80))
+# falling asleep: the eyes are drowsy but open for 4 frames, then shut (keep those shut)
+fallasleep80 = [fix_eye(f, blink=i >= 4) for i, f in enumerate(fallasleep80)]
 
 # one shared frame: starts at the branch's cut end (wing tips past it go "off screen")
 STUB_X = 16 + 1
-al = np.any([f[..., 3] > 0 for f in sleep80 + idle80 + celebrate80 + pet80], axis=0)
+al = np.any([f[..., 3] > 0 for f in sleep80 + idle80 + celebrate80 + pet80 + fallasleep80 + wakeup80],
+            axis=0)
 ys, xs = np.nonzero(al)
 y0, y1, x1 = ys.min(), ys.max() + 1, xs.max() + 1
 
@@ -334,6 +351,6 @@ def finish(frames):
 
 
 for name, frames in (("eagle-awake", idle80), ("eagle-sleep", sleep80), ("eagle-celebrate", celebrate80),
-                     ("eagle-pet", pet80)):
+                     ("eagle-pet", pet80), ("eagle-fallasleep", fallasleep80), ("eagle-wakeup", wakeup80)):
     Image.fromarray(finish(frames), "RGBA").save(OUT / f"{name}.png", optimize=True)
-print("frame size", x1 - STUB_X, "x", y1 - y0, "| wrote eagle-awake, eagle-sleep, eagle-celebrate, eagle-pet")
+print("frame size", x1 - STUB_X, "x", y1 - y0, "| wrote eagle-awake, -sleep, -celebrate, -pet, -fallasleep, -wakeup")
