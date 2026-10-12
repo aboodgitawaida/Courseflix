@@ -5,7 +5,7 @@
   pixellab-idle.png           PixelLab animation from the awake frame: blink + head turn (8 x 80x80)
   pixellab-celebrate.png      PixelLab animation from the awake frame: wing-flap (8 x 80x80)
   pixellab-pet.png            PixelLab animation from the awake frame: happy head-bob (8 x 80x80)
-  pixellab-fallasleep.png     PixelLab animation, awake frame -> sleep frame 1: eyes droop, head sinks (8 x 80x80)
+  pixellab-fallasleep.png     PixelLab animation, awake frame -> sleep frame 1: a yawn, then the head sinks (8 x 80x80)
   pixellab-wakeup.png         PixelLab animation, sleep frame 1 -> awake frame: head up, wing stretch (8 x 80x80)
 
 Outputs share one frame size, transparent with crisp pixels and one palette. The
@@ -310,7 +310,7 @@ def fix_eye(f, blink=False, reopen=False):
 idle80 = [fix_eye(f, blink=i == 0) for i, f in enumerate(idle80)]   # idle frame 0 is the blink
 celebrate80 = [fix_eye(f, reopen=True) for f in celebrate80]
 pet80, wakeup80 = ([fix_eye(f) for f in group] for group in (pet80, wakeup80))
-# falling asleep: the eyes are drowsy but open for 4 frames, then shut (keep those shut)
+# falling asleep: eyes open through the start of the yawn, then sleepy and shut (keep those)
 fallasleep80 = [fix_eye(f, blink=i >= 4) for i, f in enumerate(fallasleep80)]
 
 # one shared frame: starts at the branch's cut end (wing tips past it go "off screen")

@@ -19,7 +19,7 @@ const DEFAULT_PERCH = 0.62;
 const SLEEP_AFTER_MS = 20_000;
 const CELEBRATE_MS = 1_100; // matches the 8-frame wing-flap in styles.css
 const PET_MS = 900; // matches the 8-frame head-bob in styles.css
-const FALL_ASLEEP_MS = 1_600; // matches the 8-frame droop in styles.css
+const FALL_ASLEEP_MS = 2_000; // matches the 8-frame yawn in styles.css
 const WAKE_UP_MS = 1_200; // matches the 8-frame stretch in styles.css
 /** On phones a celebration pops the tucked-away eagle out for this long. */
 const POP_OUT_MS = 3_000;
