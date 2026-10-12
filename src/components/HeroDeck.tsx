@@ -8,7 +8,7 @@ import { prefersReducedMotion } from "@/hooks/use-reveal";
 import { useShortlist, useToggleShortlist } from "@/lib/ratings";
 import { useDescriptions } from "@/lib/course-description";
 import { FEATURED_DESCRIPTIONS } from "@/lib/featured-descriptions";
-import { FALLBACK_SUBJECT_IMAGE, getCourseImage } from "@/lib/subject-images";
+import { OFFLINE_SUBJECT_IMAGE, getCourseImage } from "@/lib/subject-images";
 
 const AUTO_MS = 6000;
 const LEAVE_MS = 650;
@@ -39,7 +39,7 @@ function DeckArt({ course, eager }: { course: Course; eager: boolean }) {
       draggable={false}
       loading={eager ? "eager" : "lazy"}
       decoding="async"
-      onError={() => setSrc(FALLBACK_SUBJECT_IMAGE)}
+      onError={() => setSrc(OFFLINE_SUBJECT_IMAGE)}
       className="hero-course-image absolute inset-0 h-full w-full object-cover opacity-70"
     />
   );
