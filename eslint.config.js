@@ -32,7 +32,14 @@ export default tseslint.config(
           ],
         },
       ],
-      "react-refresh/only-export-components": ["warn", { allowConstantExport: true }],
+      "react-refresh/only-export-components": [
+        "warn",
+        {
+          allowConstantExport: true,
+          // Context providers export their hook alongside the component.
+          allowExportNames: ["buttonVariants", "useCourseUI", "useEagle", "useSound", "useTheme"],
+        },
+      ],
       "@typescript-eslint/no-unused-vars": "off",
     },
   },
