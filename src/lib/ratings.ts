@@ -110,6 +110,44 @@ export function useCourseStats(code: string) {
   });
 }
 
+// A course turns gold once this many students have called it a bird course.
+export const BIRD_COURSE_THRESHOLD = 2;
+
+async function fetchBirdMentions() {
+  const { data, error } = await supabase
+    .from("bird_course_mentions")
+    .select("course_code, bird_mentions");
+  if (error) throw new Error(`Could not load bird courses: ${error.message}`);
+  const mentions = new Map<string, number>();
+  for (const row of data ?? []) {
+    if (typeof row.course_code === "string") {
+      mentions.set(row.course_code, Number(row.bird_mentions ?? 0));
+    }
+  }
+  return mentions;
+}
+
+// One small request covers every card on a page; the view has one row per course
+// that at least one review calls a bird course.
+export function useBirdCourses() {
+  return useQuery({
+    queryKey: ["bird-courses"],
+    queryFn: fetchBirdMentions,
+    staleTime: 5 * 60_000,
+    retry: 1,
+  });
+}
+
+export function useBirdMentions(code: string) {
+  return useQuery({
+    queryKey: ["bird-courses"],
+    queryFn: fetchBirdMentions,
+    select: (mentions) => mentions.get(code) ?? 0,
+    staleTime: 5 * 60_000,
+    retry: 1,
+  });
+}
+
 export type RatingInput = {
   course_code: string;
   rating: number;
