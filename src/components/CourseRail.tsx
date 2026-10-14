@@ -9,10 +9,12 @@ export const CourseRail = memo(function CourseRail({
   rail,
   loading = false,
   index = 0,
+  gold = false,
 }: {
   rail: Rail;
   loading?: boolean;
   index?: number;
+  gold?: boolean;
 }) {
   const ref = useRef<HTMLDivElement>(null);
   const [hover, setHover] = useState(false);
@@ -42,8 +44,12 @@ export const CourseRail = memo(function CourseRail({
         >
           {number}
         </span>
-        <div className="min-w-0 flex-1 border-b border-white/[0.08] pb-3">
-          <h2 className="font-display text-xl font-bold tracking-tight text-white md:text-3xl">
+        <div
+          className={`min-w-0 flex-1 border-b ${gold ? "border-amber-400/40" : "border-white/[0.08]"} pb-3`}
+        >
+          <h2
+            className={`font-display text-xl font-bold tracking-tight md:text-3xl ${gold ? "text-amber-300" : "text-white"}`}
+          >
             {rail.title}
           </h2>
           {rail.blurb && <p className="mt-1 text-sm text-neutral-500">{rail.blurb}</p>}
