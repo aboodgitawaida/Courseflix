@@ -2,17 +2,14 @@
 // Collects UTM course comments from r/UTM and r/UofT through Reddit's official API.
 // Writes data/reddit-reviews.json grouped by course code. Never touches Supabase.
 //
-// Setup: create a "script" app at https://www.reddit.com/prefs/apps, then
-//   REDDIT_CLIENT_ID=... REDDIT_CLIENT_SECRET=... node scripts/scrape-reddit-reviews.mjs
+// Run: npm run reddit-reviews
+// Works without keys through Reddit's public JSON pages. If you have an approved
+// API app, set REDDIT_CLIENT_ID and REDDIT_CLIENT_SECRET to use OAuth instead.
 // Optional: REDDIT_QUERIES="bird course,easy course" REDDIT_MAX_POSTS=50
 
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 
 const { REDDIT_CLIENT_ID, REDDIT_CLIENT_SECRET } = process.env;
-if (!REDDIT_CLIENT_ID || !REDDIT_CLIENT_SECRET) {
-  console.error("Set REDDIT_CLIENT_ID and REDDIT_CLIENT_SECRET (see header comment).");
-  process.exit(1);
-}
 
 const USER_AGENT = "courseflix-review-collector/1.0";
 const OUT = "data/reddit-reviews.json";
@@ -37,6 +34,7 @@ const COURSE_RE = /\b([A-Z]{3})\s?(\d{3})(?:\s?([HY])(\d))?/gi;
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
 async function getToken() {
+  if (!REDDIT_CLIENT_ID || !REDDIT_CLIENT_SECRET) return null;
   const res = await fetch("https://www.reddit.com/api/v1/access_token", {
     method: "POST",
     headers: {
@@ -52,10 +50,14 @@ async function getToken() {
 
 async function api(token, path) {
   // Stay well under Reddit's 100 requests/minute limit.
-  await sleep(700);
-  const res = await fetch(`https://oauth.reddit.com${path}`, {
-    headers: { Authorization: `Bearer ${token}`, "User-Agent": USER_AGENT },
-  });
+  // Public pages allow far fewer requests than OAuth, so wait longer without a token.
+  await sleep(token ? 700 : 2500);
+  const url = token
+    ? `https://oauth.reddit.com${path}`
+    : `https://www.reddit.com${path.replace(/^([^?]*)/, "$1.json")}`;
+  const headers = { "User-Agent": USER_AGENT };
+  if (token) headers.Authorization = `Bearer ${token}`;
+  const res = await fetch(url, { headers });
   if (res.status === 429) {
     await sleep(60_000);
     return api(token, path);
