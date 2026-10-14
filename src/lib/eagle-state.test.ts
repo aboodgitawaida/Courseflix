@@ -24,7 +24,8 @@ describe("eagle state machine", () => {
   });
 
   it("wakes up first, and a pet only wakes him", () => {
-    expect(request("sleeping", "petting")).toEqual({ mode: "wakingUp" });
+    expect(request("sleeping", "petting")).toEqual({ mode: "startled" });
+    expect(request("sleeping", "wakingUp")).toEqual({ mode: "wakingUp" });
     expect(request("fallingAsleep", "celebrating")).toEqual({
       mode: "wakingUp",
       queued: "celebrating",
@@ -32,7 +33,11 @@ describe("eagle state machine", () => {
     expect(request("sleeping", "grinding")).toEqual({ mode: "wakingUp", queued: "grinding" });
   });
 
-  it("queues a celebration that arrives mid-stretch", () => {
+  it("queues a celebration that arrives mid-wake-up", () => {
+    expect(request("startled", "celebrating")).toEqual({
+      mode: "startled",
+      queued: "celebrating",
+    });
     expect(request("wakingUp", "celebrating")).toEqual({
       mode: "wakingUp",
       queued: "celebrating",

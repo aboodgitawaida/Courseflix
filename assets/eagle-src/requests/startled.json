@@ -1,0 +1,8 @@
+{
+  "first_frame": "@assets/eagle-src/pixellab-base-sleep.png",
+  "last_frame": "@assets/eagle-src/pixellab-base-awake.png",
+  "action": "startled awake while perched on the branch: jolts upright in surprise, eyes snap wide open, feathers puff out and wings flare slightly away from the body for a moment, a quick little hop on the branch, then it settles alert; feet stay gripping the branch",
+  "frame_count": 8,
+  "seed": 53,
+  "no_background": true
+}

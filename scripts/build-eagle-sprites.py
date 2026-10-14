@@ -8,6 +8,7 @@
   pixellab-fallasleep.png     PixelLab animation, awake frame -> sleep frame 1: a yawn, then the head sinks (8 x 80x80)
   pixellab-wakeup.png         PixelLab animation, sleep frame 1 -> awake frame: head up, wing stretch (8 x 80x80)
   pixellab-reading.png        PixelLab animation from the awake frame: takes out a book and reads it (12 x 80x80)
+  pixellab-grind.png          PixelLab animation from the awake frame: takes out a notepad and scribbles (12 x 80x80)
 
 Outputs share one frame size, transparent with crisp pixels and one palette. The
 branch is identical in every frame and the sheets are mirrored so the branch's
@@ -20,6 +21,7 @@ cut end sits against the right edge of the screen:
   public/eagle-wakeup.png     8 frames (played once, sleeping -> awake)
   public/eagle-reading-open.png 6 frames (played once: takes out the book and opens it)
   public/eagle-reading.png    6 frames (loop: reading the open book)
+  public/eagle-grind.png      6 frames (loop: scribbling in the notepad)
 
 The animated frames get one consistent eye drawn in (fix_eye), because the
 animation model's eyes sat under a low, slanted brow that looked sad. The beak and
@@ -171,8 +173,9 @@ def pixellab_frames(name):
 
 
 awake80 = shift(awake)
-idle80, celebrate80, pet80, fallasleep80, wakeup80, reading80 = (
-    pixellab_frames(n) for n in ("idle", "celebrate", "pet", "fallasleep", "wakeup", "reading"))
+idle80, celebrate80, pet80, fallasleep80, wakeup80, reading80, grind80 = (
+    pixellab_frames(n)
+    for n in ("idle", "celebrate", "pet", "fallasleep", "wakeup", "reading", "grind"))
 
 
 def drop_specks(f, min_size=40):
@@ -198,10 +201,11 @@ pet80 = [drop_specks(f) for f in pet80]
 fallasleep80 = [drop_specks(f) for f in fallasleep80]
 wakeup80 = [drop_specks(f) for f in wakeup80]
 reading80 = [drop_specks(f) for f in reading80]
+grind80 = [drop_specks(f) for f in grind80]
 
 # lock the branch (and tail) below the feet to the awake frame, so it never flickers
 LOCK = 61 + dy
-for f in idle80 + celebrate80 + pet80 + fallasleep80 + wakeup80 + reading80 + sleep80:
+for f in idle80 + celebrate80 + pet80 + fallasleep80 + wakeup80 + reading80 + grind80 + sleep80:
     f[LOCK:] = awake80[LOCK:]
 
 # one shared palette for all four art sources. The beak and eyes (warm oranges and
@@ -271,6 +275,7 @@ def snap_extra(frames, k=8, far=900):
 
 
 reading80 = snap_extra(reading80)
+grind80 = snap_extra(grind80)
 
 
 # ---------- 4. one friendly eye for every animated frame ----------
@@ -372,7 +377,7 @@ fallasleep80 = [fix_eye(f, blink=i >= 4) for i, f in enumerate(fallasleep80)]
 # one shared frame: starts at the branch's cut end (wing tips past it go "off screen")
 STUB_X = 16 + 1
 al = np.any([f[..., 3] > 0 for f in sleep80 + idle80 + celebrate80 + pet80 + fallasleep80 + wakeup80
-             + reading80], axis=0)
+             + reading80 + grind80], axis=0)
 ys, xs = np.nonzero(al)
 y0, y1, x1 = ys.min(), ys.max() + 1, xs.max() + 1
 
@@ -411,7 +416,15 @@ READING_OPEN = 6   # frames 0-5: takes out the book and opens it; 6-11: reads it
 Image.fromarray(finish(reading80[:READING_OPEN]), "RGBA").save(OUT / "eagle-reading-open.png", optimize=True)
 Image.fromarray(finish(reading80[READING_OPEN:]), "RGBA").save(OUT / "eagle-reading.png", optimize=True)
 
+# ---------- 8. grind: only the scribbling half loops, so cramming starts at once ----------
+GRIND_LOOP = 6   # frames 0-5 take the notepad out; 6-11 scribble
+GRIND_STREAK_FROM = 46  # the model drops a white streak below the notepad; nothing white belongs there
+grind = finish(grind80[GRIND_LOOP:])
+low = grind[GRIND_STREAK_FROM:]
+low[(low[..., 3] > 0) & (low[..., :3].min(2) >= 200)] = 0
+Image.fromarray(grind, "RGBA").save(OUT / "eagle-grind.png", optimize=True)
+
 for name, frames in (("eagle-awake", idle80), ("eagle-sleep", sleep80), ("eagle-celebrate", celebrate80),
                      ("eagle-pet", pet80), ("eagle-fallasleep", fallasleep80), ("eagle-wakeup", wakeup80)):
     Image.fromarray(finish(frames), "RGBA").save(OUT / f"{name}.png", optimize=True)
-print("frame size", x1 - STUB_X, "x", y1 - y0, "| wrote eagle-awake, -sleep, -celebrate, -pet, -fallasleep, -wakeup, -reading-open, -reading")
+print("frame size", x1 - STUB_X, "x", y1 - y0, "| wrote eagle-awake, -sleep, -celebrate, -pet, -fallasleep, -wakeup, -reading-open, -reading, -grind")
