@@ -48,7 +48,7 @@ export const MODE_DURATION_MS: Partial<Record<EagleMode, number>> = {
   celebrating: 1_100, // 8-frame wing-flap
   petting: 900, // 8-frame head-bob
   openingBook: 900, // 6 frames: takes out the book
-  openingGlass: 600, // 4 frames: raises the magnifying glass
+  openingGlass: 750, // 5 frames: takes out the magnifying glass
 };
 
 /** What's going on around the eagle that decides where he settles. */
