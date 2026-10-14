@@ -552,6 +552,13 @@
   background-size: 600% 100%;
   animation: eagle-reading-frames 0.7s steps(6, jump-none) infinite;
 }
+/* Startled: 8-frame jolt awake when tapped while asleep; played once
+   (MODE_DURATION_MS in eagle-state.ts). */
+.study-eagle-sprite-startled {
+  background-image: url("/eagle-startled.png");
+  background-size: 800% 100%;
+  animation: eagle-reading-frames 1s steps(8, jump-none) forwards;
+}
 /* Every sheet has its own layer (StudyEagle.tsx); only the active one shows. With
    no animation, a layer that becomes active starts again from frame 1. */
 .study-eagle-sprite:not(.is-active) {
