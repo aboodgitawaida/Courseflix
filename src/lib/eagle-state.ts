@@ -12,6 +12,7 @@ export const EAGLE_MODES = [
   "fallingAsleep",
   "sleeping",
   "wakingUp",
+  "startled",
   "celebrating",
   "petting",
   "openingBook",
@@ -28,6 +29,7 @@ export const MODE_PRIORITY: Record<EagleMode, number> = {
   reading: 0,
   grinding: 1,
   wakingUp: 2,
+  startled: 2,
   petting: 2,
   celebrating: 3,
 };
@@ -36,6 +38,7 @@ export const MODE_PRIORITY: Record<EagleMode, number> = {
 export const MODE_DURATION_MS: Partial<Record<EagleMode, number>> = {
   fallingAsleep: 2_000, // 8-frame yawn
   wakingUp: 1_200, // 8-frame stretch
+  startled: 1_000, // 8-frame jolt awake
   celebrating: 1_100, // 8-frame wing-flap
   petting: 900, // 8-frame head-bob
   openingBook: 900, // 6 frames: takes out the book
@@ -79,15 +82,15 @@ export function request(
   current: EagleMode,
   wanted: EagleMode,
 ): { mode: EagleMode; queued?: EagleMode } | null {
-  // Anything that needs him awake wakes him first. A pet only wakes him.
+  // Anything that needs him awake wakes him first. Tapping a sleeping eagle
+  // startles him awake (and that's all it does); anything else gets the stretch.
   if (isDozing(current) && MODE_PRIORITY[wanted] > 0) {
-    return wanted === "petting" || wanted === "wakingUp"
-      ? { mode: "wakingUp" }
-      : { mode: "wakingUp", queued: wanted };
+    if (wanted === "petting") return { mode: "startled" };
+    return wanted === "wakingUp" ? { mode: "wakingUp" } : { mode: "wakingUp", queued: wanted };
   }
-  // A celebration during the stretch waits for it to finish.
-  if (current === "wakingUp" && wanted === "celebrating") {
-    return { mode: "wakingUp", queued: "celebrating" };
+  // A celebration during the wake-up waits for it to finish.
+  if ((current === "wakingUp" || current === "startled") && wanted === "celebrating") {
+    return { mode: current, queued: "celebrating" };
   }
   if (MODE_PRIORITY[wanted] < MODE_PRIORITY[current]) return null;
   return { mode: wanted };

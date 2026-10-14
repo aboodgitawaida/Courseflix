@@ -47,7 +47,7 @@ const EAGLE_REPLIES = EAGLE_LINES.tips;
 /** Where the perch sits on the right edge, as a fraction of the viewport height. */
 const PERCH_KEY = "courseflix.eagle.perchY";
 const DEFAULT_PERCH = 0.62;
-const SLEEP_AFTER_MS = 20_000;
+const SLEEP_AFTER_MS = 10_000;
 /** On phones a celebration pops the tucked-away eagle out for this long. */
 const POP_OUT_MS = 3_000;
 const POP_OUT_EXIT_MS = 250; // the slide back out in styles.css
@@ -589,7 +589,7 @@ export function StudyEagle() {
         onClick={() => {
           setRevealed(true);
           openChat();
-          if (isDozing(modeRef.current)) go("wakingUp");
+          if (isDozing(modeRef.current)) go("petting"); // tapping a sleeping eagle startles him awake
         }}
         aria-label="Open Study Eagle"
         title="Study Eagle"
