@@ -29,7 +29,7 @@ export function TopNav() {
     }`;
 
   return (
-    <header className="sticky top-0 z-50 px-3 pt-3 md:px-6">
+    <header className="sticky top-0 z-[var(--z-nav)] px-3 pt-3 md:px-6">
       <div
         className={`glass mx-auto flex h-14 items-center gap-2 rounded-full pl-5 pr-2 transition-all duration-500 md:gap-3 ${
           scrolled

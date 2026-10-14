@@ -390,10 +390,24 @@
   background-size: 200% 100%;
 }
 
+/* One stacking scale for the floating layers. Values match what each layer
+   used before; use these names for anything new that floats.
+   Tailwind: z-[var(--z-nav)] etc. */
+:root {
+  --z-rail: 40;
+  --z-nav: 50; /* top nav, phone tab bar, compare drawer */
+  --z-dialog: 50; /* course preview and other dialogs */
+  --z-eagle: 55;
+  --z-eagle-panel: 56;
+  --z-toast: 60; /* install prompt, offline banner */
+  --z-intro: 100;
+}
+
 /* Above dialog overlays (z-50), so the eagle and its course summary stay
    visible and tappable while a course preview is open. Radix turns off
    pointer events on <body> for modal dialogs, so opt back in. */
 .study-eagle {
+  z-index: var(--z-eagle);
   user-select: none;
   touch-action: none;
   pointer-events: auto;
@@ -405,6 +419,55 @@
 }
 .study-eagle-dragging {
   cursor: grabbing;
+}
+/* Desktop: docked next to the eagle, wherever it doesn't cover the tree
+   (placed by StudyEagle with eagle-layout.ts). */
+.study-eagle-docked {
+  position: fixed;
+  z-index: var(--z-eagle-panel);
+}
+/* Phones and tablets: a bottom sheet above the tab bar. */
+.study-eagle-sheet {
+  position: fixed;
+  z-index: var(--z-eagle-panel);
+  left: 12px;
+  right: 12px;
+  bottom: calc(88px + env(safe-area-inset-bottom));
+  max-height: 45vh;
+  overflow-y: auto;
+  margin-inline: auto;
+  max-width: 32rem;
+  animation: eagle-sheet-in 0.2s ease-out;
+}
+@keyframes eagle-sheet-in {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+}
+/* An auto-opened summary that had no free spot: a small tappable note instead. */
+.study-eagle-teaser {
+  position: absolute;
+  right: 0;
+  bottom: calc(100% + 6px);
+  width: max-content;
+  max-width: 220px;
+  border: 1px solid rgb(251 191 36 / 0.45);
+  border-radius: 12px;
+  padding: 7px 10px;
+  color: rgb(254 243 199 / 0.95);
+  background: rgb(23 18 13 / 0.94);
+  box-shadow: 0 8px 24px rgb(0 0 0 / 0.28);
+  font-size: 11px;
+  font-weight: 600;
+  pointer-events: auto;
+}
+.study-eagle-teaser:hover {
+  border-color: rgb(251 191 36 / 0.8);
+}
+.study-eagle-teaser:focus-visible {
+  outline: 2px solid rgb(251 191 36 / 0.8);
+  outline-offset: 2px;
 }
 /* The perched eagle: sprite sheets of 56x68px frames (scripts/build-eagle-sprites.py),
    scaled up 2x on desktop and 1.5x on phones with crisp pixels. The branch grows
@@ -546,7 +609,7 @@
 /* Phones: tucked away as a small round button above the tab bar until tapped. */
 .study-eagle-tuck {
   position: fixed;
-  z-index: 55;
+  z-index: var(--z-eagle);
   pointer-events: auto;
   right: 12px;
   bottom: calc(88px + env(safe-area-inset-bottom));
@@ -722,6 +785,7 @@
   .study-eagle-celebrating .study-eagle-button,
   .study-eagle-pop-in,
   .study-eagle-pop-out,
+  .study-eagle-sheet,
   .study-eagle-confetti {
     animation: none;
     transition: none;

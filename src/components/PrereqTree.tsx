@@ -47,7 +47,8 @@ export function PrereqTree({ code }: { code: string }) {
   }
 
   return (
-    <div className="flex flex-wrap items-center gap-3">
+    // The Study Eagle's chat panel keeps clear of anything marked data-eagle-avoid.
+    <div className="flex flex-wrap items-center gap-3" data-eagle-avoid>
       {prereqs.length > 0 && (
         <>
           <div className="flex flex-wrap gap-2">
