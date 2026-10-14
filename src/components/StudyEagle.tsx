@@ -66,6 +66,7 @@ const EAGLE_SHEETS = [
   "/eagle-reading-open.png",
   "/eagle-reading.png",
   "/eagle-grind.png",
+  "/eagle-startled.png",
 ];
 // Holding the decoded images keeps them in memory for the life of the page.
 let preloadedSheets: HTMLImageElement[] | null = null;

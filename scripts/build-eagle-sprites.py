@@ -8,6 +8,7 @@
   pixellab-fallasleep.png     PixelLab animation, awake frame -> sleep frame 1: a yawn, then the head sinks (8 x 80x80)
   pixellab-wakeup.png         PixelLab animation, sleep frame 1 -> awake frame: head up, wing stretch (8 x 80x80)
   pixellab-reading.png        PixelLab animation from the awake frame: takes out a book and reads it (12 x 80x80)
+  pixellab-startled.png       PixelLab animation, sleep frame 1 -> awake frame: jolts awake, shock marks (8 x 80x80)
   pixellab-grind.png          PixelLab animation from the awake frame: takes out a notepad and scribbles (12 x 80x80)
 
 Outputs share one frame size, transparent with crisp pixels and one palette. The
@@ -22,6 +23,7 @@ cut end sits against the right edge of the screen:
   public/eagle-reading-open.png 6 frames (played once: takes out the book and opens it)
   public/eagle-reading.png    6 frames (loop: reading the open book)
   public/eagle-grind.png      6 frames (loop: scribbling in the notepad)
+  public/eagle-startled.png   8 frames (played once: tapped while asleep)
 
 The animated frames get one consistent eye drawn in (fix_eye), because the
 animation model's eyes sat under a low, slanted brow that looked sad. The beak and
@@ -176,6 +178,27 @@ awake80 = shift(awake)
 idle80, celebrate80, pet80, fallasleep80, wakeup80, reading80, grind80 = (
     pixellab_frames(n)
     for n in ("idle", "celebrate", "pet", "fallasleep", "wakeup", "reading", "grind"))
+# no drop_specks here: the little shock marks around his head are small on purpose
+startled80 = pixellab_frames("startled")
+
+
+def mossy(f):
+    rgb = f[..., :3].astype(int)
+    return (f[..., 3] > 0) & (rgb[..., 1] > rgb[..., 0] + 8) & (rgb[..., 1] > rgb[..., 2] + 8)
+
+
+def onto_branch(f):
+    """The model lifts the branch with the eagle when he jumps; move the whole frame
+    so its branch sits on the real one, or locking the branch would draw it twice."""
+    by, bx = best_shift(mossy(awake80), mossy(f), 10)
+    out = np.zeros_like(f)
+    h, w = f.shape[:2]
+    out[max(by, 0):h + min(by, 0), max(bx, 0):w + min(bx, 0)] = \
+        f[max(-by, 0):h + min(-by, 0), max(-bx, 0):w + min(-bx, 0)]
+    return out
+
+
+startled80 = [onto_branch(f) for f in startled80]
 
 
 def drop_specks(f, min_size=40):
@@ -205,7 +228,8 @@ grind80 = [drop_specks(f) for f in grind80]
 
 # lock the branch (and tail) below the feet to the awake frame, so it never flickers
 LOCK = 61 + dy
-for f in idle80 + celebrate80 + pet80 + fallasleep80 + wakeup80 + reading80 + grind80 + sleep80:
+for f in (idle80 + celebrate80 + pet80 + fallasleep80 + wakeup80 + reading80 + grind80 + startled80
+          + sleep80):
     f[LOCK:] = awake80[LOCK:]
 
 # one shared palette for all four art sources. The beak and eyes (warm oranges and
@@ -276,6 +300,7 @@ def snap_extra(frames, k=8, far=900):
 
 reading80 = snap_extra(reading80)
 grind80 = snap_extra(grind80)
+startled80 = snap_extra(startled80)
 
 
 # ---------- 4. one friendly eye for every animated frame ----------
@@ -377,7 +402,7 @@ fallasleep80 = [fix_eye(f, blink=i >= 4) for i, f in enumerate(fallasleep80)]
 # one shared frame: starts at the branch's cut end (wing tips past it go "off screen")
 STUB_X = 16 + 1
 al = np.any([f[..., 3] > 0 for f in sleep80 + idle80 + celebrate80 + pet80 + fallasleep80 + wakeup80
-             + reading80 + grind80], axis=0)
+             + reading80 + grind80 + startled80], axis=0)
 ys, xs = np.nonzero(al)
 y0, y1, x1 = ys.min(), ys.max() + 1, xs.max() + 1
 
@@ -424,7 +449,10 @@ low = grind[GRIND_STREAK_FROM:]
 low[(low[..., 3] > 0) & (low[..., :3].min(2) >= 200)] = 0
 Image.fromarray(grind, "RGBA").save(OUT / "eagle-grind.png", optimize=True)
 
+# ---------- 9. startled: tapped while asleep ----------
+Image.fromarray(finish(startled80), "RGBA").save(OUT / "eagle-startled.png", optimize=True)
+
 for name, frames in (("eagle-awake", idle80), ("eagle-sleep", sleep80), ("eagle-celebrate", celebrate80),
                      ("eagle-pet", pet80), ("eagle-fallasleep", fallasleep80), ("eagle-wakeup", wakeup80)):
     Image.fromarray(finish(frames), "RGBA").save(OUT / f"{name}.png", optimize=True)
-print("frame size", x1 - STUB_X, "x", y1 - y0, "| wrote eagle-awake, -sleep, -celebrate, -pet, -fallasleep, -wakeup, -reading-open, -reading, -grind")
+print("frame size", x1 - STUB_X, "x", y1 - y0, "| wrote eagle-awake, -sleep, -celebrate, -pet, -fallasleep, -wakeup, -reading-open, -reading, -grind, -startled")
