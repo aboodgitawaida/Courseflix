@@ -1,0 +1,8 @@
+{
+  "first_frame": "@assets/eagle-src/pixellab-base-awake.png",
+  "action": "studying: the eagle pulls out a tiny open textbook, grips it in both wings at chest height, and reads it closely, eyes scanning left to right, occasionally nodding",
+  "frame_count": 12,
+  "seed": 37,
+  "enhance_prompt": false,
+  "no_background": true
+}

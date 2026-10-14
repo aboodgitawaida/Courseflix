@@ -35,7 +35,8 @@ if (RANKINGS[arg]) {
     .filter((r) => r.yes + r.no >= MIN)
     .sort((a, b) => b.share - a.share || b.yes - a.yes)
     .slice(0, 30);
-  for (const r of rows) console.log(`${r.code}  ${Math.round(r.share * 100)}% ${good}  (${r.yes} vs ${r.no} ${bad})`);
+  for (const r of rows)
+    console.log(`${r.code}  ${Math.round(r.share * 100)}% ${good}  (${r.yes} vs ${r.no} ${bad})`);
 } else {
   const s = courses[arg.toUpperCase()];
   console.log(s ? JSON.stringify(s, null, 2) : `No data for ${arg}`);

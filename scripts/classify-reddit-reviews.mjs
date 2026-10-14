@@ -53,7 +53,10 @@ const SCHEMA = {
         type: "object",
         properties: {
           index: { type: "integer" },
-          sentiment: { type: "string", enum: ["positive", "negative", "mixed", "neutral", "not_about_course"] },
+          sentiment: {
+            type: "string",
+            enum: ["positive", "negative", "mixed", "neutral", "not_about_course"],
+          },
           difficulty: { type: "string", enum: ["easy", "medium", "hard", "unknown"] },
           workload: { type: "string", enum: ["light", "heavy", "unknown"] },
           interest: { type: "string", enum: ["interesting", "boring", "unknown"] },
@@ -72,7 +75,16 @@ const SCHEMA = {
           tip: { type: "string" },
           summary: { type: "string" },
         },
-        required: ["index", "sentiment", "difficulty", "workload", "interest", "professors", "tip", "summary"],
+        required: [
+          "index",
+          "sentiment",
+          "difficulty",
+          "workload",
+          "interest",
+          "professors",
+          "tip",
+          "summary",
+        ],
         additionalProperties: false,
       },
     },
@@ -83,7 +95,10 @@ const SCHEMA = {
 
 async function classify(items) {
   const content = items
-    .map((it, i) => `<item index="${i}" course="${it.code}">\n${it.entry.text.slice(0, 2000)}\n</item>`)
+    .map(
+      (it, i) =>
+        `<item index="${i}" course="${it.code}">\n${it.entry.text.slice(0, 2000)}\n</item>`,
+    )
     .join("\n");
   const response = await client.messages.create({
     model: "claude-haiku-5-5",
@@ -104,7 +119,8 @@ function summarize(courses) {
     if (!about.length) continue;
     const count = (field) => {
       const c = {};
-      for (const e of about) if (e.labels[field] !== "unknown") c[e.labels[field]] = (c[e.labels[field]] ?? 0) + 1;
+      for (const e of about)
+        if (e.labels[field] !== "unknown") c[e.labels[field]] = (c[e.labels[field]] ?? 0) + 1;
       return c;
     };
     const profs = {};
@@ -122,7 +138,10 @@ function summarize(courses) {
       workload: count("workload"),
       interest: count("interest"),
       professors: profs,
-      tips: about.map((e) => e.labels.tip).filter(Boolean).slice(0, 10),
+      tips: about
+        .map((e) => e.labels.tip)
+        .filter(Boolean)
+        .slice(0, 10),
     };
   }
   return Object.fromEntries(Object.entries(summary).sort((a, b) => b[1].comments - a[1].comments));
@@ -169,7 +188,10 @@ async function main() {
   }
   const updated = new Date().toISOString();
   await writeFile(POSITIVE_OUT, JSON.stringify({ updated, courses: positive }, null, 2));
-  await writeFile(SUMMARY_OUT, JSON.stringify({ updated, courses: summarize(data.courses) }, null, 2));
+  await writeFile(
+    SUMMARY_OUT,
+    JSON.stringify({ updated, courses: summarize(data.courses) }, null, 2),
+  );
   const total = Object.values(positive).reduce((n, l) => n + l.length, 0);
   console.log(`Saved ${total} positive comments to ${POSITIVE_OUT}`);
   console.log(`Saved per-course summary to ${SUMMARY_OUT}`);

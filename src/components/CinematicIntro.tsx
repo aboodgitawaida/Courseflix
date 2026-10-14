@@ -42,7 +42,7 @@ export function CinematicIntro() {
   return (
     <div
       role="presentation"
-      className="cinematic-overlay fixed inset-0 z-[100] flex items-center justify-center overflow-hidden bg-black"
+      className="cinematic-overlay fixed inset-0 z-[var(--z-intro)] flex items-center justify-center overflow-hidden bg-black"
       onClick={() => finish()}
     >
       <div className="cinematic-ambient pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-red-950/40 via-black to-black" />

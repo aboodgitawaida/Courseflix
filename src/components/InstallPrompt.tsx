@@ -76,7 +76,7 @@ export function InstallPrompt() {
     <div
       role="dialog"
       aria-label="Install Courseflix"
-      className="above-tabbar glass fixed inset-x-3 z-[60] mx-auto flex max-w-md items-center gap-3 rounded-3xl bg-background/90 p-3 pl-4 shadow-2xl shadow-black/60 animate-fade-in-up lg:hidden"
+      className="above-tabbar glass fixed inset-x-3 z-[var(--z-toast)] mx-auto flex max-w-md items-center gap-3 rounded-3xl bg-background/90 p-3 pl-4 shadow-2xl shadow-black/60 animate-fade-in-up lg:hidden"
     >
       <img src="/icon-192.png" alt="" className="h-11 w-11 shrink-0 rounded-xl" />
       <div className="min-w-0 flex-1">
