@@ -1,8 +1,0 @@
-{
-  "first_frame": "@assets/eagle-src/pixellab-base-weighing.png",
-  "last_frame": "@assets/eagle-src/pixellab-base-weighing.png",
-  "action": "the golden balance scale held in the eagle's wing tips back and forth like a real scale: the left pan swings down while the right pan swings up, then the right pan swings down while the left pan swings up, the beam tilting with them; the eagle, its head, wings, the scale's handle and the branch stay perfectly still",
-  "frame_count": 8,
-  "seed": 101,
-  "no_background": true
-}
