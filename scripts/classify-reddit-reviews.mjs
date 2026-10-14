@@ -5,7 +5,10 @@
 //   data/reddit-positive.json        positive comments per course
 //   data/reddit-course-summary.json  per-course counts (easy vs hard, etc.), sorted by comments
 // Run after scrape-reddit-reviews.mjs:
-//   ANTHROPIC_API_KEY=... node scripts/classify-reddit-reviews.mjs
+//   node scripts/classify-reddit-reviews.mjs            free, uses a local Ollama model
+//   ANTHROPIC_API_KEY=... node scripts/classify-reddit-reviews.mjs   paid, uses Claude
+// Ollama: install from https://ollama.com, then `ollama pull llama3.1:8b`.
+// Pick another local model with OLLAMA_MODEL=...
 // Results are cached on each comment, so reruns only classify new comments.
 
 import { readFile, writeFile } from "node:fs/promises";
@@ -14,17 +17,17 @@ import Anthropic from "@anthropic-ai/sdk";
 const IN = "data/reddit-reviews.json";
 const POSITIVE_OUT = "data/reddit-positive.json";
 const SUMMARY_OUT = "data/reddit-course-summary.json";
-const BATCH = 25;
+const USE_CLAUDE = Boolean(process.env.ANTHROPIC_API_KEY);
+const OLLAMA_URL = process.env.OLLAMA_URL ?? "http://localhost:11434";
+const OLLAMA_MODEL = process.env.OLLAMA_MODEL ?? "llama3.1:8b";
+// A small local model does better with fewer comments at once, and the Mac runs one at a time.
+const BATCH = USE_CLAUDE ? 25 : 5;
 // Batches sent to Claude at the same time.
-const CONCURRENCY = Number(process.env.CLASSIFY_CONCURRENCY ?? 5);
+const CONCURRENCY = Number(process.env.CLASSIFY_CONCURRENCY ?? (USE_CLAUDE ? 5 : 1));
 // Bump when the labels change so older entries are classified again.
 const VERSION = 2;
 
-if (!process.env.ANTHROPIC_API_KEY) {
-  console.error("Set ANTHROPIC_API_KEY (from https://console.anthropic.com/settings/keys).");
-  process.exit(1);
-}
-const client = new Anthropic({ maxRetries: 4 });
+const client = USE_CLAUDE ? new Anthropic({ maxRetries: 4 }) : null;
 
 const SYSTEM = `You label Reddit comments from University of Toronto Mississauga students.
 Each item gives a course code and a comment that mentions it. Judge only what the
@@ -93,6 +96,48 @@ const SCHEMA = {
   additionalProperties: false,
 };
 
+async function classifyLocal(content) {
+  let res;
+  try {
+    res = await fetch(`${OLLAMA_URL}/api/chat`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        model: OLLAMA_MODEL,
+        stream: false,
+        format: SCHEMA,
+        options: { temperature: 0 },
+        messages: [
+          { role: "system", content: SYSTEM },
+          { role: "user", content },
+        ],
+      }),
+    });
+  } catch {
+    throw new Error(
+      `Could not reach Ollama at ${OLLAMA_URL}. Open the Ollama app, or set ANTHROPIC_API_KEY to use Claude.`,
+    );
+  }
+  if (!res.ok) throw new Error(`Ollama ${res.status}: ${(await res.text()).slice(0, 200)}`);
+  return JSON.parse((await res.json()).message.content).results;
+}
+
+async function checkOllama() {
+  let tags;
+  try {
+    tags = await (await fetch(`${OLLAMA_URL}/api/tags`)).json();
+  } catch {
+    console.error("Ollama is not running. Install it from https://ollama.com and open the app,");
+    console.error("or set ANTHROPIC_API_KEY to use Claude instead.");
+    process.exit(1);
+  }
+  const names = (tags.models ?? []).map((m) => m.name);
+  if (!names.some((n) => n === OLLAMA_MODEL || n.startsWith(`${OLLAMA_MODEL}:`))) {
+    console.error(`The model ${OLLAMA_MODEL} is not downloaded. Run: ollama pull ${OLLAMA_MODEL}`);
+    process.exit(1);
+  }
+}
+
 async function classify(items) {
   const content = items
     .map(
@@ -100,6 +145,7 @@ async function classify(items) {
         `<item index="${i}" course="${it.code}">\n${it.entry.text.slice(0, 2000)}\n</item>`,
     )
     .join("\n");
+  if (!USE_CLAUDE) return classifyLocal(content);
   const response = await client.messages.create({
     model: "claude-haiku-5-5",
     max_tokens: 16000,
@@ -155,6 +201,8 @@ async function main() {
   }
   const batches = [];
   for (let i = 0; i < pending.length; i += BATCH) batches.push(pending.slice(i, i + BATCH));
+  if (!USE_CLAUDE) await checkOllama();
+  console.log(`Using ${USE_CLAUDE ? "Claude (paid)" : `${OLLAMA_MODEL} on this computer (free)`}`);
   console.log(`${pending.length} comments to classify in ${batches.length} batches`);
 
   let finished = 0;
