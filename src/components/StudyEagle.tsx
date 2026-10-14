@@ -126,7 +126,7 @@ export function StudyEagle() {
   const focusPanel = useRef(false);
   const pathname = useRouterState({ select: (state) => state.location.pathname });
   const course = getCurrentCourse(pathname);
-  const { openPreview, setSearchOpen } = useCourseUI();
+  const { previewCode, openPreview, setSearchOpen } = useCourseUI();
   const { data: allStats, isError: statsFailed } = useAllCourseStats(
     enabled && (chatOpen || !!summaryCourseCode),
   );
@@ -137,8 +137,8 @@ export function StudyEagle() {
       ? courseSummary(summaryCourseCode, summaryText, allStats?.get(summaryCourseCode))
       : null;
   const typed = useTypewriter(summary ?? "", summaryRun);
-  // While a summary streams in a visible panel, he reads it from a little book.
-  const reading = !!summary && !typed.done && chatOpen && !collapsed;
+  // He reads along the whole time a course preview is open.
+  const reading = !!previewCode;
 
   useEffect(() => {
     modeRef.current = mode;

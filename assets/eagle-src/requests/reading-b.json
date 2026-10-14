@@ -1,0 +1,8 @@
+{
+  "first_frame": "@assets/eagle-src/pixellab-base-awake.png",
+  "action": "eagle reading a book: holds an open brown book with its two wings in front of its belly, looks down into it, head turns slowly side to side as it reads each line",
+  "frame_count": 12,
+  "seed": 23,
+  "enhance_prompt": true,
+  "no_background": true
+}

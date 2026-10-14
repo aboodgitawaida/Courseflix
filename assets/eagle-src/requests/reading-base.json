@@ -1,0 +1,7 @@
+{
+  "description": "the bald eagle holds a small open book up in front of its chest with both wing tips, like hands; the open pages face the eagle and its head looks down at them; dark brown leather cover, cream pages",
+  "inpainting_image": "@assets/eagle-src/pixellab-base-awake.png",
+  "mask_image": "@assets/eagle-src/reading-book-mask.png",
+  "no_background": true,
+  "crop_to_mask": true
+}
