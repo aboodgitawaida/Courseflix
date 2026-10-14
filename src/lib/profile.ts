@@ -9,7 +9,7 @@ import goose from "@/assets/avatars/goose.webp";
 import maanjiwe from "@/assets/avatars/maanjiwe.webp";
 import coffee from "@/assets/avatars/coffee.webp";
 import { getSessionUser } from "@/lib/session";
-import { celebrateEagle } from "@/lib/study-eagle";
+import { celebrateEagleWith } from "@/lib/study-eagle";
 
 export type Profile = {
   id: string;
@@ -153,7 +153,7 @@ export function useUpdateProfile() {
     onSuccess: (profile) => {
       const before = qc.getQueryData<Profile | null>(["profile", profile.id]);
       if (before && !isProfileComplete(before) && isProfileComplete(profile)) {
-        celebrateEagle("Profile complete!");
+        celebrateEagleWith("profileComplete");
       }
       qc.setQueryData(["profile", profile.id], profile);
       void qc.invalidateQueries({ queryKey: ["profile-search"] });

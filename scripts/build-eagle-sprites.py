@@ -274,12 +274,13 @@ def eye_clusters(f):
     return out
 
 
-def fix_eye(f, blink=False, reopen=False):
+def fix_eye(f, blink=False, reopen=False, tidy_brow=False):
     """Redraw the open eye: round yellow eye, dark pupil, glint, and a curved brow
     (an arch above the eye instead of a low slanted line). Blinks and closed eyes are
     left alone, unless reopen is set: the celebration's mid wing-flap frame, where the
     model squeezed the eye shut, gets an open eye placed from the two old brow marks
-    that sit above it in every frame."""
+    that sit above it in every frame. tidy_brow also whitens stray grey marks left
+    just above and behind the new brow (the celebration's old brow streaks)."""
     if blink:
         return f
     f = f.copy(); rgb = f[..., :3].astype(int)
@@ -315,11 +316,28 @@ def fix_eye(f, blink=False, reopen=False):
              (0, -1): IRIS, (0, 0): PUPIL, (0, 1): PUPIL, (0, 2): IRIS}
     for (dy, dx), col in stamp.items():
         f[py + 1 + dy, px + dx] = (*col, 255)
+    if tidy_brow:
+        stamped = {(py + 1 + dy, px + dx) for dy, dx in stamp}
+        rgb = f[..., :3].astype(int)
+        whiteish = lambda y, x: f[y, x, 3] and rgb[y, x].min() >= 195
+        changed = True
+        while changed:                # repeat so a streak is eaten in from its ends
+            changed = False
+            for y in range(py - 4, py + 1):
+                for x in range(px - 4, px + 4):
+                    if (y, x) in stamped or not f[y, x, 3] or whiteish(y, x):
+                        continue
+                    c = rgb[y, x]
+                    if c.max() - c.min() > 15 or c.sum() < 200:
+                        continue      # coloured or dark: beak, outline, pupil
+                    nbrs = [(y - 1, x), (y + 1, x), (y, x - 1), (y, x + 1)]
+                    if all(f[ny, nx, 3] for ny, nx in nbrs) and sum(whiteish(ny, nx) for ny, nx in nbrs) >= 2:
+                        f[y, x, :3] = HEAD_WHITE; rgb[y, x] = HEAD_WHITE; changed = True
     return f
 
 
 idle80 = [fix_eye(f, blink=i == 0) for i, f in enumerate(idle80)]   # idle frame 0 is the blink
-celebrate80 = [fix_eye(f, reopen=True) for f in celebrate80]
+celebrate80 = [fix_eye(f, reopen=True, tidy_brow=True) for f in celebrate80]
 pet80, wakeup80 = ([fix_eye(f) for f in group] for group in (pet80, wakeup80))
 # falling asleep: eyes open through the start of the yawn, then sleepy and shut (keep those)
 fallasleep80 = [fix_eye(f, blink=i >= 4) for i, f in enumerate(fallasleep80)]
