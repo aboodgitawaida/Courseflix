@@ -55,7 +55,8 @@ async function redditSource() {
   const res = await fetch("https://www.reddit.com/api/v1/access_token", {
     method: "POST",
     headers: {
-      Authorization: "Basic " + Buffer.from(`${REDDIT_CLIENT_ID}:${REDDIT_CLIENT_SECRET}`).toString("base64"),
+      Authorization:
+        "Basic " + Buffer.from(`${REDDIT_CLIENT_ID}:${REDDIT_CLIENT_SECRET}`).toString("base64"),
       "Content-Type": "application/x-www-form-urlencoded",
       "User-Agent": USER_AGENT,
     },
@@ -66,12 +67,21 @@ async function redditSource() {
 
   return {
     async posts(sub, q) {
-      const params = new URLSearchParams({ q, restrict_sr: "1", sort: "relevance", t: "all", limit: "100" });
+      const params = new URLSearchParams({
+        q,
+        restrict_sr: "1",
+        sort: "relevance",
+        t: "all",
+        limit: "100",
+      });
       const listing = await getJson(`https://oauth.reddit.com/r/${sub}/search?${params}`, auth);
       return listing.data.children.map((c) => c.data);
     },
     async comments(post) {
-      const [, comments] = await getJson(`https://oauth.reddit.com/comments/${post.id}?limit=500&depth=10`, auth);
+      const [, comments] = await getJson(
+        `https://oauth.reddit.com/comments/${post.id}?limit=500&depth=10`,
+        auth,
+      );
       return flatten(comments.data.children);
     },
   };
@@ -148,11 +158,16 @@ async function main() {
     if (!process.env.REDDIT_REFRESH) done = new Set(saved.doneSearches ?? []);
     cursors = saved.cursors ?? {};
   } catch {}
-  const seenComments = new Set(Object.values(courses).flat().map((r) => r.id));
+  const seenComments = new Set(
+    Object.values(courses)
+      .flat()
+      .map((r) => r.id),
+  );
   const seenPosts = new Set();
 
   const add = (c, sub, thread, utmOnly) => {
-    if (!c.body || c.body === "[deleted]" || c.body === "[removed]" || seenComments.has(c.id)) return;
+    if (!c.body || c.body === "[deleted]" || c.body === "[removed]" || seenComments.has(c.id))
+      return;
     const codes = courseCodes(c.body, utmOnly);
     if (!codes.length) return;
     seenComments.add(c.id);
@@ -173,13 +188,17 @@ async function main() {
   if (!useReddit) {
     // Page through all of r/UTM. Each page's last timestamp is saved, so a rerun resumes.
     let after = cursors.UTM;
-    console.log(`Reading every r/UTM comment${after ? ` after ${new Date(after * 1000).toISOString().slice(0, 10)}` : ""}...`);
+    console.log(
+      `Reading every r/UTM comment${after ? ` after ${new Date(after * 1000).toISOString().slice(0, 10)}` : ""}...`,
+    );
     for (;;) {
       let page;
       try {
         page = await source.allComments("UTM", after);
       } catch (e) {
-        console.log(`Stopped at ${after ? new Date(after * 1000).toISOString().slice(0, 10) : "start"}; rerun to continue. (${e.message.slice(-60)})`);
+        console.log(
+          `Stopped at ${after ? new Date(after * 1000).toISOString().slice(0, 10) : "start"}; rerun to continue. (${e.message.slice(-60)})`,
+        );
         break;
       }
       if (!page.length) break;
@@ -187,7 +206,9 @@ async function main() {
       after = page.at(-1).created_utc;
       cursors.UTM = after;
       await save(courses, done, cursors);
-      console.log(`  up to ${new Date(after * 1000).toISOString().slice(0, 10)}: ${seenComments.size} course comments`);
+      console.log(
+        `  up to ${new Date(after * 1000).toISOString().slice(0, 10)}: ${seenComments.size} course comments`,
+      );
     }
   }
 

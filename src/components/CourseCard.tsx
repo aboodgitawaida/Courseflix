@@ -1,4 +1,4 @@
-import { Star, Plus, Check, GitCompare } from "lucide-react";
+import { Star, Plus, Check, GitCompare, Feather } from "lucide-react";
 import { toast } from "sonner";
 import { memo, useRef, useState } from "react";
 import { getArt, getBadges, getProgramMatch, type Course } from "@/lib/courses";
@@ -6,7 +6,13 @@ import { OFFLINE_SUBJECT_IMAGE, getCourseImage } from "@/lib/subject-images";
 import { useCourseUI } from "@/hooks/use-course-ui";
 import { useMajor } from "@/hooks/use-major";
 import { useAuth } from "@/hooks/use-auth";
-import { useCourseStats, useShortlist, useToggleShortlist } from "@/lib/ratings";
+import {
+  BIRD_COURSE_THRESHOLD,
+  useBirdMentions,
+  useCourseStats,
+  useShortlist,
+  useToggleShortlist,
+} from "@/lib/ratings";
 import { useSound } from "@/hooks/use-sound";
 import { Burst } from "@/components/Burst";
 
@@ -103,6 +109,8 @@ export const CourseCard = memo(function CourseCard({
   const { data: saved = [] } = useShortlist();
   const toggle = useToggleShortlist();
   const { data: stats } = useCourseStats(course.code);
+  const { data: birdMentions = 0 } = useBirdMentions(course.code);
+  const isBird = birdMentions >= BIRD_COURSE_THRESHOLD;
   const displayRating = stats?.rating_count ? stats.avg_rating : null;
   const inList = (saved as string[]).includes(course.code);
   const inCompare = compare.includes(course.code);
@@ -185,7 +193,7 @@ export const CourseCard = memo(function CourseCard({
           openPreview(course.code);
         }
       }}
-      className={`tilt-card group relative shrink-0 ${w} cursor-pointer rounded-[20px] border border-white/[0.08] bg-surface overflow-hidden focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/70`}
+      className={`tilt-card group relative shrink-0 ${w} cursor-pointer rounded-[20px] border ${isBird ? "border-amber-400/60 shadow-[0_0_24px_-6px_rgba(251,191,36,0.55)]" : "border-white/[0.08]"} bg-surface overflow-hidden focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/70`}
     >
       <div className="tilt-glare" aria-hidden="true" />
       <div className={`course-card-art relative aspect-video bg-gradient-to-br ${art.gradient}`}>
@@ -203,6 +211,14 @@ export const CourseCard = memo(function CourseCard({
         <div className="absolute top-2 left-2 rounded-lg border border-white/[0.12] bg-white/[0.08] px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-white/80">
           {course.area}
         </div>
+        {isBird && (
+          <div
+            title={`${birdMentions} students call this a bird course`}
+            className="absolute top-9 left-2 flex items-center gap-1 rounded-lg border border-amber-300/60 bg-amber-400/90 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-black"
+          >
+            <Feather className="h-3 w-3" /> Bird course
+          </div>
+        )}
 
         <div className="absolute top-2 right-2 flex items-center gap-1.5 transition lg:opacity-0 lg:group-hover:opacity-100 lg:focus-within:opacity-100">
           <button

@@ -390,10 +390,24 @@
   background-size: 200% 100%;
 }
 
+/* One stacking scale for the floating layers. Values match what each layer
+   used before; use these names for anything new that floats.
+   Tailwind: z-[var(--z-nav)] etc. */
+:root {
+  --z-rail: 40;
+  --z-nav: 50; /* top nav, phone tab bar, compare drawer */
+  --z-dialog: 50; /* course preview and other dialogs */
+  --z-eagle: 55;
+  --z-eagle-panel: 56;
+  --z-toast: 60; /* install prompt, offline banner */
+  --z-intro: 100;
+}
+
 /* Above dialog overlays (z-50), so the eagle and its course summary stay
    visible and tappable while a course preview is open. Radix turns off
    pointer events on <body> for modal dialogs, so opt back in. */
 .study-eagle {
+  z-index: var(--z-eagle);
   user-select: none;
   touch-action: none;
   pointer-events: auto;
@@ -405,6 +419,55 @@
 }
 .study-eagle-dragging {
   cursor: grabbing;
+}
+/* Desktop: docked next to the eagle, wherever it doesn't cover the tree
+   (placed by StudyEagle with eagle-layout.ts). */
+.study-eagle-docked {
+  position: fixed;
+  z-index: var(--z-eagle-panel);
+}
+/* Phones and tablets: a bottom sheet above the tab bar. */
+.study-eagle-sheet {
+  position: fixed;
+  z-index: var(--z-eagle-panel);
+  left: 12px;
+  right: 12px;
+  bottom: calc(88px + env(safe-area-inset-bottom));
+  max-height: 45vh;
+  overflow-y: auto;
+  margin-inline: auto;
+  max-width: 32rem;
+  animation: eagle-sheet-in 0.2s ease-out;
+}
+@keyframes eagle-sheet-in {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+}
+/* An auto-opened summary that had no free spot: a small tappable note instead. */
+.study-eagle-teaser {
+  position: absolute;
+  right: 0;
+  bottom: calc(100% + 6px);
+  width: max-content;
+  max-width: 220px;
+  border: 1px solid rgb(251 191 36 / 0.45);
+  border-radius: 12px;
+  padding: 7px 10px;
+  color: rgb(254 243 199 / 0.95);
+  background: rgb(23 18 13 / 0.94);
+  box-shadow: 0 8px 24px rgb(0 0 0 / 0.28);
+  font-size: 11px;
+  font-weight: 600;
+  pointer-events: auto;
+}
+.study-eagle-teaser:hover {
+  border-color: rgb(251 191 36 / 0.8);
+}
+.study-eagle-teaser:focus-visible {
+  outline: 2px solid rgb(251 191 36 / 0.8);
+  outline-offset: 2px;
 }
 /* The perched eagle: sprite sheets of 56x68px frames (scripts/build-eagle-sprites.py),
    scaled up 2x on desktop and 1.5x on phones with crisp pixels. The branch grows
@@ -468,6 +531,20 @@
   background-size: 800% 100%;
   animation: eagle-wakeup-frames 1.2s steps(8, jump-none) forwards;
 }
+/* Opening the book: 6 frames, takes a book out and opens it; played once
+   (OPEN_BOOK_MS in StudyEagle.tsx) when a course preview opens. */
+.study-eagle-sprite-openingBook {
+  background-image: url("/eagle-reading-open.png");
+  background-size: 600% 100%;
+  animation: eagle-reading-frames 0.9s steps(6, jump-none) forwards;
+}
+/* Reading: 6-frame loop, holding the open book and reading it, for as long as
+   the preview stays open. */
+.study-eagle-sprite-reading {
+  background-image: url("/eagle-reading.png");
+  background-size: 600% 100%;
+  animation: eagle-reading-frames 1.5s steps(6, jump-none) infinite;
+}
 /* Every sheet has its own layer (StudyEagle.tsx); only the active one shows. With
    no animation, a layer that becomes active starts again from frame 1. */
 .study-eagle-sprite:not(.is-active) {
@@ -518,6 +595,14 @@
     background-position-x: 100%;
   }
 }
+@keyframes eagle-reading-frames {
+  from {
+    background-position-x: 0%;
+  }
+  to {
+    background-position-x: 100%;
+  }
+}
 @keyframes eagle-wakeup-frames {
   from {
     background-position-x: 0%;
@@ -546,7 +631,7 @@
 /* Phones: tucked away as a small round button above the tab bar until tapped. */
 .study-eagle-tuck {
   position: fixed;
-  z-index: 55;
+  z-index: var(--z-eagle);
   pointer-events: auto;
   right: 12px;
   bottom: calc(88px + env(safe-area-inset-bottom));
@@ -611,6 +696,9 @@
   background: rgb(180 83 9 / 0.55);
 }
 .study-eagle-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
   border: 1px solid rgb(251 191 36 / 0.2);
   border-radius: 999px;
   padding: 5px 8px;
@@ -716,12 +804,72 @@
     opacity: 1;
   }
 }
+.study-eagle-chip:focus-visible,
+.study-eagle-stream:focus-visible {
+  outline: 2px solid rgb(251 191 36 / 0.8);
+  outline-offset: 2px;
+}
+/* The streamed summary: click anywhere on it to show the rest at once. */
+.study-eagle-stream {
+  cursor: pointer;
+}
+.study-eagle-stream:disabled {
+  cursor: text;
+  user-select: text;
+}
+.study-eagle-word {
+  display: inline;
+  animation: eagle-word-in 0.18s ease-out;
+}
+@keyframes eagle-word-in {
+  from {
+    opacity: 0;
+    filter: blur(2px);
+  }
+}
+.study-eagle-caret {
+  display: inline-block;
+  width: 0.45em;
+  height: 1em;
+  margin-left: 2px;
+  vertical-align: -0.15em;
+  background: rgb(251 191 36 / 0.7);
+  animation: eagle-caret 0.8s steps(1) infinite;
+}
+@keyframes eagle-caret {
+  50% {
+    opacity: 0;
+  }
+}
+/* "Prereq path" pulses the tree it points at. */
+.eagle-highlight {
+  border-radius: 1rem;
+  animation: eagle-highlight 1.8s ease-out;
+}
+@keyframes eagle-highlight {
+  0%,
+  60% {
+    box-shadow: 0 0 0 3px rgb(251 191 36 / 0.75);
+  }
+  100% {
+    box-shadow: 0 0 0 3px rgb(251 191 36 / 0);
+  }
+}
 @media (prefers-reduced-motion: reduce) {
+  .study-eagle-caret,
+  .study-eagle-word,
+  .eagle-highlight {
+    animation: none;
+  }
+  .eagle-highlight {
+    box-shadow: 0 0 0 3px rgb(251 191 36 / 0.75);
+  }
   .study-eagle-sprite,
   .study-eagle-controls,
   .study-eagle-celebrating .study-eagle-button,
   .study-eagle-pop-in,
   .study-eagle-pop-out,
+  .study-eagle-sheet,
   .study-eagle-confetti {
     animation: none;
     transition: none;

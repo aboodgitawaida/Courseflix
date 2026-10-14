@@ -9,10 +9,12 @@ export const CourseRail = memo(function CourseRail({
   rail,
   loading = false,
   index = 0,
+  gold = false,
 }: {
   rail: Rail;
   loading?: boolean;
   index?: number;
+  gold?: boolean;
 }) {
   const ref = useRef<HTMLDivElement>(null);
   const [hover, setHover] = useState(false);
@@ -42,8 +44,12 @@ export const CourseRail = memo(function CourseRail({
         >
           {number}
         </span>
-        <div className="min-w-0 flex-1 border-b border-white/[0.08] pb-3">
-          <h2 className="font-display text-xl font-bold tracking-tight text-white md:text-3xl">
+        <div
+          className={`min-w-0 flex-1 border-b ${gold ? "border-amber-400/40" : "border-white/[0.08]"} pb-3`}
+        >
+          <h2
+            className={`font-display text-xl font-bold tracking-tight md:text-3xl ${gold ? "text-amber-300" : "text-white"}`}
+          >
             {rail.title}
           </h2>
           {rail.blurb && <p className="mt-1 text-sm text-neutral-500">{rail.blurb}</p>}
@@ -57,14 +63,14 @@ export const CourseRail = memo(function CourseRail({
         <button
           onClick={() => scroll(-1)}
           aria-label={`Scroll ${rail.title} left`}
-          className={`glass absolute left-3 top-1/2 z-40 hidden h-12 w-12 -translate-y-1/2 place-items-center rounded-full transition duration-300 md:grid ${hover ? "opacity-100 translate-x-0" : "opacity-0 -translate-x-2"} hover:bg-brand hover:text-primary-foreground`}
+          className={`glass absolute left-3 top-1/2 z-[var(--z-rail)] hidden h-12 w-12 -translate-y-1/2 place-items-center rounded-full transition duration-300 md:grid ${hover ? "opacity-100 translate-x-0" : "opacity-0 -translate-x-2"} hover:bg-brand hover:text-primary-foreground`}
         >
           <ChevronLeft className="h-5 w-5" />
         </button>
         <button
           onClick={() => scroll(1)}
           aria-label={`Scroll ${rail.title} right`}
-          className={`glass absolute right-3 top-1/2 z-40 hidden h-12 w-12 -translate-y-1/2 place-items-center rounded-full transition duration-300 md:grid ${hover ? "opacity-100 translate-x-0" : "opacity-0 translate-x-2"} hover:bg-brand hover:text-primary-foreground`}
+          className={`glass absolute right-3 top-1/2 z-[var(--z-rail)] hidden h-12 w-12 -translate-y-1/2 place-items-center rounded-full transition duration-300 md:grid ${hover ? "opacity-100 translate-x-0" : "opacity-0 translate-x-2"} hover:bg-brand hover:text-primary-foreground`}
         >
           <ChevronRight className="h-5 w-5" />
         </button>

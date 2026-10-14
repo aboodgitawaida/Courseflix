@@ -6,7 +6,7 @@ import { recordSubjectInterest } from "@/lib/interest";
 import { getSessionUser } from "@/lib/session";
 import { submitReview } from "@/lib/submit-review";
 import type { User } from "@supabase/supabase-js";
-import { celebrateEagle } from "@/lib/study-eagle";
+import { celebrateEagleWith } from "@/lib/study-eagle";
 
 export type RatingRow = {
   id: string;
@@ -100,11 +100,60 @@ async function fetchAllCourseStats() {
   }
 }
 
+/** Every course's review averages, from the same cached request as useCourseStats. */
+export function useAllCourseStats(enabled = true) {
+  return useQuery({
+    queryKey: ["rating-stats"],
+    queryFn: fetchAllCourseStats,
+    staleTime: 5 * 60_000,
+    retry: 1,
+    enabled,
+  });
+}
+
 export function useCourseStats(code: string) {
   return useQuery({
     queryKey: ["rating-stats"],
     queryFn: fetchAllCourseStats,
     select: (stats): RatingStats => stats.get(code) ?? null,
+    staleTime: 5 * 60_000,
+    retry: 1,
+  });
+}
+
+// A course turns gold once this many students have called it a bird course.
+export const BIRD_COURSE_THRESHOLD = 2;
+
+async function fetchBirdMentions() {
+  const { data, error } = await supabase
+    .from("bird_course_mentions")
+    .select("course_code, bird_mentions");
+  if (error) throw new Error(`Could not load bird courses: ${error.message}`);
+  const mentions = new Map<string, number>();
+  for (const row of data ?? []) {
+    if (typeof row.course_code === "string") {
+      mentions.set(row.course_code, Number(row.bird_mentions ?? 0));
+    }
+  }
+  return mentions;
+}
+
+// One small request covers every card on a page; the view has one row per course
+// that at least one review calls a bird course.
+export function useBirdCourses() {
+  return useQuery({
+    queryKey: ["bird-courses"],
+    queryFn: fetchBirdMentions,
+    staleTime: 5 * 60_000,
+    retry: 1,
+  });
+}
+
+export function useBirdMentions(code: string) {
+  return useQuery({
+    queryKey: ["bird-courses"],
+    queryFn: fetchBirdMentions,
+    select: (mentions) => mentions.get(code) ?? 0,
     staleTime: 5 * 60_000,
     retry: 1,
   });
@@ -147,7 +196,7 @@ export function useSubmitRating(code: string) {
       return { reviewedBefore };
     },
     onSuccess: (_data, _input, context) => {
-      if (!context?.reviewedBefore) celebrateEagle("Thanks for the review!");
+      if (!context?.reviewedBefore) celebrateEagleWith("reviewPosted");
       void queryClient.invalidateQueries({ queryKey: ["ratings", code] });
       void queryClient.invalidateQueries({ queryKey: ["rating-stats"] });
       void queryClient.invalidateQueries({ queryKey: ["my-ratings"] });
@@ -240,7 +289,7 @@ export function useToggleShortlist() {
     onSuccess: (_data, { code, saved }) => {
       announce(saved ? `${code} removed from your shortlist.` : `${code} added to your shortlist.`);
       if (!saved) {
-        celebrateEagle("Nice pick!");
+        celebrateEagleWith("courseAdded", { code });
         recordSubjectInterest(code.replace(/[0-9].*$/, ""), 2);
       }
     },

@@ -65,9 +65,17 @@ export function CoursePreviewModal() {
         // The Study Eagle sits above the preview with a summary of this course;
         // tapping it shouldn't count as a click outside that closes the preview.
         onInteractOutside={(event) => {
-          if ((event.target as Element | null)?.closest?.(".study-eagle, .study-eagle-tuck")) {
+          if (
+            (event.target as Element | null)?.closest?.(
+              ".study-eagle, .study-eagle-tuck, .study-eagle-panel",
+            )
+          ) {
             event.preventDefault();
           }
+        }}
+        // Esc inside the eagle's chat closes the chat, not the preview.
+        onEscapeKeyDown={(event) => {
+          if (document.activeElement?.closest?.(".study-eagle-panel")) event.preventDefault();
         }}
       >
         {course && (
