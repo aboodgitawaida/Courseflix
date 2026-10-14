@@ -238,6 +238,13 @@ export type Database = {
         };
         Relationships: [];
       };
+      bird_course_mentions: {
+        Row: {
+          bird_mentions: number | null;
+          course_code: string | null;
+        };
+        Relationships: [];
+      };
       course_rating_stats: {
         Row: {
           avg_difficulty: number | null;

@@ -31,6 +31,11 @@ vi.mock("@/hooks/use-auth", () => ({
   useAuth: vi.fn(),
 }));
 
+vi.mock("@/lib/ratings", () => ({
+  BIRD_COURSE_THRESHOLD: 2,
+  useBirdCourses: () => ({ data: new Map<string, number>() }),
+}));
+
 vi.mock("@/components/TopNav", () => ({
   TopNav: () => <nav>Top nav</nav>,
 }));
