@@ -545,6 +545,13 @@
   background-size: 600% 100%;
   animation: eagle-reading-frames 1.5s steps(6, jump-none) infinite;
 }
+/* Grind: cramming with a notepad and pencil while the user types or clicks fast;
+   loops until they stop for a few seconds (use-input-burst.ts). */
+.study-eagle-sprite-grinding {
+  background-image: url("/eagle-grind.png");
+  background-size: 800% 100%;
+  animation: eagle-reading-frames 0.9s steps(8, jump-none) infinite;
+}
 /* Every sheet has its own layer (StudyEagle.tsx); only the active one shows. With
    no animation, a layer that becomes active starts again from frame 1. */
 .study-eagle-sprite:not(.is-active) {
