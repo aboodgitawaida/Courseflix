@@ -92,7 +92,7 @@ function archiveSource() {
         limit: "auto",
         sort: "asc",
         // Only the fields we keep, so each page downloads faster.
-        fields: "id,body,score,created_utc,link_id,permalink",
+        fields: "id,body,score,created_utc,link_id",
       });
       if (after) params.set("after", String(after));
       return (await getJson(`${ARCHIVE}/comments/search?${params}`)).data ?? [];
