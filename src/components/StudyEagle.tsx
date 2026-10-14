@@ -38,6 +38,7 @@ const SPRITE_MODES = [
   "wakingUp",
   "celebrating",
   "petting",
+  "openingBook",
   "reading",
 ] as const;
 type EagleMode = (typeof SPRITE_MODES)[number];
@@ -52,6 +53,7 @@ const CELEBRATE_MS = 1_100; // matches the 8-frame wing-flap in styles.css
 const PET_MS = 900; // matches the 8-frame head-bob in styles.css
 const FALL_ASLEEP_MS = 2_000; // matches the 8-frame yawn in styles.css
 const WAKE_UP_MS = 1_200; // matches the 8-frame stretch in styles.css
+const OPEN_BOOK_MS = 900; // matches the 6-frame take-out-the-book in styles.css
 /** On phones a celebration pops the tucked-away eagle out for this long. */
 const POP_OUT_MS = 3_000;
 const POP_OUT_EXIT_MS = 250; // the slide back out in styles.css
@@ -67,6 +69,7 @@ const EAGLE_SHEETS = [
   "/eagle-pet.png",
   "/eagle-fallasleep.png",
   "/eagle-wakeup.png",
+  "/eagle-reading-open.png",
   "/eagle-reading.png",
 ];
 // Holding the decoded images keeps them in memory for the life of the page.
@@ -126,7 +129,7 @@ export function StudyEagle() {
   const focusPanel = useRef(false);
   const pathname = useRouterState({ select: (state) => state.location.pathname });
   const course = getCurrentCourse(pathname);
-  const { openPreview, setSearchOpen } = useCourseUI();
+  const { previewCode, openPreview, setSearchOpen } = useCourseUI();
   const { data: allStats, isError: statsFailed } = useAllCourseStats(
     enabled && (chatOpen || !!summaryCourseCode),
   );
@@ -137,8 +140,8 @@ export function StudyEagle() {
       ? courseSummary(summaryCourseCode, summaryText, allStats?.get(summaryCourseCode))
       : null;
   const typed = useTypewriter(summary ?? "", summaryRun);
-  // While a summary streams in a visible panel, he reads it from a little book.
-  const reading = !!summary && !typed.done && chatOpen && !collapsed;
+  // He reads along the whole time a course preview is open.
+  const reading = !!previewCode;
 
   useEffect(() => {
     modeRef.current = mode;
@@ -162,12 +165,18 @@ export function StudyEagle() {
     if (enabled) preloadEagleSheets();
   }, [enabled]);
 
-  // Reading is the resting pose while a summary streams: a wake-up, pet or
-  // celebration plays first and he goes back to the book after.
+  // While a preview is open he takes out a book once, then reads it in a loop.
+  // A wake-up, pet or celebration plays first; after one he takes the book out again.
   useEffect(() => {
-    if (reading && mode === "awake") setMode("reading");
-    else if (!reading && mode === "reading") setMode("awake");
+    if (reading && mode === "awake") setMode("openingBook");
+    else if (!reading && (mode === "reading" || mode === "openingBook")) setMode("awake");
   }, [reading, mode]);
+
+  useEffect(() => {
+    if (mode !== "openingBook") return;
+    const timer = window.setTimeout(() => setMode("reading"), OPEN_BOOK_MS);
+    return () => window.clearTimeout(timer);
+  }, [mode]);
 
   // After midnight, a gentle nudge once per session. On phones the eagle is
   // tucked away, so it waits for the first tap instead (see petEagle).
