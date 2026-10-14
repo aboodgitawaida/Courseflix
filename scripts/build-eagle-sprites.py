@@ -9,6 +9,7 @@
   pixellab-wakeup.png         PixelLab animation, sleep frame 1 -> awake frame: head up, wing stretch (8 x 80x80)
   pixellab-reading.png        PixelLab animation from the awake frame: takes out a book and reads it (12 x 80x80)
   pixellab-startled.png       PixelLab animation, sleep frame 1 -> awake frame: jolts awake, shock marks (8 x 80x80)
+  pixellab-search.png         PixelLab animation from the awake frame: takes out a magnifying glass and peers (12 x 80x80)
   pixellab-grind.png          PixelLab animation from the awake frame: takes out a notepad and scribbles (12 x 80x80)
 
 Outputs share one frame size, transparent with crisp pixels and one palette. The
@@ -24,6 +25,8 @@ cut end sits against the right edge of the screen:
   public/eagle-reading.png    6 frames (loop: reading the open book)
   public/eagle-grind.png      6 frames (loop: scribbling in the notepad)
   public/eagle-startled.png   8 frames (played once: tapped while asleep)
+  public/eagle-search-open.png 6 frames (played once: takes out the magnifying glass)
+  public/eagle-search.png     6 frames (loop: peering through it while search is open)
 
 The animated frames get one consistent eye drawn in (fix_eye), because the
 animation model's eyes sat under a low, slanted brow that looked sad. The beak and
@@ -180,6 +183,7 @@ idle80, celebrate80, pet80, fallasleep80, wakeup80, reading80, grind80 = (
     for n in ("idle", "celebrate", "pet", "fallasleep", "wakeup", "reading", "grind"))
 # no drop_specks here: the little shock marks around his head are small on purpose
 startled80 = pixellab_frames("startled")
+search80 = pixellab_frames("search")
 
 
 def mossy(f):
@@ -229,7 +233,7 @@ grind80 = [drop_specks(f) for f in grind80]
 # lock the branch (and tail) below the feet to the awake frame, so it never flickers
 LOCK = 61 + dy
 for f in (idle80 + celebrate80 + pet80 + fallasleep80 + wakeup80 + reading80 + grind80 + startled80
-          + sleep80):
+          + search80 + sleep80):
     f[LOCK:] = awake80[LOCK:]
 
 # one shared palette for all four art sources. The beak and eyes (warm oranges and
@@ -301,6 +305,7 @@ def snap_extra(frames, k=8, far=900):
 reading80 = snap_extra(reading80)
 grind80 = snap_extra(grind80)
 startled80 = snap_extra(startled80)
+search80 = snap_extra(search80)
 
 
 # ---------- 4. one friendly eye for every animated frame ----------
@@ -405,6 +410,10 @@ al = np.any([f[..., 3] > 0 for f in sleep80 + idle80 + celebrate80 + pet80 + fal
              + reading80 + grind80 + startled80], axis=0)
 ys, xs = np.nonzero(al)
 y0, y1, x1 = ys.min(), ys.max() + 1, xs.max() + 1
+# The magnifying glass pokes a pixel past the shared frame; trim it rather than
+# grow every sheet.
+for f in search80:
+    f[:y0] = 0; f[y1:] = 0; f[:, x1:] = 0
 
 
 def small_parts(f, max_size=40):
@@ -452,7 +461,45 @@ Image.fromarray(grind, "RGBA").save(OUT / "eagle-grind.png", optimize=True)
 # ---------- 9. startled: tapped while asleep ----------
 Image.fromarray(finish(startled80), "RGBA").save(OUT / "eagle-startled.png", optimize=True)
 
+# ---------- 10. search: takes out a magnifying glass once, then peers through it ----------
+# Kept exactly as PixelLab drew it (no speck removal, no eye redraw, no frames
+# dropped): only the branch lock, palette, trim and mirror every sheet gets.
+SEARCH_OPEN = (0, 1, 2, 3, 4, 5)
+SEARCH_LOOP = (6, 7, 8, 9, 10, 11)
+SECOND_LENS_FRAME, SECOND_LENS_BOX = 2, (29, 43, 0, 9)   # frame 3: a stray second lens, bottom left
+
+
+def tidy_search(sheet, frames, second_lens=False):
+    """Fixes in the finished (mirrored) frames: remove the stray second lens, and turn
+    the lens's mint highlight back to head colours wherever it landed on his head."""
+    W = sheet.shape[1] // frames
+    for i in range(frames):
+        f = sheet[:, W * i:W * (i + 1)]
+        if second_lens and i == SECOND_LENS_FRAME:
+            t, b, l, r = SECOND_LENS_BOX
+            f[t:b, l:r] = 0
+        rgb = f[..., :3].astype(int)
+        opaque = f[..., 3] > 0
+        lens = opaque & (rgb[..., 2] > rgb[..., 0] + 25) & (rgb[..., 2] > 110)
+        near_lens = lens.copy()
+        for _ in range(1):   # the glare sits right against the glass
+            g = near_lens.copy()
+            g[1:] |= near_lens[:-1]; g[:-1] |= near_lens[1:]; g[:, 1:] |= near_lens[:, :-1]; g[:, :-1] |= near_lens[:, 1:]
+            near_lens = g
+        mint = opaque & (rgb[..., 1] > rgb[..., 0] + 20) & (rgb[..., 1] > 140) & (rgb[..., 2] > rgb[..., 0])
+        stray = mint & ~near_lens
+        if stray.any():
+            d = ((rgb[stray][:, None] - c2[None]) ** 2).sum(-1)
+            f[stray, :3] = cent2[d.argmin(1)]
+    return sheet
+
+
+Image.fromarray(tidy_search(finish([search80[i] for i in SEARCH_OPEN]), len(SEARCH_OPEN), True), "RGBA").save(
+    OUT / "eagle-search-open.png", optimize=True)
+Image.fromarray(tidy_search(finish([search80[i] for i in SEARCH_LOOP]), len(SEARCH_LOOP)), "RGBA").save(
+    OUT / "eagle-search.png", optimize=True)
+
 for name, frames in (("eagle-awake", idle80), ("eagle-sleep", sleep80), ("eagle-celebrate", celebrate80),
                      ("eagle-pet", pet80), ("eagle-fallasleep", fallasleep80), ("eagle-wakeup", wakeup80)):
     Image.fromarray(finish(frames), "RGBA").save(OUT / f"{name}.png", optimize=True)
-print("frame size", x1 - STUB_X, "x", y1 - y0, "| wrote eagle-awake, -sleep, -celebrate, -pet, -fallasleep, -wakeup, -reading-open, -reading, -grind, -startled")
+print("frame size", x1 - STUB_X, "x", y1 - y0, "| wrote eagle-awake, -sleep, -celebrate, -pet, -fallasleep, -wakeup, -reading-open, -reading, -grind, -startled, -search-open, -search")
