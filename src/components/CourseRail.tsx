@@ -63,14 +63,14 @@ export const CourseRail = memo(function CourseRail({
         <button
           onClick={() => scroll(-1)}
           aria-label={`Scroll ${rail.title} left`}
-          className={`glass absolute left-3 top-1/2 z-40 hidden h-12 w-12 -translate-y-1/2 place-items-center rounded-full transition duration-300 md:grid ${hover ? "opacity-100 translate-x-0" : "opacity-0 -translate-x-2"} hover:bg-brand hover:text-primary-foreground`}
+          className={`glass absolute left-3 top-1/2 z-[var(--z-rail)] hidden h-12 w-12 -translate-y-1/2 place-items-center rounded-full transition duration-300 md:grid ${hover ? "opacity-100 translate-x-0" : "opacity-0 -translate-x-2"} hover:bg-brand hover:text-primary-foreground`}
         >
           <ChevronLeft className="h-5 w-5" />
         </button>
         <button
           onClick={() => scroll(1)}
           aria-label={`Scroll ${rail.title} right`}
-          className={`glass absolute right-3 top-1/2 z-40 hidden h-12 w-12 -translate-y-1/2 place-items-center rounded-full transition duration-300 md:grid ${hover ? "opacity-100 translate-x-0" : "opacity-0 translate-x-2"} hover:bg-brand hover:text-primary-foreground`}
+          className={`glass absolute right-3 top-1/2 z-[var(--z-rail)] hidden h-12 w-12 -translate-y-1/2 place-items-center rounded-full transition duration-300 md:grid ${hover ? "opacity-100 translate-x-0" : "opacity-0 translate-x-2"} hover:bg-brand hover:text-primary-foreground`}
         >
           <ChevronRight className="h-5 w-5" />
         </button>
