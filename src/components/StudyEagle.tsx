@@ -41,13 +41,16 @@ import {
   type EagleMode,
 } from "@/lib/eagle-state";
 import { useInputBurst } from "@/hooks/use-input-burst";
+import { useLookAt } from "@/hooks/use-look-at";
 
 const EAGLE_REPLIES = EAGLE_LINES.tips;
 
 /** Where the perch sits on the right edge, as a fraction of the viewport height. */
 const PERCH_KEY = "courseflix.eagle.perchY";
 const DEFAULT_PERCH = 0.62;
-const SLEEP_AFTER_MS = 10_000;
+/** With nothing happening he gets drowsy, then nods off: 10 s in all. */
+const DROWSY_AFTER_MS = 6_000;
+const SLEEP_AFTER_DROWSY_MS = 4_000;
 /** On phones a celebration pops the tucked-away eagle out for this long. */
 const POP_OUT_MS = 3_000;
 const POP_OUT_EXIT_MS = 250; // the slide back out in styles.css
@@ -67,6 +70,8 @@ const EAGLE_SHEETS = [
   "/eagle-reading.png",
   "/eagle-grind.png",
   "/eagle-startled.png",
+  "/eagle-drowsy.png",
+  "/eagle-look.png",
 ];
 // Holding the decoded images keeps them in memory for the life of the page.
 let preloadedSheets: HTMLImageElement[] | null = null;
@@ -140,6 +145,8 @@ export function StudyEagle() {
   // while the user types or clicks fast.
   const reading = !!previewCode;
   const grinding = useInputBurst(enabled);
+  // Awake and idle, he turns his head toward the cursor.
+  const look = useLookAt(eagleRef, enabled && !compact && mode === "awake");
   const context = useRef<EagleContext>({ reading, grinding });
   context.current = { reading, grinding };
 
@@ -217,16 +224,28 @@ export function StudyEagle() {
     return () => window.removeEventListener("resize", onResize);
   }, []);
 
-  // Nods off after a while with nothing happening; any activity resets the clock.
+  // With nothing happening he gets drowsy (slow blinks, nodding), then nods off;
+  // any activity resets the clock, and perks him up if he was drowsy.
   useEffect(() => {
-    if (mode !== "awake" || chatOpen || isDragging) return;
-    const timer = window.setTimeout(() => {
-      setMode("fallingAsleep");
-      const line = pickEagleLine("fallAsleep");
-      if (line && !isCompact()) showStatus(line);
-    }, SLEEP_AFTER_MS);
+    if ((mode !== "awake" && mode !== "drowsy") || chatOpen || isDragging) return;
+    const timer = window.setTimeout(
+      () => {
+        if (mode === "awake") {
+          setMode("drowsy");
+          return;
+        }
+        setMode("fallingAsleep");
+        const line = pickEagleLine("fallAsleep");
+        if (line && !isCompact()) showStatus(line);
+      },
+      mode === "awake" ? DROWSY_AFTER_MS : SLEEP_AFTER_DROWSY_MS,
+    );
     return () => window.clearTimeout(timer);
   }, [activityVersion, mode, chatOpen, isDragging]);
+
+  useEffect(() => {
+    if (modeRef.current === "drowsy") setMode("awake");
+  }, [activityVersion, chatOpen]);
 
   useEffect(() => {
     const onSummary = (event: Event) => {
@@ -786,7 +805,16 @@ export function StudyEagle() {
                       : sprite
                 }
                 className={`study-eagle-sprite study-eagle-sprite-${sprite} ${
-                  sprite === mode ? "is-active" : ""
+                  sprite === mode && !(sprite === "awake" && look !== "ahead") ? "is-active" : ""
+                }`}
+              />
+            ))}
+            {/* Head turned toward the cursor: held poses shown in place of the idle loop. */}
+            {(["up", "down"] as const).map((dir) => (
+              <span
+                key={`look-${dir}`}
+                className={`study-eagle-sprite study-eagle-sprite-look-${dir} ${
+                  mode === "awake" && look === dir ? "is-active" : ""
                 }`}
               />
             ))}
