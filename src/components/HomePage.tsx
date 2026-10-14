@@ -10,7 +10,8 @@ import { Spotlight } from "@/components/Spotlight";
 import { Marquee } from "@/components/Marquee";
 import { FeatureBento } from "@/components/FeatureBento";
 import { Link } from "@tanstack/react-router";
-import { getRailsForMajor, getFeaturedDeckForMajor, type FilterId } from "@/lib/courses";
+import { BIRD_COURSE_THRESHOLD, useBirdCourses } from "@/lib/ratings";
+import { COURSES, getRailsForMajor, getFeaturedDeckForMajor, type FilterId } from "@/lib/courses";
 import { getMajor } from "@/lib/majors";
 import { useMajor } from "@/hooks/use-major";
 import { Fragment, useEffect, useState, useMemo } from "react";
@@ -31,6 +32,21 @@ export function HomePage() {
 
   const rails = useMemo(() => getRailsForMajor(major, filter), [major, filter]);
   const deck = useMemo(() => getFeaturedDeckForMajor(major), [major]);
+  const { data: birdMentions } = useBirdCourses();
+  const studentBirds = useMemo(() => {
+    const known = new Set(COURSES.map((c) => c.code));
+    const codes = [...(birdMentions ?? [])]
+      .filter(([code, n]) => n >= BIRD_COURSE_THRESHOLD && known.has(code))
+      .sort((a, b) => b[1] - a[1])
+      .map(([code]) => code);
+    return codes.length === 0
+      ? null
+      : {
+          title: "🪶 Students call these bird courses",
+          blurb: "Courses that reviewers say are easy marks, based on what students wrote",
+          codes,
+        };
+  }, [birdMentions]);
   const inMajorCount = rails[0]?.codes.length ?? 0;
 
   return (
@@ -85,6 +101,7 @@ export function HomePage() {
             No courses match this filter for your program yet — try another chip.
           </p>
         )}
+        {studentBirds && <CourseRail rail={studentBirds} index={0} gold />}
         {rails.map((r, index) => (
           <Fragment key={r.title}>
             <CourseRail rail={r} index={index} />
