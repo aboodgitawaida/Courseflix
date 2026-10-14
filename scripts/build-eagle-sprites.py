@@ -27,8 +27,8 @@ cut end sits against the right edge of the screen:
   public/eagle-grind.png      6 frames (loop: scribbling in the notepad)
   public/eagle-startled.png   8 frames (played once: tapped while asleep)
   public/eagle-drowsy.png     8 frames (loop: drowsy, just before falling asleep)
-  public/eagle-search-open.png 6 frames (played once: takes out the magnifying glass)
-  public/eagle-search.png     6 frames (loop: peering through it while search is open)
+  public/eagle-search-open.png 4 frames (played once: raises the magnifying glass)
+  public/eagle-search.png     4 frames (loop: peering through it while search is open)
 
 The animated frames get one consistent eye drawn in (fix_eye), because the
 animation model's eyes sat under a low, slanted brow that looked sad. The beak and
@@ -468,11 +468,15 @@ Image.fromarray(finish(startled80), "RGBA").save(OUT / "eagle-startled.png", opt
 Image.fromarray(finish(drowsy80), "RGBA").save(OUT / "eagle-drowsy.png", optimize=True)
 
 # ---------- 11. search: takes out a magnifying glass once, then peers through it ----------
-# Frames 7 and 8 have the eye half shut and can't be redrawn cleanly, so the loop
-# skips them and keeps the standard open eye (see assets/eagle-src/CHARACTER.md).
-SEARCH_OPEN = 6
+# Frames 1-2 of the take-out are broken (the glass lies on the branch and gets
+# removed as specks, then floats beside a flattened wing), so the take-out goes
+# straight from the normal pose to raising the glass. Frames 7 and 8 have the eye
+# half shut and can't be redrawn cleanly, so the loop skips them and keeps the
+# standard open eye (see assets/eagle-src/CHARACTER.md).
+SEARCH_OPEN = (0, 3, 4, 5)
 SEARCH_LOOP = (6, 9, 10, 11)
-Image.fromarray(finish(search80[:SEARCH_OPEN]), "RGBA").save(OUT / "eagle-search-open.png", optimize=True)
+Image.fromarray(finish([search80[i] for i in SEARCH_OPEN]), "RGBA").save(
+    OUT / "eagle-search-open.png", optimize=True)
 Image.fromarray(finish([search80[i] for i in SEARCH_LOOP]), "RGBA").save(OUT / "eagle-search.png", optimize=True)
 
 for name, frames in (("eagle-awake", idle80), ("eagle-sleep", sleep80), ("eagle-celebrate", celebrate80),
