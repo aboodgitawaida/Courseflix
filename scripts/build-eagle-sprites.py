@@ -474,9 +474,38 @@ Image.fromarray(finish(drowsy80), "RGBA").save(OUT / "eagle-drowsy.png", optimiz
 # dropped): only the branch lock, palette, trim and mirror every sheet gets.
 SEARCH_OPEN = (0, 1, 2, 3, 4, 5)
 SEARCH_LOOP = (6, 7, 8, 9, 10, 11)
-Image.fromarray(finish([search80[i] for i in SEARCH_OPEN]), "RGBA").save(
+SECOND_LENS_FRAME, SECOND_LENS_BOX = 2, (29, 43, 0, 9)   # frame 3: a stray second lens, bottom left
+
+
+def tidy_search(sheet, frames, second_lens=False):
+    """Fixes in the finished (mirrored) frames: remove the stray second lens, and turn
+    the lens's mint highlight back to head colours wherever it landed on his head."""
+    W = sheet.shape[1] // frames
+    for i in range(frames):
+        f = sheet[:, W * i:W * (i + 1)]
+        if second_lens and i == SECOND_LENS_FRAME:
+            t, b, l, r = SECOND_LENS_BOX
+            f[t:b, l:r] = 0
+        rgb = f[..., :3].astype(int)
+        opaque = f[..., 3] > 0
+        lens = opaque & (rgb[..., 2] > rgb[..., 0] + 25) & (rgb[..., 2] > 110)
+        near_lens = lens.copy()
+        for _ in range(1):   # the glare sits right against the glass
+            g = near_lens.copy()
+            g[1:] |= near_lens[:-1]; g[:-1] |= near_lens[1:]; g[:, 1:] |= near_lens[:, :-1]; g[:, :-1] |= near_lens[:, 1:]
+            near_lens = g
+        mint = opaque & (rgb[..., 1] > rgb[..., 0] + 20) & (rgb[..., 1] > 140) & (rgb[..., 2] > rgb[..., 0])
+        stray = mint & ~near_lens
+        if stray.any():
+            d = ((rgb[stray][:, None] - c2[None]) ** 2).sum(-1)
+            f[stray, :3] = cent2[d.argmin(1)]
+    return sheet
+
+
+Image.fromarray(tidy_search(finish([search80[i] for i in SEARCH_OPEN]), len(SEARCH_OPEN), True), "RGBA").save(
     OUT / "eagle-search-open.png", optimize=True)
-Image.fromarray(finish([search80[i] for i in SEARCH_LOOP]), "RGBA").save(OUT / "eagle-search.png", optimize=True)
+Image.fromarray(tidy_search(finish([search80[i] for i in SEARCH_LOOP]), len(SEARCH_LOOP)), "RGBA").save(
+    OUT / "eagle-search.png", optimize=True)
 
 for name, frames in (("eagle-awake", idle80), ("eagle-sleep", sleep80), ("eagle-celebrate", celebrate80),
                      ("eagle-pet", pet80), ("eagle-fallasleep", fallasleep80), ("eagle-wakeup", wakeup80)):
