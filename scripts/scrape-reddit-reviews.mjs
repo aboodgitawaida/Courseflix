@@ -37,7 +37,8 @@ const UTM_RE = /\butm\b|mississauga/i;
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
 async function getJson(url, headers = {}, attempt = 1) {
-  await sleep(1500);
+  // A short pause keeps the archive happy; busy replies are retried with longer waits below.
+  await sleep(400);
   const res = await fetch(url, { headers: { "User-Agent": USER_AGENT, ...headers } });
   // 429 is a rate limit; the archive also answers 422 "Timeout" when it is busy.
   if ((res.status === 429 || res.status === 422 || res.status >= 500) && attempt < 4) {
@@ -86,7 +87,13 @@ function archiveSource() {
     },
     // Every comment in the subreddit, oldest first, starting after the given timestamp.
     async allComments(sub, after) {
-      const params = new URLSearchParams({ subreddit: sub, limit: "auto", sort: "asc" });
+      const params = new URLSearchParams({
+        subreddit: sub,
+        limit: "auto",
+        sort: "asc",
+        // Only the fields we keep, so each page downloads faster.
+        fields: "id,body,score,created_utc,link_id,permalink",
+      });
       if (after) params.set("after", String(after));
       return (await getJson(`${ARCHIVE}/comments/search?${params}`)).data ?? [];
     },
