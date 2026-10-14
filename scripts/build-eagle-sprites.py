@@ -27,7 +27,7 @@ cut end sits against the right edge of the screen:
   public/eagle-grind.png      6 frames (loop: scribbling in the notepad)
   public/eagle-startled.png   8 frames (played once: tapped while asleep)
   public/eagle-drowsy.png     8 frames (loop: drowsy, just before falling asleep)
-  public/eagle-search-open.png 5 frames (played once: takes out the magnifying glass)
+  public/eagle-search-open.png 6 frames (played once: takes out the magnifying glass)
   public/eagle-search.png     6 frames (loop: peering through it while search is open)
 
 The animated frames get one consistent eye drawn in (fix_eye), because the
@@ -233,7 +233,6 @@ wakeup80 = [drop_specks(f) for f in wakeup80]
 reading80 = [drop_specks(f) for f in reading80]
 grind80 = [drop_specks(f) for f in grind80]
 drowsy80 = [drop_specks(f) for f in drowsy80]
-search80 = [drop_specks(f) for f in search80]
 
 # lock the branch (and tail) below the feet to the awake frame, so it never flickers
 LOCK = 61 + dy
@@ -409,7 +408,6 @@ celebrate80 = [fix_eye(f, reopen=True, tidy_brow=True) for f in celebrate80]
 pet80, wakeup80 = ([fix_eye(f) for f in group] for group in (pet80, wakeup80))
 # falling asleep: eyes open through the start of the yawn, then sleepy and shut (keep those)
 fallasleep80 = [fix_eye(f, blink=i >= 4) for i, f in enumerate(fallasleep80)]
-search80 = [fix_eye(f) for f in search80]   # the model's eye wandered between frames
 
 # one shared frame: starts at the branch's cut end (wing tips past it go "off screen")
 STUB_X = 16 + 1
@@ -472,8 +470,9 @@ Image.fromarray(finish(startled80), "RGBA").save(OUT / "eagle-startled.png", opt
 Image.fromarray(finish(drowsy80), "RGBA").save(OUT / "eagle-drowsy.png", optimize=True)
 
 # ---------- 11. search: takes out a magnifying glass once, then peers through it ----------
-# Frame 2 of the take-out shows two glasses at once, so it's left out.
-SEARCH_OPEN = (0, 1, 3, 4, 5)
+# Kept exactly as PixelLab drew it (no speck removal, no eye redraw, no frames
+# dropped): only the branch lock, palette, trim and mirror every sheet gets.
+SEARCH_OPEN = (0, 1, 2, 3, 4, 5)
 SEARCH_LOOP = (6, 7, 8, 9, 10, 11)
 Image.fromarray(finish([search80[i] for i in SEARCH_OPEN]), "RGBA").save(
     OUT / "eagle-search-open.png", optimize=True)
