@@ -64,7 +64,7 @@ export function MobileTabBar() {
     <>
       <nav
         aria-label="Primary"
-        className="mobile-tabbar glass fixed inset-x-3 z-50 rounded-full bg-background/95 p-1.5 shadow-2xl shadow-black/50 lg:hidden"
+        className="mobile-tabbar glass fixed inset-x-3 z-[var(--z-nav)] rounded-full bg-background/95 p-1.5 shadow-2xl shadow-black/50 lg:hidden"
       >
         <div className="relative grid grid-cols-4">
           {active >= 0 && (

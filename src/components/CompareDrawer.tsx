@@ -25,7 +25,7 @@ export function CompareDrawer() {
     return (
       <div
         role="status"
-        className="above-tabbar glass fixed bottom-3 left-1/2 z-50 flex w-[min(calc(100%-1.5rem),32rem)] -translate-x-1/2 items-center gap-3 rounded-full bg-[#121216]/90 py-2 pl-2 pr-3 animate-fade-in-up"
+        className="above-tabbar glass fixed bottom-3 left-1/2 z-[var(--z-nav)] flex w-[min(calc(100%-1.5rem),32rem)] -translate-x-1/2 items-center gap-3 rounded-full bg-[#121216]/90 py-2 pl-2 pr-3 animate-fade-in-up"
       >
         <span className="inline-flex items-center gap-1.5 rounded-full bg-brand py-1.5 pl-3 pr-1.5 text-xs font-bold text-primary-foreground">
           <GitCompare className="h-3.5 w-3.5" />
@@ -46,7 +46,7 @@ export function CompareDrawer() {
   }
 
   return (
-    <div className="above-tabbar glass fixed inset-x-3 bottom-3 z-50 rounded-3xl bg-[#121216]/90 md:inset-x-6">
+    <div className="above-tabbar glass fixed inset-x-3 bottom-3 z-[var(--z-nav)] rounded-3xl bg-[#121216]/90 md:inset-x-6">
       <div className="mx-auto max-w-5xl px-4 py-4">
         <div className="mb-3 flex items-center justify-between">
           <h2 className="font-mega text-lg font-bold tracking-tight">

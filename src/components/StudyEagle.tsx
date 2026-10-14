@@ -1,10 +1,18 @@
 import { MessageCircle, Sparkles, X } from "lucide-react";
-import { useEffect, useRef, useState, type PointerEvent as ReactPointerEvent } from "react";
+import {
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+  type KeyboardEvent as ReactKeyboardEvent,
+  type PointerEvent as ReactPointerEvent,
+} from "react";
 import { useRouterState } from "@tanstack/react-router";
 import { getCourse, type Course } from "@/lib/courses";
 import { loadDescriptions, peekDescriptions } from "@/lib/course-description";
 import { useEagle } from "@/hooks/use-eagle";
 import { EAGLE_LINES } from "@/lib/eagle-lines";
+import { EAGLE_AVOID_SELECTOR, choosePanelSpot, type PanelSpot } from "@/lib/eagle-layout";
 import { pickEagleLine, takeLateNightLine } from "@/lib/study-eagle";
 
 const SPRITE_MODES = [
@@ -85,6 +93,15 @@ export function StudyEagle() {
   const popTimer = useRef<number | null>(null);
   const revealedRef = useRef(false);
   const modeRef = useRef<EagleMode>("awake");
+  // Desktop panel position (null until measured) and whether an auto-opened
+  // summary had nowhere to go and folded into a teaser next to the eagle.
+  const [panelSpot, setPanelSpot] = useState<Pick<PanelSpot, "left" | "top"> | null>(null);
+  const [collapsed, setCollapsed] = useState(false);
+  const autoOpened = useRef(false);
+  const eagleRef = useRef<HTMLDivElement>(null);
+  const panelRef = useRef<HTMLDivElement>(null);
+  const chatButtonRef = useRef<HTMLButtonElement>(null);
+  const focusPanel = useRef(false);
   const pathname = useRouterState({ select: (state) => state.location.pathname });
   const course = getCurrentCourse(pathname);
 
@@ -165,7 +182,13 @@ export function StudyEagle() {
       setReply("");
       // On phones an auto-opened panel covers the course itself; the summary
       // waits until the eagle is tapped.
-      if (!isCompact()) setChatOpen(true);
+      if (!isCompact()) {
+        setChatOpen((open) => {
+          if (!open) autoOpened.current = true;
+          return true;
+        });
+        setCollapsed(false);
+      }
       if (!cached) {
         void loadDescriptions()
           .then((loaded) => setSummaryText(makeCourseSummary(course, loaded[course.code] ?? "")))
@@ -173,6 +196,12 @@ export function StudyEagle() {
       }
     };
     const onClearSummary = () => {
+      // A summary that opened by itself goes away with its course.
+      if (autoOpened.current) {
+        autoOpened.current = false;
+        setChatOpen(false);
+      }
+      setCollapsed(false);
       setSummaryCourseCode(null);
       setSummaryContext(null);
       setSummaryText(null);
@@ -221,6 +250,68 @@ export function StudyEagle() {
       if (popTimer.current !== null) window.clearTimeout(popTimer.current);
     };
   }, []);
+
+  // Desktop: keep the panel off the prerequisite tree (anything marked
+  // data-eagle-avoid). Re-checked on scroll, resize and while a preview
+  // animates in. An auto-opened summary with nowhere to go folds into a teaser;
+  // a panel the user opened goes wherever it covers the least.
+  const panelVisible = chatOpen && !compact && !collapsed;
+  useLayoutEffect(() => {
+    if (!panelVisible) {
+      setPanelSpot(null);
+      return;
+    }
+    let frame = 0;
+    const place = () => {
+      frame = 0;
+      const panel = panelRef.current;
+      const eagle = eagleRef.current;
+      if (!panel || !eagle) return;
+      const e = eagle.getBoundingClientRect();
+      const avoid = [...document.querySelectorAll(EAGLE_AVOID_SELECTOR)]
+        .map((el) => el.getBoundingClientRect())
+        .filter((r) => r.width > 0 && r.height > 0);
+      const { spot, fallback } = choosePanelSpot(
+        { width: window.innerWidth, height: window.innerHeight },
+        { left: e.left, top: e.top, width: e.width, height: e.height },
+        { width: panel.offsetWidth, height: panel.offsetHeight },
+        avoid,
+      );
+      if (!spot && autoOpened.current) {
+        setCollapsed(true);
+        return;
+      }
+      const next = spot ?? fallback;
+      setPanelSpot((current) =>
+        current && current.left === next.left && current.top === next.top
+          ? current
+          : { left: next.left, top: next.top },
+      );
+    };
+    const schedule = () => {
+      if (!frame) frame = window.requestAnimationFrame(place);
+    };
+    place();
+    // A course preview zooms in after the panel opens; look again once it lands.
+    const settle = [150, 400].map((ms) => window.setTimeout(schedule, ms));
+    window.addEventListener("scroll", schedule, { capture: true, passive: true });
+    window.addEventListener("resize", schedule);
+    return () => {
+      if (frame) window.cancelAnimationFrame(frame);
+      settle.forEach((timer) => window.clearTimeout(timer));
+      window.removeEventListener("scroll", schedule, { capture: true });
+      window.removeEventListener("resize", schedule);
+    };
+  }, [panelVisible, perch, summaryText, reply]);
+
+  // Opening the chat on purpose moves focus into it (unless a dialog owns focus).
+  useEffect(() => {
+    if (!chatOpen || !focusPanel.current) return;
+    if (!compact && !panelSpot) return; // wait until it's placed
+    focusPanel.current = false;
+    if (document.querySelector('[role="dialog"][data-state="open"]')) return;
+    panelRef.current?.querySelector<HTMLElement>("[data-eagle-panel-title]")?.focus();
+  }, [chatOpen, compact, panelSpot]);
 
   function eagleSize() {
     const scale = isCompact() ? SCALE.compact : SCALE.desktop;
@@ -305,9 +396,27 @@ export function StudyEagle() {
     setReply(petCount % 2 === 0 ? line : EAGLE_REPLIES[petCount % EAGLE_REPLIES.length]);
   }
 
+  function openChat() {
+    autoOpened.current = false;
+    focusPanel.current = true;
+    setCollapsed(false);
+    setChatOpen(true);
+    setActivityVersion((version) => version + 1);
+  }
+
   function closeChat() {
+    const hadFocus = panelRef.current?.contains(document.activeElement) ?? false;
+    autoOpened.current = false;
     setChatOpen(false);
+    setCollapsed(false);
     if (isCompact()) setRevealed(false);
+    else if (hadFocus) chatButtonRef.current?.focus();
+  }
+
+  function onPanelKeyDown(event: ReactKeyboardEvent<HTMLDivElement>) {
+    if (event.key !== "Escape") return;
+    event.stopPropagation();
+    closeChat();
   }
 
   function showStatus(message: string) {
@@ -328,9 +437,8 @@ export function StudyEagle() {
         className="study-eagle-tuck"
         onClick={() => {
           setRevealed(true);
-          setChatOpen(true);
+          openChat();
           if (isDozing(modeRef.current)) setMode("wakingUp");
-          setActivityVersion((version) => version + 1);
         }}
         aria-label="Open Study Eagle"
         title="Study Eagle"
@@ -342,26 +450,36 @@ export function StudyEagle() {
 
   const size = eagleSize();
   const top = clampTop(perch * window.innerHeight);
-  // Open the chat away from the nearest screen edge.
-  const panelBelow = top < window.innerHeight / 2;
 
   return (
-    <div
-      className={`study-eagle fixed z-[55] ${isDragging ? "study-eagle-dragging" : ""} ${
-        popOut ? `study-eagle-pop-${popOut}` : ""
-      }`}
-      // Flush to the edge: the branch grows out of the side of the screen.
-      style={{ right: 0, top, width: size.w }}
-    >
-      {chatOpen && (
+    <>
+      {chatOpen && !(collapsed && !compact) && (
         <div
-          className={`study-eagle-panel absolute right-0 w-[min(300px,calc(100vw-2rem))] rounded-2xl border border-amber-300/25 bg-[#17120d]/95 p-4 text-white shadow-2xl shadow-black/50 backdrop-blur-xl ${
-            panelBelow ? "top-[calc(100%+8px)]" : "bottom-[calc(100%+8px)]"
+          ref={panelRef}
+          role="dialog"
+          aria-modal="false"
+          aria-labelledby="study-eagle-panel-title"
+          onKeyDown={onPanelKeyDown}
+          className={`study-eagle-panel rounded-2xl border border-amber-300/25 bg-[#17120d]/95 p-4 text-white shadow-2xl shadow-black/50 backdrop-blur-xl ${
+            compact ? "study-eagle-sheet" : "study-eagle-docked w-[min(300px,calc(100vw-2rem))]"
           }`}
+          // Docked panels stay hidden until measured, so they never flash over the tree.
+          style={
+            compact
+              ? undefined
+              : panelSpot
+                ? { left: panelSpot.left, top: panelSpot.top }
+                : { left: 0, top: 0, visibility: "hidden" }
+          }
         >
           <div className="flex items-start justify-between gap-3">
             <div>
-              <div className="flex items-center gap-2 text-sm font-bold text-amber-200">
+              <div
+                id="study-eagle-panel-title"
+                data-eagle-panel-title
+                tabIndex={-1}
+                className="flex items-center gap-2 text-sm font-bold text-amber-200 outline-none"
+              >
                 <Sparkles className="h-4 w-4" /> Study Eagle
               </div>
               <p className="mt-1 text-[11px] text-amber-100/60">Your tiny campus co-pilot</p>
@@ -375,7 +493,10 @@ export function StudyEagle() {
               <X className="h-4 w-4" />
             </button>
           </div>
-          <div className="mt-3 rounded-xl border border-white/10 bg-black/20 p-3 text-sm leading-relaxed text-white/80">
+          <div
+            aria-live="polite"
+            className="mt-3 rounded-xl border border-white/10 bg-black/20 p-3 text-sm leading-relaxed text-white/80"
+          >
             {summaryCourseCode && summaryText ? `${summaryCourseCode}: ${summaryText}` : reply}
           </div>
           <div className="mt-3 flex flex-wrap gap-2">
@@ -410,66 +531,84 @@ export function StudyEagle() {
         </div>
       )}
 
-      {statusMessage && !chatOpen && (
-        <div className="study-eagle-status" role="status">
-          {statusMessage}
-        </div>
-      )}
-      <div className={`relative study-eagle-${mode}`}>
-        {petKey > 0 && (
-          <div key={petKey} className="study-eagle-hearts" aria-hidden="true">
-            <PixelHeart />
-            <PixelHeart />
-            <PixelHeart />
-          </div>
+      <div
+        ref={eagleRef}
+        className={`study-eagle fixed ${isDragging ? "study-eagle-dragging" : ""} ${
+          popOut ? `study-eagle-pop-${popOut}` : ""
+        }`}
+        // Flush to the edge: the branch grows out of the side of the screen.
+        style={{ right: 0, top, width: size.w }}
+      >
+        {collapsed && chatOpen && !compact && summaryCourseCode ? (
+          <button type="button" className="study-eagle-teaser" onClick={openChat}>
+            Quick take on {summaryCourseCode}
+          </button>
+        ) : (
+          statusMessage &&
+          !(chatOpen && !collapsed) && (
+            <div className="study-eagle-status" role="status">
+              {statusMessage}
+            </div>
+          )
         )}
-        {mode === "celebrating" && (
-          <div className="study-eagle-confetti" aria-hidden="true">
-            ✦ · ✧ ✦ · ✧
-          </div>
-        )}
-        <button
-          type="button"
-          aria-label={`Study Eagle. ${isDozing(mode) ? "Sleeping. " : ""}Tap to pet, drag the branch up or down.`}
-          title="Tap to pet · drag the branch up or down"
-          onClick={petEagle}
-          onPointerDown={onPointerDown}
-          onPointerMove={onPointerMove}
-          onPointerUp={onPointerUp}
-          onPointerCancel={onPointerUp}
-          className="study-eagle-button"
-        >
-          {/* One layer per sheet, always mounted, so switching states never swaps the
+        <div className={`relative study-eagle-${mode}`}>
+          {petKey > 0 && (
+            <div key={petKey} className="study-eagle-hearts" aria-hidden="true">
+              <PixelHeart />
+              <PixelHeart />
+              <PixelHeart />
+            </div>
+          )}
+          {mode === "celebrating" && (
+            <div className="study-eagle-confetti" aria-hidden="true">
+              ✦ · ✧ ✦ · ✧
+            </div>
+          )}
+          <button
+            type="button"
+            aria-label={`Study Eagle. ${isDozing(mode) ? "Sleeping. " : ""}Tap to pet, drag the branch up or down.`}
+            title="Tap to pet · drag the branch up or down"
+            onClick={petEagle}
+            onPointerDown={onPointerDown}
+            onPointerMove={onPointerMove}
+            onPointerUp={onPointerUp}
+            onPointerCancel={onPointerUp}
+            className="study-eagle-button"
+          >
+            {/* One layer per sheet, always mounted, so switching states never swaps the
               image on an element (some browsers draw a blank frame while they do).
               Only the active layer shows and animates; becoming active starts its
               animation from frame 1. A repeat pet or celebration remounts that layer. */}
-          {SPRITE_MODES.map((sprite) => (
-            <span
-              key={
-                sprite === "celebrating"
-                  ? `celebrate-${celebrateKey}`
-                  : sprite === "petting"
-                    ? `pet-${petKey}`
-                    : sprite
-              }
-              className={`study-eagle-sprite study-eagle-sprite-${sprite} ${
-                sprite === mode ? "is-active" : ""
-              }`}
-            />
-          ))}
-        </button>
-        <div className="study-eagle-controls">
-          <button
-            type="button"
-            onClick={() => setChatOpen((open) => !open)}
-            aria-label="Chat with Study Eagle"
-            title="Chat with Study Eagle"
-          >
-            <MessageCircle className="h-3.5 w-3.5" />
+            {SPRITE_MODES.map((sprite) => (
+              <span
+                key={
+                  sprite === "celebrating"
+                    ? `celebrate-${celebrateKey}`
+                    : sprite === "petting"
+                      ? `pet-${petKey}`
+                      : sprite
+                }
+                className={`study-eagle-sprite study-eagle-sprite-${sprite} ${
+                  sprite === mode ? "is-active" : ""
+                }`}
+              />
+            ))}
           </button>
+          <div className="study-eagle-controls">
+            <button
+              ref={chatButtonRef}
+              type="button"
+              onClick={() => (chatOpen && !collapsed ? closeChat() : openChat())}
+              aria-expanded={chatOpen && !collapsed}
+              aria-label="Chat with Study Eagle"
+              title="Chat with Study Eagle"
+            >
+              <MessageCircle className="h-3.5 w-3.5" />
+            </button>
+          </div>
         </div>
       </div>
-    </div>
+    </>
   );
 }
 
