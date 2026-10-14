@@ -7,6 +7,8 @@
 // (https://arctic-shift.photon-reddit.com), since Reddit blocks keyless requests.
 // With an approved Reddit API app, set REDDIT_CLIENT_ID and REDDIT_CLIENT_SECRET
 // to read Reddit directly instead.
+// r/UTM is small enough that the archive mode reads every comment ever posted there,
+// resuming from where the last run stopped. r/UofT is too big for that, so it uses searches.
 // Optional: REDDIT_QUERIES="bird course,easy course" REDDIT_MAX_POSTS=50
 
 import { mkdir, readFile, writeFile } from "node:fs/promises";
@@ -34,13 +36,16 @@ const UTM_RE = /\butm\b|mississauga/i;
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
-async function getJson(url, headers = {}) {
-  await sleep(1000);
+async function getJson(url, headers = {}, attempt = 1) {
+  // A short pause keeps the archive happy; busy replies are retried with longer waits below.
+  await sleep(400);
   const res = await fetch(url, { headers: { "User-Agent": USER_AGENT, ...headers } });
-  if (res.status === 429) {
-    console.log("Rate limited, waiting a minute...");
-    await sleep(60_000);
-    return getJson(url, headers);
+  // 429 is a rate limit; the archive also answers 422 "Timeout" when it is busy.
+  if ((res.status === 429 || res.status === 422 || res.status >= 500) && attempt < 4) {
+    const wait = 15_000 * attempt;
+    console.log(`  ${res.status}, retrying in ${wait / 1000}s...`);
+    await sleep(wait);
+    return getJson(url, headers, attempt + 1);
   }
   if (!res.ok) throw new Error(`${url} -> ${res.status} ${(await res.text()).slice(0, 500)}`);
   return res.json();
@@ -59,15 +64,6 @@ async function redditSource() {
   });
   if (!res.ok) throw new Error(`Token request failed: ${res.status} ${await res.text()}`);
   const auth = { Authorization: `Bearer ${(await res.json()).access_token}` };
-
-  const flatten = (children, out = []) => {
-    for (const c of children ?? []) {
-      if (c.kind !== "t1") continue;
-      out.push(c.data);
-      if (c.data.replies?.data?.children) flatten(c.data.replies.data.children, out);
-    }
-    return out;
-  };
 
   return {
     async posts(sub, q) {
@@ -94,14 +90,38 @@ async function redditSource() {
 function archiveSource() {
   return {
     async posts(sub, q) {
-      const params = new URLSearchParams({ subreddit: sub, query: q, limit: "100" });
+      // Full-text search times out on a subreddit as big as r/UofT, so search titles there.
+      const field = sub === "UTM" ? "query" : "title";
+      const params = new URLSearchParams({ subreddit: sub, [field]: q, limit: "100" });
       return (await getJson(`${ARCHIVE}/posts/search?${params}`)).data ?? [];
     },
-    async comments(post) {
-      const params = new URLSearchParams({ link_id: post.id, limit: "100" });
+    // Every comment in the subreddit, oldest first, starting after the given timestamp.
+    async allComments(sub, after) {
+      const params = new URLSearchParams({
+        subreddit: sub,
+        limit: "auto",
+        sort: "asc",
+        // Only the fields we keep, so each page downloads faster.
+        fields: "id,body,score,created_utc,link_id",
+      });
+      if (after) params.set("after", String(after));
       return (await getJson(`${ARCHIVE}/comments/search?${params}`)).data ?? [];
     },
+    async comments(post) {
+      const params = new URLSearchParams({ link_id: post.id, limit: "9999" });
+      return flatten((await getJson(`${ARCHIVE}/comments/tree?${params}`)).data);
+    },
   };
+}
+
+// Both Reddit and the archive return comment trees in Reddit's nested format.
+function flatten(children, out = []) {
+  for (const c of children ?? []) {
+    if (c.kind !== "t1") continue;
+    out.push(c.data);
+    if (c.data.replies?.data?.children) flatten(c.data.replies.data.children, out);
+  }
+  return out;
 }
 
 function courseCodes(text, utmOnly) {
@@ -115,14 +135,28 @@ function courseCodes(text, utmOnly) {
   return [...codes];
 }
 
+// Saved after every thread so stopping the script midway keeps what it found.
+async function save(courses, done, cursors) {
+  for (const list of Object.values(courses)) list.sort((a, b) => b.score - a.score);
+  await mkdir("data", { recursive: true });
+  const body = { updated: new Date().toISOString(), doneSearches: [...done], cursors, courses };
+  await writeFile(OUT, JSON.stringify(body, null, 2));
+}
+
 async function main() {
   const useReddit = REDDIT_CLIENT_ID && REDDIT_CLIENT_SECRET;
   const source = useReddit ? await redditSource() : archiveSource();
   console.log(`Reading from ${useReddit ? "Reddit API" : "Arctic Shift archive"}`);
 
   let courses = {};
+  // Searches that already finished are skipped on reruns. Set REDDIT_REFRESH=1 to redo them.
+  let done = new Set();
+  let cursors = {};
   try {
-    courses = JSON.parse(await readFile(OUT, "utf8")).courses ?? {};
+    const saved = JSON.parse(await readFile(OUT, "utf8"));
+    courses = saved.courses ?? {};
+    if (!process.env.REDDIT_REFRESH) done = new Set(saved.doneSearches ?? []);
+    cursors = saved.cursors ?? {};
   } catch {}
   const seenComments = new Set(
     Object.values(courses)
@@ -131,10 +165,70 @@ async function main() {
   );
   const seenPosts = new Set();
 
+  const add = (c, sub, thread, utmOnly) => {
+    if (!c.body || c.body === "[deleted]" || c.body === "[removed]" || seenComments.has(c.id))
+      return;
+    const codes = courseCodes(c.body, utmOnly);
+    if (!codes.length) return;
+    seenComments.add(c.id);
+    const linkId = (c.link_id ?? "").replace(/^t3_/, "");
+    for (const code of codes) {
+      (courses[code] ??= []).push({
+        id: c.id,
+        subreddit: sub,
+        thread,
+        text: c.body,
+        score: c.score,
+        date: new Date(c.created_utc * 1000).toISOString().slice(0, 10),
+        url: `https://www.reddit.com${c.permalink ?? `/r/${sub}/comments/${linkId}/_/${c.id}/`}`,
+      });
+    }
+  };
+
+  if (!useReddit) {
+    // Page through all of r/UTM. Each page's last timestamp is saved, so a rerun resumes.
+    let after = cursors.UTM;
+    console.log(
+      `Reading every r/UTM comment${after ? ` after ${new Date(after * 1000).toISOString().slice(0, 10)}` : ""}...`,
+    );
+    for (;;) {
+      let page;
+      try {
+        page = await source.allComments("UTM", after);
+      } catch (e) {
+        console.log(
+          `Stopped at ${after ? new Date(after * 1000).toISOString().slice(0, 10) : "start"}; rerun to continue. (${e.message.slice(-60)})`,
+        );
+        break;
+      }
+      if (!page.length) break;
+      for (const c of page) add(c, "UTM", "", false);
+      after = page.at(-1).created_utc;
+      cursors.UTM = after;
+      await save(courses, done, cursors);
+      console.log(
+        `  up to ${new Date(after * 1000).toISOString().slice(0, 10)}: ${seenComments.size} course comments`,
+      );
+    }
+  }
+
   for (const sub of SUBREDDITS) {
+    // The full crawl above already covers r/UTM.
+    if (!useReddit && sub === "UTM") continue;
     const isUofT = sub !== "UTM";
     for (const q of QUERIES) {
-      const posts = (await source.posts(sub, isUofT ? `${q} UTM` : q)).slice(0, MAX_POSTS);
+      const key = `${sub}:${q}`;
+      if (done.has(key)) {
+        console.log(`r/${sub} "${q}": already done`);
+        continue;
+      }
+      let posts;
+      try {
+        posts = (await source.posts(sub, isUofT ? `${q} UTM` : q)).slice(0, MAX_POSTS);
+      } catch (e) {
+        console.log(`r/${sub} "${q}": search skipped (${e.message.slice(-60)})`);
+        continue;
+      }
       console.log(`r/${sub} "${q}": ${posts.length} posts`);
 
       for (const post of posts) {
@@ -143,31 +237,22 @@ async function main() {
         const postText = `${post.title}\n${post.selftext ?? ""}`;
         if (isUofT && !UTM_RE.test(postText) && !/h5\b/i.test(postText)) continue;
 
-        for (const c of await source.comments(post)) {
-          if (!c.body || c.body === "[deleted]" || c.body === "[removed]" || seenComments.has(c.id))
-            continue;
-          const codes = courseCodes(c.body, isUofT && !UTM_RE.test(postText));
-          if (!codes.length) continue;
-          seenComments.add(c.id);
-          for (const code of codes) {
-            (courses[code] ??= []).push({
-              id: c.id,
-              subreddit: sub,
-              thread: post.title,
-              text: c.body,
-              score: c.score,
-              date: new Date(c.created_utc * 1000).toISOString().slice(0, 10),
-              url: `https://www.reddit.com${c.permalink ?? `/r/${sub}/comments/${post.id}/_/${c.id}/`}`,
-            });
-          }
+        let comments;
+        try {
+          comments = await source.comments(post);
+        } catch (e) {
+          console.log(`  skipped "${post.title}": ${e.message.slice(0, 120)}`);
+          continue;
         }
+        const utmOnly = isUofT && !UTM_RE.test(postText);
+        for (const c of comments) add(c, sub, post.title, utmOnly);
+        await save(courses, done, cursors);
       }
+      done.add(key);
+      await save(courses, done, cursors);
     }
   }
 
-  for (const list of Object.values(courses)) list.sort((a, b) => b.score - a.score);
-  await mkdir("data", { recursive: true });
-  await writeFile(OUT, JSON.stringify({ updated: new Date().toISOString(), courses }, null, 2));
   const total = Object.values(courses).reduce((n, l) => n + l.length, 0);
   console.log(`Saved ${total} comments across ${Object.keys(courses).length} courses to ${OUT}`);
 }
