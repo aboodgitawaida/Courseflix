@@ -9,7 +9,6 @@
  */
 export const EAGLE_MODES = [
   "awake",
-  "drowsy",
   "fallingAsleep",
   "sleeping",
   "wakingUp",
@@ -26,7 +25,6 @@ export type EagleMode = (typeof EAGLE_MODES)[number];
 
 export const MODE_PRIORITY: Record<EagleMode, number> = {
   awake: 0,
-  drowsy: 0,
   fallingAsleep: 0,
   sleeping: 0,
   openingBook: 0,
@@ -123,7 +121,7 @@ export function request(
  */
 export function ambient(current: EagleMode, ctx: EagleContext): EagleMode | null {
   const resting = restingMode(ctx);
-  if (current === "awake" || current === "drowsy") return resting === "awake" ? null : resting;
+  if (current === "awake") return resting === "awake" ? null : resting;
   if (current === "grinding" || OPENING_TO_LOOP[current]) {
     return resting === current ? null : resting;
   }

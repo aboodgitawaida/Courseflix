@@ -47,9 +47,7 @@ const EAGLE_REPLIES = EAGLE_LINES.tips;
 /** Where the perch sits on the right edge, as a fraction of the viewport height. */
 const PERCH_KEY = "courseflix.eagle.perchY";
 const DEFAULT_PERCH = 0.62;
-/** With nothing happening he gets drowsy, then nods off: 10 s in all. */
-const DROWSY_AFTER_MS = 6_000;
-const SLEEP_AFTER_DROWSY_MS = 4_000;
+const SLEEP_AFTER_MS = 10_000;
 /** On phones a celebration pops the tucked-away eagle out for this long. */
 const POP_OUT_MS = 3_000;
 const POP_OUT_EXIT_MS = 250; // the slide back out in styles.css
@@ -69,7 +67,6 @@ const EAGLE_SHEETS = [
   "/eagle-reading.png",
   "/eagle-grind.png",
   "/eagle-startled.png",
-  "/eagle-drowsy.png",
   "/eagle-search-open.png",
   "/eagle-search.png",
 ];
@@ -225,28 +222,16 @@ export function StudyEagle() {
     return () => window.removeEventListener("resize", onResize);
   }, []);
 
-  // With nothing happening he gets drowsy (slow blinks, nodding), then nods off;
-  // any activity resets the clock, and perks him up if he was drowsy.
+  // Nods off after a while with nothing happening; any activity resets the clock.
   useEffect(() => {
-    if ((mode !== "awake" && mode !== "drowsy") || chatOpen || isDragging) return;
-    const timer = window.setTimeout(
-      () => {
-        if (mode === "awake") {
-          setMode("drowsy");
-          return;
-        }
-        setMode("fallingAsleep");
-        const line = pickEagleLine("fallAsleep");
-        if (line && !isCompact()) showStatus(line);
-      },
-      mode === "awake" ? DROWSY_AFTER_MS : SLEEP_AFTER_DROWSY_MS,
-    );
+    if (mode !== "awake" || chatOpen || isDragging) return;
+    const timer = window.setTimeout(() => {
+      setMode("fallingAsleep");
+      const line = pickEagleLine("fallAsleep");
+      if (line && !isCompact()) showStatus(line);
+    }, SLEEP_AFTER_MS);
     return () => window.clearTimeout(timer);
   }, [activityVersion, mode, chatOpen, isDragging]);
-
-  useEffect(() => {
-    if (modeRef.current === "drowsy") setMode("awake");
-  }, [activityVersion, chatOpen]);
 
   useEffect(() => {
     const onSummary = (event: Event) => {
