@@ -1,10 +1,12 @@
 #!/usr/bin/env node
-// Collects UTM course comments from r/UTM and r/UofT through Reddit's official API.
+// Collects UTM course comments from r/UTM and r/UofT.
 // Writes data/reddit-reviews.json grouped by course code. Never touches Supabase.
 //
 // Run: npm run reddit-reviews
-// Works without keys through Reddit's public JSON pages. If you have an approved
-// API app, set REDDIT_CLIENT_ID and REDDIT_CLIENT_SECRET to use OAuth instead.
+// Without keys it reads the Arctic Shift public Reddit archive
+// (https://arctic-shift.photon-reddit.com), since Reddit blocks keyless requests.
+// With an approved Reddit API app, set REDDIT_CLIENT_ID and REDDIT_CLIENT_SECRET
+// to read Reddit directly instead.
 // Optional: REDDIT_QUERIES="bird course,easy course" REDDIT_MAX_POSTS=50
 
 import { mkdir, readFile, writeFile } from "node:fs/promises";
@@ -12,6 +14,7 @@ import { mkdir, readFile, writeFile } from "node:fs/promises";
 const { REDDIT_CLIENT_ID, REDDIT_CLIENT_SECRET } = process.env;
 
 const USER_AGENT = "courseflix-review-collector/1.0";
+const ARCHIVE = "https://arctic-shift.photon-reddit.com/api";
 const OUT = "data/reddit-reviews.json";
 const MAX_POSTS = Number(process.env.REDDIT_MAX_POSTS ?? 40);
 const QUERIES = (
@@ -23,18 +26,27 @@ const QUERIES = (
   .filter(Boolean);
 
 // r/UofT covers all three campuses, so only keep its posts that are about UTM.
-const SUBREDDITS = [
-  { name: "UTM", suffix: "" },
-  { name: "UofT", suffix: " UTM" },
-];
+const SUBREDDITS = ["UTM", "UofT"];
 
 // Matches CSC108, csc108h5, ANT102H5F, etc. UTM codes end in 5 when a suffix is present.
 const COURSE_RE = /\b([A-Z]{3})\s?(\d{3})(?:\s?([HY])(\d))?/gi;
+const UTM_RE = /\butm\b|mississauga/i;
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
-async function getToken() {
-  if (!REDDIT_CLIENT_ID || !REDDIT_CLIENT_SECRET) return null;
+async function getJson(url, headers = {}) {
+  await sleep(1000);
+  const res = await fetch(url, { headers: { "User-Agent": USER_AGENT, ...headers } });
+  if (res.status === 429) {
+    console.log("Rate limited, waiting a minute...");
+    await sleep(60_000);
+    return getJson(url, headers);
+  }
+  if (!res.ok) throw new Error(`${url} -> ${res.status}`);
+  return res.json();
+}
+
+async function redditSource() {
   const res = await fetch("https://www.reddit.com/api/v1/access_token", {
     method: "POST",
     headers: {
@@ -45,25 +57,41 @@ async function getToken() {
     body: "grant_type=client_credentials",
   });
   if (!res.ok) throw new Error(`Token request failed: ${res.status} ${await res.text()}`);
-  return (await res.json()).access_token;
+  const auth = { Authorization: `Bearer ${(await res.json()).access_token}` };
+
+  const flatten = (children, out = []) => {
+    for (const c of children ?? []) {
+      if (c.kind !== "t1") continue;
+      out.push(c.data);
+      if (c.data.replies?.data?.children) flatten(c.data.replies.data.children, out);
+    }
+    return out;
+  };
+
+  return {
+    async posts(sub, q) {
+      const params = new URLSearchParams({ q, restrict_sr: "1", sort: "relevance", t: "all", limit: "100" });
+      const listing = await getJson(`https://oauth.reddit.com/r/${sub}/search?${params}`, auth);
+      return listing.data.children.map((c) => c.data);
+    },
+    async comments(post) {
+      const [, comments] = await getJson(`https://oauth.reddit.com/comments/${post.id}?limit=500&depth=10`, auth);
+      return flatten(comments.data.children);
+    },
+  };
 }
 
-async function api(token, path) {
-  // Stay well under Reddit's 100 requests/minute limit.
-  // Public pages allow far fewer requests than OAuth, so wait longer without a token.
-  await sleep(token ? 700 : 2500);
-  const url = token
-    ? `https://oauth.reddit.com${path}`
-    : `https://www.reddit.com${path.replace(/^([^?]*)/, "$1.json")}`;
-  const headers = { "User-Agent": USER_AGENT };
-  if (token) headers.Authorization = `Bearer ${token}`;
-  const res = await fetch(url, { headers });
-  if (res.status === 429) {
-    await sleep(60_000);
-    return api(token, path);
-  }
-  if (!res.ok) throw new Error(`${path} -> ${res.status}`);
-  return res.json();
+function archiveSource() {
+  return {
+    async posts(sub, q) {
+      const params = new URLSearchParams({ subreddit: sub, query: q, limit: "100", sort: "desc" });
+      return (await getJson(`${ARCHIVE}/posts/search?${params}`)).data ?? [];
+    },
+    async comments(post) {
+      const params = new URLSearchParams({ link_id: post.id, limit: "100" });
+      return (await getJson(`${ARCHIVE}/comments/search?${params}`)).data ?? [];
+    },
+  };
 }
 
 function courseCodes(text, utmOnly) {
@@ -71,63 +99,50 @@ function courseCodes(text, utmOnly) {
   for (const m of text.matchAll(COURSE_RE)) {
     const [, dept, num, , campus] = m;
     if (campus && campus !== "5") continue; // H1 = St. George, H3 = UTSC
-    if (utmOnly && !campus && !/\butm\b|mississauga/i.test(text)) continue;
+    if (utmOnly && !campus && !UTM_RE.test(text)) continue;
     codes.add(`${dept.toUpperCase()}${num}`);
   }
   return [...codes];
 }
 
-function flattenComments(children, out = []) {
-  for (const c of children ?? []) {
-    if (c.kind !== "t1") continue;
-    const d = c.data;
-    if (d.body && d.body !== "[deleted]" && d.body !== "[removed]") {
-      out.push({ id: d.id, body: d.body, score: d.score, created: d.created_utc, permalink: d.permalink });
-    }
-    if (d.replies?.data?.children) flattenComments(d.replies.data.children, out);
-  }
-  return out;
-}
-
 async function main() {
-  const token = await getToken();
-  let existing = {};
+  const useReddit = REDDIT_CLIENT_ID && REDDIT_CLIENT_SECRET;
+  const source = useReddit ? await redditSource() : archiveSource();
+  console.log(`Reading from ${useReddit ? "Reddit API" : "Arctic Shift archive"}`);
+
+  let courses = {};
   try {
-    existing = JSON.parse(await readFile(OUT, "utf8")).courses ?? {};
+    courses = JSON.parse(await readFile(OUT, "utf8")).courses ?? {};
   } catch {}
-  const courses = existing;
   const seenComments = new Set(Object.values(courses).flat().map((r) => r.id));
   const seenPosts = new Set();
 
-  for (const { name, suffix } of SUBREDDITS) {
+  for (const sub of SUBREDDITS) {
+    const isUofT = sub !== "UTM";
     for (const q of QUERIES) {
-      const params = new URLSearchParams({ q: q + suffix, restrict_sr: "1", sort: "relevance", t: "all", limit: "100" });
-      const listing = await api(token, `/r/${name}/search?${params}`);
-      const posts = listing.data.children.slice(0, MAX_POSTS);
-      console.log(`r/${name} "${q}": ${posts.length} posts`);
+      const posts = (await source.posts(sub, isUofT ? `${q} UTM` : q)).slice(0, MAX_POSTS);
+      console.log(`r/${sub} "${q}": ${posts.length} posts`);
 
-      for (const { data: post } of posts) {
+      for (const post of posts) {
         if (seenPosts.has(post.id)) continue;
         seenPosts.add(post.id);
         const postText = `${post.title}\n${post.selftext ?? ""}`;
-        const utmOnly = name !== "UTM";
-        if (utmOnly && !/\butm\b|mississauga|h5\b/i.test(postText)) continue;
+        if (isUofT && !UTM_RE.test(postText) && !/h5\b/i.test(postText)) continue;
 
-        const [, comments] = await api(token, `/comments/${post.id}?limit=500&depth=10`);
-        for (const c of flattenComments(comments.data.children)) {
-          if (seenComments.has(c.id)) continue;
-          const codes = courseCodes(c.body, utmOnly && !/\butm\b|mississauga/i.test(postText));
+        for (const c of await source.comments(post)) {
+          if (!c.body || c.body === "[deleted]" || c.body === "[removed]" || seenComments.has(c.id)) continue;
+          const codes = courseCodes(c.body, isUofT && !UTM_RE.test(postText));
           if (!codes.length) continue;
           seenComments.add(c.id);
           for (const code of codes) {
             (courses[code] ??= []).push({
               id: c.id,
-              subreddit: name,
+              subreddit: sub,
               thread: post.title,
               text: c.body,
               score: c.score,
-              date: new Date(c.created * 1000).toISOString().slice(0, 10),
-              url: `https://www.reddit.com${c.permalink}`,
+              date: new Date(c.created_utc * 1000).toISOString().slice(0, 10),
+              url: `https://www.reddit.com${c.permalink ?? `/r/${sub}/comments/${post.id}/_/${c.id}/`}`,
             });
           }
         }
