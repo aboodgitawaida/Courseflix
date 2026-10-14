@@ -1,0 +1,8 @@
+{
+  "first_frame": "@assets/eagle-src/pixellab-base-awake.png",
+  "action": "detective eagle: pulls out a magnifying glass, leans forward and looks closely through the lens with one big magnified eye, moving the glass slowly left and right as if searching for clues; feet keep gripping the branch",
+  "frame_count": 12,
+  "seed": 89,
+  "enhance_prompt": true,
+  "no_background": true
+}

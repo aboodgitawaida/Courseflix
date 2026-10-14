@@ -565,15 +565,6 @@
   background-size: 800% 100%;
   animation: eagle-reading-frames 2s steps(8, jump-none) infinite;
 }
-/* Looking toward the cursor: two held poses side by side (up, down). */
-.study-eagle-sprite-look-up,
-.study-eagle-sprite-look-down {
-  background-image: url("/eagle-look.png");
-  background-size: 200% 100%;
-}
-.study-eagle-sprite-look-down {
-  background-position: 100% 0%;
-}
 /* Every sheet has its own layer (StudyEagle.tsx); only the active one shows. With
    no animation, a layer that becomes active starts again from frame 1. */
 .study-eagle-sprite:not(.is-active) {
