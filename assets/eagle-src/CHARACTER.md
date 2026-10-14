@@ -12,7 +12,7 @@ normal pose.
 1. **Eye.** One round eye: yellow iris `#E3AD2B`, dark pupil, a 1 px white
    glint, and a curved grey brow arching above it. Never a low, slanted brow
    (it reads as sad). The build script redraws this eye on animated frames
-   (`fix_eye`). Closed or half-shut eyes only belong in sleep, drowsy, the yawn
+   (`fix_eye`). Closed or half-shut eyes only belong in sleep, the yawn
    and the one blink frame of the idle loop.
 2. **Beak.** Hooked, warm orange-yellow in three tones (`#D29225`, `#C78122`,
    `#B6701F`). Same size and shape in every frame.

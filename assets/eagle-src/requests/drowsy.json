@@ -1,8 +1,0 @@
-{
-  "first_frame": "@assets/eagle-src/pixellab-base-awake.png",
-  "last_frame": "@assets/eagle-src/pixellab-base-awake.png",
-  "action": "getting very drowsy while perched on the branch: eyelids droop into a slow heavy blink, head slowly nods down toward its chest, then jerks back up trying to stay awake; feet stay gripping the branch",
-  "frame_count": 8,
-  "seed": 61,
-  "no_background": true
-}
