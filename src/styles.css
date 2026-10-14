@@ -565,12 +565,12 @@
   background-size: 800% 100%;
   animation: eagle-reading-frames 2s steps(8, jump-none) infinite;
 }
-/* Search open: takes out a magnifying glass (6 frames, once), then peers
+/* Search open: raises a magnifying glass (4 frames, once), then peers
    through it in a loop for as long as the search box stays open. */
 .study-eagle-sprite-openingGlass {
   background-image: url("/eagle-search-open.png");
-  background-size: 600% 100%;
-  animation: eagle-reading-frames 0.9s steps(6, jump-none) forwards;
+  background-size: 400% 100%;
+  animation: eagle-reading-frames 0.6s steps(4, jump-none) forwards;
 }
 .study-eagle-sprite-searching {
   background-image: url("/eagle-search.png");
