@@ -111,10 +111,11 @@ function courseCodes(text, utmOnly) {
 }
 
 // Saved after every thread so stopping the script midway keeps what it found.
-async function save(courses) {
+async function save(courses, done) {
   for (const list of Object.values(courses)) list.sort((a, b) => b.score - a.score);
   await mkdir("data", { recursive: true });
-  await writeFile(OUT, JSON.stringify({ updated: new Date().toISOString(), courses }, null, 2));
+  const body = { updated: new Date().toISOString(), doneSearches: [...done], courses };
+  await writeFile(OUT, JSON.stringify(body, null, 2));
 }
 
 async function main() {
@@ -123,8 +124,12 @@ async function main() {
   console.log(`Reading from ${useReddit ? "Reddit API" : "Arctic Shift archive"}`);
 
   let courses = {};
+  // Searches that already finished are skipped on reruns. Set REDDIT_REFRESH=1 to redo them.
+  let done = new Set();
   try {
-    courses = JSON.parse(await readFile(OUT, "utf8")).courses ?? {};
+    const saved = JSON.parse(await readFile(OUT, "utf8"));
+    courses = saved.courses ?? {};
+    if (!process.env.REDDIT_REFRESH) done = new Set(saved.doneSearches ?? []);
   } catch {}
   const seenComments = new Set(Object.values(courses).flat().map((r) => r.id));
   const seenPosts = new Set();
@@ -132,6 +137,11 @@ async function main() {
   for (const sub of SUBREDDITS) {
     const isUofT = sub !== "UTM";
     for (const q of QUERIES) {
+      const key = `${sub}:${q}`;
+      if (done.has(key)) {
+        console.log(`r/${sub} "${q}": already done`);
+        continue;
+      }
       let posts;
       try {
         posts = (await source.posts(sub, isUofT ? `${q} UTM` : q)).slice(0, MAX_POSTS);
@@ -171,12 +181,13 @@ async function main() {
             });
           }
         }
-        await save(courses);
+        await save(courses, done);
       }
+      done.add(key);
+      await save(courses, done);
     }
   }
 
-  await save(courses);
   const total = Object.values(courses).reduce((n, l) => n + l.length, 0);
   console.log(`Saved ${total} comments across ${Object.keys(courses).length} courses to ${OUT}`);
 }
