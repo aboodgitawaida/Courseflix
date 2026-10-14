@@ -17,6 +17,8 @@ export const EAGLE_MODES = [
   "petting",
   "openingBook",
   "reading",
+  "openingGlass",
+  "searching",
   "grinding",
 ] as const;
 export type EagleMode = (typeof EAGLE_MODES)[number];
@@ -27,6 +29,8 @@ export const MODE_PRIORITY: Record<EagleMode, number> = {
   sleeping: 0,
   openingBook: 0,
   reading: 0,
+  openingGlass: 0,
+  searching: 0,
   grinding: 1,
   wakingUp: 2,
   startled: 2,
@@ -42,14 +46,23 @@ export const MODE_DURATION_MS: Partial<Record<EagleMode, number>> = {
   celebrating: 1_100, // 8-frame wing-flap
   petting: 900, // 8-frame head-bob
   openingBook: 900, // 6 frames: takes out the book
+  openingGlass: 900, // 6 frames: takes out the magnifying glass
 };
 
 /** What's going on around the eagle that decides where he settles. */
 export type EagleContext = {
   /** A course preview is open: he reads along. */
   reading: boolean;
+  /** The search box is open: he searches through a magnifying glass. */
+  searching: boolean;
   /** The user is typing or clicking fast: he crams along. */
   grinding: boolean;
+};
+
+/** Prop animations: a one-shot "take it out" state, then the loop it settles into. */
+const OPENING_TO_LOOP: Partial<Record<EagleMode, EagleMode>> = {
+  openingBook: "reading",
+  openingGlass: "searching",
 };
 
 export function isDozing(mode: EagleMode) {
@@ -57,10 +70,11 @@ export function isDozing(mode: EagleMode) {
 }
 
 /**
- * The resting state for the current context. Grinding wins over reading, since
- * typing fast in a preview (say, writing a review) is the more active thing.
+ * The resting state for the current context. Searching wins (typing in the
+ * search box is searching, not cramming), then grinding, then reading.
  */
 export function restingMode(ctx: EagleContext): EagleMode {
+  if (ctx.searching) return "openingGlass";
   if (ctx.grinding) return "grinding";
   if (ctx.reading) return "openingBook";
   return "awake";
@@ -69,7 +83,11 @@ export function restingMode(ctx: EagleContext): EagleMode {
 /** Where a one-shot state goes when it finishes. */
 export function settle(mode: EagleMode, ctx: EagleContext, queued?: EagleMode | null): EagleMode {
   if (mode === "fallingAsleep") return "sleeping";
-  if (mode === "openingBook") return ctx.grinding ? "grinding" : "reading";
+  const loop = OPENING_TO_LOOP[mode];
+  if (loop) {
+    const resting = restingMode(ctx);
+    return resting === mode ? loop : resting;
+  }
   return queued ?? restingMode(ctx);
 }
 
@@ -98,21 +116,18 @@ export function request(
 
 /**
  * The ambient state for a context change while nothing scripted is playing:
- * start reading or grinding from idle, and put the book or pencil away when
- * that stops. Returns null when nothing should change.
+ * take out the book, glass or pencil from idle, and put it away (or swap it)
+ * when the context changes. Returns null when nothing should change.
  */
 export function ambient(current: EagleMode, ctx: EagleContext): EagleMode | null {
   const resting = restingMode(ctx);
-  switch (current) {
-    case "awake":
-      return resting === "awake" ? null : resting;
-    case "reading":
-      return resting === "openingBook" ? null : resting;
-    case "openingBook":
-      return ctx.reading || ctx.grinding ? null : "awake";
-    case "grinding":
-      return ctx.grinding ? null : resting;
-    default:
-      return null;
+  if (current === "awake") return resting === "awake" ? null : resting;
+  if (current === "grinding" || OPENING_TO_LOOP[current]) {
+    return resting === current ? null : resting;
   }
+  const opening = (Object.keys(OPENING_TO_LOOP) as EagleMode[]).find(
+    (key) => OPENING_TO_LOOP[key] === current,
+  );
+  if (opening) return resting === opening ? null : resting;
+  return null;
 }
