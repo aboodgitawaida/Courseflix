@@ -7,6 +7,7 @@
   pixellab-pet.png            PixelLab animation from the awake frame: happy head-bob (8 x 80x80)
   pixellab-fallasleep.png     PixelLab animation, awake frame -> sleep frame 1: a yawn, then the head sinks (8 x 80x80)
   pixellab-wakeup.png         PixelLab animation, sleep frame 1 -> awake frame: head up, wing stretch (8 x 80x80)
+  pixellab-reading.png        PixelLab animation from the awake frame: takes out a book and reads it (12 x 80x80)
 
 Outputs share one frame size, transparent with crisp pixels and one palette. The
 branch is identical in every frame and the sheets are mirrored so the branch's
@@ -17,6 +18,8 @@ cut end sits against the right edge of the screen:
   public/eagle-pet.png        8 frames (played once per tap)
   public/eagle-fallasleep.png 8 frames (played once, awake -> sleeping)
   public/eagle-wakeup.png     8 frames (played once, sleeping -> awake)
+  public/eagle-reading-open.png 6 frames (played once: takes out the book and opens it)
+  public/eagle-reading.png    6 frames (loop: reading the open book)
 
 The animated frames get one consistent eye drawn in (fix_eye), because the
 animation model's eyes sat under a low, slanted brow that looked sad. The beak and
@@ -168,8 +171,8 @@ def pixellab_frames(name):
 
 
 awake80 = shift(awake)
-idle80, celebrate80, pet80, fallasleep80, wakeup80 = (
-    pixellab_frames(n) for n in ("idle", "celebrate", "pet", "fallasleep", "wakeup"))
+idle80, celebrate80, pet80, fallasleep80, wakeup80, reading80 = (
+    pixellab_frames(n) for n in ("idle", "celebrate", "pet", "fallasleep", "wakeup", "reading"))
 
 
 def drop_specks(f, min_size=40):
@@ -194,10 +197,11 @@ celebrate80 = [drop_specks(f) for f in celebrate80]
 pet80 = [drop_specks(f) for f in pet80]
 fallasleep80 = [drop_specks(f) for f in fallasleep80]
 wakeup80 = [drop_specks(f) for f in wakeup80]
+reading80 = [drop_specks(f) for f in reading80]
 
 # lock the branch (and tail) below the feet to the awake frame, so it never flickers
 LOCK = 61 + dy
-for f in idle80 + celebrate80 + pet80 + fallasleep80 + wakeup80 + sleep80:
+for f in idle80 + celebrate80 + pet80 + fallasleep80 + wakeup80 + reading80 + sleep80:
     f[LOCK:] = awake80[LOCK:]
 
 # one shared palette for all four art sources. The beak and eyes (warm oranges and
@@ -244,6 +248,29 @@ def snap2(f):
 sleep80, idle80, celebrate80, pet80, fallasleep80, wakeup80 = (
     [snap2(f) for f in group]
     for group in (sleep80, idle80, celebrate80, pet80, fallasleep80, wakeup80))
+
+# The reading animation brings a book (red cover, cream pages) the eagle palette has
+# no colours for. It gets a few extra colours of its own, taken from just its
+# off-palette pixels, so the book keeps its colour and the other sheets don't change.
+def snap_extra(frames, k=8, far=900):
+    px = np.concatenate([f[f[..., 3] > 0][:, :3].astype(float) for f in frames])
+    nearest = ((px[:, None] - c2[None]) ** 2).sum(2).min(1)
+    extra = kmeans(px[nearest > far], k, 2).astype(int)
+    pal = np.concatenate([c2, extra])
+    out = []
+    for f in frames:
+        f = f.copy(); a = f[..., 3] > 0
+        d = ((f[..., None, :3].astype(int) - pal[None, None]) ** 2).sum(-1)
+        rows = np.arange(80)[:, None, None]
+        green = np.concatenate([GREEN, np.zeros(len(extra), bool)])
+        d = np.where((rows < LOCK - 2) & green[None, None], 1 << 30, d)
+        f[a, :3] = pal[d.argmin(-1)][a]
+        f[..., 3] = np.where(a, 255, 0)
+        out.append(f)
+    return out
+
+
+reading80 = snap_extra(reading80)
 
 
 # ---------- 4. one friendly eye for every animated frame ----------
@@ -344,8 +371,8 @@ fallasleep80 = [fix_eye(f, blink=i >= 4) for i, f in enumerate(fallasleep80)]
 
 # one shared frame: starts at the branch's cut end (wing tips past it go "off screen")
 STUB_X = 16 + 1
-al = np.any([f[..., 3] > 0 for f in sleep80 + idle80 + celebrate80 + pet80 + fallasleep80 + wakeup80],
-            axis=0)
+al = np.any([f[..., 3] > 0 for f in sleep80 + idle80 + celebrate80 + pet80 + fallasleep80 + wakeup80
+             + reading80], axis=0)
 ys, xs = np.nonzero(al)
 y0, y1, x1 = ys.min(), ys.max() + 1, xs.max() + 1
 
@@ -379,50 +406,12 @@ def finish(frames):
     return np.concatenate(out, 1)
 
 
-# ---------- 7. reading: drawn here, not by the model ----------
-# PixelLab kept putting the book on the eagle's head, so the reading loop is built
-# from one calm idle frame: the eyelid drops half-way (looking down), the pupil
-# scans along a line and snaps back, and a small open book sits at the chest.
-# Coordinates below are in the finished, mirrored 56x68 frame (beak on the left).
-BOOK_COVER, BOOK_EDGE, PAGE, PAGE_SHADE, INK = (
-    (128, 44, 36), (72, 22, 20), (244, 234, 208), (214, 200, 168), (150, 136, 112))
-READ_SCAN = (0, 1, 2, 3, 3, 0, 0, 1)   # pupil column in the eye, per frame
-PAGE_TURN_FRAME = 5                    # the right page flips over here
-
-
-def reading_sheet(base):
-    sheet = finish([base] * 8)
-    W = sheet.shape[1] // 8
-    for i in range(8):
-        f = sheet[:, W * i:W * (i + 1)]
-        rgb = f[..., :3].astype(int)
-        # find the eye: the 2x4 iris block stamped by fix_eye
-        ys, xs = np.nonzero((f[..., 3] > 0) & (np.abs(rgb - IRIS).sum(2) < 30))
-        ys, xs = ys[ys < 30], xs[ys < 30]
-        top, left = ys.min(), xs.min()
-        for dx in range(4):
-            f[top, left + dx] = (*BROW, 255)                 # half-closed lid: looking down
-            f[top + 1, left + dx] = (*IRIS, 255)
-        f[top + 1, left + READ_SCAN[i]] = (*PUPIL, 255)
-        # the book, held below the beak against the chest
-        bx, by, bw, bh = left - 3, top + 16, 14, 7
-        f[by:by + bh, bx:bx + bw] = (*BOOK_COVER, 255)
-        f[by + bh - 1, bx:bx + bw] = (*BOOK_EDGE, 255)
-        f[by:by + bh - 1, bx + 1:bx + bw - 1] = (*PAGE, 255)
-        f[by:by + bh - 1, bx + bw // 2] = (*PAGE_SHADE, 255)   # spine
-        for row in (1, 3):                                     # lines of text
-            f[by + row, bx + 2:bx + bw // 2 - 1] = (*INK, 255)
-            if i != PAGE_TURN_FRAME:
-                f[by + row, bx + bw // 2 + 2:bx + bw - 2] = (*INK, 255)
-        if i == PAGE_TURN_FRAME:                               # page mid-flip
-            f[by - 2:by + bh - 1, bx + bw // 2 + 2] = (*PAGE, 255)
-            f[by - 2:by + bh - 1, bx + bw // 2 + 3] = (*PAGE_SHADE, 255)
-    return sheet
-
-
-Image.fromarray(reading_sheet(idle80[4]), "RGBA").save(OUT / "eagle-reading.png", optimize=True)
+# ---------- 7. reading: takes the book out once, then loops the reading part ----------
+READING_OPEN = 6   # frames 0-5: takes out the book and opens it; 6-11: reads it
+Image.fromarray(finish(reading80[:READING_OPEN]), "RGBA").save(OUT / "eagle-reading-open.png", optimize=True)
+Image.fromarray(finish(reading80[READING_OPEN:]), "RGBA").save(OUT / "eagle-reading.png", optimize=True)
 
 for name, frames in (("eagle-awake", idle80), ("eagle-sleep", sleep80), ("eagle-celebrate", celebrate80),
                      ("eagle-pet", pet80), ("eagle-fallasleep", fallasleep80), ("eagle-wakeup", wakeup80)):
     Image.fromarray(finish(frames), "RGBA").save(OUT / f"{name}.png", optimize=True)
-print("frame size", x1 - STUB_X, "x", y1 - y0, "| wrote eagle-awake, -sleep, -celebrate, -pet, -fallasleep, -wakeup, -reading")
+print("frame size", x1 - STUB_X, "x", y1 - y0, "| wrote eagle-awake, -sleep, -celebrate, -pet, -fallasleep, -wakeup, -reading-open, -reading")

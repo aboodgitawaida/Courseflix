@@ -531,12 +531,19 @@
   background-size: 800% 100%;
   animation: eagle-wakeup-frames 1.2s steps(8, jump-none) forwards;
 }
-/* Reading: head down over a tiny book, eye scanning the lines; loops while a
-   summary streams in the chat. */
+/* Opening the book: 6 frames, takes a book out and opens it; played once
+   (OPEN_BOOK_MS in StudyEagle.tsx) when a course preview opens. */
+.study-eagle-sprite-openingBook {
+  background-image: url("/eagle-reading-open.png");
+  background-size: 600% 100%;
+  animation: eagle-reading-frames 0.9s steps(6, jump-none) forwards;
+}
+/* Reading: 6-frame loop, holding the open book and reading it, for as long as
+   the preview stays open. */
 .study-eagle-sprite-reading {
   background-image: url("/eagle-reading.png");
-  background-size: 800% 100%;
-  animation: eagle-reading-frames 1.4s steps(8, jump-none) infinite;
+  background-size: 600% 100%;
+  animation: eagle-reading-frames 1.5s steps(6, jump-none) infinite;
 }
 /* Every sheet has its own layer (StudyEagle.tsx); only the active one shows. With
    no animation, a layer that becomes active starts again from frame 1. */
