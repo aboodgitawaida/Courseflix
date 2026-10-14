@@ -2,6 +2,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import type { Profile } from "@/lib/profile";
 import { getSessionUser } from "@/lib/session";
+import { celebrateEagleWith } from "@/lib/study-eagle";
 
 export type Friendship = {
   id: string;
@@ -138,7 +139,8 @@ export function useRespondToRequest() {
         if (error) throw new Error(`Could not decline friend request: ${error.message}`);
       }
     },
-    onSuccess: () => {
+    onSuccess: (_data, { accept }) => {
+      if (accept) celebrateEagleWith("friendAdded");
       void queryClient.invalidateQueries({ queryKey: ["friendships"] });
       void queryClient.invalidateQueries({ queryKey: ["notifications"] });
     },
