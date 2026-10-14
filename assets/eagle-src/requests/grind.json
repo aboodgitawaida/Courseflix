@@ -1,0 +1,8 @@
+{
+  "first_frame": "@assets/eagle-src/pixellab-base-awake.png",
+  "action": "cramming for an exam: the eagle pulls out a small notepad and a tiny pencil, holds the notepad in one wing and scribbles on it very fast with the pencil in the other wing, hunched forward, focused; a little sweat drop by its head; feet keep gripping the branch",
+  "frame_count": 12,
+  "seed": 41,
+  "enhance_prompt": false,
+  "no_background": true
+}

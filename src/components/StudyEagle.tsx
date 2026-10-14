@@ -30,30 +30,24 @@ import { useAllCourseStats } from "@/lib/ratings";
 import { EAGLE_LINES } from "@/lib/eagle-lines";
 import { EAGLE_AVOID_SELECTOR, choosePanelSpot, type PanelSpot } from "@/lib/eagle-layout";
 import { pickEagleLine, takeLateNightLine } from "@/lib/study-eagle";
-
-const SPRITE_MODES = [
-  "awake",
-  "fallingAsleep",
-  "sleeping",
-  "wakingUp",
-  "celebrating",
-  "petting",
-  "openingBook",
-  "reading",
-] as const;
-type EagleMode = (typeof SPRITE_MODES)[number];
+import {
+  EAGLE_MODES as SPRITE_MODES,
+  MODE_DURATION_MS,
+  ambient,
+  isDozing,
+  request,
+  settle,
+  type EagleContext,
+  type EagleMode,
+} from "@/lib/eagle-state";
+import { useInputBurst } from "@/hooks/use-input-burst";
 
 const EAGLE_REPLIES = EAGLE_LINES.tips;
 
 /** Where the perch sits on the right edge, as a fraction of the viewport height. */
 const PERCH_KEY = "courseflix.eagle.perchY";
 const DEFAULT_PERCH = 0.62;
-const SLEEP_AFTER_MS = 20_000;
-const CELEBRATE_MS = 1_100; // matches the 8-frame wing-flap in styles.css
-const PET_MS = 900; // matches the 8-frame head-bob in styles.css
-const FALL_ASLEEP_MS = 2_000; // matches the 8-frame yawn in styles.css
-const WAKE_UP_MS = 1_200; // matches the 8-frame stretch in styles.css
-const OPEN_BOOK_MS = 900; // matches the 6-frame take-out-the-book in styles.css
+const SLEEP_AFTER_MS = 10_000;
 /** On phones a celebration pops the tucked-away eagle out for this long. */
 const POP_OUT_MS = 3_000;
 const POP_OUT_EXIT_MS = 250; // the slide back out in styles.css
@@ -71,6 +65,8 @@ const EAGLE_SHEETS = [
   "/eagle-wakeup.png",
   "/eagle-reading-open.png",
   "/eagle-reading.png",
+  "/eagle-grind.png",
+  "/eagle-startled.png",
 ];
 // Holding the decoded images keeps them in memory for the life of the page.
 let preloadedSheets: HTMLImageElement[] | null = null;
@@ -113,11 +109,11 @@ export function StudyEagle() {
   const drag = useRef<{ offset: number; startY: number; moved: boolean } | null>(null);
   const didDrag = useRef(false);
   const messageTimer = useRef<number | null>(null);
-  const celebrateTimer = useRef<number | null>(null);
-  const petTimer = useRef<number | null>(null);
   const popTimer = useRef<number | null>(null);
   const revealedRef = useRef(false);
   const modeRef = useRef<EagleMode>("awake");
+  // A state to play right after the current one (a celebration while waking).
+  const queuedMode = useRef<EagleMode | null>(null);
   // Desktop panel position (null until measured) and whether an auto-opened
   // summary had nowhere to go and folded into a teaser next to the eagle.
   const [panelSpot, setPanelSpot] = useState<Pick<PanelSpot, "left" | "top"> | null>(null);
@@ -140,43 +136,57 @@ export function StudyEagle() {
       ? courseSummary(summaryCourseCode, summaryText, allStats?.get(summaryCourseCode))
       : null;
   const typed = useTypewriter(summary ?? "", summaryRun);
-  // He reads along the whole time a course preview is open.
+  // He reads along the whole time a course preview is open, and crams along
+  // while the user types or clicks fast.
   const reading = !!previewCode;
+  const grinding = useInputBurst(enabled);
+  const context = useRef<EagleContext>({ reading, grinding });
+  context.current = { reading, grinding };
 
   useEffect(() => {
     modeRef.current = mode;
   }, [mode]);
 
+  /** Ask for a state; the rules in eagle-state.ts decide whether it plays. */
+  function go(wanted: EagleMode) {
+    const next = request(modeRef.current, wanted);
+    if (!next) return false;
+    queuedMode.current = next.queued ?? null;
+    modeRef.current = next.mode;
+    setMode(next.mode);
+    return true;
+  }
+
   useEffect(() => {
     revealedRef.current = revealed;
   }, [revealed]);
 
-  // The sleep and wake transitions play once, then settle into the next state.
+  // One-shot states (yawn, stretch, pet, celebration, taking out the book) play
+  // once, then settle. A repeat pet or celebration restarts the clock.
   useEffect(() => {
-    if (mode !== "fallingAsleep" && mode !== "wakingUp") return;
-    const timer = window.setTimeout(
-      () => setMode(mode === "fallingAsleep" ? "sleeping" : "awake"),
-      mode === "fallingAsleep" ? FALL_ASLEEP_MS : WAKE_UP_MS,
-    );
+    const duration = MODE_DURATION_MS[mode];
+    if (duration === undefined) return;
+    const timer = window.setTimeout(() => {
+      const queued = queuedMode.current;
+      queuedMode.current = null;
+      setMode(settle(mode, context.current, queued));
+    }, duration);
     return () => window.clearTimeout(timer);
-  }, [mode]);
+  }, [mode, petKey, celebrateKey]);
+
+  // Reading and grinding start and stop around whatever else is playing.
+  useEffect(() => {
+    if (grinding && isDozing(mode)) {
+      go("grinding");
+      return;
+    }
+    const next = ambient(mode, { reading, grinding });
+    if (next) setMode(next);
+  }, [mode, reading, grinding]);
 
   useEffect(() => {
     if (enabled) preloadEagleSheets();
   }, [enabled]);
-
-  // While a preview is open he takes out a book once, then reads it in a loop.
-  // A wake-up, pet or celebration plays first; after one he takes the book out again.
-  useEffect(() => {
-    if (reading && mode === "awake") setMode("openingBook");
-    else if (!reading && (mode === "reading" || mode === "openingBook")) setMode("awake");
-  }, [reading, mode]);
-
-  useEffect(() => {
-    if (mode !== "openingBook") return;
-    const timer = window.setTimeout(() => setMode("reading"), OPEN_BOOK_MS);
-    return () => window.clearTimeout(timer);
-  }, [mode]);
 
   // After midnight, a gentle nudge once per session. On phones the eagle is
   // tucked away, so it waits for the first tap instead (see petEagle).
@@ -225,7 +235,7 @@ export function StudyEagle() {
       if (!course) return;
       // A new course is activity: wake up before reading it out.
       setActivityVersion((version) => version + 1);
-      if (isDozing(modeRef.current)) setMode("wakingUp");
+      if (isDozing(modeRef.current)) go("wakingUp");
       setSummaryCourseCode(course.code);
       setSummaryContext(context ?? "preview");
       const cached = peekDescriptions();
@@ -276,14 +286,7 @@ export function StudyEagle() {
         }, POP_OUT_MS);
       }
       setCelebrateKey((key) => key + 1);
-      if (petTimer.current !== null) window.clearTimeout(petTimer.current);
-      petTimer.current = null;
-      setMode("celebrating");
-      if (celebrateTimer.current !== null) window.clearTimeout(celebrateTimer.current);
-      celebrateTimer.current = window.setTimeout(() => {
-        setMode("awake");
-        celebrateTimer.current = null;
-      }, CELEBRATE_MS);
+      go("celebrating");
     };
     window.addEventListener("study-eagle-summarize", onSummary);
     window.addEventListener("study-eagle-clear", onClearSummary);
@@ -298,8 +301,6 @@ export function StudyEagle() {
   useEffect(() => {
     return () => {
       if (messageTimer.current !== null) window.clearTimeout(messageTimer.current);
-      if (celebrateTimer.current !== null) window.clearTimeout(celebrateTimer.current);
-      if (petTimer.current !== null) window.clearTimeout(petTimer.current);
       if (popTimer.current !== null) window.clearTimeout(popTimer.current);
     };
   }, []);
@@ -426,21 +427,14 @@ export function StudyEagle() {
       setRevealed(true);
     }
     if (isDozing(modeRef.current)) {
-      setMode("wakingUp");
+      go("petting"); // only wakes him
       const line = takeLateNightLine() ?? pickEagleLine("wokenUp");
       if (line) showStatus(line);
       return;
     }
     setPetKey((key) => key + 1);
     // Happy head-bob, unless it is mid-celebration (that wins).
-    if (modeRef.current !== "celebrating") {
-      setMode("petting");
-      if (petTimer.current !== null) window.clearTimeout(petTimer.current);
-      petTimer.current = window.setTimeout(() => {
-        setMode("awake");
-        petTimer.current = null;
-      }, PET_MS);
-    }
+    go("petting");
     setPetCount((count) => count + 1);
     const line = takeLateNightLine() ?? pickEagleLine("pet") ?? EAGLE_LINES.pet[0];
     showStatus(line);
@@ -596,7 +590,7 @@ export function StudyEagle() {
         onClick={() => {
           setRevealed(true);
           openChat();
-          if (isDozing(modeRef.current)) setMode("wakingUp");
+          if (isDozing(modeRef.current)) go("petting"); // tapping a sleeping eagle startles him awake
         }}
         aria-label="Open Study Eagle"
         title="Study Eagle"
@@ -828,11 +822,6 @@ function PixelHeart() {
       )}
     </svg>
   );
-}
-
-/** Asleep or nodding off: anything that should wake it plays the wake-up. */
-function isDozing(mode: EagleMode) {
-  return mode === "sleeping" || mode === "fallingAsleep";
 }
 
 function prefersReducedMotion() {
