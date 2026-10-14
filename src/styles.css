@@ -574,8 +574,8 @@
 }
 .study-eagle-sprite-searching {
   background-image: url("/eagle-search.png");
-  background-size: 600% 100%;
-  animation: eagle-reading-frames 1.5s steps(6, jump-none) infinite;
+  background-size: 400% 100%;
+  animation: eagle-reading-frames 1.2s steps(4, jump-none) infinite;
 }
 /* Every sheet has its own layer (StudyEagle.tsx); only the active one shows. With
    no animation, a layer that becomes active starts again from frame 1. */

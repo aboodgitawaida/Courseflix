@@ -144,7 +144,9 @@ export function StudyEagle() {
   // He reads along the whole time a course preview is open, and crams along
   // while the user types or clicks fast.
   const reading = !!previewCode;
-  const grinding = useInputBurst(enabled);
+  // Typing in the search box is searching, not cramming, so the burst detector
+  // pauses (and forgets) while search is open.
+  const grinding = useInputBurst(enabled && !searchOpen);
   const searching = searchOpen;
   const context = useRef<EagleContext>({ reading, searching, grinding });
   context.current = { reading, searching, grinding };
