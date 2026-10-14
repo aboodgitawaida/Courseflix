@@ -69,6 +69,8 @@ const EAGLE_SHEETS = [
   "/eagle-startled.png",
   "/eagle-search-open.png",
   "/eagle-search.png",
+  "/eagle-compare-open.png",
+  "/eagle-compare.png",
 ];
 // Holding the decoded images keeps them in memory for the life of the page.
 let preloadedSheets: HTMLImageElement[] | null = null;
@@ -127,7 +129,7 @@ export function StudyEagle() {
   const focusPanel = useRef(false);
   const pathname = useRouterState({ select: (state) => state.location.pathname });
   const course = getCurrentCourse(pathname);
-  const { previewCode, searchOpen, openPreview, setSearchOpen } = useCourseUI();
+  const { previewCode, searchOpen, compare, openPreview, setSearchOpen } = useCourseUI();
   const { data: allStats, isError: statsFailed } = useAllCourseStats(
     enabled && (chatOpen || !!summaryCourseCode),
   );
@@ -145,8 +147,10 @@ export function StudyEagle() {
   // pauses (and forgets) while search is open.
   const grinding = useInputBurst(enabled && !searchOpen);
   const searching = searchOpen;
-  const context = useRef<EagleContext>({ reading, searching, grinding });
-  context.current = { reading, searching, grinding };
+  // The full compare table shows from two courses up; one is just a reminder bar.
+  const comparing = compare.length >= 2;
+  const context = useRef<EagleContext>({ reading, searching, grinding, comparing });
+  context.current = { reading, searching, grinding, comparing };
 
   useEffect(() => {
     modeRef.current = mode;
@@ -185,9 +189,9 @@ export function StudyEagle() {
       go("grinding");
       return;
     }
-    const next = ambient(mode, { reading, searching, grinding });
+    const next = ambient(mode, { reading, searching, grinding, comparing });
     if (next) setMode(next);
-  }, [mode, reading, searching, grinding]);
+  }, [mode, reading, searching, grinding, comparing]);
 
   useEffect(() => {
     if (enabled) preloadEagleSheets();
