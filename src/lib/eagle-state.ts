@@ -19,6 +19,8 @@ export const EAGLE_MODES = [
   "reading",
   "openingGlass",
   "searching",
+  "openingScale",
+  "weighing",
   "grinding",
 ] as const;
 export type EagleMode = (typeof EAGLE_MODES)[number];
@@ -31,6 +33,8 @@ export const MODE_PRIORITY: Record<EagleMode, number> = {
   reading: 0,
   openingGlass: 0,
   searching: 0,
+  openingScale: 0,
+  weighing: 0,
   grinding: 1,
   wakingUp: 2,
   startled: 2,
@@ -47,6 +51,7 @@ export const MODE_DURATION_MS: Partial<Record<EagleMode, number>> = {
   petting: 900, // 8-frame head-bob
   openingBook: 900, // 6 frames: takes out the book
   openingGlass: 900, // 6 frames: takes out the magnifying glass
+  openingScale: 900, // 6 frames: takes out the balance scale
 };
 
 /** What's going on around the eagle that decides where he settles. */
@@ -57,12 +62,15 @@ export type EagleContext = {
   searching: boolean;
   /** The user is typing or clicking fast: he crams along. */
   grinding: boolean;
+  /** Two or more courses are in the compare drawer: he weighs them on a scale. */
+  comparing: boolean;
 };
 
 /** Prop animations: a one-shot "take it out" state, then the loop it settles into. */
 const OPENING_TO_LOOP: Partial<Record<EagleMode, EagleMode>> = {
   openingBook: "reading",
   openingGlass: "searching",
+  openingScale: "weighing",
 };
 
 export function isDozing(mode: EagleMode) {
@@ -71,12 +79,14 @@ export function isDozing(mode: EagleMode) {
 
 /**
  * The resting state for the current context. Searching wins (typing in the
- * search box is searching, not cramming), then grinding, then reading.
+ * search box is searching, not cramming), then grinding, then reading a
+ * preview, then comparing (the drawer stays open in the background).
  */
 export function restingMode(ctx: EagleContext): EagleMode {
   if (ctx.searching) return "openingGlass";
   if (ctx.grinding) return "grinding";
   if (ctx.reading) return "openingBook";
+  if (ctx.comparing) return "openingScale";
   return "awake";
 }
 
