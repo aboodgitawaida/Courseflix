@@ -50,7 +50,8 @@ async function redditSource() {
   const res = await fetch("https://www.reddit.com/api/v1/access_token", {
     method: "POST",
     headers: {
-      Authorization: "Basic " + Buffer.from(`${REDDIT_CLIENT_ID}:${REDDIT_CLIENT_SECRET}`).toString("base64"),
+      Authorization:
+        "Basic " + Buffer.from(`${REDDIT_CLIENT_ID}:${REDDIT_CLIENT_SECRET}`).toString("base64"),
       "Content-Type": "application/x-www-form-urlencoded",
       "User-Agent": USER_AGENT,
     },
@@ -70,12 +71,21 @@ async function redditSource() {
 
   return {
     async posts(sub, q) {
-      const params = new URLSearchParams({ q, restrict_sr: "1", sort: "relevance", t: "all", limit: "100" });
+      const params = new URLSearchParams({
+        q,
+        restrict_sr: "1",
+        sort: "relevance",
+        t: "all",
+        limit: "100",
+      });
       const listing = await getJson(`https://oauth.reddit.com/r/${sub}/search?${params}`, auth);
       return listing.data.children.map((c) => c.data);
     },
     async comments(post) {
-      const [, comments] = await getJson(`https://oauth.reddit.com/comments/${post.id}?limit=500&depth=10`, auth);
+      const [, comments] = await getJson(
+        `https://oauth.reddit.com/comments/${post.id}?limit=500&depth=10`,
+        auth,
+      );
       return flatten(comments.data.children);
     },
   };
@@ -114,7 +124,11 @@ async function main() {
   try {
     courses = JSON.parse(await readFile(OUT, "utf8")).courses ?? {};
   } catch {}
-  const seenComments = new Set(Object.values(courses).flat().map((r) => r.id));
+  const seenComments = new Set(
+    Object.values(courses)
+      .flat()
+      .map((r) => r.id),
+  );
   const seenPosts = new Set();
 
   for (const sub of SUBREDDITS) {
@@ -130,7 +144,8 @@ async function main() {
         if (isUofT && !UTM_RE.test(postText) && !/h5\b/i.test(postText)) continue;
 
         for (const c of await source.comments(post)) {
-          if (!c.body || c.body === "[deleted]" || c.body === "[removed]" || seenComments.has(c.id)) continue;
+          if (!c.body || c.body === "[deleted]" || c.body === "[removed]" || seenComments.has(c.id))
+            continue;
           const codes = courseCodes(c.body, isUofT && !UTM_RE.test(postText));
           if (!codes.length) continue;
           seenComments.add(c.id);
