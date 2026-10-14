@@ -77,7 +77,9 @@ async function redditSource() {
 function archiveSource() {
   return {
     async posts(sub, q) {
-      const params = new URLSearchParams({ subreddit: sub, query: q, limit: "100" });
+      // Full-text search times out on a subreddit as big as r/UofT, so search titles there.
+      const field = sub === "UTM" ? "query" : "title";
+      const params = new URLSearchParams({ subreddit: sub, [field]: q, limit: "100" });
       return (await getJson(`${ARCHIVE}/posts/search?${params}`)).data ?? [];
     },
     async comments(post) {
@@ -130,7 +132,13 @@ async function main() {
   for (const sub of SUBREDDITS) {
     const isUofT = sub !== "UTM";
     for (const q of QUERIES) {
-      const posts = (await source.posts(sub, isUofT ? `${q} UTM` : q)).slice(0, MAX_POSTS);
+      let posts;
+      try {
+        posts = (await source.posts(sub, isUofT ? `${q} UTM` : q)).slice(0, MAX_POSTS);
+      } catch (e) {
+        console.log(`r/${sub} "${q}": search skipped (${e.message.slice(-60)})`);
+        continue;
+      }
       console.log(`r/${sub} "${q}": ${posts.length} posts`);
 
       for (const post of posts) {
