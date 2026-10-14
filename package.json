@@ -13,7 +13,9 @@
     "format": "prettier --write .",
     "test": "vitest run",
     "sitemap": "node scripts/generate-sitemap.mjs",
-    "reddit-reviews": "node scripts/scrape-reddit-reviews.mjs"
+    "reddit-reviews": "node scripts/scrape-reddit-reviews.mjs",
+    "reddit-classify": "node scripts/classify-reddit-reviews.mjs",
+    "reddit-rank": "node scripts/reddit-rank.mjs"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.132.1",
