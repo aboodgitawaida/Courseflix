@@ -34,13 +34,15 @@ const UTM_RE = /\butm\b|mississauga/i;
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
-async function getJson(url, headers = {}) {
-  await sleep(1000);
+async function getJson(url, headers = {}, attempt = 1) {
+  await sleep(1500);
   const res = await fetch(url, { headers: { "User-Agent": USER_AGENT, ...headers } });
-  if (res.status === 429) {
-    console.log("Rate limited, waiting a minute...");
-    await sleep(60_000);
-    return getJson(url, headers);
+  // 429 is a rate limit; the archive also answers 422 "Timeout" when it is busy.
+  if ((res.status === 429 || res.status === 422 || res.status >= 500) && attempt < 4) {
+    const wait = 15_000 * attempt;
+    console.log(`  ${res.status}, retrying in ${wait / 1000}s...`);
+    await sleep(wait);
+    return getJson(url, headers, attempt + 1);
   }
   if (!res.ok) throw new Error(`${url} -> ${res.status} ${(await res.text()).slice(0, 500)}`);
   return res.json();
@@ -58,15 +60,6 @@ async function redditSource() {
   });
   if (!res.ok) throw new Error(`Token request failed: ${res.status} ${await res.text()}`);
   const auth = { Authorization: `Bearer ${(await res.json()).access_token}` };
-
-  const flatten = (children, out = []) => {
-    for (const c of children ?? []) {
-      if (c.kind !== "t1") continue;
-      out.push(c.data);
-      if (c.data.replies?.data?.children) flatten(c.data.replies.data.children, out);
-    }
-    return out;
-  };
 
   return {
     async posts(sub, q) {
@@ -88,10 +81,20 @@ function archiveSource() {
       return (await getJson(`${ARCHIVE}/posts/search?${params}`)).data ?? [];
     },
     async comments(post) {
-      const params = new URLSearchParams({ link_id: post.id, limit: "100" });
-      return (await getJson(`${ARCHIVE}/comments/search?${params}`)).data ?? [];
+      const params = new URLSearchParams({ link_id: post.id, limit: "9999" });
+      return flatten((await getJson(`${ARCHIVE}/comments/tree?${params}`)).data);
     },
   };
+}
+
+// Both Reddit and the archive return comment trees in Reddit's nested format.
+function flatten(children, out = []) {
+  for (const c of children ?? []) {
+    if (c.kind !== "t1") continue;
+    out.push(c.data);
+    if (c.data.replies?.data?.children) flatten(c.data.replies.data.children, out);
+  }
+  return out;
 }
 
 function courseCodes(text, utmOnly) {
@@ -103,6 +106,13 @@ function courseCodes(text, utmOnly) {
     codes.add(`${dept.toUpperCase()}${num}`);
   }
   return [...codes];
+}
+
+// Saved after every thread so stopping the script midway keeps what it found.
+async function save(courses) {
+  for (const list of Object.values(courses)) list.sort((a, b) => b.score - a.score);
+  await mkdir("data", { recursive: true });
+  await writeFile(OUT, JSON.stringify({ updated: new Date().toISOString(), courses }, null, 2));
 }
 
 async function main() {
@@ -129,7 +139,14 @@ async function main() {
         const postText = `${post.title}\n${post.selftext ?? ""}`;
         if (isUofT && !UTM_RE.test(postText) && !/h5\b/i.test(postText)) continue;
 
-        for (const c of await source.comments(post)) {
+        let comments;
+        try {
+          comments = await source.comments(post);
+        } catch (e) {
+          console.log(`  skipped "${post.title}": ${e.message.slice(0, 120)}`);
+          continue;
+        }
+        for (const c of comments) {
           if (!c.body || c.body === "[deleted]" || c.body === "[removed]" || seenComments.has(c.id)) continue;
           const codes = courseCodes(c.body, isUofT && !UTM_RE.test(postText));
           if (!codes.length) continue;
@@ -146,13 +163,12 @@ async function main() {
             });
           }
         }
+        await save(courses);
       }
     }
   }
 
-  for (const list of Object.values(courses)) list.sort((a, b) => b.score - a.score);
-  await mkdir("data", { recursive: true });
-  await writeFile(OUT, JSON.stringify({ updated: new Date().toISOString(), courses }, null, 2));
+  await save(courses);
   const total = Object.values(courses).reduce((n, l) => n + l.length, 0);
   console.log(`Saved ${total} comments across ${Object.keys(courses).length} courses to ${OUT}`);
 }
