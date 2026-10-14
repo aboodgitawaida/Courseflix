@@ -42,7 +42,7 @@ async function getJson(url, headers = {}) {
     await sleep(60_000);
     return getJson(url, headers);
   }
-  if (!res.ok) throw new Error(`${url} -> ${res.status}`);
+  if (!res.ok) throw new Error(`${url} -> ${res.status} ${(await res.text()).slice(0, 500)}`);
   return res.json();
 }
 
@@ -84,7 +84,7 @@ async function redditSource() {
 function archiveSource() {
   return {
     async posts(sub, q) {
-      const params = new URLSearchParams({ subreddit: sub, query: q, limit: "100", sort: "desc" });
+      const params = new URLSearchParams({ subreddit: sub, query: q, limit: "100" });
       return (await getJson(`${ARCHIVE}/posts/search?${params}`)).data ?? [];
     },
     async comments(post) {
