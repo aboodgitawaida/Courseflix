@@ -1,10 +1,15 @@
 import { describe, expect, it } from "vitest";
 import { ambient, request, settle, type EagleContext } from "./eagle-state";
 
-const idle: EagleContext = { reading: false, searching: false, grinding: false };
-const preview: EagleContext = { reading: true, searching: false, grinding: false };
-const typing: EagleContext = { reading: false, searching: false, grinding: true };
-const search: EagleContext = { reading: false, searching: true, grinding: false };
+const idle: EagleContext = { reading: false, searching: false, grinding: false, comparing: false };
+const preview: EagleContext = {
+  reading: true,
+  searching: false,
+  grinding: false,
+  comparing: false,
+};
+const typing: EagleContext = { reading: false, searching: false, grinding: true, comparing: false };
+const search: EagleContext = { reading: false, searching: true, grinding: false, comparing: false };
 
 describe("eagle state machine", () => {
   it("lets a pet interrupt ambient and scripted states", () => {
@@ -57,9 +62,9 @@ describe("eagle state machine", () => {
   it("starts and stops reading and grinding from idle", () => {
     expect(ambient("awake", preview)).toBe("openingBook");
     expect(ambient("awake", typing)).toBe("grinding");
-    expect(ambient("reading", { reading: true, searching: false, grinding: true })).toBe(
-      "grinding",
-    );
+    expect(
+      ambient("reading", { reading: true, searching: false, grinding: true, comparing: false }),
+    ).toBe("grinding");
     expect(ambient("grinding", preview)).toBe("openingBook");
     expect(ambient("reading", idle)).toBe("awake");
     expect(ambient("grinding", idle)).toBe("awake");
@@ -75,5 +80,15 @@ describe("eagle state machine", () => {
     expect(ambient("searching", idle)).toBe("awake");
     expect(ambient("reading", { ...preview, searching: true })).toBe("openingGlass");
     expect(settle("openingGlass", idle)).toBe("awake"); // search closed mid-animation
+  });
+
+  it("weighs courses on a scale while two or more are being compared", () => {
+    const compare = { ...idle, comparing: true };
+    expect(ambient("awake", compare)).toBe("openingScale");
+    expect(settle("openingScale", compare)).toBe("weighing");
+    expect(ambient("weighing", idle)).toBe("awake");
+    // a preview or search opened from the drawer takes over, and he comes back after
+    expect(ambient("weighing", { ...compare, reading: true })).toBe("openingBook");
+    expect(ambient("reading", compare)).toBe("openingScale");
   });
 });
