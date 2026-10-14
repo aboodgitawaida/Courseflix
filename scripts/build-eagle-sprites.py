@@ -379,7 +379,50 @@ def finish(frames):
     return np.concatenate(out, 1)
 
 
+# ---------- 7. reading: drawn here, not by the model ----------
+# PixelLab kept putting the book on the eagle's head, so the reading loop is built
+# from one calm idle frame: the eyelid drops half-way (looking down), the pupil
+# scans along a line and snaps back, and a small open book sits at the chest.
+# Coordinates below are in the finished, mirrored 56x68 frame (beak on the left).
+BOOK_COVER, BOOK_EDGE, PAGE, PAGE_SHADE, INK = (
+    (128, 44, 36), (72, 22, 20), (244, 234, 208), (214, 200, 168), (150, 136, 112))
+READ_SCAN = (0, 1, 2, 3, 3, 0, 0, 1)   # pupil column in the eye, per frame
+PAGE_TURN_FRAME = 5                    # the right page flips over here
+
+
+def reading_sheet(base):
+    sheet = finish([base] * 8)
+    W = sheet.shape[1] // 8
+    for i in range(8):
+        f = sheet[:, W * i:W * (i + 1)]
+        rgb = f[..., :3].astype(int)
+        # find the eye: the 2x4 iris block stamped by fix_eye
+        ys, xs = np.nonzero((f[..., 3] > 0) & (np.abs(rgb - IRIS).sum(2) < 30))
+        ys, xs = ys[ys < 30], xs[ys < 30]
+        top, left = ys.min(), xs.min()
+        for dx in range(4):
+            f[top, left + dx] = (*BROW, 255)                 # half-closed lid: looking down
+            f[top + 1, left + dx] = (*IRIS, 255)
+        f[top + 1, left + READ_SCAN[i]] = (*PUPIL, 255)
+        # the book, held below the beak against the chest
+        bx, by, bw, bh = left - 3, top + 16, 14, 7
+        f[by:by + bh, bx:bx + bw] = (*BOOK_COVER, 255)
+        f[by + bh - 1, bx:bx + bw] = (*BOOK_EDGE, 255)
+        f[by:by + bh - 1, bx + 1:bx + bw - 1] = (*PAGE, 255)
+        f[by:by + bh - 1, bx + bw // 2] = (*PAGE_SHADE, 255)   # spine
+        for row in (1, 3):                                     # lines of text
+            f[by + row, bx + 2:bx + bw // 2 - 1] = (*INK, 255)
+            if i != PAGE_TURN_FRAME:
+                f[by + row, bx + bw // 2 + 2:bx + bw - 2] = (*INK, 255)
+        if i == PAGE_TURN_FRAME:                               # page mid-flip
+            f[by - 2:by + bh - 1, bx + bw // 2 + 2] = (*PAGE, 255)
+            f[by - 2:by + bh - 1, bx + bw // 2 + 3] = (*PAGE_SHADE, 255)
+    return sheet
+
+
+Image.fromarray(reading_sheet(idle80[4]), "RGBA").save(OUT / "eagle-reading.png", optimize=True)
+
 for name, frames in (("eagle-awake", idle80), ("eagle-sleep", sleep80), ("eagle-celebrate", celebrate80),
                      ("eagle-pet", pet80), ("eagle-fallasleep", fallasleep80), ("eagle-wakeup", wakeup80)):
     Image.fromarray(finish(frames), "RGBA").save(OUT / f"{name}.png", optimize=True)
-print("frame size", x1 - STUB_X, "x", y1 - y0, "| wrote eagle-awake, -sleep, -celebrate, -pet, -fallasleep, -wakeup")
+print("frame size", x1 - STUB_X, "x", y1 - y0, "| wrote eagle-awake, -sleep, -celebrate, -pet, -fallasleep, -wakeup, -reading")

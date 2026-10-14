@@ -100,6 +100,17 @@ async function fetchAllCourseStats() {
   }
 }
 
+/** Every course's review averages, from the same cached request as useCourseStats. */
+export function useAllCourseStats(enabled = true) {
+  return useQuery({
+    queryKey: ["rating-stats"],
+    queryFn: fetchAllCourseStats,
+    staleTime: 5 * 60_000,
+    retry: 1,
+    enabled,
+  });
+}
+
 export function useCourseStats(code: string) {
   return useQuery({
     queryKey: ["rating-stats"],

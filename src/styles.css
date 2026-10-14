@@ -531,6 +531,13 @@
   background-size: 800% 100%;
   animation: eagle-wakeup-frames 1.2s steps(8, jump-none) forwards;
 }
+/* Reading: head down over a tiny book, eye scanning the lines; loops while a
+   summary streams in the chat. */
+.study-eagle-sprite-reading {
+  background-image: url("/eagle-reading.png");
+  background-size: 800% 100%;
+  animation: eagle-reading-frames 1.4s steps(8, jump-none) infinite;
+}
 /* Every sheet has its own layer (StudyEagle.tsx); only the active one shows. With
    no animation, a layer that becomes active starts again from frame 1. */
 .study-eagle-sprite:not(.is-active) {
@@ -574,6 +581,14 @@
   }
 }
 @keyframes eagle-fallasleep-frames {
+  from {
+    background-position-x: 0%;
+  }
+  to {
+    background-position-x: 100%;
+  }
+}
+@keyframes eagle-reading-frames {
   from {
     background-position-x: 0%;
   }
@@ -674,6 +689,9 @@
   background: rgb(180 83 9 / 0.55);
 }
 .study-eagle-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
   border: 1px solid rgb(251 191 36 / 0.2);
   border-radius: 999px;
   padding: 5px 8px;
@@ -779,7 +797,66 @@
     opacity: 1;
   }
 }
+.study-eagle-chip:focus-visible,
+.study-eagle-stream:focus-visible {
+  outline: 2px solid rgb(251 191 36 / 0.8);
+  outline-offset: 2px;
+}
+/* The streamed summary: click anywhere on it to show the rest at once. */
+.study-eagle-stream {
+  cursor: pointer;
+}
+.study-eagle-stream:disabled {
+  cursor: text;
+  user-select: text;
+}
+.study-eagle-word {
+  display: inline;
+  animation: eagle-word-in 0.18s ease-out;
+}
+@keyframes eagle-word-in {
+  from {
+    opacity: 0;
+    filter: blur(2px);
+  }
+}
+.study-eagle-caret {
+  display: inline-block;
+  width: 0.45em;
+  height: 1em;
+  margin-left: 2px;
+  vertical-align: -0.15em;
+  background: rgb(251 191 36 / 0.7);
+  animation: eagle-caret 0.8s steps(1) infinite;
+}
+@keyframes eagle-caret {
+  50% {
+    opacity: 0;
+  }
+}
+/* "Prereq path" pulses the tree it points at. */
+.eagle-highlight {
+  border-radius: 1rem;
+  animation: eagle-highlight 1.8s ease-out;
+}
+@keyframes eagle-highlight {
+  0%,
+  60% {
+    box-shadow: 0 0 0 3px rgb(251 191 36 / 0.75);
+  }
+  100% {
+    box-shadow: 0 0 0 3px rgb(251 191 36 / 0);
+  }
+}
 @media (prefers-reduced-motion: reduce) {
+  .study-eagle-caret,
+  .study-eagle-word,
+  .eagle-highlight {
+    animation: none;
+  }
+  .eagle-highlight {
+    box-shadow: 0 0 0 3px rgb(251 191 36 / 0.75);
+  }
   .study-eagle-sprite,
   .study-eagle-controls,
   .study-eagle-celebrating .study-eagle-button,

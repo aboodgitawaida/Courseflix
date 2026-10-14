@@ -1,4 +1,15 @@
-import { MessageCircle, Sparkles, X } from "lucide-react";
+import {
+  Bookmark,
+  Feather,
+  FileText,
+  GitBranch,
+  Lightbulb,
+  MessageCircle,
+  Search,
+  Sparkles,
+  X,
+  type LucideIcon,
+} from "lucide-react";
 import {
   useEffect,
   useLayoutEffect,
@@ -7,10 +18,15 @@ import {
   type KeyboardEvent as ReactKeyboardEvent,
   type PointerEvent as ReactPointerEvent,
 } from "react";
-import { useRouterState } from "@tanstack/react-router";
-import { getCourse, type Course } from "@/lib/courses";
+import { Link, useRouterState } from "@tanstack/react-router";
+import { COURSES, getCourse, type Course } from "@/lib/courses";
 import { loadDescriptions, peekDescriptions } from "@/lib/course-description";
 import { useEagle } from "@/hooks/use-eagle";
+import { useCourseUI } from "@/hooks/use-course-ui";
+import { useTypewriter } from "@/hooks/use-typewriter";
+import { announce } from "@/lib/a11y";
+import { courseSummary, lighterOptions, prereqSentence } from "@/lib/eagle-chat";
+import { useAllCourseStats } from "@/lib/ratings";
 import { EAGLE_LINES } from "@/lib/eagle-lines";
 import { EAGLE_AVOID_SELECTOR, choosePanelSpot, type PanelSpot } from "@/lib/eagle-layout";
 import { pickEagleLine, takeLateNightLine } from "@/lib/study-eagle";
@@ -22,6 +38,7 @@ const SPRITE_MODES = [
   "wakingUp",
   "celebrating",
   "petting",
+  "reading",
 ] as const;
 type EagleMode = (typeof SPRITE_MODES)[number];
 
@@ -50,6 +67,7 @@ const EAGLE_SHEETS = [
   "/eagle-pet.png",
   "/eagle-fallasleep.png",
   "/eagle-wakeup.png",
+  "/eagle-reading.png",
 ];
 // Holding the decoded images keeps them in memory for the life of the page.
 let preloadedSheets: HTMLImageElement[] | null = null;
@@ -75,6 +93,10 @@ export function StudyEagle() {
   const [mode, setMode] = useState<EagleMode>("awake");
   const [chatOpen, setChatOpen] = useState(false);
   const [reply, setReply] = useState<string>(EAGLE_REPLIES[0]);
+  // Courses a reply links to (Lighter options), opened as previews.
+  const [replyLinks, setReplyLinks] = useState<Course[]>([]);
+  // Bumped for every summary (and Quick take) so it streams from the start.
+  const [summaryRun, setSummaryRun] = useState(0);
   const [petCount, setPetCount] = useState(0);
   const [petKey, setPetKey] = useState(0);
   // Bumped on every celebration so back-to-back ones restart the wing-flap.
@@ -104,6 +126,19 @@ export function StudyEagle() {
   const focusPanel = useRef(false);
   const pathname = useRouterState({ select: (state) => state.location.pathname });
   const course = getCurrentCourse(pathname);
+  const { openPreview, setSearchOpen } = useCourseUI();
+  const { data: allStats, isError: statsFailed } = useAllCourseStats(
+    enabled && (chatOpen || !!summaryCourseCode),
+  );
+  // The course the chat is about: the open preview's, else the course page's.
+  const chatCourse = (summaryCourseCode && getCourse(summaryCourseCode)) || course;
+  const summary =
+    summaryCourseCode && summaryText
+      ? courseSummary(summaryCourseCode, summaryText, allStats?.get(summaryCourseCode))
+      : null;
+  const typed = useTypewriter(summary ?? "", summaryRun);
+  // While a summary streams in a visible panel, he reads it from a little book.
+  const reading = !!summary && !typed.done && chatOpen && !collapsed;
 
   useEffect(() => {
     modeRef.current = mode;
@@ -126,6 +161,13 @@ export function StudyEagle() {
   useEffect(() => {
     if (enabled) preloadEagleSheets();
   }, [enabled]);
+
+  // Reading is the resting pose while a summary streams: a wake-up, pet or
+  // celebration plays first and he goes back to the book after.
+  useEffect(() => {
+    if (reading && mode === "awake") setMode("reading");
+    else if (!reading && mode === "reading") setMode("awake");
+  }, [reading, mode]);
 
   // After midnight, a gentle nudge once per session. On phones the eagle is
   // tucked away, so it waits for the first tap instead (see petEagle).
@@ -179,7 +221,9 @@ export function StudyEagle() {
       setSummaryContext(context ?? "preview");
       const cached = peekDescriptions();
       setSummaryText(makeCourseSummary(course, cached?.[course.code] ?? ""));
+      setSummaryRun((run) => run + 1);
       setReply("");
+      setReplyLinks([]);
       // On phones an auto-opened panel covers the course itself; the summary
       // waits until the eagle is tapped.
       if (!isCompact()) {
@@ -393,6 +437,7 @@ export function StudyEagle() {
     showStatus(line);
     setSummaryCourseCode(null);
     setSummaryText(null);
+    setReplyLinks([]);
     setReply(petCount % 2 === 0 ? line : EAGLE_REPLIES[petCount % EAGLE_REPLIES.length]);
   }
 
@@ -416,8 +461,112 @@ export function StudyEagle() {
   function onPanelKeyDown(event: ReactKeyboardEvent<HTMLDivElement>) {
     if (event.key !== "Escape") return;
     event.stopPropagation();
-    closeChat();
+    // First Esc finishes a streaming summary; the next one closes the chat.
+    if (summary && !typed.done) typed.skip();
+    else closeChat();
   }
+
+  /** Show a plain answer in the panel in place of the summary. */
+  function answer(text: string, links: Course[] = []) {
+    setActivityVersion((version) => version + 1);
+    setSummaryText(null);
+    setReply(text);
+    setReplyLinks(links);
+  }
+
+  function quickTake(c: Course) {
+    setActivityVersion((version) => version + 1);
+    setReplyLinks([]);
+    const cached = peekDescriptions();
+    setSummaryCourseCode(c.code);
+    setSummaryText(makeCourseSummary(c, cached?.[c.code] ?? ""));
+    setSummaryRun((run) => run + 1);
+  }
+
+  // Highlights the tree, then gets out of its way: the answer is the tree itself.
+  function showPrereqPath(c: Course) {
+    const line = prereqSentence(c);
+    const tree = document.querySelector<HTMLElement>(EAGLE_AVOID_SELECTOR);
+    if (!tree) {
+      answer(line);
+      return;
+    }
+    announce(line);
+    setReply(line);
+    setSummaryText(null);
+    setReplyLinks([]);
+    if (isCompact()) closeChat();
+    else setCollapsed(true);
+    tree.scrollIntoView({ behavior: prefersReducedMotion() ? "auto" : "smooth", block: "center" });
+    tree.classList.remove("eagle-highlight");
+    void tree.offsetWidth; // restart the pulse on a repeat click
+    tree.classList.add("eagle-highlight");
+    window.setTimeout(() => tree.classList.remove("eagle-highlight"), 1_800);
+  }
+
+  function showLighterOptions(c: Course) {
+    if (!allStats) {
+      answer(
+        statsFailed
+          ? "I can't reach the reviews right now. Try again in a bit."
+          : "Still fetching the reviews. Try again in a second.",
+      );
+      return;
+    }
+    const options = lighterOptions(c, COURSES, allStats);
+    answer(
+      options.length
+        ? `Students found these ${c.subject} courses lighter on workload:`
+        : `Not enough ${c.subject} reviews yet to find something lighter than ${c.code}.`,
+      options,
+    );
+  }
+
+  const chips: {
+    icon: LucideIcon;
+    label: string;
+    tip: string;
+    onClick?: () => void;
+    to?: string;
+  }[] = chatCourse
+    ? [
+        {
+          icon: FileText,
+          label: "Quick take",
+          tip: `Replay the summary of ${chatCourse.code}`,
+          onClick: () => quickTake(chatCourse),
+        },
+        {
+          icon: GitBranch,
+          label: "Prereq path",
+          tip: `Show what you need before ${chatCourse.code}`,
+          onClick: () => showPrereqPath(chatCourse),
+        },
+        {
+          icon: Feather,
+          label: "Lighter options",
+          tip: `Similar ${chatCourse.subject} courses students found lighter`,
+          onClick: () => showLighterOptions(chatCourse),
+        },
+      ]
+    : [
+        {
+          icon: Lightbulb,
+          label: "Study tip",
+          tip: "A quick tip for picking courses",
+          onClick: () => answer(pickEagleLine("tips") ?? EAGLE_REPLIES[0]),
+        },
+        { icon: Bookmark, label: "My shortlist", tip: "Courses you've saved", to: "/list" },
+        {
+          icon: Search,
+          label: "Find a course",
+          tip: "Search every UTM course",
+          onClick: () => {
+            closeChat();
+            setSearchOpen(true);
+          },
+        },
+      ];
 
   function showStatus(message: string) {
     if (messageTimer.current !== null) window.clearTimeout(messageTimer.current);
@@ -495,38 +644,83 @@ export function StudyEagle() {
           </div>
           <div
             aria-live="polite"
+            aria-busy={summary ? !typed.done : undefined}
             className="mt-3 rounded-xl border border-white/10 bg-black/20 p-3 text-sm leading-relaxed text-white/80"
           >
-            {summaryCourseCode && summaryText ? `${summaryCourseCode}: ${summaryText}` : reply}
+            {summary ? (
+              // The full text sits underneath, invisible, so the box is its final
+              // size from the first word and the panel never jumps while streaming.
+              // Screen readers get the whole summary once, when it's done.
+              <button
+                type="button"
+                onClick={typed.skip}
+                disabled={typed.done}
+                className="study-eagle-stream grid w-full text-left"
+                aria-label={typed.done ? undefined : "Show the whole summary"}
+              >
+                <span className="invisible col-start-1 row-start-1" aria-hidden="true">
+                  {summary}
+                </span>
+                <span className="col-start-1 row-start-1" aria-hidden="true">
+                  {/* Each word pops in as it's "said"; earlier words stay mounted. */}
+                  {typed.words.map((word, i) => (
+                    <span key={i} className="study-eagle-word">
+                      {i > 0 ? " " : ""}
+                      {word}
+                    </span>
+                  ))}
+                  {!typed.done && <span className="study-eagle-caret" />}
+                </span>
+                <span className="sr-only">{typed.done ? summary : ""}</span>
+              </button>
+            ) : (
+              <>
+                {reply}
+                {replyLinks.length > 0 && (
+                  <ul className="mt-2 space-y-1">
+                    {replyLinks.map((c) => (
+                      <li key={c.code}>
+                        <button
+                          type="button"
+                          onClick={() => openPreview(c.code)}
+                          className="text-left font-semibold text-amber-200 underline-offset-2 hover:underline"
+                        >
+                          {c.code}
+                          <span className="font-normal text-white/60"> · {c.title}</span>
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </>
+            )}
           </div>
           <div className="mt-3 flex flex-wrap gap-2">
-            <button
-              type="button"
-              onClick={() => setReply(EAGLE_REPLIES[0])}
-              className="study-eagle-chip"
-            >
-              Study tip
-            </button>
-            <button
-              type="button"
-              onClick={() =>
-                setReply(
-                  course
-                    ? `For ${course.code}, check the prerequisite path before enrolling.`
-                    : EAGLE_REPLIES[1],
-                )
-              }
-              className="study-eagle-chip"
-            >
-              Help me choose
-            </button>
-            <button
-              type="button"
-              onClick={() => setReply(EAGLE_REPLIES[2])}
-              className="study-eagle-chip"
-            >
-              Plan a semester
-            </button>
+            {chips.map(({ icon: Icon, label, tip, onClick, to }) =>
+              to ? (
+                <Link
+                  key={label}
+                  to={to}
+                  onClick={closeChat}
+                  title={tip}
+                  className="study-eagle-chip"
+                >
+                  <Icon className="h-3.5 w-3.5" aria-hidden="true" />
+                  {label}
+                </Link>
+              ) : (
+                <button
+                  key={label}
+                  type="button"
+                  onClick={onClick}
+                  title={tip}
+                  className="study-eagle-chip"
+                >
+                  <Icon className="h-3.5 w-3.5" aria-hidden="true" />
+                  {label}
+                </button>
+              ),
+            )}
           </div>
         </div>
       )}
@@ -541,7 +735,7 @@ export function StudyEagle() {
       >
         {collapsed && chatOpen && !compact && summaryCourseCode ? (
           <button type="button" className="study-eagle-teaser" onClick={openChat}>
-            Quick take on {summaryCourseCode}
+            {summaryText ? "Quick take on" : "Back to chat about"} {summaryCourseCode}
           </button>
         ) : (
           statusMessage &&
@@ -630,6 +824,10 @@ function PixelHeart() {
 /** Asleep or nodding off: anything that should wake it plays the wake-up. */
 function isDozing(mode: EagleMode) {
   return mode === "sleeping" || mode === "fallingAsleep";
+}
+
+function prefersReducedMotion() {
+  return window.matchMedia?.("(prefers-reduced-motion: reduce)").matches === true;
 }
 
 function clamp(value: number, min: number, max: number) {
