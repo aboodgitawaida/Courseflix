@@ -9,6 +9,7 @@
   pixellab-wakeup.png         PixelLab animation, sleep frame 1 -> awake frame: head up, wing stretch (8 x 80x80)
   pixellab-reading.png        PixelLab animation from the awake frame: takes out a book and reads it (12 x 80x80)
   pixellab-startled.png       PixelLab animation, sleep frame 1 -> awake frame: jolts awake, shock marks (8 x 80x80)
+  pixellab-compare.png        PixelLab animation from the awake frame: takes out a balance scale (12 x 80x80)
   pixellab-search.png         PixelLab animation from the awake frame: takes out a magnifying glass and peers (12 x 80x80)
   pixellab-grind.png          PixelLab animation from the awake frame: takes out a notepad and scribbles (12 x 80x80)
 
@@ -27,6 +28,8 @@ cut end sits against the right edge of the screen:
   public/eagle-startled.png   8 frames (played once: tapped while asleep)
   public/eagle-search-open.png 6 frames (played once: takes out the magnifying glass)
   public/eagle-search.png     6 frames (loop: peering through it while search is open)
+  public/eagle-compare-open.png 6 frames (played once: takes out the balance scale)
+  public/eagle-compare.png    8 frames (loop: the pans see-saw while courses are compared)
 
 The animated frames get one consistent eye drawn in (fix_eye), because the
 animation model's eyes sat under a low, slanted brow that looked sad. The beak and
@@ -45,6 +48,7 @@ Making new eagle animations (PixelLab, see scripts/pixellab.py):
      (specks, branch lock, palette snap, fix_eye, crop box, output), then add its CSS
      class and timing in src/styles.css and src/components/StudyEagle.tsx.
 """
+import math
 from collections import deque
 from pathlib import Path
 
@@ -186,6 +190,41 @@ startled80 = pixellab_frames("startled")
 search80 = pixellab_frames("search")
 
 
+# The balance scale: PixelLab drew him taking it out, but its pans barely move, and
+# asking it to see-saw them made them swing together instead. So the loop is made
+# here from one clean frame: each pan (strings and bowl) is cut out and moved
+# opposite the other, the strings stretching or shrinking so the pans stay hung
+# from the beam. Coordinates are in the raw 80x80 PixelLab frame.
+SCALE_LOOP_BASE = 7                          # a frame with the scale held steady
+PAN_TOP, PAN_BOWL, PAN_BOTTOM = 37, 44, 52   # strings start under the beam; bowl rows
+PAN_COLUMNS = ((48, 57), (59, 72))           # left pan, right pan
+PAN_SWING = 3                                # pixels up and down
+SCALE_LOOP_FRAMES = 8
+
+
+def hang_pan(frame, x0, x1, d):
+    region = frame[PAN_TOP:PAN_BOTTOM, x0:x1].copy()
+    strings, bowl = region[:PAN_BOWL - PAN_TOP], region[PAN_BOWL - PAN_TOP:]
+    rows = np.round(np.linspace(0, len(strings) - 1, max(1, len(strings) + d))).astype(int)
+    moved = np.concatenate([strings[rows], bowl])
+    frame[PAN_TOP:PAN_BOTTOM + PAN_SWING, x0:x1] = 0
+    frame[PAN_TOP:PAN_TOP + len(moved), x0:x1] = moved
+
+
+compare_raw = np.asarray(Image.open(SRC / "pixellab-compare.png").convert("RGBA"))
+compare_raw = [compare_raw[:, 80 * i:80 * i + 80].copy() for i in range(compare_raw.shape[1] // 80)]
+weighing_raw = []
+for i in range(SCALE_LOOP_FRAMES):
+    d = round(PAN_SWING * math.sin(2 * math.pi * i / SCALE_LOOP_FRAMES))
+    f = compare_raw[SCALE_LOOP_BASE].copy()
+    (lx0, lx1), (rx0, rx1) = PAN_COLUMNS
+    hang_pan(f, lx0, lx1, d)
+    hang_pan(f, rx0, rx1, -d)
+    weighing_raw.append(f)
+compare80 = [shift(f) for f in compare_raw[:6]]
+weighing80 = [shift(f) for f in weighing_raw]
+
+
 def mossy(f):
     rgb = f[..., :3].astype(int)
     return (f[..., 3] > 0) & (rgb[..., 1] > rgb[..., 0] + 8) & (rgb[..., 1] > rgb[..., 2] + 8)
@@ -233,7 +272,7 @@ grind80 = [drop_specks(f) for f in grind80]
 # lock the branch (and tail) below the feet to the awake frame, so it never flickers
 LOCK = 61 + dy
 for f in (idle80 + celebrate80 + pet80 + fallasleep80 + wakeup80 + reading80 + grind80 + startled80
-          + search80 + sleep80):
+          + search80 + compare80 + weighing80 + sleep80):
     f[LOCK:] = awake80[LOCK:]
 
 # one shared palette for all four art sources. The beak and eyes (warm oranges and
@@ -306,6 +345,7 @@ reading80 = snap_extra(reading80)
 grind80 = snap_extra(grind80)
 startled80 = snap_extra(startled80)
 search80 = snap_extra(search80)
+compare80, weighing80 = (lambda both: (both[:6], both[6:]))(snap_extra(compare80 + weighing80))
 
 
 # ---------- 4. one friendly eye for every animated frame ----------
@@ -412,7 +452,7 @@ ys, xs = np.nonzero(al)
 y0, y1, x1 = ys.min(), ys.max() + 1, xs.max() + 1
 # The magnifying glass pokes a pixel past the shared frame; trim it rather than
 # grow every sheet.
-for f in search80:
+for f in search80 + compare80 + weighing80:
     f[:y0] = 0; f[y1:] = 0; f[:, x1:] = 0
 
 
@@ -502,4 +542,8 @@ Image.fromarray(tidy_search(finish([search80[i] for i in SEARCH_LOOP]), len(SEAR
 for name, frames in (("eagle-awake", idle80), ("eagle-sleep", sleep80), ("eagle-celebrate", celebrate80),
                      ("eagle-pet", pet80), ("eagle-fallasleep", fallasleep80), ("eagle-wakeup", wakeup80)):
     Image.fromarray(finish(frames), "RGBA").save(OUT / f"{name}.png", optimize=True)
-print("frame size", x1 - STUB_X, "x", y1 - y0, "| wrote eagle-awake, -sleep, -celebrate, -pet, -fallasleep, -wakeup, -reading-open, -reading, -grind, -startled, -search-open, -search")
+# ---------- 11. compare: takes out a balance scale once, then the pans see-saw ----------
+Image.fromarray(finish(compare80), "RGBA").save(OUT / "eagle-compare-open.png", optimize=True)
+Image.fromarray(finish(weighing80), "RGBA").save(OUT / "eagle-compare.png", optimize=True)
+
+print("frame size", x1 - STUB_X, "x", y1 - y0, "| wrote eagle-awake, -sleep, -celebrate, -pet, -fallasleep, -wakeup, -reading-open, -reading, -grind, -startled, -search-open, -search, -compare-open, -compare")

@@ -580,8 +580,8 @@
 }
 .study-eagle-sprite-weighing {
   background-image: url("/eagle-compare.png");
-  background-size: 600% 100%;
-  animation: eagle-reading-frames 1.5s steps(6, jump-none) infinite;
+  background-size: 800% 100%;
+  animation: eagle-reading-frames 1.6s steps(8, jump-none) infinite;
 }
 /* Every sheet has its own layer (StudyEagle.tsx); only the active one shows. With
    no animation, a layer that becomes active starts again from frame 1. */
