@@ -4,6 +4,8 @@ import { useRouterState } from "@tanstack/react-router";
 import { getCourse, type Course } from "@/lib/courses";
 import { loadDescriptions, peekDescriptions } from "@/lib/course-description";
 import { useEagle } from "@/hooks/use-eagle";
+import { EAGLE_LINES } from "@/lib/eagle-lines";
+import { pickEagleLine, takeLateNightLine } from "@/lib/study-eagle";
 
 const SPRITE_MODES = [
   "awake",
@@ -15,11 +17,7 @@ const SPRITE_MODES = [
 ] as const;
 type EagleMode = (typeof SPRITE_MODES)[number];
 
-const EAGLE_REPLIES = [
-  "Try the course preview first, then shortlist anything that still feels like a good fit.",
-  "A good study plan starts with your prerequisites. Follow the path on the full course page.",
-  "Compare workload and difficulty together. A high rating is not always an easy semester.",
-];
+const EAGLE_REPLIES = EAGLE_LINES.tips;
 
 /** Where the perch sits on the right edge, as a fraction of the viewport height. */
 const PERCH_KEY = "courseflix.eagle.perchY";
@@ -68,7 +66,7 @@ export function StudyEagle() {
   const [popOut, setPopOut] = useState<"in" | "out" | null>(null);
   const [mode, setMode] = useState<EagleMode>("awake");
   const [chatOpen, setChatOpen] = useState(false);
-  const [reply, setReply] = useState(EAGLE_REPLIES[0]);
+  const [reply, setReply] = useState<string>(EAGLE_REPLIES[0]);
   const [petCount, setPetCount] = useState(0);
   const [petKey, setPetKey] = useState(0);
   // Bumped on every celebration so back-to-back ones restart the wing-flap.
@@ -112,6 +110,17 @@ export function StudyEagle() {
     if (enabled) preloadEagleSheets();
   }, [enabled]);
 
+  // After midnight, a gentle nudge once per session. On phones the eagle is
+  // tucked away, so it waits for the first tap instead (see petEagle).
+  useEffect(() => {
+    if (!enabled || isCompact()) return;
+    const timer = window.setTimeout(() => {
+      const line = takeLateNightLine();
+      if (line) showStatus(line);
+    }, 4_000);
+    return () => window.clearTimeout(timer);
+  }, [enabled]);
+
   useEffect(() => {
     if (!course && summaryCourseCode && summaryContext === "page") {
       setSummaryCourseCode(null);
@@ -135,7 +144,8 @@ export function StudyEagle() {
     if (mode !== "awake" || chatOpen || isDragging) return;
     const timer = window.setTimeout(() => {
       setMode("fallingAsleep");
-      if (!isCompact()) showStatus("Time for a study break.");
+      const line = pickEagleLine("fallAsleep");
+      if (line && !isCompact()) showStatus(line);
     }, SLEEP_AFTER_MS);
     return () => window.clearTimeout(timer);
   }, [activityVersion, mode, chatOpen, isDragging]);
@@ -171,7 +181,7 @@ export function StudyEagle() {
     const onCelebration = (event: Event) => {
       const { message } = (event as CustomEvent<{ message?: string }>).detail ?? {};
       setActivityVersion((version) => version + 1);
-      showStatus(message ?? "Nice pick!");
+      if (message) showStatus(message);
       if (isCompact() && !revealedRef.current) {
         setPopOut("in");
         if (popTimer.current !== null) window.clearTimeout(popTimer.current);
@@ -273,7 +283,8 @@ export function StudyEagle() {
     }
     if (isDozing(modeRef.current)) {
       setMode("wakingUp");
-      showStatus("Back already?");
+      const line = takeLateNightLine() ?? pickEagleLine("wokenUp");
+      if (line) showStatus(line);
       return;
     }
     setPetKey((key) => key + 1);
@@ -287,14 +298,11 @@ export function StudyEagle() {
       }, PET_MS);
     }
     setPetCount((count) => count + 1);
-    showStatus(petCount % 2 === 0 ? "Krrr! That tickles." : "You got me.");
+    const line = takeLateNightLine() ?? pickEagleLine("pet") ?? EAGLE_LINES.pet[0];
+    showStatus(line);
     setSummaryCourseCode(null);
     setSummaryText(null);
-    setReply(
-      petCount % 2 === 0
-        ? "Krrr! That tickles. You have got this."
-        : EAGLE_REPLIES[petCount % EAGLE_REPLIES.length],
-    );
+    setReply(petCount % 2 === 0 ? line : EAGLE_REPLIES[petCount % EAGLE_REPLIES.length]);
   }
 
   function closeChat() {
