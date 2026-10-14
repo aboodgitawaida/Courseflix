@@ -1,7 +1,0 @@
-{
-  "first_frame": "@assets/eagle-src/pixellab-base-awake.png",
-  "action": "perched on the branch, turns only its head to look up and forward, curious, and holds that pose; body, wings and branch stay still; feet stay gripping the branch",
-  "frame_count": 4,
-  "seed": 71,
-  "no_background": true
-}

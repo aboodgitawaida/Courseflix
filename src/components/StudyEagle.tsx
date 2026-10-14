@@ -41,7 +41,6 @@ import {
   type EagleMode,
 } from "@/lib/eagle-state";
 import { useInputBurst } from "@/hooks/use-input-burst";
-import { useLookAt } from "@/hooks/use-look-at";
 
 const EAGLE_REPLIES = EAGLE_LINES.tips;
 
@@ -71,7 +70,6 @@ const EAGLE_SHEETS = [
   "/eagle-grind.png",
   "/eagle-startled.png",
   "/eagle-drowsy.png",
-  "/eagle-look.png",
 ];
 // Holding the decoded images keeps them in memory for the life of the page.
 let preloadedSheets: HTMLImageElement[] | null = null;
@@ -145,8 +143,6 @@ export function StudyEagle() {
   // while the user types or clicks fast.
   const reading = !!previewCode;
   const grinding = useInputBurst(enabled);
-  // Awake and idle, he turns his head toward the cursor.
-  const look = useLookAt(eagleRef, enabled && !compact && mode === "awake");
   const context = useRef<EagleContext>({ reading, grinding });
   context.current = { reading, grinding };
 
@@ -805,16 +801,7 @@ export function StudyEagle() {
                       : sprite
                 }
                 className={`study-eagle-sprite study-eagle-sprite-${sprite} ${
-                  sprite === mode && !(sprite === "awake" && look !== "ahead") ? "is-active" : ""
-                }`}
-              />
-            ))}
-            {/* Head turned toward the cursor: held poses shown in place of the idle loop. */}
-            {(["up", "down"] as const).map((dir) => (
-              <span
-                key={`look-${dir}`}
-                className={`study-eagle-sprite study-eagle-sprite-look-${dir} ${
-                  mode === "awake" && look === dir ? "is-active" : ""
+                  sprite === mode ? "is-active" : ""
                 }`}
               />
             ))}
