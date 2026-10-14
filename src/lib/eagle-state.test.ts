@@ -62,5 +62,8 @@ describe("eagle state machine", () => {
     expect(ambient("grinding", idle)).toBe("awake");
     expect(ambient("sleeping", typing)).toBeNull(); // waking is a request, not ambient
     expect(ambient("awake", idle)).toBeNull();
+    expect(ambient("drowsy", preview)).toBe("openingBook"); // a preview perks him up
+    expect(ambient("drowsy", idle)).toBeNull();
+    expect(request("drowsy", "petting")?.mode).toBe("petting"); // drowsy isn't asleep
   });
 });

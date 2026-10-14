@@ -9,6 +9,7 @@
  */
 export const EAGLE_MODES = [
   "awake",
+  "drowsy",
   "fallingAsleep",
   "sleeping",
   "wakingUp",
@@ -23,6 +24,7 @@ export type EagleMode = (typeof EAGLE_MODES)[number];
 
 export const MODE_PRIORITY: Record<EagleMode, number> = {
   awake: 0,
+  drowsy: 0,
   fallingAsleep: 0,
   sleeping: 0,
   openingBook: 0,
@@ -105,6 +107,7 @@ export function ambient(current: EagleMode, ctx: EagleContext): EagleMode | null
   const resting = restingMode(ctx);
   switch (current) {
     case "awake":
+    case "drowsy":
       return resting === "awake" ? null : resting;
     case "reading":
       return resting === "openingBook" ? null : resting;
