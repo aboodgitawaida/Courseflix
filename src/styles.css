@@ -565,6 +565,18 @@
   background-size: 800% 100%;
   animation: eagle-reading-frames 2s steps(8, jump-none) infinite;
 }
+/* Search open: takes out a magnifying glass (6 frames, once), then peers
+   through it in a loop for as long as the search box stays open. */
+.study-eagle-sprite-openingGlass {
+  background-image: url("/eagle-search-open.png");
+  background-size: 600% 100%;
+  animation: eagle-reading-frames 0.9s steps(6, jump-none) forwards;
+}
+.study-eagle-sprite-searching {
+  background-image: url("/eagle-search.png");
+  background-size: 600% 100%;
+  animation: eagle-reading-frames 1.5s steps(6, jump-none) infinite;
+}
 /* Every sheet has its own layer (StudyEagle.tsx); only the active one shows. With
    no animation, a layer that becomes active starts again from frame 1. */
 .study-eagle-sprite:not(.is-active) {

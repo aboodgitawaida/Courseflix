@@ -1,9 +1,10 @@
 import { describe, expect, it } from "vitest";
 import { ambient, request, settle, type EagleContext } from "./eagle-state";
 
-const idle: EagleContext = { reading: false, grinding: false };
-const preview: EagleContext = { reading: true, grinding: false };
-const typing: EagleContext = { reading: false, grinding: true };
+const idle: EagleContext = { reading: false, searching: false, grinding: false };
+const preview: EagleContext = { reading: true, searching: false, grinding: false };
+const typing: EagleContext = { reading: false, searching: false, grinding: true };
+const search: EagleContext = { reading: false, searching: true, grinding: false };
 
 describe("eagle state machine", () => {
   it("lets a pet interrupt ambient and scripted states", () => {
@@ -56,7 +57,9 @@ describe("eagle state machine", () => {
   it("starts and stops reading and grinding from idle", () => {
     expect(ambient("awake", preview)).toBe("openingBook");
     expect(ambient("awake", typing)).toBe("grinding");
-    expect(ambient("reading", { reading: true, grinding: true })).toBe("grinding");
+    expect(ambient("reading", { reading: true, searching: false, grinding: true })).toBe(
+      "grinding",
+    );
     expect(ambient("grinding", preview)).toBe("openingBook");
     expect(ambient("reading", idle)).toBe("awake");
     expect(ambient("grinding", idle)).toBe("awake");
@@ -65,5 +68,15 @@ describe("eagle state machine", () => {
     expect(ambient("drowsy", preview)).toBe("openingBook"); // a preview perks him up
     expect(ambient("drowsy", idle)).toBeNull();
     expect(request("drowsy", "petting")?.mode).toBe("petting"); // drowsy isn't asleep
+  });
+
+  it("searches through the magnifying glass while search is open", () => {
+    expect(ambient("awake", search)).toBe("openingGlass");
+    expect(settle("openingGlass", search)).toBe("searching");
+    // typing in the search box is searching, not cramming
+    expect(ambient("searching", { ...search, grinding: true })).toBeNull();
+    expect(ambient("searching", idle)).toBe("awake");
+    expect(ambient("reading", { ...preview, searching: true })).toBe("openingGlass");
+    expect(settle("openingGlass", idle)).toBe("awake"); // search closed mid-animation
   });
 });
