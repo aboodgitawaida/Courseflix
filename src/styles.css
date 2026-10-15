@@ -1206,6 +1206,197 @@
   opacity: 0.6;
 }
 
+/* Rarity cards: courses Reddit calls easy (gold) or hard (red) get an animated foil ring,
+   a shine sweep, drifting sparks and a metallic badge. --ring-angle and ring-spin are shared
+   with the other ring effects above. */
+.rarity-gold {
+  --rc1: #fde68a;
+  --rc2: #f59e0b;
+  --rc3: #92400e;
+  --glow: 251 191 36;
+  --spark-time: 3.6s;
+}
+.rarity-red {
+  --rc1: #fca5a5;
+  --rc2: #ef4444;
+  --rc3: #7f1d1d;
+  --glow: 239 68 68;
+  --spark-time: 2.4s;
+}
+.rarity-card {
+  --lift: -4px;
+  box-shadow:
+    0 0 40px -2px rgb(var(--glow) / 0.75),
+    0 18px 44px -14px rgb(var(--glow) / 0.75);
+  animation: rarity-pulse 2.6s ease-in-out infinite;
+}
+.rarity-card .course-card-art::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(120% 90% at 50% 0%, rgb(var(--glow) / 0.42), transparent 62%),
+    linear-gradient(160deg, rgb(var(--glow) / 0.3), transparent 55%);
+  mix-blend-mode: screen;
+  pointer-events: none;
+}
+.rarity-card.tilt-card:hover {
+  border-color: transparent;
+  box-shadow:
+    0 0 44px -4px rgb(var(--glow) / 0.8),
+    0 30px 60px -25px rgb(var(--glow) / 0.65),
+    0 18px 40px -20px rgb(0 0 0 / 0.9);
+}
+.rarity-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 6;
+  border-radius: inherit;
+  padding: 3px;
+  pointer-events: none;
+  background: conic-gradient(
+    from var(--ring-angle),
+    var(--rc3),
+    var(--rc1),
+    var(--rc2),
+    #fff,
+    var(--rc2),
+    var(--rc1),
+    var(--rc3)
+  );
+  -webkit-mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  animation: ring-spin 3.5s linear infinite;
+}
+.rarity-card::after {
+  content: "";
+  position: absolute;
+  inset: -40% -60%;
+  z-index: 6;
+  pointer-events: none;
+  mix-blend-mode: screen;
+  background: linear-gradient(
+    105deg,
+    transparent 40%,
+    rgb(var(--glow) / 0.3) 46%,
+    rgb(255 255 255 / 0.5) 50%,
+    rgb(var(--glow) / 0.3) 54%,
+    transparent 60%
+  );
+  transform: translateX(-32%);
+  animation: rarity-shine 3.6s ease-in-out infinite;
+}
+.rarity-spark {
+  position: absolute;
+  bottom: -6px;
+  z-index: 4;
+  width: 6px;
+  height: 6px;
+  border-radius: 9999px;
+  pointer-events: none;
+  opacity: 0;
+  background: rgb(var(--glow));
+  box-shadow: 0 0 12px 3px rgb(var(--glow) / 0.9);
+  animation: rarity-rise var(--spark-time) ease-in infinite;
+}
+.rarity-badge {
+  background-size: 220% 100%;
+  animation: rarity-badge-sheen 3s linear infinite;
+  box-shadow:
+    0 0 18px 0 rgb(var(--glow) / 0.95),
+    0 2px 8px rgb(0 0 0 / 0.5);
+}
+.rarity-gold .rarity-badge {
+  color: #3b1d00;
+  border-color: rgb(255 247 194 / 0.9);
+  background-image: linear-gradient(
+    110deg,
+    #b45309 0%,
+    #fbbf24 28%,
+    #fff7c2 50%,
+    #fbbf24 72%,
+    #b45309 100%
+  );
+}
+.rarity-red .rarity-badge {
+  color: #fff;
+  text-shadow: 0 1px 2px rgb(60 0 0 / 0.7);
+  border-color: rgb(254 202 202 / 0.85);
+  background-image: linear-gradient(
+    110deg,
+    #7f1d1d 0%,
+    #ef4444 28%,
+    #fca5a5 50%,
+    #ef4444 72%,
+    #7f1d1d 100%
+  );
+}
+.rarity-title {
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  -webkit-background-clip: text;
+  filter: drop-shadow(0 0 14px rgb(var(--glow) / 0.85));
+}
+.rarity-gold .rarity-title {
+  background-image: linear-gradient(180deg, #fff 0%, #fde68a 45%, #f59e0b 100%);
+}
+.rarity-red .rarity-title {
+  background-image: linear-gradient(180deg, #fff 0%, #fecaca 45%, #f87171 100%);
+}
+@keyframes rarity-pulse {
+  50% {
+    box-shadow:
+      0 0 64px 2px rgb(var(--glow) / 1),
+      0 18px 44px -14px rgb(var(--glow) / 0.85);
+  }
+}
+@keyframes rarity-shine {
+  0%,
+  55% {
+    transform: translateX(-32%);
+  }
+  100% {
+    transform: translateX(32%);
+  }
+}
+@keyframes rarity-rise {
+  0% {
+    transform: translate(0, 0) scale(0.6);
+    opacity: 0;
+  }
+  15% {
+    opacity: 1;
+  }
+  100% {
+    transform: translate(var(--drift, 8px), -190px) scale(1);
+    opacity: 0;
+  }
+}
+@keyframes rarity-badge-sheen {
+  to {
+    background-position: -220% 0;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .rarity-card,
+  .rarity-card::before,
+  .rarity-card::after,
+  .rarity-badge {
+    animation: none;
+  }
+  .rarity-card::before {
+    --ring-angle: 45deg;
+  }
+  .rarity-card::after,
+  .rarity-spark {
+    display: none;
+  }
+}
+
 /* Hero deck: a stack of course posters you can throw off the top.
    .deck-card = stack position (CSS-transitioned); .deck-tilt = hover tilt and drag,
    driven every frame by HeroDeck through vars on .hero-deck, so no transition.
