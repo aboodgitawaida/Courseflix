@@ -1,0 +1,8 @@
+{
+  "first_frame": "@assets/eagle-src/pixellab-base-awake.png",
+  "action": "writing a review: the eagle holds a big white feather quill pen in its wing and scribbles thoughtfully on a small cream paper scroll held against its chest, looking down at what it writes, quill tip dancing across the page; feet keep gripping the branch",
+  "frame_count": 12,
+  "seed": 127,
+  "enhance_prompt": true,
+  "no_background": true
+}

@@ -1,15 +1,34 @@
 import { describe, expect, it } from "vitest";
 import { ambient, request, settle, type EagleContext } from "./eagle-state";
 
-const idle: EagleContext = { reading: false, searching: false, grinding: false, comparing: false };
+const idle: EagleContext = {
+  reading: false,
+  searching: false,
+  grinding: false,
+  comparing: false,
+  writing: false,
+};
 const preview: EagleContext = {
   reading: true,
   searching: false,
   grinding: false,
   comparing: false,
+  writing: false,
 };
-const typing: EagleContext = { reading: false, searching: false, grinding: true, comparing: false };
-const search: EagleContext = { reading: false, searching: true, grinding: false, comparing: false };
+const typing: EagleContext = {
+  reading: false,
+  searching: false,
+  grinding: true,
+  comparing: false,
+  writing: false,
+};
+const search: EagleContext = {
+  reading: false,
+  searching: true,
+  grinding: false,
+  comparing: false,
+  writing: false,
+};
 
 describe("eagle state machine", () => {
   it("lets a pet interrupt ambient and scripted states", () => {
@@ -63,7 +82,13 @@ describe("eagle state machine", () => {
     expect(ambient("awake", preview)).toBe("openingBook");
     expect(ambient("awake", typing)).toBe("grinding");
     expect(
-      ambient("reading", { reading: true, searching: false, grinding: true, comparing: false }),
+      ambient("reading", {
+        reading: true,
+        searching: false,
+        grinding: true,
+        comparing: false,
+        writing: false,
+      }),
     ).toBe("grinding");
     expect(ambient("grinding", preview)).toBe("openingBook");
     expect(ambient("reading", idle)).toBe("awake");
@@ -90,5 +115,15 @@ describe("eagle state machine", () => {
     // a preview or search opened from the drawer takes over, and he comes back after
     expect(ambient("weighing", { ...compare, reading: true })).toBe("openingBook");
     expect(ambient("reading", compare)).toBe("openingScale");
+  });
+
+  it("writes with a quill while the review box has focus", () => {
+    const writing = { ...idle, writing: true };
+    expect(ambient("awake", writing)).toBe("openingQuill");
+    expect(settle("openingQuill", writing)).toBe("writing");
+    // typing a review is writing, not cramming
+    expect(ambient("writing", { ...writing, grinding: true })).toBeNull();
+    expect(ambient("writing", { ...preview })).toBe("openingBook");
+    expect(ambient("writing", idle)).toBe("awake");
   });
 });
