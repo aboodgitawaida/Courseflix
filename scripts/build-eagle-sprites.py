@@ -10,6 +10,7 @@
   pixellab-reading.png        PixelLab animation from the awake frame: takes out a book and reads it (12 x 80x80)
   pixellab-startled.png       PixelLab animation, sleep frame 1 -> awake frame: jolts awake, shock marks (8 x 80x80)
   pixellab-compare.png        PixelLab animation from the awake frame: takes out a balance scale (12 x 80x80)
+  pixellab-quill.png          PixelLab animation from the awake frame: takes out a quill and scroll and writes (12 x 80x80)
   pixellab-search.png         PixelLab animation from the awake frame: takes out a magnifying glass and peers (12 x 80x80)
   pixellab-grind.png          PixelLab animation from the awake frame: takes out a notepad and scribbles (12 x 80x80)
 
@@ -30,6 +31,8 @@ cut end sits against the right edge of the screen:
   public/eagle-search.png     6 frames (loop: peering through it while search is open)
   public/eagle-compare-open.png 6 frames (played once: takes out the balance scale)
   public/eagle-compare.png    8 frames (loop: the pans see-saw while courses are compared)
+  public/eagle-quill-open.png 6 frames (played once: takes out the quill and scroll)
+  public/eagle-quill.png      6 frames (loop: writing while a review box has focus)
 
 The animated frames get one consistent eye drawn in (fix_eye), because the
 animation model's eyes sat under a low, slanted brow that looked sad. The beak and
@@ -188,6 +191,7 @@ idle80, celebrate80, pet80, fallasleep80, wakeup80, reading80, grind80 = (
 # no drop_specks here: the little shock marks around his head are small on purpose
 startled80 = pixellab_frames("startled")
 search80 = pixellab_frames("search")
+quill80 = pixellab_frames("quill")
 
 
 # The balance scale: PixelLab drew him taking it out, but its pans barely move, and
@@ -272,7 +276,7 @@ grind80 = [drop_specks(f) for f in grind80]
 # lock the branch (and tail) below the feet to the awake frame, so it never flickers
 LOCK = 61 + dy
 for f in (idle80 + celebrate80 + pet80 + fallasleep80 + wakeup80 + reading80 + grind80 + startled80
-          + search80 + compare80 + weighing80 + sleep80):
+          + search80 + compare80 + weighing80 + quill80 + sleep80):
     f[LOCK:] = awake80[LOCK:]
 
 # one shared palette for all four art sources. The beak and eyes (warm oranges and
@@ -345,6 +349,7 @@ reading80 = snap_extra(reading80)
 grind80 = snap_extra(grind80)
 startled80 = snap_extra(startled80)
 search80 = snap_extra(search80)
+quill80 = snap_extra(quill80)
 compare80, weighing80 = (lambda both: (both[:6], both[6:]))(snap_extra(compare80 + weighing80))
 
 
@@ -452,7 +457,7 @@ ys, xs = np.nonzero(al)
 y0, y1, x1 = ys.min(), ys.max() + 1, xs.max() + 1
 # The magnifying glass pokes a pixel past the shared frame; trim it rather than
 # grow every sheet.
-for f in search80 + compare80 + weighing80:
+for f in search80 + compare80 + weighing80 + quill80:
     f[:y0] = 0; f[y1:] = 0; f[:, x1:] = 0
 
 
@@ -546,4 +551,11 @@ for name, frames in (("eagle-awake", idle80), ("eagle-sleep", sleep80), ("eagle-
 Image.fromarray(finish(compare80), "RGBA").save(OUT / "eagle-compare-open.png", optimize=True)
 Image.fromarray(finish(weighing80), "RGBA").save(OUT / "eagle-compare.png", optimize=True)
 
-print("frame size", x1 - STUB_X, "x", y1 - y0, "| wrote eagle-awake, -sleep, -celebrate, -pet, -fallasleep, -wakeup, -reading-open, -reading, -grind, -startled, -search-open, -search, -compare-open, -compare")
+# ---------- 12. quill: takes out a quill and scroll once, then writes ----------
+# Kept exactly as PixelLab drew it: only the branch lock, palette, trim and
+# mirror every sheet gets.
+QUILL_OPEN, QUILL_LOOP = range(0, 6), range(6, 12)
+Image.fromarray(finish([quill80[i] for i in QUILL_OPEN]), "RGBA").save(OUT / "eagle-quill-open.png", optimize=True)
+Image.fromarray(finish([quill80[i] for i in QUILL_LOOP]), "RGBA").save(OUT / "eagle-quill.png", optimize=True)
+
+print("frame size", x1 - STUB_X, "x", y1 - y0, "| wrote eagle-awake, -sleep, -celebrate, -pet, -fallasleep, -wakeup, -reading-open, -reading, -grind, -startled, -search-open, -search, -compare-open, -compare, -quill-open, -quill")
