@@ -583,6 +583,18 @@
   background-size: 800% 100%;
   animation: eagle-reading-frames 1.6s steps(8, jump-none) infinite;
 }
+/* Writing a review: takes out a quill and scroll (once), then writes in a loop
+   for as long as the review box has focus. */
+.study-eagle-sprite-openingQuill {
+  background-image: url("/eagle-quill-open.png");
+  background-size: 600% 100%;
+  animation: eagle-reading-frames 0.9s steps(6, jump-none) forwards;
+}
+.study-eagle-sprite-writing {
+  background-image: url("/eagle-quill.png");
+  background-size: 600% 100%;
+  animation: eagle-reading-frames 1.2s steps(6, jump-none) infinite;
+}
 /* Every sheet has its own layer (StudyEagle.tsx); only the active one shows. With
    no animation, a layer that becomes active starts again from frame 1. */
 .study-eagle-sprite:not(.is-active) {
