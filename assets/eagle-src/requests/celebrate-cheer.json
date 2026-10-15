@@ -1,0 +1,8 @@
+{
+  "first_frame": "@assets/eagle-src/pixellab-base-awake.png",
+  "last_frame": "@assets/eagle-src/pixellab-base-awake.png",
+  "action": "victory cheer on the branch: the eagle crouches, then bounces up with both wings flung wide open and beak open in a happy cheer, then pumps one wing up in the air like a victory fist, then folds its wings and settles; feet stay gripping the branch",
+  "frame_count": 10,
+  "seed": 131,
+  "no_background": true
+}
