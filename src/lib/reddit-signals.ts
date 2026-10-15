@@ -10,8 +10,11 @@ export type RedditSignal = { kind: "easy" | "hard"; percent: number; votes: numb
 
 const COUNTS = data.courses as unknown as Record<string, [number, number]>;
 
+// Catalog codes end in the credit weight and campus (PHY100H5, PSY100Y5); Reddit says PHY100.
+const shortCode = (code: string) => code.replace(/[HY]\d$/, "");
+
 export function getRedditSignal(code: string): RedditSignal | null {
-  const counts = COUNTS[code];
+  const counts = COUNTS[shortCode(code)];
   if (!counts) return null;
   const [easy, hard] = counts;
   const votes = easy + hard;
