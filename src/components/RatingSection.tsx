@@ -226,7 +226,7 @@ export function RatingSection({ code }: { code: string }) {
         <VerifyEmailPrompt email={user?.email} loading={verification.loading} />
       )}
       {open && verification.verified && (
-        <div className="glass rounded-3xl border-brand/30 p-6 space-y-4 mb-4">
+        <div className="glass rounded-3xl border-brand/30 p-6 space-y-4 mb-4" data-eagle-review>
           <div>
             <div className="text-xs uppercase tracking-wider text-muted-foreground mb-1.5">
               Overall
@@ -254,7 +254,6 @@ export function RatingSection({ code }: { code: string }) {
             className="w-full h-10 rounded-xl bg-surface-2 border border-border/50 px-3 text-sm outline-none focus:border-brand/60"
           />
           <textarea
-            data-eagle-review
             value={comment}
             onChange={(e) => setComment(e.target.value)}
             maxLength={1000}

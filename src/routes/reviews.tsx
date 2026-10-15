@@ -179,7 +179,10 @@ function ReviewsPage() {
                     </div>
                   </div>
                   {editingId === review.id && draft ? (
-                    <div className="mt-4 space-y-4 rounded-xl border border-brand/30 bg-surface-2 p-4">
+                    <div
+                      className="mt-4 space-y-4 rounded-xl border border-brand/30 bg-surface-2 p-4"
+                      data-eagle-review
+                    >
                       <div>
                         <p className="mb-2 text-xs uppercase tracking-wider text-muted-foreground">
                           Overall
@@ -240,7 +243,6 @@ function ReviewsPage() {
                         className="h-10 w-full rounded-xl border border-border/50 bg-background px-3 text-sm outline-none focus:border-brand/60"
                       />
                       <textarea
-                        data-eagle-review
                         value={draft.comment}
                         onChange={(event) => setDraft({ ...draft, comment: event.target.value })}
                         maxLength={1000}
