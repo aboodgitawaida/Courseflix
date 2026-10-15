@@ -89,10 +89,10 @@ describe("eagle state machine", () => {
         comparing: false,
         writing: false,
       }),
-    ).toBe("grinding");
-    expect(ambient("grinding", preview)).toBe("openingBook");
-    expect(ambient("reading", idle)).toBe("awake");
-    expect(ambient("grinding", idle)).toBe("awake");
+    ).toBe("closingBook");
+    expect(ambient("grinding", preview)).toBe("closingNotepad");
+    expect(ambient("reading", idle)).toBe("closingBook");
+    expect(ambient("grinding", idle)).toBe("closingNotepad");
     expect(ambient("sleeping", typing)).toBeNull(); // waking is a request, not ambient
     expect(ambient("awake", idle)).toBeNull();
   });
@@ -102,8 +102,8 @@ describe("eagle state machine", () => {
     expect(settle("openingGlass", search)).toBe("searching");
     // typing in the search box is searching, not cramming
     expect(ambient("searching", { ...search, grinding: true })).toBeNull();
-    expect(ambient("searching", idle)).toBe("awake");
-    expect(ambient("reading", { ...preview, searching: true })).toBe("openingGlass");
+    expect(ambient("searching", idle)).toBe("closingGlass");
+    expect(ambient("reading", { ...preview, searching: true })).toBe("closingBook");
     expect(settle("openingGlass", idle)).toBe("awake"); // search closed mid-animation
   });
 
@@ -111,10 +111,10 @@ describe("eagle state machine", () => {
     const compare = { ...idle, comparing: true };
     expect(ambient("awake", compare)).toBe("openingScale");
     expect(settle("openingScale", compare)).toBe("weighing");
-    expect(ambient("weighing", idle)).toBe("awake");
+    expect(ambient("weighing", idle)).toBe("closingScale");
     // a preview or search opened from the drawer takes over, and he comes back after
-    expect(ambient("weighing", { ...compare, reading: true })).toBe("openingBook");
-    expect(ambient("reading", compare)).toBe("openingScale");
+    expect(ambient("weighing", { ...compare, reading: true })).toBe("closingScale");
+    expect(ambient("reading", compare)).toBe("closingBook");
   });
 
   it("writes with a quill while the review box has focus", () => {
@@ -123,7 +123,22 @@ describe("eagle state machine", () => {
     expect(settle("openingQuill", writing)).toBe("writing");
     // typing a review is writing, not cramming
     expect(ambient("writing", { ...writing, grinding: true })).toBeNull();
-    expect(ambient("writing", { ...preview })).toBe("openingBook");
-    expect(ambient("writing", idle)).toBe("awake");
+    expect(ambient("writing", { ...preview })).toBe("closingQuill");
+    expect(ambient("writing", idle)).toBe("closingQuill");
+  });
+
+  it("puts a prop away before going idle or taking out the next one", () => {
+    expect(ambient("reading", idle)).toBe("closingBook");
+    expect(settle("closingBook", idle)).toBe("awake");
+    // from the compare scale straight to a preview: scale away, then the book out
+    expect(ambient("weighing", { ...idle, comparing: true, reading: true })).toBe("closingScale");
+    expect(settle("closingScale", { ...idle, comparing: true, reading: true })).toBe("openingBook");
+    // a prop taken out mid-put-away is just taken out again afterwards
+    expect(ambient("closingBook", preview)).toBeNull();
+    expect(settle("closingBook", preview)).toBe("openingBook");
+    // still wanted: nothing changes
+    expect(ambient("reading", preview)).toBeNull();
+    expect(ambient("openingBook", preview)).toBeNull();
+    expect(ambient("grinding", typing)).toBeNull();
   });
 });

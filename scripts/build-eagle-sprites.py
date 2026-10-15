@@ -26,6 +26,7 @@ cut end sits against the right edge of the screen:
   public/eagle-reading-open.png 6 frames (played once: takes out the book and opens it)
   public/eagle-reading.png    6 frames (loop: reading the open book)
   public/eagle-grind.png      6 frames (loop: scribbling in the notepad)
+  public/eagle-grind-open.png 6 frames (taking the notepad out; played backwards to put it away)
   public/eagle-startled.png   8 frames (played once: tapped while asleep)
   public/eagle-search-open.png 6 frames (played once: takes out the magnifying glass)
   public/eagle-search.png     6 frames (loop: peering through it while search is open)
@@ -502,6 +503,10 @@ grind = finish(grind80[GRIND_LOOP:])
 low = grind[GRIND_STREAK_FROM:]
 low[(low[..., 3] > 0) & (low[..., :3].min(2) >= 200)] = 0
 Image.fromarray(grind, "RGBA").save(OUT / "eagle-grind.png", optimize=True)
+grind_open = finish(grind80[:GRIND_LOOP])
+low = grind_open[GRIND_STREAK_FROM:]
+low[(low[..., 3] > 0) & (low[..., :3].min(2) >= 200)] = 0
+Image.fromarray(grind_open, "RGBA").save(OUT / "eagle-grind-open.png", optimize=True)
 
 # ---------- 9. startled: tapped while asleep ----------
 Image.fromarray(finish(startled80), "RGBA").save(OUT / "eagle-startled.png", optimize=True)
@@ -558,4 +563,4 @@ QUILL_OPEN, QUILL_LOOP = range(0, 6), range(6, 12)
 Image.fromarray(finish([quill80[i] for i in QUILL_OPEN]), "RGBA").save(OUT / "eagle-quill-open.png", optimize=True)
 Image.fromarray(finish([quill80[i] for i in QUILL_LOOP]), "RGBA").save(OUT / "eagle-quill.png", optimize=True)
 
-print("frame size", x1 - STUB_X, "x", y1 - y0, "| wrote eagle-awake, -sleep, -celebrate, -pet, -fallasleep, -wakeup, -reading-open, -reading, -grind, -startled, -search-open, -search, -compare-open, -compare, -quill-open, -quill")
+print("frame size", x1 - STUB_X, "x", y1 - y0, "| wrote eagle-awake, -sleep, -celebrate, -pet, -fallasleep, -wakeup, -reading-open, -reading, -grind, -grind-open, -startled, -search-open, -search, -compare-open, -compare, -quill-open, -quill")
