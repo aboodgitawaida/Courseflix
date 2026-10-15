@@ -24,6 +24,12 @@ export const EAGLE_MODES = [
   "openingQuill",
   "writing",
   "grinding",
+  // Putting each prop away: its take-out animation played backwards.
+  "closingBook",
+  "closingGlass",
+  "closingScale",
+  "closingQuill",
+  "closingNotepad",
 ] as const;
 export type EagleMode = (typeof EAGLE_MODES)[number];
 
@@ -40,6 +46,11 @@ export const MODE_PRIORITY: Record<EagleMode, number> = {
   openingQuill: 0,
   writing: 0,
   grinding: 1,
+  closingBook: 0,
+  closingGlass: 0,
+  closingScale: 0,
+  closingQuill: 0,
+  closingNotepad: 0,
   wakingUp: 2,
   startled: 2,
   petting: 2,
@@ -57,6 +68,11 @@ export const MODE_DURATION_MS: Partial<Record<EagleMode, number>> = {
   openingGlass: 900, // 6 frames: takes out the magnifying glass
   openingScale: 900, // 6 frames: takes out the balance scale
   openingQuill: 900, // 6 frames: takes out the quill and scroll
+  closingBook: 900, // the take-out animations, backwards
+  closingGlass: 900,
+  closingScale: 900,
+  closingQuill: 900,
+  closingNotepad: 900,
 };
 
 /** What's going on around the eagle that decides where he settles. */
@@ -79,6 +95,19 @@ const OPENING_TO_LOOP: Partial<Record<EagleMode, EagleMode>> = {
   openingGlass: "searching",
   openingScale: "weighing",
   openingQuill: "writing",
+};
+
+/** Putting a prop away, from its take-out state or its loop. */
+const PUT_AWAY: Partial<Record<EagleMode, EagleMode>> = {
+  openingBook: "closingBook",
+  reading: "closingBook",
+  openingGlass: "closingGlass",
+  searching: "closingGlass",
+  openingScale: "closingScale",
+  weighing: "closingScale",
+  openingQuill: "closingQuill",
+  writing: "closingQuill",
+  grinding: "closingNotepad",
 };
 
 export function isDozing(mode: EagleMode) {
@@ -136,18 +165,21 @@ export function request(
 
 /**
  * The ambient state for a context change while nothing scripted is playing:
- * take out the book, glass or pencil from idle, and put it away (or swap it)
- * when the context changes. Returns null when nothing should change.
+ * take out the book, glass, scale, quill or notepad from idle, and put it away
+ * first when the context changes (then settle() picks what comes next).
+ * Returns null when nothing should change.
  */
 export function ambient(current: EagleMode, ctx: EagleContext): EagleMode | null {
   const resting = restingMode(ctx);
   if (current === "awake") return resting === "awake" ? null : resting;
-  if (current === "grinding" || OPENING_TO_LOOP[current]) {
-    return resting === current ? null : resting;
-  }
-  const opening = (Object.keys(OPENING_TO_LOOP) as EagleMode[]).find(
-    (key) => OPENING_TO_LOOP[key] === current,
-  );
-  if (opening) return resting === opening ? null : resting;
-  return null;
+  const putAway = PUT_AWAY[current];
+  if (!putAway) return null; // one-shots and putting-away finish on their own
+  const stillWanted =
+    resting === current || // grinding
+    resting === (OPENING_TO_LOOP[current] ? current : openingFor(current));
+  return stillWanted ? null : putAway;
+}
+
+function openingFor(loop: EagleMode) {
+  return (Object.keys(OPENING_TO_LOOP) as EagleMode[]).find((key) => OPENING_TO_LOOP[key] === loop);
 }

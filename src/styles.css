@@ -595,6 +595,31 @@
   background-size: 600% 100%;
   animation: eagle-reading-frames 1.2s steps(6, jump-none) infinite;
 }
+/* Putting a prop away: the take-out animation played backwards, ending on his
+   normal pose (closing* in eagle-state.ts). */
+.study-eagle-sprite-closingBook,
+.study-eagle-sprite-closingGlass,
+.study-eagle-sprite-closingScale,
+.study-eagle-sprite-closingQuill,
+.study-eagle-sprite-closingNotepad {
+  background-size: 600% 100%;
+  animation: eagle-reading-frames 0.9s steps(6, jump-none) reverse forwards;
+}
+.study-eagle-sprite-closingBook {
+  background-image: url("/eagle-reading-open.png");
+}
+.study-eagle-sprite-closingGlass {
+  background-image: url("/eagle-search-open.png");
+}
+.study-eagle-sprite-closingScale {
+  background-image: url("/eagle-compare-open.png");
+}
+.study-eagle-sprite-closingQuill {
+  background-image: url("/eagle-quill-open.png");
+}
+.study-eagle-sprite-closingNotepad {
+  background-image: url("/eagle-grind-open.png");
+}
 /* Every sheet has its own layer (StudyEagle.tsx); only the active one shows. With
    no animation, a layer that becomes active starts again from frame 1. */
 .study-eagle-sprite:not(.is-active) {
