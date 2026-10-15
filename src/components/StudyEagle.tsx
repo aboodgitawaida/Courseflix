@@ -771,11 +771,6 @@ export function StudyEagle() {
               <PixelHeart />
             </div>
           )}
-          {mode === "celebrating" && (
-            <div className="study-eagle-confetti" aria-hidden="true">
-              ✦ · ✧ ✦ · ✧
-            </div>
-          )}
           <button
             type="button"
             aria-label={`Study Eagle. ${isDozing(mode) ? "Sleeping. " : ""}Tap to pet, drag the branch up or down.`}
