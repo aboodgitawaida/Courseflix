@@ -59,7 +59,9 @@ function content(items) {
     .join("\n");
 }
 
-async function ask(items) {
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+
+async function ask(items, attempt = 1) {
   const res = await fetch(
     `https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent`,
     {
@@ -76,10 +78,15 @@ async function ask(items) {
       }),
     },
   );
+  if ((res.status === 503 || res.status === 500) && attempt <= 6) {
+    console.log(`  ${MODEL} is busy (${res.status}), waiting ${20 * attempt}s and trying again...`);
+    await sleep(20_000 * attempt);
+    return ask(items, attempt + 1);
+  }
   if (!res.ok) {
-    console.error(`${MODEL} replied ${res.status}: ${(await res.text()).slice(0, 200)}`);
-    console.error("Stopping. If this is a quota error, try again tomorrow.");
-    process.exit(1);
+    const err = new Error(`${MODEL} replied ${res.status}: ${(await res.text()).slice(0, 200)}`);
+    err.status = res.status;
+    throw err;
   }
   const text = (await res.json()).candidates?.[0]?.content?.parts?.[0]?.text;
   return JSON.parse(text).results;
@@ -92,7 +99,14 @@ let done = 0;
 
 for (let i = 0; i < sample.length; i += BATCH) {
   const batch = sample.slice(i, i + BATCH);
-  for (const { index, ...b } of await ask(batch)) {
+  let results;
+  try {
+    results = await ask(batch);
+  } catch (e) {
+    console.log(`\nStopped early: ${e.message}\nShowing the results from the ${done} comments finished.`);
+    break;
+  }
+  for (const { index, ...b } of results) {
     const item = batch[index];
     if (!item) continue;
     const a = item.entry.labels;
