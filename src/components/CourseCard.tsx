@@ -17,7 +17,7 @@ import { useSound } from "@/hooks/use-sound";
 import { Burst } from "@/components/Burst";
 import { getRedditSignal } from "@/lib/reddit-signals";
 
-const SPARKS = [10, 28, 46, 64, 82];
+const SPARKS = [6, 18, 30, 42, 54, 66, 78, 90];
 
 function Motif({ motif, accent }: { motif: string; accent: string }) {
   if (motif === "grid")
@@ -221,7 +221,7 @@ export const CourseCard = memo(function CourseCard({
               style={
                 {
                   left: `${left}%`,
-                  animationDelay: `${i * 0.55}s`,
+                  animationDelay: `${i * 0.4}s`,
                   "--drift": `${i % 2 ? 14 : -14}px`,
                 } as React.CSSProperties
               }
@@ -239,17 +239,17 @@ export const CourseCard = memo(function CourseCard({
                 ? `${birdMentions} students call this a bird course`
                 : `${redditSignal?.percent}% of ${redditSignal?.votes} Reddit opinions call this easy`
             }
-            className="rarity-badge absolute top-9 left-2 flex items-center gap-1 rounded-lg border px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wider"
+            className="rarity-badge absolute top-9 left-2 flex items-center gap-1.5 rounded-lg border-2 px-2.5 py-1 text-xs font-extrabold uppercase tracking-wider"
           >
-            <Feather className="h-3 w-3" /> Bird course
+            <Feather className="h-3.5 w-3.5" /> Bird course
           </div>
         )}
         {isRedditHard && (
           <div
             title={`${redditSignal?.percent}% of ${redditSignal?.votes} Reddit opinions call this hard`}
-            className="rarity-badge absolute top-9 left-2 flex items-center gap-1 rounded-lg border px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wider"
+            className="rarity-badge absolute top-9 left-2 flex items-center gap-1.5 rounded-lg border-2 px-2.5 py-1 text-xs font-extrabold uppercase tracking-wider"
           >
-            <Flame className="h-3 w-3" /> Hard on Reddit
+            <Flame className="h-3.5 w-3.5" /> Hard on Reddit
           </div>
         )}
 
