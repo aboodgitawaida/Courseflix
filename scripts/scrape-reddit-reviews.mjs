@@ -11,6 +11,7 @@
 // resuming from where the last run stopped. r/UofT is too big for that, so it uses searches.
 // Optional: REDDIT_QUERIES="bird course,easy course" REDDIT_MAX_POSTS=50
 
+import { readFileSync } from "node:fs";
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 
 const { REDDIT_CLIENT_ID, REDDIT_CLIENT_SECRET } = process.env;
@@ -34,12 +35,30 @@ const SUBREDDITS = ["UTM", "UofT"];
 const COURSE_RE = /\b([A-Z]{3})\s?(\d{3})(?:\s?([HY])(\d))?/gi;
 const UTM_RE = /\butm\b|mississauga/i;
 
+// Real UTM course codes from the calendar, so phrases like "top 100" are not counted.
+const UTM_COURSES = new Set(
+  [
+    ...readFileSync(new URL("../src/lib/utm-catalog.ts", import.meta.url), "utf8").matchAll(
+      /"([A-Z]{3}\d{3})[HY]5/g,
+    ),
+  ].map((m) => m[1]),
+);
+
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
 async function getJson(url, headers = {}, attempt = 1) {
   // A short pause keeps the archive happy; busy replies are retried with longer waits below.
   await sleep(400);
-  const res = await fetch(url, { headers: { "User-Agent": USER_AGENT, ...headers } });
+  let res;
+  try {
+    res = await fetch(url, { headers: { "User-Agent": USER_AGENT, ...headers } });
+  } catch (e) {
+    // A dropped connection or Wi-Fi blip: wait and try again like a busy reply.
+    if (attempt >= 4) throw e;
+    console.log(`  network error, retrying in ${15 * attempt}s...`);
+    await sleep(15_000 * attempt);
+    return getJson(url, headers, attempt + 1);
+  }
   // 429 is a rate limit; the archive also answers 422 "Timeout" when it is busy.
   if ((res.status === 429 || res.status === 422 || res.status >= 500) && attempt < 4) {
     const wait = 15_000 * attempt;
@@ -130,7 +149,8 @@ function courseCodes(text, utmOnly) {
     const [, dept, num, , campus] = m;
     if (campus && campus !== "5") continue; // H1 = St. George, H3 = UTSC
     if (utmOnly && !campus && !UTM_RE.test(text)) continue;
-    codes.add(`${dept.toUpperCase()}${num}`);
+    const code = `${dept.toUpperCase()}${num}`;
+    if (UTM_COURSES.has(code)) codes.add(code);
   }
   return [...codes];
 }
@@ -154,7 +174,10 @@ async function main() {
   let cursors = {};
   try {
     const saved = JSON.parse(await readFile(OUT, "utf8"));
-    courses = saved.courses ?? {};
+    // Drop codes saved by older runs that are not real UTM courses.
+    courses = Object.fromEntries(
+      Object.entries(saved.courses ?? {}).filter(([code]) => UTM_COURSES.has(code)),
+    );
     if (!process.env.REDDIT_REFRESH) done = new Set(saved.doneSearches ?? []);
     cursors = saved.cursors ?? {};
   } catch {}
