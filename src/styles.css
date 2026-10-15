@@ -513,7 +513,7 @@
   background-size: 800% 100%;
   animation: eagle-pet-frames 0.9s steps(8, jump-none) forwards;
 }
-/* Celebration: 10-frame confetti toss, played once (MODE_DURATION_MS in eagle-state.ts). */
+/* Celebration: 10-frame victory cheer, played once (MODE_DURATION_MS in eagle-state.ts). */
 .study-eagle-sprite-celebrating {
   background-image: url("/eagle-celebrate.png");
   background-size: 1000% 100%;
