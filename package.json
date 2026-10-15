@@ -16,7 +16,8 @@
     "reddit-reviews": "node scripts/scrape-reddit-reviews.mjs",
     "reddit-context": "node scripts/add-reddit-context.mjs",
     "reddit-classify": "node scripts/classify-reddit-reviews.mjs",
-    "reddit-rank": "node scripts/reddit-rank.mjs"
+    "reddit-rank": "node scripts/reddit-rank.mjs",
+    "reddit-signals": "node scripts/build-reddit-signals.mjs"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.132.1",
