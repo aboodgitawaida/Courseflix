@@ -29,6 +29,8 @@ import { getProfessorRating, SHOW_RMP_SCORES } from "@/lib/professor-ratings";
 import { PUBLISHED_INSTRUCTORS } from "@/lib/course-instructors";
 import { loadDescriptions } from "@/lib/course-description";
 import { recordSubjectInterest } from "@/lib/interest";
+import { useCourseRarity } from "@/lib/course-rarity";
+import { RarityFx, RedditSays } from "@/components/RarityFx";
 
 export const Route = createFileRoute("/course/$code")({
   loader: async ({ params }) => {
@@ -101,6 +103,8 @@ function CoursePage() {
   const saved = shortlist.includes(course.code);
   const hasReal = !!stats && stats.rating_count > 0;
   const [burst, setBurst] = useState(0);
+  const rarityInfo = useCourseRarity(course.code);
+  const { rarity } = rarityInfo;
 
   useEffect(() => {
     window.dispatchEvent(
@@ -128,7 +132,9 @@ function CoursePage() {
       <Spotlight />
       <TopNav />
 
-      <section className="relative isolate -mt-[4.25rem] overflow-hidden pt-[4.25rem]">
+      <section
+        className={`relative isolate -mt-[4.25rem] overflow-hidden pt-[4.25rem] ${rarity ? `rarity-${rarity}` : ""}`}
+      >
         <div
           className="absolute inset-0 -z-10 opacity-60"
           style={{ background: `linear-gradient(135deg, ${c1} 0%, ${c2} 100%)` }}
@@ -152,6 +158,11 @@ function CoursePage() {
         >
           {course.code}
         </div>
+        {rarity && (
+          <div className="rfx-flat absolute inset-0 -z-10">
+            <RarityFx rarity={rarity} />
+          </div>
+        )}
 
         <div className="relative px-6 pb-24 pt-10 md:px-10 md:pb-32 md:pt-14">
           <Link
@@ -168,11 +179,12 @@ function CoursePage() {
               {course.area} · {course.credits} credit{course.credits === 1 ? "" : "s"}
               {course.hours ? ` · ${course.hours}` : ""}
             </span>
+            <RedditSays info={rarityInfo} size="lg" />
           </div>
           <h1 className="mt-5 font-mega text-[clamp(2.8rem,9vw,8rem)] font-black leading-[0.9] tracking-[-0.05em]">
             <span className="word-mask">
               <span className="word-in" style={{ animationDelay: "0.1s" }}>
-                {course.code}
+                <span className={rarity ? "rarity-title" : undefined}>{course.code}</span>
               </span>
             </span>
           </h1>

@@ -14,6 +14,8 @@ import { PrereqTree } from "./PrereqTree";
 import { useEffect, useState } from "react";
 import { calendarUrl } from "@/lib/links";
 import { recordSubjectInterest } from "@/lib/interest";
+import { useCourseRarity } from "@/lib/course-rarity";
+import { RarityFx, RedditSays } from "./RarityFx";
 
 export function CoursePreviewModal() {
   const { previewCode, closePreview } = useCourseUI();
@@ -35,6 +37,8 @@ export function CoursePreviewModal() {
   const displayDifficulty = hasStudentData ? stats!.avg_difficulty.toFixed(1) : "—";
   const displayWorkload = hasStudentData ? stats!.avg_workload.toFixed(1) : "—";
   const majorName = getMajor(major)?.name;
+  const rarityInfo = useCourseRarity(course?.code ?? "");
+  const { rarity } = rarityInfo;
 
   useEffect(() => {
     setImageSrc(getCourseImage(course?.subject ?? ""));
@@ -80,7 +84,9 @@ export function CoursePreviewModal() {
       >
         {course && (
           <div className="max-h-[85vh] overflow-y-auto">
-            <div className={`relative aspect-[16/7] bg-gradient-to-br ${art.gradient}`}>
+            <div
+              className={`relative aspect-[16/7] bg-gradient-to-br ${art.gradient} ${rarity ? `rarity-${rarity}` : ""}`}
+            >
               <img
                 src={imageSrc}
                 alt={`${course.subject} department`}
@@ -89,9 +95,17 @@ export function CoursePreviewModal() {
                 onError={() => setImageSrc(OFFLINE_SUBJECT_IMAGE)}
                 className="absolute inset-0 h-full w-full object-cover opacity-35"
               />
-              <div className="absolute inset-x-0 bottom-0 h-2/3 bg-gradient-to-t from-[#121216] via-[#121216]/70 to-transparent" />
-              <div className="absolute inset-x-0 bottom-0 p-6">
-                <DialogTitle className="font-mega text-4xl font-black tracking-[-0.05em] md:text-6xl">
+              {rarity && (
+                <div className="rfx-flat absolute inset-0">
+                  <RarityFx rarity={rarity} />
+                </div>
+              )}
+              <div className="absolute inset-x-0 bottom-0 z-[5] h-2/3 bg-gradient-to-t from-[#121216] via-[#121216]/70 to-transparent" />
+              <div className="absolute inset-x-0 bottom-0 z-[5] p-6">
+                <RedditSays info={rarityInfo} size="lg" className="mb-3" />
+                <DialogTitle
+                  className={`font-mega text-4xl font-black tracking-[-0.05em] md:text-6xl ${rarity ? "rarity-title" : ""}`}
+                >
                   {course.code}
                 </DialogTitle>
                 <DialogDescription className="mt-1 text-base font-medium text-white/85">
