@@ -1,4 +1,4 @@
-import { Star, Plus, Check, GitCompare, Feather, Flame } from "lucide-react";
+import { Star, Plus, Check, GitCompare } from "lucide-react";
 import { toast } from "sonner";
 import { memo, useRef, useState } from "react";
 import { getArt, getBadges, getProgramMatch, type Course } from "@/lib/courses";
@@ -6,18 +6,11 @@ import { OFFLINE_SUBJECT_IMAGE, getCourseImage } from "@/lib/subject-images";
 import { useCourseUI } from "@/hooks/use-course-ui";
 import { useMajor } from "@/hooks/use-major";
 import { useAuth } from "@/hooks/use-auth";
-import {
-  BIRD_COURSE_THRESHOLD,
-  useBirdMentions,
-  useCourseStats,
-  useShortlist,
-  useToggleShortlist,
-} from "@/lib/ratings";
+import { useCourseStats, useShortlist, useToggleShortlist } from "@/lib/ratings";
 import { useSound } from "@/hooks/use-sound";
 import { Burst } from "@/components/Burst";
-import { getRedditSignal } from "@/lib/reddit-signals";
-
-const SPARKS = [6, 18, 30, 42, 54, 66, 78, 90];
+import { useCourseRarity } from "@/lib/course-rarity";
+import { RarityFx, RedditSays } from "@/components/RarityFx";
 
 function Motif({ motif, accent }: { motif: string; accent: string }) {
   if (motif === "grid")
@@ -112,11 +105,8 @@ export const CourseCard = memo(function CourseCard({
   const { data: saved = [] } = useShortlist();
   const toggle = useToggleShortlist();
   const { data: stats } = useCourseStats(course.code);
-  const { data: birdMentions = 0 } = useBirdMentions(course.code);
-  const redditSignal = getRedditSignal(course.code);
-  const isBird = birdMentions >= BIRD_COURSE_THRESHOLD || redditSignal?.kind === "easy";
-  const isRedditHard = !isBird && redditSignal?.kind === "hard";
-  const rarity = isBird ? "gold" : isRedditHard ? "red" : null;
+  const rarityInfo = useCourseRarity(course.code);
+  const { rarity } = rarityInfo;
   const displayRating = stats?.rating_count ? stats.avg_rating : null;
   const inList = (saved as string[]).includes(course.code);
   const inCompare = compare.includes(course.code);
@@ -191,7 +181,7 @@ export const CourseCard = memo(function CourseCard({
       onPointerLeave={onPointerLeave}
       role="button"
       tabIndex={0}
-      aria-label={`${course.code}, ${course.title}${displayRating === null ? ", no student rating yet" : `, rated ${displayRating.toFixed(1)} out of 5`}`}
+      aria-label={`${course.code}, ${course.title}${displayRating === null ? ", no student rating yet" : `, rated ${displayRating.toFixed(1)} out of 5`}${rarityInfo.detail ? `, ${rarityInfo.detail}` : ""}`}
       onClick={() => openPreview(course.code)}
       onKeyDown={(e) => {
         if (e.key === "Enter" || e.key === " ") {
@@ -202,6 +192,7 @@ export const CourseCard = memo(function CourseCard({
       className={`tilt-card group relative shrink-0 ${w} cursor-pointer rounded-[20px] border ${rarity ? `rarity-card rarity-${rarity} border-transparent` : "border-white/[0.08]"} bg-surface overflow-hidden focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/70`}
     >
       <div className="tilt-glare" aria-hidden="true" />
+      {rarity && <RarityFx rarity={rarity} />}
       <div className={`course-card-art relative aspect-video bg-gradient-to-br ${art.gradient}`}>
         <img
           src={imageSrc}
@@ -212,48 +203,14 @@ export const CourseCard = memo(function CourseCard({
           className="absolute inset-0 h-full w-full object-cover opacity-45"
         />
         <Motif motif={art.motif} accent={art.accent} />
-        {rarity &&
-          SPARKS.map((left, i) => (
-            <span
-              key={left}
-              aria-hidden="true"
-              className="rarity-spark"
-              style={
-                {
-                  left: `${left}%`,
-                  animationDelay: `${i * 0.4}s`,
-                  "--drift": `${i % 2 ? 14 : -14}px`,
-                } as React.CSSProperties
-              }
-            />
-          ))}
         <div className="absolute inset-x-0 bottom-0 h-2/3 bg-gradient-to-t from-black/90 via-black/40 to-transparent" />
 
-        <div className="absolute top-2 left-2 rounded-lg border border-white/[0.12] bg-white/[0.08] px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-white/80">
+        <div className="absolute top-2 left-2 z-[5] rounded-lg border border-white/[0.12] bg-white/[0.08] px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-white/80">
           {course.area}
         </div>
-        {isBird && (
-          <div
-            title={
-              birdMentions >= BIRD_COURSE_THRESHOLD
-                ? `${birdMentions} students call this a bird course`
-                : `${redditSignal?.percent}% of ${redditSignal?.votes} Reddit opinions call this easy`
-            }
-            className="rarity-badge absolute top-9 left-2 flex items-center gap-1.5 rounded-lg border-2 px-2.5 py-1 text-xs font-extrabold uppercase tracking-wider"
-          >
-            <Feather className="h-3.5 w-3.5" /> Bird course
-          </div>
-        )}
-        {isRedditHard && (
-          <div
-            title={`${redditSignal?.percent}% of ${redditSignal?.votes} Reddit opinions call this hard`}
-            className="rarity-badge absolute top-9 left-2 flex items-center gap-1.5 rounded-lg border-2 px-2.5 py-1 text-xs font-extrabold uppercase tracking-wider"
-          >
-            <Flame className="h-3.5 w-3.5" /> Hard on Reddit
-          </div>
-        )}
+        <RedditSays info={rarityInfo} className="absolute top-9 left-2 z-[7]" />
 
-        <div className="absolute top-2 right-2 flex items-center gap-1.5 transition lg:opacity-0 lg:group-hover:opacity-100 lg:focus-within:opacity-100">
+        <div className="absolute top-2 right-2 z-[5] flex items-center gap-1.5 transition lg:opacity-0 lg:group-hover:opacity-100 lg:focus-within:opacity-100">
           <button
             onClick={(e) => {
               e.stopPropagation();
@@ -276,7 +233,7 @@ export const CourseCard = memo(function CourseCard({
           </button>
         </div>
 
-        <div className="absolute inset-x-0 bottom-0 p-3">
+        <div className="absolute inset-x-0 bottom-0 z-[5] p-3">
           <div
             className={`font-mega text-2xl font-extrabold leading-none tracking-tight text-white ${rarity ? "rarity-title" : ""}`}
           >
