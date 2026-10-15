@@ -17,6 +17,8 @@ import { useSound } from "@/hooks/use-sound";
 import { Burst } from "@/components/Burst";
 import { getRedditSignal } from "@/lib/reddit-signals";
 
+const SPARKS = [6, 18, 30, 42, 54, 66, 78, 90];
+
 function Motif({ motif, accent }: { motif: string; accent: string }) {
   if (motif === "grid")
     return (
@@ -114,6 +116,7 @@ export const CourseCard = memo(function CourseCard({
   const redditSignal = getRedditSignal(course.code);
   const isBird = birdMentions >= BIRD_COURSE_THRESHOLD || redditSignal?.kind === "easy";
   const isRedditHard = !isBird && redditSignal?.kind === "hard";
+  const rarity = isBird ? "gold" : isRedditHard ? "red" : null;
   const displayRating = stats?.rating_count ? stats.avg_rating : null;
   const inList = (saved as string[]).includes(course.code);
   const inCompare = compare.includes(course.code);
@@ -196,7 +199,7 @@ export const CourseCard = memo(function CourseCard({
           openPreview(course.code);
         }
       }}
-      className={`tilt-card group relative shrink-0 ${w} cursor-pointer rounded-[20px] border ${isBird ? "border-amber-400/60 shadow-[0_0_24px_-6px_rgba(251,191,36,0.55)]" : isRedditHard ? "border-red-500/60 shadow-[0_0_24px_-6px_rgba(239,68,68,0.55)]" : "border-white/[0.08]"} bg-surface overflow-hidden focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/70`}
+      className={`tilt-card group relative shrink-0 ${w} cursor-pointer rounded-[20px] border ${rarity ? `rarity-card rarity-${rarity} border-transparent` : "border-white/[0.08]"} bg-surface overflow-hidden focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/70`}
     >
       <div className="tilt-glare" aria-hidden="true" />
       <div className={`course-card-art relative aspect-video bg-gradient-to-br ${art.gradient}`}>
@@ -209,6 +212,21 @@ export const CourseCard = memo(function CourseCard({
           className="absolute inset-0 h-full w-full object-cover opacity-45"
         />
         <Motif motif={art.motif} accent={art.accent} />
+        {rarity &&
+          SPARKS.map((left, i) => (
+            <span
+              key={left}
+              aria-hidden="true"
+              className="rarity-spark"
+              style={
+                {
+                  left: `${left}%`,
+                  animationDelay: `${i * 0.4}s`,
+                  "--drift": `${i % 2 ? 14 : -14}px`,
+                } as React.CSSProperties
+              }
+            />
+          ))}
         <div className="absolute inset-x-0 bottom-0 h-2/3 bg-gradient-to-t from-black/90 via-black/40 to-transparent" />
 
         <div className="absolute top-2 left-2 rounded-lg border border-white/[0.12] bg-white/[0.08] px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-white/80">
@@ -221,17 +239,17 @@ export const CourseCard = memo(function CourseCard({
                 ? `${birdMentions} students call this a bird course`
                 : `${redditSignal?.percent}% of ${redditSignal?.votes} Reddit opinions call this easy`
             }
-            className="absolute top-9 left-2 flex items-center gap-1 rounded-lg border border-amber-300/60 bg-amber-400/90 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-black"
+            className="rarity-badge absolute top-9 left-2 flex items-center gap-1.5 rounded-lg border-2 px-2.5 py-1 text-xs font-extrabold uppercase tracking-wider"
           >
-            <Feather className="h-3 w-3" /> Bird course
+            <Feather className="h-3.5 w-3.5" /> Bird course
           </div>
         )}
         {isRedditHard && (
           <div
             title={`${redditSignal?.percent}% of ${redditSignal?.votes} Reddit opinions call this hard`}
-            className="absolute top-9 left-2 flex items-center gap-1 rounded-lg border border-red-400/60 bg-red-500/90 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-white"
+            className="rarity-badge absolute top-9 left-2 flex items-center gap-1.5 rounded-lg border-2 px-2.5 py-1 text-xs font-extrabold uppercase tracking-wider"
           >
-            <Flame className="h-3 w-3" /> Hard on Reddit
+            <Flame className="h-3.5 w-3.5" /> Hard on Reddit
           </div>
         )}
 
@@ -259,7 +277,9 @@ export const CourseCard = memo(function CourseCard({
         </div>
 
         <div className="absolute inset-x-0 bottom-0 p-3">
-          <div className="font-mega text-2xl font-extrabold leading-none tracking-tight text-white">
+          <div
+            className={`font-mega text-2xl font-extrabold leading-none tracking-tight text-white ${rarity ? "rarity-title" : ""}`}
+          >
             {course.code}
           </div>
           <div className="mt-1 line-clamp-1 text-xs font-medium text-white/80">{course.title}</div>
