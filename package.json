@@ -14,6 +14,7 @@
     "test": "vitest run",
     "sitemap": "node scripts/generate-sitemap.mjs",
     "reddit-reviews": "node scripts/scrape-reddit-reviews.mjs",
+    "reddit-context": "node scripts/add-reddit-context.mjs",
     "reddit-classify": "node scripts/classify-reddit-reviews.mjs",
     "reddit-rank": "node scripts/reddit-rank.mjs"
   },
