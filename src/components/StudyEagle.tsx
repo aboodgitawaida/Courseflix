@@ -67,6 +67,7 @@ const EAGLE_SHEETS = [
   "/eagle-reading-open.png",
   "/eagle-reading.png",
   "/eagle-grind.png",
+  "/eagle-grind-open.png",
   "/eagle-startled.png",
   "/eagle-search-open.png",
   "/eagle-search.png",
