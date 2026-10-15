@@ -1,12 +1,15 @@
 #!/usr/bin/env node
-// Asks Claude how each saved Reddit comment talks about the course it mentions:
+// Asks an AI model how each saved Reddit comment talks about the course it mentions:
 // sentiment, difficulty, workload, interest, professors, a tip and a one-line summary
 // in Claude's own words. Reads and updates data/reddit-reviews.json, then writes:
 //   data/reddit-positive.json        positive comments per course
 //   data/reddit-course-summary.json  per-course counts (easy vs hard, etc.), sorted by comments
 // Run after scrape-reddit-reviews.mjs:
+//   GEMINI_API_KEY=... node scripts/classify-reddit-reviews.mjs      free tier, uses Google Gemini
 //   node scripts/classify-reddit-reviews.mjs            free, uses a local Ollama model
 //   ANTHROPIC_API_KEY=... node scripts/classify-reddit-reviews.mjs   paid, uses Claude
+// Gemini key: https://aistudio.google.com (Get API key). Pick a model with GEMINI_MODEL=...
+// Only courses with at least MIN_COMMENTS comments (default 5) are classified.
 // Ollama: install from https://ollama.com, then `ollama pull llama3.1:8b`.
 // Pick another local model with OLLAMA_MODEL=...
 // Results are cached on each comment, so reruns only classify new comments.
@@ -18,10 +21,14 @@ const IN = "data/reddit-reviews.json";
 const POSITIVE_OUT = "data/reddit-positive.json";
 const SUMMARY_OUT = "data/reddit-course-summary.json";
 const USE_CLAUDE = Boolean(process.env.ANTHROPIC_API_KEY);
+const USE_GEMINI = !USE_CLAUDE && Boolean(process.env.GEMINI_API_KEY);
+const GEMINI_URL = process.env.GEMINI_URL ?? "https://generativelanguage.googleapis.com";
+const GEMINI_MODEL = process.env.GEMINI_MODEL ?? "gemini-flash-latest";
+const MIN_COMMENTS = Number(process.env.MIN_COMMENTS ?? 5);
 const OLLAMA_URL = process.env.OLLAMA_URL ?? "http://localhost:11434";
 const OLLAMA_MODEL = process.env.OLLAMA_MODEL ?? "llama3.1:8b";
 // A small local model does better with fewer comments at once, and the Mac runs one at a time.
-const BATCH = USE_CLAUDE ? 25 : 5;
+const BATCH = USE_CLAUDE || USE_GEMINI ? 25 : 5;
 // Batches sent to Claude at the same time.
 const CONCURRENCY = Number(process.env.CLASSIFY_CONCURRENCY ?? (USE_CLAUDE ? 5 : 1));
 // Bump when the labels change so older entries are classified again.
@@ -122,6 +129,35 @@ async function classifyLocal(content) {
   return JSON.parse((await res.json()).message.content).results;
 }
 
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+
+async function classifyGemini(content, attempt = 1) {
+  const res = await fetch(`${GEMINI_URL}/v1beta/models/${GEMINI_MODEL}:generateContent`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", "x-goog-api-key": process.env.GEMINI_API_KEY },
+    body: JSON.stringify({
+      systemInstruction: { parts: [{ text: SYSTEM }] },
+      contents: [{ role: "user", parts: [{ text: content }] }],
+      generationConfig: {
+        temperature: 0,
+        responseMimeType: "application/json",
+        responseJsonSchema: SCHEMA,
+      },
+    }),
+  });
+  // The free tier allows a limited number of requests per minute and per day.
+  if ((res.status === 429 || res.status >= 500) && attempt <= 5) {
+    const wait = (Number(process.env.GEMINI_WAIT_MS) || 30_000) * attempt;
+    console.log(`  Gemini ${res.status} (rate limit or busy), waiting ${wait / 1000}s...`);
+    await sleep(wait);
+    return classifyGemini(content, attempt + 1);
+  }
+  if (!res.ok) throw new Error(`Gemini ${res.status}: ${(await res.text()).slice(0, 300)}`);
+  const text = (await res.json()).candidates?.[0]?.content?.parts?.[0]?.text;
+  if (!text) throw new Error("Gemini returned no output");
+  return JSON.parse(text).results;
+}
+
 async function checkOllama() {
   let tags;
   try {
@@ -145,6 +181,7 @@ async function classify(items) {
         `<item index="${i}" course="${it.code}">\n${it.entry.text.slice(0, 2000)}\n</item>`,
     )
     .join("\n");
+  if (USE_GEMINI) return classifyGemini(content);
   if (!USE_CLAUDE) return classifyLocal(content);
   const response = await client.messages.create({
     model: "claude-haiku-5-5",
@@ -197,12 +234,16 @@ async function main() {
   const data = JSON.parse(await readFile(IN, "utf8"));
   const pending = [];
   for (const [code, list] of Object.entries(data.courses)) {
+    // Courses with only a comment or two are too thin to rank, so skip them.
+    if (list.length < MIN_COMMENTS) continue;
     for (const entry of list) if (entry.labelsVersion !== VERSION) pending.push({ code, entry });
   }
   const batches = [];
   for (let i = 0; i < pending.length; i += BATCH) batches.push(pending.slice(i, i + BATCH));
-  if (!USE_CLAUDE) await checkOllama();
-  console.log(`Using ${USE_CLAUDE ? "Claude (paid)" : `${OLLAMA_MODEL} on this computer (free)`}`);
+  if (!USE_CLAUDE && !USE_GEMINI) await checkOllama();
+  console.log(
+    `Using ${USE_CLAUDE ? "Claude (paid)" : USE_GEMINI ? `Gemini ${GEMINI_MODEL} (free tier)` : `${OLLAMA_MODEL} on this computer (free)`}`,
+  );
   console.log(`${pending.length} comments to classify in ${batches.length} batches`);
 
   let finished = 0;
