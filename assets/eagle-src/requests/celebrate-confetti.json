@@ -1,0 +1,8 @@
+{
+  "first_frame": "@assets/eagle-src/pixellab-base-awake.png",
+  "last_frame": "@assets/eagle-src/pixellab-base-awake.png",
+  "action": "celebration: the eagle throws a burst of colorful confetti up into the air with one wing, cheers with its beak open as the confetti flutters down around it, then settles back to rest; feet stay gripping the branch",
+  "frame_count": 10,
+  "seed": 139,
+  "no_background": true
+}

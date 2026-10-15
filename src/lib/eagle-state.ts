@@ -62,7 +62,7 @@ export const MODE_DURATION_MS: Partial<Record<EagleMode, number>> = {
   fallingAsleep: 2_000, // 8-frame yawn
   wakingUp: 1_200, // 8-frame stretch
   startled: 1_000, // 8-frame jolt awake
-  celebrating: 1_100, // 8-frame wing-flap
+  celebrating: 1_400, // 10-frame confetti toss
   petting: 900, // 8-frame head-bob
   openingBook: 900, // 6 frames: takes out the book
   openingGlass: 900, // 6 frames: takes out the magnifying glass
