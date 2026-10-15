@@ -41,6 +41,7 @@ import {
   type EagleMode,
 } from "@/lib/eagle-state";
 import { useInputBurst } from "@/hooks/use-input-burst";
+import { useReviewFocus } from "@/hooks/use-review-focus";
 
 const EAGLE_REPLIES = EAGLE_LINES.tips;
 
@@ -71,6 +72,8 @@ const EAGLE_SHEETS = [
   "/eagle-search.png",
   "/eagle-compare-open.png",
   "/eagle-compare.png",
+  "/eagle-quill-open.png",
+  "/eagle-quill.png",
 ];
 // Holding the decoded images keeps them in memory for the life of the page.
 let preloadedSheets: HTMLImageElement[] | null = null;
@@ -143,14 +146,16 @@ export function StudyEagle() {
   // He reads along the whole time a course preview is open, and crams along
   // while the user types or clicks fast.
   const reading = !!previewCode;
-  // Typing in the search box is searching, not cramming, so the burst detector
-  // pauses (and forgets) while search is open.
-  const grinding = useInputBurst(enabled && !searchOpen);
+  // Typing in the search box or a review is searching or writing, not cramming,
+  // so the burst detector pauses (and forgets) while either is in use.
+  const reviewFocused = useReviewFocus(enabled);
+  const grinding = useInputBurst(enabled && !searchOpen && !reviewFocused);
   const searching = searchOpen;
   // The full compare table shows from two courses up; one is just a reminder bar.
   const comparing = compare.length >= 2;
-  const context = useRef<EagleContext>({ reading, searching, grinding, comparing });
-  context.current = { reading, searching, grinding, comparing };
+  const writing = reviewFocused;
+  const context = useRef<EagleContext>({ reading, searching, grinding, comparing, writing });
+  context.current = { reading, searching, grinding, comparing, writing };
 
   useEffect(() => {
     modeRef.current = mode;
@@ -189,9 +194,9 @@ export function StudyEagle() {
       go("grinding");
       return;
     }
-    const next = ambient(mode, { reading, searching, grinding, comparing });
+    const next = ambient(mode, { reading, searching, grinding, comparing, writing });
     if (next) setMode(next);
-  }, [mode, reading, searching, grinding, comparing]);
+  }, [mode, reading, searching, grinding, comparing, writing]);
 
   useEffect(() => {
     if (enabled) preloadEagleSheets();

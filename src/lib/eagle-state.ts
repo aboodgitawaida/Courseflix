@@ -21,6 +21,8 @@ export const EAGLE_MODES = [
   "searching",
   "openingScale",
   "weighing",
+  "openingQuill",
+  "writing",
   "grinding",
 ] as const;
 export type EagleMode = (typeof EAGLE_MODES)[number];
@@ -35,6 +37,8 @@ export const MODE_PRIORITY: Record<EagleMode, number> = {
   searching: 0,
   openingScale: 0,
   weighing: 0,
+  openingQuill: 0,
+  writing: 0,
   grinding: 1,
   wakingUp: 2,
   startled: 2,
@@ -52,6 +56,7 @@ export const MODE_DURATION_MS: Partial<Record<EagleMode, number>> = {
   openingBook: 900, // 6 frames: takes out the book
   openingGlass: 900, // 6 frames: takes out the magnifying glass
   openingScale: 900, // 6 frames: takes out the balance scale
+  openingQuill: 900, // 6 frames: takes out the quill and scroll
 };
 
 /** What's going on around the eagle that decides where he settles. */
@@ -64,6 +69,8 @@ export type EagleContext = {
   grinding: boolean;
   /** Two or more courses are in the compare drawer: he weighs them on a scale. */
   comparing: boolean;
+  /** The review box has focus: he writes along with a quill. */
+  writing: boolean;
 };
 
 /** Prop animations: a one-shot "take it out" state, then the loop it settles into. */
@@ -71,6 +78,7 @@ const OPENING_TO_LOOP: Partial<Record<EagleMode, EagleMode>> = {
   openingBook: "reading",
   openingGlass: "searching",
   openingScale: "weighing",
+  openingQuill: "writing",
 };
 
 export function isDozing(mode: EagleMode) {
@@ -78,11 +86,13 @@ export function isDozing(mode: EagleMode) {
 }
 
 /**
- * The resting state for the current context. Searching wins (typing in the
- * search box is searching, not cramming), then grinding, then reading a
- * preview, then comparing (the drawer stays open in the background).
+ * The resting state for the current context. Writing a review and searching
+ * win (typing there is writing or searching, not cramming), then grinding,
+ * then reading a preview, then comparing (the drawer stays open in the
+ * background).
  */
 export function restingMode(ctx: EagleContext): EagleMode {
+  if (ctx.writing) return "openingQuill";
   if (ctx.searching) return "openingGlass";
   if (ctx.grinding) return "grinding";
   if (ctx.reading) return "openingBook";
