@@ -513,11 +513,11 @@
   background-size: 800% 100%;
   animation: eagle-pet-frames 0.9s steps(8, jump-none) forwards;
 }
-/* Celebration: 8-frame wing-flap, played once (CELEBRATE_MS in StudyEagle.tsx). */
+/* Celebration: 10-frame confetti toss, played once (MODE_DURATION_MS in eagle-state.ts). */
 .study-eagle-sprite-celebrating {
   background-image: url("/eagle-celebrate.png");
-  background-size: 800% 100%;
-  animation: eagle-celebrate-frames 1.1s steps(8, jump-none) forwards;
+  background-size: 1000% 100%;
+  animation: eagle-celebrate-frames 1.4s steps(10, jump-none) forwards;
 }
 /* Nodding off: 8-frame yawn, then the head sinks into the sleeping pose; played once (FALL_ASLEEP_MS). */
 .study-eagle-sprite-fallingAsleep {

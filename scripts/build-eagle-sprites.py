@@ -3,7 +3,9 @@
   sleeping-eagle-source.jpg   the 4-frame sleeping eagle (a blurry JPEG of ~7.5px art pixels)
   pixellab-awake-edit.png     PixelLab edit of sleep frame 1 with the eyes opened (80x80)
   pixellab-idle.png           PixelLab animation from the awake frame: blink + head turn (8 x 80x80)
-  pixellab-celebrate.png      PixelLab animation from the awake frame: wing-flap (8 x 80x80)
+  pixellab-celebrate.png      PixelLab animation from the awake frame: wing-flap (8 x 80x80); no longer
+                              shown, but still part of the shared palette and frame size
+  pixellab-celebrate-confetti.png PixelLab animation from the awake frame: confetti toss and cheer (10 x 80x80)
   pixellab-pet.png            PixelLab animation from the awake frame: happy head-bob (8 x 80x80)
   pixellab-fallasleep.png     PixelLab animation, awake frame -> sleep frame 1: a yawn, then the head sinks (8 x 80x80)
   pixellab-wakeup.png         PixelLab animation, sleep frame 1 -> awake frame: head up, wing stretch (8 x 80x80)
@@ -19,7 +21,7 @@ branch is identical in every frame and the sheets are mirrored so the branch's
 cut end sits against the right edge of the screen:
   public/eagle-awake.png      8 frames (idle loop)
   public/eagle-sleep.png      4 frames
-  public/eagle-celebrate.png  8 frames (played once)
+  public/eagle-celebrate.png  10 frames (played once): the confetti toss
   public/eagle-pet.png        8 frames (played once per tap)
   public/eagle-fallasleep.png 8 frames (played once, awake -> sleeping)
   public/eagle-wakeup.png     8 frames (played once, sleeping -> awake)
@@ -548,6 +550,19 @@ Image.fromarray(tidy_search(finish([search80[i] for i in SEARCH_OPEN]), len(SEAR
     OUT / "eagle-search-open.png", optimize=True)
 Image.fromarray(tidy_search(finish([search80[i] for i in SEARCH_LOOP]), len(SEARCH_LOOP)), "RGBA").save(
     OUT / "eagle-search.png", optimize=True)
+
+# The celebration is the confetti toss, kept exactly as PixelLab drew it (no speck
+# removal: the confetti is the point). The old wing-flap above stays in the palette
+# and frame-size calculations so no other sheet changes.
+confetti80 = [shift(f) for f in (lambda sheet: [sheet[:, 80 * i:80 * i + 80].copy()
+              for i in range(sheet.shape[1] // 80)])(
+                  np.asarray(Image.open(SRC / "pixellab-celebrate-confetti.png").convert("RGBA")))]
+for f in confetti80:
+    f[LOCK:] = awake80[LOCK:]
+confetti80 = snap_extra(confetti80)
+for f in confetti80:
+    f[:y0] = 0; f[y1:] = 0; f[:, x1:] = 0
+celebrate80 = confetti80
 
 for name, frames in (("eagle-awake", idle80), ("eagle-sleep", sleep80), ("eagle-celebrate", celebrate80),
                      ("eagle-pet", pet80), ("eagle-fallasleep", fallasleep80), ("eagle-wakeup", wakeup80)):
