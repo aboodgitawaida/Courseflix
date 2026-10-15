@@ -168,19 +168,29 @@ const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 async function classifyGemini(content, attempt = 1) {
   // After two overloaded replies, try the lighter model, which is usually less busy.
   const model = attempt > 2 ? GEMINI_FALLBACK : GEMINI_MODEL;
-  const res = await fetch(`${GEMINI_URL}/v1beta/models/${model}:generateContent`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json", "x-goog-api-key": process.env.GEMINI_API_KEY },
-    body: JSON.stringify({
-      systemInstruction: { parts: [{ text: SYSTEM }] },
-      contents: [{ role: "user", parts: [{ text: content }] }],
-      generationConfig: {
-        temperature: 0,
-        responseMimeType: "application/json",
-        responseJsonSchema: SCHEMA,
-      },
-    }),
-  });
+  let res;
+  try {
+    res = await fetch(`${GEMINI_URL}/v1beta/models/${model}:generateContent`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "x-goog-api-key": process.env.GEMINI_API_KEY },
+      body: JSON.stringify({
+        systemInstruction: { parts: [{ text: SYSTEM }] },
+        contents: [{ role: "user", parts: [{ text: content }] }],
+        generationConfig: {
+          temperature: 0,
+          responseMimeType: "application/json",
+          responseJsonSchema: SCHEMA,
+        },
+      }),
+    });
+  } catch (e) {
+    // The computer lost its connection (Wi-Fi drop, sleep). Wait and try again.
+    if (attempt > 8) throw e;
+    const wait = Math.min(120_000, (Number(process.env.GEMINI_WAIT_MS) || 15_000) * attempt);
+    console.log(`  no internet connection, waiting ${wait / 1000}s and trying again...`);
+    await sleep(wait);
+    return classifyGemini(content, attempt);
+  }
   // The free tier allows a limited number of requests per minute and per day.
   if ((res.status === 429 || res.status >= 500) && attempt <= 5) {
     const wait = (Number(process.env.GEMINI_WAIT_MS) || 30_000) * attempt;
@@ -306,6 +316,7 @@ async function main() {
   console.log(`${pending.length} comments to classify in ${batches.length} batches`);
 
   let finished = 0;
+  let failedInARow = 0;
   let next = 0;
   async function worker() {
     while (next < batches.length) {
@@ -317,8 +328,14 @@ async function main() {
           item.entry.labels = labels;
           item.entry.labelsVersion = VERSION;
         }
+        failedInARow = 0;
       } catch (e) {
         console.log(`  a batch failed, it will be retried next run: ${e.message.slice(0, 120)}`);
+        // Many failures in a row means something is wrong, so stop instead of skipping everything.
+        if (++failedInARow >= 5) {
+          console.error("5 batches failed in a row. Check your internet connection and rerun.");
+          process.exit(1);
+        }
       }
       finished++;
       await writeFile(IN, JSON.stringify(data, null, 2));
