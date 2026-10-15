@@ -1225,9 +1225,12 @@
 }
 .rarity-card {
   --lift: -4px;
+  /* The card rows scroll sideways and clip anything past their 24px padding, so the outer
+     glow stays under that and the extra brightness is an inset glow that cannot be clipped. */
   box-shadow:
-    0 0 40px -2px rgb(var(--glow) / 0.75),
-    0 18px 44px -14px rgb(var(--glow) / 0.75);
+    0 0 18px 0 rgb(var(--glow) / 0.85),
+    0 0 6px 0 rgb(var(--glow) / 0.9),
+    inset 0 0 30px 0 rgb(var(--glow) / 0.3);
   animation: rarity-pulse 2.6s ease-in-out infinite;
 }
 .rarity-card .course-card-art::before {
@@ -1243,9 +1246,9 @@
 .rarity-card.tilt-card:hover {
   border-color: transparent;
   box-shadow:
-    0 0 44px -4px rgb(var(--glow) / 0.8),
-    0 30px 60px -25px rgb(var(--glow) / 0.65),
-    0 18px 40px -20px rgb(0 0 0 / 0.9);
+    0 0 20px 2px rgb(var(--glow) / 0.95),
+    0 0 8px 0 rgb(var(--glow) / 1),
+    inset 0 0 42px 0 rgb(var(--glow) / 0.42);
 }
 .rarity-card::before {
   content: "";
@@ -1350,8 +1353,9 @@
 @keyframes rarity-pulse {
   50% {
     box-shadow:
-      0 0 64px 2px rgb(var(--glow) / 1),
-      0 18px 44px -14px rgb(var(--glow) / 0.85);
+      0 0 22px 2px rgb(var(--glow) / 1),
+      0 0 8px 0 rgb(var(--glow) / 1),
+      inset 0 0 44px 0 rgb(var(--glow) / 0.45);
   }
 }
 @keyframes rarity-shine {
