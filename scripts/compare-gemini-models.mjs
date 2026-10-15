@@ -38,7 +38,9 @@ for (let i = pool.length - 1; i > 0; i--) {
   [pool[i], pool[j]] = [pool[j], pool[i]];
 }
 const sample = pool.slice(0, SAMPLE);
-console.log(`Comparing ${sample.length} comments against ${MODEL} (${pool.length} labelled so far)`);
+console.log(
+  `Comparing ${sample.length} comments against ${MODEL} (${pool.length} labelled so far)`,
+);
 
 function content(items) {
   return items
@@ -93,7 +95,9 @@ async function ask(items, attempt = 1) {
 }
 
 const FIELDS = ["sentiment", "difficulty", "workload", "interest", "confidence"];
-const stats = Object.fromEntries(FIELDS.map((f) => [f, { agree: 0, total: 0, real: 0, realAgree: 0 }]));
+const stats = Object.fromEntries(
+  FIELDS.map((f) => [f, { agree: 0, total: 0, real: 0, realAgree: 0 }]),
+);
 const diffs = [];
 let done = 0;
 
@@ -103,7 +107,9 @@ for (let i = 0; i < sample.length; i += BATCH) {
   try {
     results = await ask(batch);
   } catch (e) {
-    console.log(`\nStopped early: ${e.message}\nShowing the results from the ${done} comments finished.`);
+    console.log(
+      `\nStopped early: ${e.message}\nShowing the results from the ${done} comments finished.`,
+    );
     break;
   }
   for (const { index, ...b } of results) {
