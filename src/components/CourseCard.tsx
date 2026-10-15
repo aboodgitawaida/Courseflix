@@ -1,4 +1,4 @@
-import { Star, Plus, Check, GitCompare, Feather } from "lucide-react";
+import { Star, Plus, Check, GitCompare, Feather, Flame } from "lucide-react";
 import { toast } from "sonner";
 import { memo, useRef, useState } from "react";
 import { getArt, getBadges, getProgramMatch, type Course } from "@/lib/courses";
@@ -15,6 +15,7 @@ import {
 } from "@/lib/ratings";
 import { useSound } from "@/hooks/use-sound";
 import { Burst } from "@/components/Burst";
+import { getRedditSignal } from "@/lib/reddit-signals";
 
 function Motif({ motif, accent }: { motif: string; accent: string }) {
   if (motif === "grid")
@@ -110,7 +111,9 @@ export const CourseCard = memo(function CourseCard({
   const toggle = useToggleShortlist();
   const { data: stats } = useCourseStats(course.code);
   const { data: birdMentions = 0 } = useBirdMentions(course.code);
-  const isBird = birdMentions >= BIRD_COURSE_THRESHOLD;
+  const redditSignal = getRedditSignal(course.code);
+  const isBird = birdMentions >= BIRD_COURSE_THRESHOLD || redditSignal?.kind === "easy";
+  const isRedditHard = !isBird && redditSignal?.kind === "hard";
   const displayRating = stats?.rating_count ? stats.avg_rating : null;
   const inList = (saved as string[]).includes(course.code);
   const inCompare = compare.includes(course.code);
@@ -193,7 +196,7 @@ export const CourseCard = memo(function CourseCard({
           openPreview(course.code);
         }
       }}
-      className={`tilt-card group relative shrink-0 ${w} cursor-pointer rounded-[20px] border ${isBird ? "border-amber-400/60 shadow-[0_0_24px_-6px_rgba(251,191,36,0.55)]" : "border-white/[0.08]"} bg-surface overflow-hidden focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/70`}
+      className={`tilt-card group relative shrink-0 ${w} cursor-pointer rounded-[20px] border ${isBird ? "border-amber-400/60 shadow-[0_0_24px_-6px_rgba(251,191,36,0.55)]" : isRedditHard ? "border-red-500/60 shadow-[0_0_24px_-6px_rgba(239,68,68,0.55)]" : "border-white/[0.08]"} bg-surface overflow-hidden focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/70`}
     >
       <div className="tilt-glare" aria-hidden="true" />
       <div className={`course-card-art relative aspect-video bg-gradient-to-br ${art.gradient}`}>
@@ -213,10 +216,22 @@ export const CourseCard = memo(function CourseCard({
         </div>
         {isBird && (
           <div
-            title={`${birdMentions} students call this a bird course`}
+            title={
+              birdMentions >= BIRD_COURSE_THRESHOLD
+                ? `${birdMentions} students call this a bird course`
+                : `${redditSignal?.percent}% of ${redditSignal?.votes} Reddit opinions call this easy`
+            }
             className="absolute top-9 left-2 flex items-center gap-1 rounded-lg border border-amber-300/60 bg-amber-400/90 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-black"
           >
             <Feather className="h-3 w-3" /> Bird course
+          </div>
+        )}
+        {isRedditHard && (
+          <div
+            title={`${redditSignal?.percent}% of ${redditSignal?.votes} Reddit opinions call this hard`}
+            className="absolute top-9 left-2 flex items-center gap-1 rounded-lg border border-red-400/60 bg-red-500/90 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-white"
+          >
+            <Flame className="h-3 w-3" /> Hard on Reddit
           </div>
         )}
 
