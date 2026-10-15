@@ -152,7 +152,17 @@ async function classifyGemini(content, attempt = 1) {
     await sleep(wait);
     return classifyGemini(content, attempt + 1);
   }
-  if (!res.ok) throw new Error(`Gemini ${res.status}: ${(await res.text()).slice(0, 300)}`);
+  if (!res.ok) {
+    const body = await res.text();
+    // A bad key fails every batch the same way, so stop right away instead of retrying.
+    if (res.status === 401 || res.status === 403 || /API key/i.test(body)) {
+      console.error(
+        `Gemini rejected the API key (${res.status}). Check GEMINI_API_KEY and try again.`,
+      );
+      process.exit(1);
+    }
+    throw new Error(`Gemini ${res.status}: ${body.slice(0, 300)}`);
+  }
   const text = (await res.json()).candidates?.[0]?.content?.parts?.[0]?.text;
   if (!text) throw new Error("Gemini returned no output");
   return JSON.parse(text).results;
