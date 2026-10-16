@@ -94,11 +94,14 @@ function AchievementsPage() {
           </div>
         ) : (
           <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {achievements.map((achievement) => (
+            {achievements.map((achievement, index) => (
               <article
                 key={achievement.id}
-                className={`relative overflow-hidden rounded-3xl border p-5 transition duration-500 hover:-translate-y-1 ${achievement.unlocked ? `shine border-brand/40 bg-gradient-to-br shadow-xl shadow-brand/10 hover:shadow-brand/30 ${achievement.accent}` : "border-border/40 bg-surface/50 opacity-65 grayscale"}`}
+                // The eagle lifts his trophy, then each card locks in, one after another.
+                style={{ "--lock-delay": `${0.9 + index * 0.12}s` } as React.CSSProperties}
+                className={`relative overflow-hidden rounded-3xl border p-5 transition duration-500 hover:-translate-y-1 ${achievement.unlocked ? "ach-lock-in " : "ach-locked "}${achievement.unlocked ? `shine border-brand/40 bg-gradient-to-br shadow-xl shadow-brand/10 hover:shadow-brand/30 ${achievement.accent}` : "border-border/40 bg-surface/50 opacity-65 grayscale"}`}
               >
+                {achievement.unlocked && <span className="ach-gleam" aria-hidden="true" />}
                 <div className="flex items-start justify-between gap-3">
                   <div className="grid h-16 w-16 place-items-center rounded-2xl border border-white/10 bg-black/20">
                     <img
@@ -108,11 +111,11 @@ function AchievementsPage() {
                     />
                   </div>
                   {achievement.unlocked ? (
-                    <span className="rounded-full bg-brand/15 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-brand">
+                    <span className="ach-badge rounded-full bg-brand/15 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-brand">
                       Unlocked
                     </span>
                   ) : (
-                    <LockKeyhole className="h-4 w-4 text-muted-foreground" />
+                    <LockKeyhole className="ach-padlock h-4 w-4 text-muted-foreground" />
                   )}
                 </div>
                 <h2 className="mt-5 font-display text-2xl font-bold">{achievement.name}</h2>
@@ -128,7 +131,7 @@ function AchievementsPage() {
                   </div>
                   <div className="h-1.5 overflow-hidden rounded-full bg-black/20">
                     <div
-                      className="h-full rounded-full bg-brand transition-all"
+                      className="ach-bar h-full rounded-full bg-brand transition-all"
                       style={{
                         width: `${(achievement.progress / achievement.requirement) * 100}%`,
                       }}
