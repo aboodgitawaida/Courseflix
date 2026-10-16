@@ -1,19 +1,25 @@
 #!/usr/bin/env node
-// Test only: asks a second Gemini model to label a random sample of comments that the
-// first model already labelled, using the classifier's exact prompt, then prints how often
-// the two agree. It never writes to data/reddit-reviews.json.
+// Test only: asks a second model to label a random sample of comments that the first model
+// already labelled, using the classifier's exact prompt, then prints how often the two agree.
+// It never writes to data/reddit-reviews.json.
 //   GEMINI_MODEL=gemini-flash-latest node scripts/compare-gemini-models.mjs
-// SAMPLE=150 sets how many comments (default 150, about 6 requests).
+//   PROVIDER=ollama node scripts/compare-gemini-models.mjs      the local Ollama model
+// SAMPLE=150 sets how many comments (default 150). OLLAMA_MODEL=... picks another local model.
 
 import { readFile } from "node:fs/promises";
 
 const IN = "data/reddit-reviews.json";
-const MODEL = process.env.GEMINI_MODEL ?? "gemini-flash-latest";
+const OLLAMA = process.env.PROVIDER === "ollama";
+const OLLAMA_URL = process.env.OLLAMA_URL ?? "http://localhost:11434";
+const MODEL = OLLAMA
+  ? (process.env.OLLAMA_MODEL ?? "llama3.1:8b")
+  : (process.env.GEMINI_MODEL ?? "gemini-flash-latest");
 const SAMPLE = Number(process.env.SAMPLE ?? 150);
-const BATCH = 25;
+// The classifier sends the local model 5 comments at a time, so the test does too.
+const BATCH = OLLAMA ? 5 : 25;
 const VERSION = 3;
 
-if (!process.env.GEMINI_API_KEY) {
+if (!OLLAMA && !process.env.GEMINI_API_KEY) {
   console.error("GEMINI_API_KEY is not set in this Terminal window.");
   process.exit(1);
 }
@@ -63,7 +69,32 @@ function content(items) {
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
+async function askOllama(items) {
+  let res;
+  try {
+    res = await fetch(`${OLLAMA_URL}/api/chat`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        model: MODEL,
+        stream: false,
+        format: SCHEMA,
+        options: { temperature: 0 },
+        messages: [
+          { role: "system", content: SYSTEM },
+          { role: "user", content: content(items) },
+        ],
+      }),
+    });
+  } catch {
+    throw new Error(`Could not reach Ollama at ${OLLAMA_URL}. Open the Ollama app and try again.`);
+  }
+  if (!res.ok) throw new Error(`Ollama replied ${res.status}: ${(await res.text()).slice(0, 200)}`);
+  return JSON.parse((await res.json()).message.content).results;
+}
+
 async function ask(items, attempt = 1) {
+  if (OLLAMA) return askOllama(items);
   const res = await fetch(
     `https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent`,
     {
