@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 
-export const MAJOR_STORAGE_KEY = "courseflix.major";
-const KEY = MAJOR_STORAGE_KEY;
+const KEY = "courseflix.major";
 const EVENT = "courseflix:major";
 
 /** Saves the selected program outside React (e.g. from a toast action). */
