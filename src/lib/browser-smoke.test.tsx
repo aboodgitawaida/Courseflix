@@ -48,8 +48,8 @@ vi.mock("@/components/CourseRail", () => ({
   CourseRail: ({ rail }: { rail: { title: string } }) => <section>{rail.title}</section>,
 }));
 
-vi.mock("@/components/YearTiers", () => ({
-  YearTiers: () => <section>Year tiers</section>,
+vi.mock("@/components/TierSections", () => ({
+  TierSections: () => <section>Tier sections</section>,
 }));
 
 vi.mock("@/components/CreatorSection", () => ({
