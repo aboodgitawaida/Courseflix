@@ -29,7 +29,9 @@ import { courseSummary, lighterOptions, prereqSentence } from "@/lib/eagle-chat"
 import { useAllCourseStats } from "@/lib/ratings";
 import { EAGLE_LINES } from "@/lib/eagle-lines";
 import { EAGLE_AVOID_SELECTOR, choosePanelSpot, type PanelSpot } from "@/lib/eagle-layout";
-import { pickEagleLine, takeLateNightLine } from "@/lib/study-eagle";
+import { countPhrase } from "@/lib/eagle-reactions";
+import { firstThisSession, pickEagleLine, takeLateNightLine } from "@/lib/study-eagle";
+import { useNotifications } from "@/lib/social";
 import {
   EAGLE_MODES as SPRITE_MODES,
   MODE_DURATION_MS,
@@ -44,6 +46,7 @@ import {
   type EagleContext,
   type EagleMode,
 } from "@/lib/eagle-state";
+import { useEagleCompanion } from "@/hooks/use-eagle-companion";
 import { useInputBurst } from "@/hooks/use-input-burst";
 import { useReviewFocus } from "@/hooks/use-review-focus";
 
@@ -214,16 +217,36 @@ export function StudyEagle() {
     if (enabled) preloadEagleSheets();
   }, [enabled]);
 
-  // After midnight, a gentle nudge once per session. On phones the eagle is
-  // tucked away, so it waits for the first tap instead (see petEagle).
+  // The companion side: greets you for how long you were away, notices late
+  // nights and long sessions. On phones the eagle is tucked away, so it stays
+  // quiet there (the late-night line waits for the first tap, see petEagle).
+  const busyRef = useRef(false);
+  busyRef.current =
+    chatOpen || isDragging || isDozing(mode) || isCelebration(mode) || mode === "annoyed";
+  const companion = useEagleCompanion({
+    active: enabled && !compact,
+    isBusy: () => busyRef.current,
+    say: (line) => showStatus(line),
+  });
+  const noteBrowse = useRef(companion.noteBrowse);
+  noteBrowse.current = companion.noteBrowse;
+
+  // New notifications waiting (a friend request, an achievement): he mentions it
+  // once per session, at the first quiet moment after they load.
+  const notifications = useNotifications();
+  const unread = notifications.data?.rows.filter((row) => !row.read).length ?? 0;
   useEffect(() => {
-    if (!enabled || isCompact()) return;
+    if (!enabled || compact || unread === 0) return;
+    // Wait out the arrival greeting so the two don't talk over each other.
     const timer = window.setTimeout(() => {
-      const line = takeLateNightLine();
+      if (busyRef.current || !firstThisSession("unread-notifications")) return;
+      const line = pickEagleLine("unreadNotifications", {
+        what: countPhrase(unread, "new notification"),
+      });
       if (line) showStatus(line);
-    }, 4_000);
+    }, 9_000);
     return () => window.clearTimeout(timer);
-  }, [enabled]);
+  }, [enabled, compact, unread]);
 
   useEffect(() => {
     if (!course && summaryCourseCode && summaryContext === "page") {
@@ -259,6 +282,7 @@ export function StudyEagle() {
       const { course, context } =
         (event as CustomEvent<{ course?: Course; context?: "preview" | "page" }>).detail ?? {};
       if (!course) return;
+      noteBrowse.current(course.code);
       // A new course is activity: wake up before reading it out.
       setActivityVersion((version) => version + 1);
       if (isDozing(modeRef.current)) go("wakingUp");

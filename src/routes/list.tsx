@@ -17,6 +17,8 @@ import { CourseCard } from "@/components/CourseCard";
 import { getCourse } from "@/lib/courses";
 import { useAuth } from "@/hooks/use-auth";
 import { useShortlist, useToggleShortlist } from "@/lib/ratings";
+import { shortlistEvent } from "@/lib/eagle-reactions";
+import { reactEagle } from "@/lib/study-eagle";
 import { siteUrl } from "@/lib/site";
 import { FEATURES } from "@/lib/features";
 import { parseShortlistCodesWithStats, parseShortlistSearch } from "@/lib/validation";
@@ -67,6 +69,12 @@ function ListPage() {
   >[];
   const shareUrl = siteUrl(`/list?ids=${encodeURIComponent(courses.map((c) => c.code).join(","))}`);
   const shareText = `My UTM course shortlist 👇\n${courses.map((c) => `• ${c.code} — ${c.title}`).join("\n")}\n\n${shareUrl}`;
+
+  useEffect(() => {
+    if (shared || !signedIn || isLoading || shortlistError) return;
+    const event = shortlistEvent(courses.length);
+    if (event) reactEagle(event, { count: courses.length });
+  }, [courses.length, isLoading, shared, shortlistError, signedIn]);
 
   useEffect(() => {
     if (!shared && signedIn && !isLoading && !shortlistError) {

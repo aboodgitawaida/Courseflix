@@ -1,12 +1,19 @@
+import { useEffect } from "react";
 import { Link } from "@tanstack/react-router";
 import { Users } from "lucide-react";
 import { avatarSrc } from "@/lib/profile";
 import { useFriendsOnCourse } from "@/lib/friend-courses";
+import { whoPhrase } from "@/lib/eagle-reactions";
+import { reactEagle } from "@/lib/study-eagle";
 
 export function FriendsOnCourse({ code }: { code: string }) {
   const { friendIds, people } = useFriendsOnCourse(code);
-  if (friendIds.length === 0) return null;
   const names = friendIds.map((id) => people?.get(id)?.display_name ?? "A friend");
+  const who = names.length > 0 ? whoPhrase(names) : "";
+  useEffect(() => {
+    if (who) reactEagle("courseFriends", { who }, { once: `friends-on-${code}` });
+  }, [who, code]);
+  if (friendIds.length === 0) return null;
   const summary =
     names.length === 1
       ? `${names[0]} shortlisted this`

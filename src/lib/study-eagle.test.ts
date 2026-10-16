@@ -1,6 +1,13 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { EAGLE_LINES, EAGLE_LINE_COOLDOWN_MS } from "./eagle-lines";
-import { celebrateEagle, pickEagleLine, resetEagleLines, sayEagle } from "./study-eagle";
+import {
+  celebrateEagle,
+  firstThisSession,
+  pickEagleLine,
+  reactEagle,
+  resetEagleLines,
+  sayEagle,
+} from "./study-eagle";
 
 describe("eagle lines", () => {
   beforeEach(() => resetEagleLines());
@@ -94,5 +101,52 @@ describe("sayEagle", () => {
     vi.unstubAllGlobals();
     expect(heard).toHaveLength(1);
     expect(heard[0].message).not.toMatch(/[{}]/);
+  });
+});
+
+describe("reactEagle", () => {
+  function fakeWindow() {
+    const target = new EventTarget() as EventTarget & { sessionStorage: Storage };
+    const store = new Map<string, string>();
+    target.sessionStorage = {
+      getItem: (k: string) => store.get(k) ?? null,
+      setItem: (k: string, v: string) => void store.set(k, v),
+    } as Storage;
+    vi.stubGlobal("window", target);
+    return target;
+  }
+
+  beforeEach(() => resetEagleLines());
+
+  it("reacts once per key per session", () => {
+    const win = fakeWindow();
+    const heard: string[] = [];
+    win.addEventListener("study-eagle-say", (e) => heard.push((e as CustomEvent).detail.message));
+    reactEagle("achievementsNone");
+    reactEagle("achievementsNone");
+    reactEagle("courseFriends", { who: "Sam" }, { once: "friends-on-CSC108H5" });
+    reactEagle("courseFriends", { who: "Ali" }, { once: "friends-on-CSC108H5" });
+    reactEagle("courseFriends", { who: "Noor" }, { once: "friends-on-MAT135H5" });
+    vi.unstubAllGlobals();
+    expect(heard).toHaveLength(3);
+    expect(heard[1]).toContain("Sam");
+    expect(heard[2]).toContain("Noor");
+  });
+
+  it("celebrates with the trophy when asked", () => {
+    const win = fakeWindow();
+    const heard: Array<{ message?: string; animation?: string }> = [];
+    win.addEventListener("study-eagle-celebrate", (e) => heard.push((e as CustomEvent).detail));
+    reactEagle("achievementsMany", { unlocked: 6, total: 10 }, { animation: "trophy" });
+    vi.unstubAllGlobals();
+    expect(heard[0].animation).toBe("trophy");
+    expect(heard[0].message).toMatch(/6/);
+  });
+
+  it("firstThisSession is true only once", () => {
+    fakeWindow();
+    expect(firstThisSession("x")).toBe(true);
+    expect(firstThisSession("x")).toBe(false);
+    vi.unstubAllGlobals();
   });
 });
