@@ -2306,3 +2306,21 @@
 .light .mobile-tabbar {
   background-color: rgb(255 255 255 / 0.85);
 }
+
+/* Top-bar account area while the session is still being restored (see auth-hint.ts).
+   Server HTML has both; AUTH_HINT_HEAD_SCRIPT adds .auth-hint for returning users. */
+.auth-hint .auth-hint-signin {
+  display: none;
+}
+.auth-hint-skeleton {
+  display: none;
+}
+.auth-hint .auth-hint-skeleton {
+  display: flex;
+}
+.auth-hint-skeleton .auth-hint-avatar {
+  background: var(--auth-avatar) center / contain no-repeat;
+}
+.auth-hint-skeleton .auth-hint-name::after {
+  content: var(--auth-name, "");
+}
