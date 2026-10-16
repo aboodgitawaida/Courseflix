@@ -6,6 +6,8 @@
   pixellab-celebrate.png      PixelLab animation from the awake frame: wing-flap (8 x 80x80); no longer
                               shown, but still part of the shared palette and frame size
   pixellab-celebrate-cheer.png PixelLab animation from the awake frame: victory cheer, wings flung up (10 x 80x80)
+  pixellab-trophy.png         PixelLab animation from the awake frame: raises gold trophies, they gleam (11 x 80x80;
+                              variant B, seed 312, of pixellab-trophy-{a,b,c}_N.png)
   pixellab-pet.png            PixelLab animation from the awake frame: happy head-bob (8 x 80x80)
   pixellab-fallasleep.png     PixelLab animation, awake frame -> sleep frame 1: a yawn, then the head sinks (8 x 80x80)
   pixellab-wakeup.png         PixelLab animation, sleep frame 1 -> awake frame: head up, wing stretch (8 x 80x80)
@@ -22,6 +24,7 @@ cut end sits against the right edge of the screen:
   public/eagle-awake.png      8 frames (idle loop)
   public/eagle-sleep.png      4 frames
   public/eagle-celebrate.png  10 frames (played once): the victory cheer
+  public/eagle-trophy.png     11 frames (played once, on a new achievement): raises the trophy
   public/eagle-pet.png        8 frames (played once per tap)
   public/eagle-fallasleep.png 8 frames (played once, awake -> sleeping)
   public/eagle-wakeup.png     8 frames (played once, sleeping -> awake)
@@ -563,6 +566,17 @@ for f in cheer80:
     f[:y0] = 0; f[y1:] = 0; f[:, x1:] = 0
 celebrate80 = cheer80
 
+# The achievement trophy, also kept exactly as PixelLab drew it (same treatment as the cheer).
+trophy80 = [shift(f) for f in (lambda sheet: [sheet[:, 80 * i:80 * i + 80].copy()
+              for i in range(sheet.shape[1] // 80)])(
+                  np.asarray(Image.open(SRC / "pixellab-trophy.png").convert("RGBA")))]
+for f in trophy80:
+    f[LOCK:] = awake80[LOCK:]
+trophy80 = snap_extra(trophy80)
+for f in trophy80:
+    f[:y0] = 0; f[y1:] = 0; f[:, x1:] = 0
+Image.fromarray(finish(trophy80), "RGBA").save(OUT / "eagle-trophy.png", optimize=True)
+
 for name, frames in (("eagle-awake", idle80), ("eagle-sleep", sleep80), ("eagle-celebrate", celebrate80),
                      ("eagle-pet", pet80), ("eagle-fallasleep", fallasleep80), ("eagle-wakeup", wakeup80)):
     Image.fromarray(finish(frames), "RGBA").save(OUT / f"{name}.png", optimize=True)
@@ -577,4 +591,4 @@ QUILL_OPEN, QUILL_LOOP = range(0, 6), range(6, 12)
 Image.fromarray(finish([quill80[i] for i in QUILL_OPEN]), "RGBA").save(OUT / "eagle-quill-open.png", optimize=True)
 Image.fromarray(finish([quill80[i] for i in QUILL_LOOP]), "RGBA").save(OUT / "eagle-quill.png", optimize=True)
 
-print("frame size", x1 - STUB_X, "x", y1 - y0, "| wrote eagle-awake, -sleep, -celebrate, -pet, -fallasleep, -wakeup, -reading-open, -reading, -grind, -grind-open, -startled, -search-open, -search, -compare-open, -compare, -quill-open, -quill")
+print("frame size", x1 - STUB_X, "x", y1 - y0, "| wrote eagle-awake, -sleep, -celebrate, -trophy, -pet, -fallasleep, -wakeup, -reading-open, -reading, -grind, -grind-open, -startled, -search-open, -search, -compare-open, -compare, -quill-open, -quill")

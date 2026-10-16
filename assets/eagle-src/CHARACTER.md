@@ -19,7 +19,7 @@ normal pose.
 3. **Head.** White `#E5E8EA` with soft grey shading. No stray grey marks,
    streaks or leftover brow pixels on the white.
 4. **Body and wings.** Dark brown (`#45311F`, `#3D261A`, `#361E16`), wings folded
-   unless the animation is about the wings (celebrate, startled).
+   unless the animation is about the wings (celebrate, trophy, startled).
 5. **Feet.** Orange, gripping the branch in every frame. He never leaves the
    branch, even when he jumps.
 6. **Branch.** Mossy green, identical in every frame. The build script locks it
@@ -46,7 +46,7 @@ normal pose.
 ## Effects
 
 - Small floating extras are allowed only when they're the point: shock marks
-  (startled), hearts (pet), confetti (celebrate), the Z (sleep). Anything else
+  (startled), hearts (pet), confetti (celebrate), the gold trophy and its sparkles (trophy), the Z (sleep). Anything else
   floating is a speck and gets removed (`drop_specks`).
 
 ## Motion
