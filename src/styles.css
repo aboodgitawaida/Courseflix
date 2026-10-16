@@ -2306,3 +2306,114 @@
 .light .mobile-tabbar {
   background-color: rgb(255 255 255 / 0.85);
 }
+
+/* Top-bar account area while the session is still being restored (see auth-hint.ts).
+   Server HTML has both; AUTH_HINT_HEAD_SCRIPT adds .auth-hint for returning users. */
+.auth-hint .auth-hint-signin {
+  display: none;
+}
+.auth-hint-skeleton {
+  display: none;
+}
+.auth-hint .auth-hint-skeleton {
+  display: flex;
+}
+.auth-hint-skeleton .auth-hint-avatar {
+  background: var(--auth-avatar) center / contain no-repeat;
+}
+.auth-hint-skeleton .auth-hint-name::after {
+  content: var(--auth-name, "");
+}
+
+/* Achievements page: after the eagle lifts his trophy, each card "locks in" (--lock-delay
+   staggers them). Unlocked cards drop from grey into colour with a gold ring pulse and a
+   gleam; their badge pops and the progress bar fills. Locked cards just click their padlock. */
+.ach-lock-in {
+  animation: ach-lock-in 0.7s cubic-bezier(0.2, 0.9, 0.3, 1.2) var(--lock-delay, 0s) backwards;
+}
+.ach-gleam {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(
+    105deg,
+    transparent 35%,
+    rgb(255 244 200 / 0.55) 50%,
+    transparent 65%
+  );
+  transform: translateX(-120%);
+  animation: ach-gleam 0.9s ease-out calc(var(--lock-delay, 0s) + 0.25s) 1 both;
+}
+.ach-lock-in .ach-badge {
+  animation: ach-badge-pop 0.5s cubic-bezier(0.2, 1.4, 0.4, 1) calc(var(--lock-delay, 0s) + 0.3s)
+    backwards;
+}
+.ach-bar {
+  transform-origin: left center;
+  animation: ach-bar-fill 0.8s ease-out calc(var(--lock-delay, 0s) + 0.15s) backwards;
+}
+.ach-padlock {
+  animation: ach-padlock-click 0.5s ease-out calc(var(--lock-delay, 0s) + 0.2s) backwards;
+}
+@keyframes ach-lock-in {
+  0% {
+    filter: grayscale(1) brightness(0.75);
+    transform: scale(1.05);
+    box-shadow: 0 0 0 0 rgb(251 191 36 / 0.7);
+  }
+  45% {
+    filter: none;
+    transform: scale(0.985);
+    box-shadow: 0 0 0 0 rgb(251 191 36 / 0.7);
+  }
+  100% {
+    transform: none;
+    box-shadow: 0 0 0 14px rgb(251 191 36 / 0);
+  }
+}
+@keyframes ach-gleam {
+  to {
+    transform: translateX(120%);
+  }
+}
+@keyframes ach-badge-pop {
+  0% {
+    transform: scale(0.4);
+    opacity: 0;
+  }
+  100% {
+    transform: none;
+    opacity: 1;
+  }
+}
+@keyframes ach-bar-fill {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+@keyframes ach-padlock-click {
+  0%,
+  100% {
+    transform: none;
+  }
+  30% {
+    transform: translateY(-2px) rotate(-14deg);
+  }
+  60% {
+    transform: translateY(1px) rotate(6deg);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .ach-lock-in,
+  .ach-lock-in .ach-badge,
+  .ach-bar,
+  .ach-padlock {
+    animation: none;
+  }
+  .ach-gleam {
+    display: none;
+  }
+}
