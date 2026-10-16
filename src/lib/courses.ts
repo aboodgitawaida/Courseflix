@@ -1,5 +1,6 @@
 import { CATALOG } from "./utm-catalog";
 import { MAJORS, type Major } from "./majors";
+import { getRedditSignal } from "./reddit-signals";
 
 export type CourseTag =
   | "Bird"
@@ -343,11 +344,14 @@ export function isCourseworkHeavy(c: Course) {
   );
 }
 
-export type FilterId = "all" | "bird" | "science" | "social" | "humanities" | "l100" | "l200";
+export type FilterId =
+  "all" | "bird" | "danger" | "science" | "social" | "humanities" | "l100" | "l200";
 
-export const FILTERS: Array<{ id: FilterId; label: string }> = [
+// `special` chips get their own gold or red look in FilterChips.
+export const FILTERS: Array<{ id: FilterId; label: string; special?: "gold" | "red" }> = [
   { id: "all", label: "All" },
-  { id: "bird", label: "🦅 Light workload signals" },
+  { id: "bird", label: "Bird courses", special: "gold" },
+  { id: "danger", label: "Danger zone", special: "red" },
   { id: "science", label: "🧪 Science" },
   { id: "social", label: "⚖️ Social Science" },
   { id: "humanities", label: "🎨 Humanities" },
@@ -358,7 +362,9 @@ export const FILTERS: Array<{ id: FilterId; label: string }> = [
 export function matchesFilter(c: Course, f: FilterId) {
   switch (f) {
     case "bird":
-      return isBird(c);
+      return getRedditSignal(c.code)?.kind === "easy";
+    case "danger":
+      return getRedditSignal(c.code)?.kind === "hard";
     case "science":
       return c.area.includes("Science") && !c.area.includes("Social");
     case "social":
