@@ -124,10 +124,11 @@ function TermsPage() {
               5. Accounts and acceptable use
             </h2>
             <p className="mt-2">
-              Keep your account credentials secure and provide accurate information. You may use
-              Courseflix only for lawful, personal, non-commercial purposes. Do not scrape, reverse
-              engineer, disrupt, overload, bypass access controls, create deceptive accounts, or use
-              the service to invade another person’s privacy.
+              You must be at least 16 years old to create an account. Keep your account credentials
+              secure and provide accurate information. You may use Courseflix only for lawful,
+              personal, non-commercial purposes. Do not scrape, reverse engineer, disrupt, overload,
+              bypass access controls, create deceptive accounts, or use the service to invade
+              another person’s privacy.
             </p>
           </section>
 

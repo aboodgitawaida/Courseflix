@@ -104,7 +104,7 @@ function PrivacyPage() {
             </p>
           </Section>
 
-          <Section title="2a. Public Reddit comments">
+          <Section title="3. Public Reddit comments">
             <p>
               The “Reddit says” labels on courses are built from public comments on r/UTM and
               r/UofT. We process them offline and publish only per-course counts of “easy” and
@@ -113,7 +113,7 @@ function PrivacyPage() {
             </p>
           </Section>
 
-          <Section title="3. What other people can see">
+          <Section title="4. What other people can see">
             <p>
               <strong className="text-foreground">Your profile</strong> (display name, username,
               avatar, program and year) can be seen by anyone, including people who aren&apos;t
@@ -136,7 +136,7 @@ function PrivacyPage() {
             </p>
           </Section>
 
-          <Section title="4. What stays on your device">
+          <Section title="5. What stays on your device">
             <p>
               Courseflix uses your browser&apos;s local storage, not cookies, to keep you signed in
               and to remember preferences such as your selected program, theme, sound setting, which
@@ -146,7 +146,7 @@ function PrivacyPage() {
             </p>
           </Section>
 
-          <Section title="5. How we use it">
+          <Section title="6. How we use it">
             <p>
               Only to run Courseflix: to sign you in, show your shortlist and profile, calculate
               course ratings from student reviews, power friends and notifications, screen reviews
@@ -156,7 +156,7 @@ function PrivacyPage() {
             </p>
           </Section>
 
-          <Section title="6. Services that process your information">
+          <Section title="7. Services that process your information">
             <p>We rely on a small number of providers to run the site:</p>
             <ul className="list-disc space-y-1 pl-5">
               <li>Supabase: database and sign-in.</li>
@@ -179,7 +179,7 @@ function PrivacyPage() {
             </p>
           </Section>
 
-          <Section title="7. How long we keep it and how to delete it">
+          <Section title="8. How long we keep it and how to delete it">
             <p>
               We keep your account information until you delete your account. You can delete it at
               any time from Settings; this permanently removes your account, profile, shortlist,
@@ -192,7 +192,7 @@ function PrivacyPage() {
             </p>
           </Section>
 
-          <Section title="8. Your rights">
+          <Section title="9. Your rights">
             <p>
               Under Canadian privacy law, including the Personal Information Protection and
               Electronic Documents Act (PIPEDA), you can ask to access the personal information we
@@ -202,7 +202,7 @@ function PrivacyPage() {
             </p>
           </Section>
 
-          <Section title="9. Security">
+          <Section title="10. Security">
             <p>
               Data is sent over encrypted connections, and database rules limit each account to its
               own private information. No service is perfectly secure; if we learn of a breach that
@@ -210,7 +210,7 @@ function PrivacyPage() {
             </p>
           </Section>
 
-          <Section title="10. Changes">
+          <Section title="11. Changes">
             <p>
               If we change this policy, we&apos;ll post the new version here with a new “Last
               updated” date. See also our{" "}
