@@ -6,8 +6,8 @@
   pixellab-celebrate.png      PixelLab animation from the awake frame: wing-flap (8 x 80x80); no longer
                               shown, but still part of the shared palette and frame size
   pixellab-celebrate-cheer.png PixelLab animation from the awake frame: victory cheer, wings flung up (10 x 80x80)
-  pixellab-trophy.png         PixelLab animation from the awake frame: lifts a gold trophy, it gleams (11 x 80x80, 7 used;
-                              variant C, seed 313, of pixellab-trophy-{a,b,c}_N.png)
+  pixellab-trophy.png         PixelLab animation from the awake frame: lifts a gold trophy (11 x 80x80;
+                              variant E, seed 322, of pixellab-trophy-{a,b,c}_N.png)
   pixellab-pet.png            PixelLab animation from the awake frame: happy head-bob (8 x 80x80)
   pixellab-fallasleep.png     PixelLab animation, awake frame -> sleep frame 1: a yawn, then the head sinks (8 x 80x80)
   pixellab-wakeup.png         PixelLab animation, sleep frame 1 -> awake frame: head up, wing stretch (8 x 80x80)
@@ -24,7 +24,7 @@ cut end sits against the right edge of the screen:
   public/eagle-awake.png      8 frames (idle loop)
   public/eagle-sleep.png      4 frames
   public/eagle-celebrate.png  10 frames (played once): the victory cheer
-  public/eagle-trophy.png     13 frames (played once, on a new achievement): raises the trophy, gleam + sparkles
+  public/eagle-trophy.png     11 frames (played once, on a new achievement): raises the trophy
   public/eagle-pet.png        8 frames (played once per tap)
   public/eagle-fallasleep.png 8 frames (played once, awake -> sleeping)
   public/eagle-wakeup.png     8 frames (played once, sleeping -> awake)
@@ -566,111 +566,82 @@ for f in cheer80:
     f[:y0] = 0; f[y1:] = 0; f[:, x1:] = 0
 celebrate80 = cheer80
 
-# The achievement trophy (PixelLab variant C), tidied so it feels steady and happy:
-#  - the head-down first frames (1-2) are dropped, so he starts neutral and looks up;
-#  - every kept frame is shifted so his body sits exactly where it does in the awake
-#    frame, and the branch is put back from the awake frame (PixelLab redrew it a pixel
-#    off in the middle frames, so it seemed to bob); his feet stay as drawn;
-#  - the trophy is held on ONE frame (PixelLab's moves a pixel or two between frames)
-#    while a light sweep and twinkling sparkles are drawn over it in code.
-TROPHY_SRC = [0, 3, 4, 7]          # base, grabs it, raises it, holds it up
-TROPHY_END = [8, 9, 10]            # lowers it, tucks it away, settles
-TROPHY_HOLD = 7                    # frames of the hold, gleam and sparkles
-raw_trophy = pixellab_frames("trophy")
-keep = TROPHY_SRC + TROPHY_END
-trophy_src = snap_extra([raw_trophy[i] for i in keep])
-trophy_by = dict(zip(keep, trophy_src))
+BRANCH_TOP = 55
 
 
-def body_mask(f):
-    rgb = f[..., :3].astype(int)
-    m = (f[..., 3] > 0) & (rgb[..., 0] < 100) & (rgb[..., 1] < 80) & (rgb[..., 2] < 60)
-    m[:38] = False; m[56:] = False
-    return m
-
-
-def is_foot(f):
+def is_foot_px(f):
     rgb = f[..., :3].astype(int)
     return (f[..., 3] > 0) & (rgb[..., 0] > 150) & (rgb[..., 1] > 90) & (rgb[..., 2] < 90) & (rgb[..., 0] > rgb[..., 1] + 25)
 
 
-def steady(f):
-    """Put his body where it is in the awake frame and the branch back from it."""
-    sy, sx = best_shift(body_mask(awake80), body_mask(f), 5)
-    f = np.roll(np.roll(f, sy, 0), sx, 1)
-    from_base = np.zeros(f.shape[:2], bool); from_base[BRANCH_TOP:] = True
-    foot = is_foot(f)
-    foot[:, :FOOT_X[0] - 3] = False; foot[:, FOOT_X[1] + 4:] = False   # only where his feet really are
-    from_base &= ~foot
-    f = f.copy(); f[from_base] = awake80[from_base]
+_fx = np.nonzero(is_foot_px(awake80)[BRANCH_TOP - 4:].any(0))[0]
+FOOT = (_fx.min(), _fx.max())
+
+
+# The achievement trophy (PixelLab variant E), kept as drawn. PixelLab washed the whole
+# eagle lighter and the moss lime green in the middle frames (a lighting shift), so the
+# eagle and branch snap to the shared eagle palette like every other sheet, and only the
+# gold of the trophy and its sparkles gets extra colours of its own. The branch below the
+# feet is the awake frame's, as for the other sheets.
+def trophy_gold(f):
+    """Bright, saturated gold: the trophy and its sparkles (not lit feathers or the beak)."""
+    rgb = f[..., :3].astype(int)
+    return (f[..., 3] > 0) & (rgb[..., 0] > 200) & (rgb[..., 1] > 155) & (rgb[..., 2] < 120)
+
+
+def brown_mask(f):
+    rgb = f[..., :3].astype(int)
+    warm_gold = (rgb[..., 0] > 180) & (rgb[..., 1] > 110) & (rgb[..., 2] < 150)
+    green = (rgb[..., 1] > rgb[..., 0] + 8) & (rgb[..., 1] > rgb[..., 2] + 8)
+    return (f[..., 3] > 0) & (rgb.max(-1) < 170) & ~warm_gold & ~green
+
+
+def match_brightness(f, ref_lum):
+    """Undo PixelLab's lighting shift: give the frame's brown feathers and wood the same
+    brightness distribution as the awake eagle (a rank match; the shading stays as drawn)."""
+    f = f.copy(); m = brown_mask(f)
+    rgb = f[m][:, :3].astype(float)
+    lum = rgb @ np.array([0.299, 0.587, 0.114])
+    order = lum.argsort()
+    target = np.interp(np.linspace(0, 1, len(lum)), np.linspace(0, 1, len(ref_lum)), ref_lum)
+    new = np.empty_like(lum); new[order] = target
+    f[m, :3] = (rgb * (new / np.maximum(lum, 1))[:, None]).clip(0, 255).round().astype(np.uint8)
     return f
 
 
-BRANCH_TOP = 55
-_fx = np.nonzero(is_foot(awake80)[BRANCH_TOP - 4:].any(0))[0]
-FOOT_X = (_fx.min(), _fx.max())
-trophy_by = {i: steady(f) for i, f in trophy_by.items()}
-
-
-def components(mask):
-    seen = np.zeros_like(mask); out = []
-    for y, x in zip(*np.nonzero(mask)):
-        if seen[y, x]: continue
-        comp, q = [], deque([(y, x)]); seen[y, x] = True
-        while q:
-            cy, cx = q.popleft(); comp.append((cy, cx))
-            for ny in (cy - 1, cy, cy + 1):
-                for nx in (cx - 1, cx, cx + 1):
-                    if 0 <= ny < 80 and 0 <= nx < 80 and mask[ny, nx] and not seen[ny, nx]:
-                        seen[ny, nx] = True; q.append((ny, nx))
-        out.append(comp)
-    return out
-
-
-def gleam_frames(f, n):
-    """n copies of f with a light sweep crossing the trophy and sparkles twinkling around it."""
-    rgb = f[..., :3].astype(int)
-    gold = (f[..., 3] > 0) & (rgb[..., 0] > 190) & (rgb[..., 1] > 120) & (rgb[..., 2] < 140)
-    gold[30:] = False
-    cup = max(components(gold), key=len)
-    ys = np.array([c[0] for c in cup]); xs = np.array([c[1] for c in cup])
-    key = xs + 0.6 * ys                       # position along the sweep direction
-    lo, hi = key.min() - 3, key.max() + 3
-    top, left, right = ys.min(), xs.min(), xs.max()
-    mid = (left + right) // 2
-    spots = [(top - 4, left - 3), (top + 1, right + 4), (top - 6, mid + 3), (top + 7, left - 4), (top - 2, mid - 2)]
-    # twinkle: off, dot, small plus, big star, small plus, dot
-    shapes = [[], [(0, 0)], [(0, 0), (-1, 0), (1, 0), (0, -1), (0, 1)],
-              [(0, 0), (-1, 0), (1, 0), (0, -1), (0, 1), (-2, 0), (2, 0), (0, -2), (0, 2)],
-              [(0, 0), (-1, 0), (1, 0), (0, -1), (0, 1)], [(0, 0)]]
+def snap_trophy(frames, k=8):
+    ref = awake80[brown_mask(awake80)][:, :3].astype(float) @ np.array([0.299, 0.587, 0.114])
+    frames = [match_brightness(f, np.sort(ref)) for f in frames]
+    gold = trophy_gold
+    px = np.concatenate([f[gold(f)][:, :3].astype(float) for f in frames])
+    nearest = ((px[:, None] - c2[None]) ** 2).sum(2).min(1)
+    extra = kmeans(px[nearest > 900], k, 2).astype(int)
     out = []
-    for k in range(n):
-        g = f.copy()
-        centre = lo + (hi - lo) * (k - 1) / max(1, n - 4)   # sweeps over the middle frames
-        for y, x, kv in zip(ys, xs, key):
-            d = abs(kv - centre)
-            if d < 1.3: g[y, x, :3] = (255, 252, 235)
-            elif d < 3.0: g[y, x, :3] = (255, 236, 150)
-        for j, (sy, sx) in enumerate(spots):
-            for oy, ox in shapes[(k + 2 * j) % 6]:
-                yy, xx = sy + oy, sx + ox
-                if 0 <= yy < 80 and 0 <= xx < 80 and g[yy, xx, 3] == 0:
-                    g[yy, xx] = (255, 252, 235, 255) if (oy, ox) == (0, 0) else (255, 226, 120, 255)
-        out.append(g)
+    for f in frames:
+        f = f.copy(); a = f[..., 3] > 0; g = gold(f)
+        rows = np.arange(80)[:, None, None]
+        base_d = ((f[..., None, :3].astype(int) - c2[None, None]) ** 2).sum(-1)
+        base_d = np.where((rows < LOCK - 2) & GREEN[None, None], 1 << 30, base_d)
+        body = c2[base_d.argmin(-1)]
+        pal = np.concatenate([c2, extra])
+        gd = ((f[..., None, :3].astype(int) - pal[None, None]) ** 2).sum(-1)
+        f[..., :3] = np.where(g[..., None], pal[gd.argmin(-1)], body)
+        f[..., 3] = np.where(a, 255, 0)
+        out.append(f)
     return out
 
 
-# the tucked-away frame leaves two stray bits of the trophy past the feet
-f9 = trophy_by[9]; rgb9 = f9[..., :3].astype(int)
-gold9 = (f9[..., 3] > 0) & (rgb9[..., 0] > 190) & (rgb9[..., 1] > 120) & (rgb9[..., 2] < 140)
-for comp in components(gold9):
-    if min(c[0] for c in comp) >= 58 and min(c[1] for c in comp) >= 55:
-        for cy, cx in comp: f9[cy, cx] = 0
-
-trophy80 = ([trophy_by[i] for i in TROPHY_SRC[:-1]]
-            + gleam_frames(trophy_by[TROPHY_HOLD], 7)
-            + [trophy_by[i] for i in TROPHY_END])
+trophy80 = snap_trophy(pixellab_frames("trophy"))
 for f in trophy80:
+    f[LOCK:] = awake80[LOCK:]
+    f[BRANCH_TOP:LOCK] = np.where((f[BRANCH_TOP:LOCK, :, 3:4] > 0) & ~(is_foot_px(f[BRANCH_TOP:LOCK])[..., None]),
+                                  awake80[BRANCH_TOP:LOCK], f[BRANCH_TOP:LOCK])
+    # PixelLab lit the far end of the branch orange in the middle frames; put the wood back
+    lit = (f[..., 3] > 0) & ~trophy_gold(f)
+    rgbf = f[..., :3].astype(int)
+    lit &= (rgbf[..., 0] > 150) & (rgbf[..., 0] > rgbf[..., 2] + 60)
+    lit[:BRANCH_TOP - 4] = False; lit[:, FOOT[0] - 3:FOOT[1] + 4] = False
+    f[lit] = awake80[lit]
     f[:y0] = 0; f[y1:] = 0; f[:, x1:] = 0
 Image.fromarray(finish(trophy80), "RGBA").save(OUT / "eagle-trophy.png", optimize=True)
 

@@ -519,11 +519,11 @@
   background-size: 1000% 100%;
   animation: eagle-celebrate-frames 1.4s steps(10, jump-none) forwards;
 }
-/* Achievement trophy: 13-frame trophy lift, played once (MODE_DURATION_MS in eagle-state.ts). */
+/* Achievement trophy: 11-frame trophy lift, played once (MODE_DURATION_MS in eagle-state.ts). */
 .study-eagle-sprite-trophy {
   background-image: url("/eagle-trophy.png");
-  background-size: 1300% 100%;
-  animation: eagle-trophy-frames 2.4s steps(13, jump-none) forwards;
+  background-size: 1100% 100%;
+  animation: eagle-trophy-frames 2s steps(11, jump-none) forwards;
 }
 /* Nodding off: 8-frame yawn, then the head sinks into the sleeping pose; played once (FALL_ASLEEP_MS). */
 .study-eagle-sprite-fallingAsleep {
