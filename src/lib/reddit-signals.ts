@@ -2,7 +2,7 @@ import data from "./reddit-signals.json";
 
 // Gold = Reddit mostly calls the course easy, red = mostly hard. Counts are [easy, hard]
 // opinions from classified Reddit comments, so a course needs enough opinions to count.
-export const REDDIT_MIN_VOTES = 20;
+export const REDDIT_MIN_VOTES = 10;
 export const REDDIT_EASY_SHARE = 0.85;
 export const REDDIT_HARD_SHARE = 0.8;
 
