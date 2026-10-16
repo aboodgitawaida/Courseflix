@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { getTiers } from "./tiers";
+import { getTiers, groupByYear } from "./tiers";
 
 describe("getTiers", () => {
   it("puts easy courses in birds and hard ones in danger", () => {
@@ -30,5 +30,19 @@ describe("getTiers", () => {
 
   it("puts the courses with the most opinions first", () => {
     expect(getTiers().birds[0].code).toBe("RLG101H5");
+  });
+
+  it("splits a tier into year rows without losing or repeating a course", () => {
+    const { danger } = getTiers();
+    const rows = groupByYear(danger);
+    expect(rows.map((r) => r.title)).toEqual(["1st year", "2nd year", "3rd & 4th year"]);
+    expect(rows.flatMap((r) => r.courses.map((c) => c.code)).sort()).toEqual(
+      danger.map((c) => c.code).sort(),
+    );
+    expect(rows[0].courses.every((c) => c.level === 100)).toBe(true);
+  });
+
+  it("leaves out years that have no courses", () => {
+    expect(groupByYear([])).toEqual([]);
   });
 });

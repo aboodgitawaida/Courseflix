@@ -1,32 +1,19 @@
 import { useMemo } from "react";
 import { Feather, Skull, Sparkles } from "lucide-react";
 import { useBirdCourses } from "@/lib/ratings";
-import { getTiers } from "@/lib/tiers";
-import { CourseCard } from "@/components/CourseCard";
+import { getTiers, groupByYear } from "@/lib/tiers";
+import { CourseRail } from "@/components/CourseRail";
 import { useReveal } from "@/hooks/use-reveal";
-import type { Course } from "@/lib/courses";
 
 const SPARKLE_SPOTS = [6, 20, 34, 52, 68, 82, 93];
 const EMBER_SPOTS = [4, 15, 27, 41, 58, 71, 86, 95];
 
-/**
- * One card in the grid. It fades up as it scrolls into view, like the rows on the rest of the
- * page, and `content-visibility` lets the browser skip the cards that are off screen.
- */
-function TierCard({ course, index }: { course: Course; index: number }) {
-  const ref = useReveal<HTMLDivElement>({ rootMargin: "0px 0px -6% 0px" });
-  return (
-    <div ref={ref} className="tier-card" style={{ transitionDelay: `${(index % 4) * 70}ms` }}>
-      <CourseCard course={course} lite />
-    </div>
-  );
-}
-
-/** Every bird course (gold) or danger-zone course (red), shown when its filter chip is picked. */
+/** Bird courses (gold) or the danger zone (red), as rows like the rest of the page. */
 export function TierView({ kind }: { kind: "bird" | "danger" }) {
   const { data: birdMentions } = useBirdCourses();
   const tiers = useMemo(() => getTiers(birdMentions), [birdMentions]);
   const courses = kind === "bird" ? tiers.birds : tiers.danger;
+  const rows = useMemo(() => groupByYear(courses), [courses]);
   const bird = kind === "bird";
   const headRef = useReveal<HTMLDivElement>();
 
@@ -77,10 +64,20 @@ export function TierView({ kind }: { kind: "bird" | "danger" }) {
           {bird ? "" : " students warn about"}
         </p>
       </div>
-      {courses.length ? (
-        <div className="tier-grid relative flex flex-wrap px-5 py-6 md:px-9">
-          {courses.map((c, i) => (
-            <TierCard key={c.code} course={c} index={i} />
+      {rows.length ? (
+        <div className="relative mt-4 space-y-8 pb-6 md:space-y-10">
+          {rows.map((row, i) => (
+            <CourseRail
+              key={row.key}
+              index={i}
+              gold={bird}
+              danger={!bird}
+              rail={{
+                title: row.title,
+                blurb: `${row.courses.length} ${bird ? "bird" : "danger zone"} course${row.courses.length === 1 ? "" : "s"}`,
+                codes: row.courses.map((c) => c.code),
+              }}
+            />
           ))}
         </div>
       ) : (
