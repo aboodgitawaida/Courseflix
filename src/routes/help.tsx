@@ -30,7 +30,15 @@ export const Route = createFileRoute("/help")({
 const FAQ = [
   {
     q: "Where do the ratings come from?",
-    a: "Course titles, descriptions, prerequisites and listed hours come from the UTM Academic Calendar. Ratings, difficulty and workload scores come only from reviews students submit on Courseflix; a course with no reviews shows no score. Light-workload and essay/project signals are based on the calendar's listed hours and description, not on reviews, Reddit or RateMyProfessors.",
+    a: "Course titles, descriptions, prerequisites and listed hours come from the UTM Academic Calendar. Ratings, difficulty and workload scores come only from reviews students submit on Courseflix; a course with no reviews shows no score. Light-workload and essay/project signals are based on the calendar's listed hours and description. Two other things are shown separately and never mixed into those scores: the gold and red “Reddit says” pill (see below) and professors' overall Rate My Professors ratings, which are not specific to a course.",
+  },
+  {
+    q: "What does the “Reddit says” pill mean?",
+    a: "We read public comments on r/UTM and r/UofT that mention a course and a program labels each one as calling the course easy or hard. When enough comments agree (at least 10 opinions), the course gets a gold (easy) or red (hard) pill. It is based on the comments we've read so far, a few labels can be wrong, and it is not a review by a Courseflix student. Courseflix is not affiliated with or endorsed by Reddit.",
+  },
+  {
+    q: "Why can't I post a review?",
+    a: "Reviews need a confirmed email so nobody can post under someone else's address. Google sign-ins count automatically. If you signed up with email and password, use the prompt on any course page to send yourself a one-time link; it works for 24 hours.",
   },
   {
     q: "Is my shortlist private?",
