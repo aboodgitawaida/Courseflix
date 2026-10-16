@@ -9,6 +9,7 @@ import { CinematicIntro } from "@/components/CinematicIntro";
 import { Spotlight } from "@/components/Spotlight";
 import { Marquee } from "@/components/Marquee";
 import { FeatureBento } from "@/components/FeatureBento";
+import { BracketBanner } from "@/components/BracketBanner";
 import { Link } from "@tanstack/react-router";
 import { BIRD_COURSE_THRESHOLD, useBirdCourses } from "@/lib/ratings";
 import { COURSES, getRailsForMajor, getFeaturedDeckForMajor, type FilterId } from "@/lib/courses";
@@ -69,6 +70,7 @@ export function HomePage() {
         </h2>
       </div>
       <FilterChips value={filter} onChange={setFilter} />
+      <BracketBanner />
 
       {currentMajor && inMajorCount < 3 && (
         <div className="glass mx-6 mt-6 rounded-3xl border-brand/30 p-5 md:mx-10 md:p-7">

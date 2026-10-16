@@ -296,3 +296,224 @@ export async function renderShortlistStory(courses: Course[], opts: { shared?: b
   drawFooter(ctx, "Build yours →");
   return toBlob(canvas);
 }
+
+/** Splits text into at most `max` lines that fit `maxWidth`, ellipsizing the last. */
+function wrapLines(ctx: Ctx, text: string, maxWidth: number, max: number) {
+  const lines: string[] = [];
+  let line = "";
+  for (const word of text.split(" ")) {
+    const next = line ? `${line} ${word}` : word;
+    if (ctx.measureText(next).width <= maxWidth || !line) line = next;
+    else {
+      lines.push(line);
+      line = word;
+    }
+  }
+  if (line) lines.push(line);
+  if (lines.length <= max) return lines;
+  const kept = lines.slice(0, max);
+  kept[max - 1] = ellipsize(ctx, `${kept[max - 1]} ${lines.slice(max).join(" ")}`, maxWidth);
+  return kept;
+}
+
+function drawKicker(ctx: Ctx, text: string, y: number) {
+  ctx.font = `600 28px ${SANS}`;
+  setSpacing(ctx, 8);
+  ctx.fillStyle = MUTED;
+  ctx.textAlign = "left";
+  ctx.fillText(text, PAD, y);
+  setSpacing(ctx, 0);
+}
+
+function drawStatTile(ctx: Ctx, x: number, y: number, w: number, value: string, label: string) {
+  roundRect(ctx, x, y, w, 210, 36);
+  ctx.fillStyle = "rgba(255,255,255,0.05)";
+  ctx.fill();
+  ctx.strokeStyle = "rgba(255,255,255,0.10)";
+  ctx.lineWidth = 2;
+  ctx.stroke();
+  ctx.textAlign = "left";
+  ctx.font = `900 96px ${MEGA}`;
+  setSpacing(ctx, -4);
+  ctx.fillStyle = "#fff";
+  ctx.fillText(value, x + 36, y + 120);
+  ctx.font = `600 30px ${SANS}`;
+  setSpacing(ctx, 0);
+  ctx.fillStyle = MUTED;
+  ctx.fillText(label, x + 38, y + 172);
+}
+
+export type WrappedStory = {
+  persona: { emoji: string; name: string; tagline: string };
+  courseCount: number;
+  subjectCount: number;
+  birdCount: number;
+  bossCount: number;
+  hardest: { code: string; percent: number } | null;
+  topSubject: string | null;
+};
+
+export async function renderWrappedStory(w: WrappedStory, opts: { shared?: boolean } = {}) {
+  await loadFonts();
+  const { canvas, ctx } = makeCanvas();
+
+  drawBackdrop(ctx);
+  drawWordmark(ctx, 170);
+  drawKicker(ctx, opts.shared ? "A FRIEND'S UTM WRAPPED" : "MY UTM COURSE WRAPPED", 300);
+
+  ctx.font = `400 230px system-ui, "Apple Color Emoji", "Segoe UI Emoji", sans-serif`;
+  ctx.textAlign = "left";
+  ctx.fillStyle = "#fff";
+  ctx.fillText(w.persona.emoji, PAD - 8, 560);
+
+  ctx.font = `italic 400 80px ${SERIF}`;
+  ctx.fillStyle = MUTED;
+  ctx.fillText("I'm", PAD, 690);
+  const name = w.persona.name;
+  fitFont(ctx, name, "900", MEGA, 120, W - PAD * 2);
+  setSpacing(ctx, -4);
+  ctx.fillStyle = brandGradient(ctx, PAD, ctx.measureText(name).width);
+  ctx.fillText(name, PAD, 820);
+  setSpacing(ctx, 0);
+
+  ctx.font = `500 38px ${SANS}`;
+  ctx.fillStyle = "rgba(255,255,255,0.82)";
+  const lines = wrapLines(ctx, w.persona.tagline, W - PAD * 2, 2);
+  lines.forEach((line, i) => ctx.fillText(line, PAD, 890 + i * 48));
+
+  const gap = 24;
+  const tileW = (W - PAD * 2 - gap) / 2;
+  drawStatTile(ctx, PAD, 980, tileW, String(w.courseCount), "courses saved");
+  drawStatTile(ctx, PAD + tileW + gap, 980, tileW, String(w.subjectCount), "subjects");
+  drawStatTile(ctx, PAD, 980 + 210 + gap, tileW, String(w.birdCount), "bird courses 🪶");
+  drawStatTile(
+    ctx,
+    PAD + tileW + gap,
+    980 + 210 + gap,
+    tileW,
+    String(w.bossCount),
+    "boss fights 💀",
+  );
+
+  const y = 980 + 2 * (210 + gap) + 20;
+  roundRect(ctx, PAD, y, W - PAD * 2, 190, 36);
+  ctx.fillStyle = "rgba(229,9,20,0.12)";
+  ctx.fill();
+  ctx.strokeStyle = "rgba(229,9,20,0.45)";
+  ctx.lineWidth = 2;
+  ctx.stroke();
+  ctx.font = `600 26px ${SANS}`;
+  setSpacing(ctx, 6);
+  ctx.fillStyle = MUTED;
+  ctx.fillText(w.hardest ? "TOUGHEST PICK" : "TOP SUBJECT", PAD + 40, y + 64);
+  setSpacing(ctx, -2);
+  ctx.fillStyle = "#fff";
+  if (w.hardest) {
+    ctx.font = `800 64px ${MEGA}`;
+    ctx.fillText(w.hardest.code, PAD + 40, y + 146);
+    ctx.font = `500 30px ${SANS}`;
+    setSpacing(ctx, 0);
+    ctx.fillStyle = MUTED;
+    ctx.textAlign = "right";
+    ctx.fillText(`${w.hardest.percent}% of r/UTM calls it hard`, W - PAD - 40, y + 140);
+    ctx.textAlign = "left";
+  } else {
+    ctx.font = `800 64px ${MEGA}`;
+    ctx.fillText(w.topSubject ?? "—", PAD + 40, y + 146);
+  }
+  setSpacing(ctx, 0);
+
+  drawFooter(ctx, "Get your Wrapped →");
+  return toBlob(canvas);
+}
+
+export type BracketStory = {
+  title: string;
+  roundName: string;
+  matchups: Array<{ a: string; b: string; pctA: number | null }>;
+  champion: string | null;
+};
+
+export async function renderBracketStory(s: BracketStory) {
+  await loadFonts();
+  const { canvas, ctx } = makeCanvas();
+
+  drawBackdrop(ctx);
+  drawWordmark(ctx, 170);
+  drawKicker(ctx, s.champion ? "UTM HAS SPOKEN" : `LIVE · ${s.roundName.toUpperCase()}`, 300);
+
+  const words = s.title.split(" ");
+  const last = words.pop() ?? "";
+  const head = words.join(" ");
+  ctx.textAlign = "left";
+  fitFont(ctx, head, "900", MEGA, 120, W - PAD * 2);
+  setSpacing(ctx, -5);
+  ctx.fillStyle = "#fff";
+  ctx.fillText(head, PAD, 440);
+  ctx.font = `italic 400 150px ${SERIF}`;
+  setSpacing(ctx, -2);
+  ctx.fillStyle = brandGradient(ctx, PAD, ctx.measureText(`${last}.`).width);
+  ctx.fillText(`${last}.`, PAD, 580);
+  setSpacing(ctx, 0);
+
+  if (s.champion) {
+    const y = 760;
+    roundRect(ctx, PAD, y, W - PAD * 2, 620, 48);
+    ctx.fillStyle = "rgba(229,9,20,0.12)";
+    ctx.fill();
+    ctx.strokeStyle = "rgba(229,9,20,0.5)";
+    ctx.lineWidth = 3;
+    ctx.stroke();
+    ctx.textAlign = "center";
+    ctx.font = `400 200px system-ui, "Apple Color Emoji", "Segoe UI Emoji", sans-serif`;
+    ctx.fillStyle = "#fff";
+    ctx.fillText("🏆", W / 2, y + 250);
+    fitFont(ctx, s.champion, "900", MEGA, 150, W - PAD * 2 - 80);
+    setSpacing(ctx, -6);
+    ctx.fillStyle = "#fff";
+    ctx.fillText(s.champion, W / 2, y + 440);
+    ctx.font = `500 36px ${SANS}`;
+    setSpacing(ctx, 0);
+    ctx.fillStyle = MUTED;
+    ctx.fillText("was voted the hardest course at UTM", W / 2, y + 530);
+    ctx.textAlign = "left";
+    drawFooter(ctx, "See the bracket →");
+    return toBlob(canvas);
+  }
+
+  const shown = s.matchups.slice(0, 8);
+  const rowH = shown.length > 4 ? 112 : 180;
+  const gap = shown.length > 4 ? 12 : 20;
+  let y = 680;
+  for (const m of shown) {
+    roundRect(ctx, PAD, y, W - PAD * 2, rowH, 30);
+    ctx.fillStyle = "rgba(255,255,255,0.05)";
+    ctx.fill();
+    ctx.strokeStyle = "rgba(255,255,255,0.10)";
+    ctx.lineWidth = 2;
+    ctx.stroke();
+    const mid = y + rowH / 2 + 18;
+    ctx.font = `800 ${rowH > 150 ? 60 : 48}px ${MEGA}`;
+    setSpacing(ctx, -2);
+    ctx.fillStyle = "#fff";
+    ctx.textAlign = "left";
+    ctx.fillText(m.a, PAD + 36, mid);
+    ctx.textAlign = "right";
+    ctx.fillText(m.b, W - PAD - 36, mid);
+    ctx.textAlign = "center";
+    ctx.font = `italic 400 ${rowH > 150 ? 64 : 52}px ${SERIF}`;
+    setSpacing(ctx, 0);
+    ctx.fillStyle = BRAND;
+    ctx.fillText("vs", W / 2, mid - 8);
+    if (m.pctA != null) {
+      ctx.font = `600 24px ${SANS}`;
+      ctx.fillStyle = MUTED;
+      ctx.fillText(`${m.pctA}% – ${100 - m.pctA}%`, W / 2, mid + 26);
+    }
+    ctx.textAlign = "left";
+    y += rowH + gap;
+  }
+
+  drawFooter(ctx, "Vote now →");
+  return toBlob(canvas);
+}

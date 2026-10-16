@@ -8,6 +8,63 @@ export type Database = {
   };
   public: {
     Tables: {
+      brackets: {
+        Row: {
+          created_at: string;
+          id: string;
+          round_hours: number;
+          seeds: string[];
+          starts_at: string;
+          title: string;
+        };
+        Insert: {
+          created_at?: string;
+          id: string;
+          round_hours?: number;
+          seeds: string[];
+          starts_at: string;
+          title: string;
+        };
+        Update: {
+          created_at?: string;
+          id?: string;
+          round_hours?: number;
+          seeds?: string[];
+          starts_at?: string;
+          title?: string;
+        };
+        Relationships: [];
+      };
+      bracket_votes: {
+        Row: {
+          bracket_id: string;
+          course_code: string;
+          created_at: string;
+          matchup: number;
+          round: number;
+          updated_at: string;
+          user_id: string;
+        };
+        Insert: {
+          bracket_id: string;
+          course_code: string;
+          created_at?: string;
+          matchup: number;
+          round: number;
+          updated_at?: string;
+          user_id: string;
+        };
+        Update: {
+          bracket_id?: string;
+          course_code?: string;
+          created_at?: string;
+          matchup?: number;
+          round?: number;
+          updated_at?: string;
+          user_id?: string;
+        };
+        Relationships: [];
+      };
       course_ratings: {
         Row: {
           comment: string | null;
@@ -223,6 +280,16 @@ export type Database = {
       };
     };
     Views: {
+      bracket_vote_tallies: {
+        Row: {
+          bracket_id: string | null;
+          course_code: string | null;
+          matchup: number | null;
+          round: number | null;
+          votes: number | null;
+        };
+        Relationships: [];
+      };
       course_reviews_public: {
         Row: {
           comment: string | null;
@@ -258,7 +325,10 @@ export type Database = {
       };
     };
     Functions: {
-      [_ in never]: never;
+      cast_bracket_vote: {
+        Args: { _bracket: string; _course: string; _matchup: number; _round: number };
+        Returns: undefined;
+      };
     };
     Enums: {
       [_ in never]: never;
