@@ -2715,3 +2715,76 @@
     display: none;
   }
 }
+
+/* Filter bar chips for bird courses (gold) and the danger zone (red). */
+.chip-gold,
+.chip-red {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.chip-icon {
+  width: 1.05em;
+  height: 1.05em;
+  flex: none;
+}
+.chip-gold {
+  font-weight: 800;
+  letter-spacing: 0.02em;
+}
+.chip-gold:not(.is-active) {
+  background: linear-gradient(100deg, #f59e0b, #fff7c2 30%, #fbbf24 50%, #b45309 70%, #f59e0b);
+  background-size: 250% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 0 7px rgb(251 191 36 / 0.65));
+  animation: tier-bird-shine 4.5s linear infinite;
+}
+.chip-gold:not(.is-active) .chip-icon {
+  color: #fcd34d;
+  -webkit-text-fill-color: initial;
+}
+.chip-gold.is-active {
+  color: #3b1d00;
+}
+.chip-red {
+  font-family: "Creepster", var(--font-mega), fantasy;
+  font-size: 15px;
+  font-weight: 400;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+}
+.chip-red:not(.is-active) {
+  color: #ef2b2b;
+  text-shadow:
+    0 0 8px rgb(239 43 43 / 0.9),
+    0 0 18px rgb(220 38 38 / 0.6);
+  animation: danger-title-flicker 5s steps(1, end) infinite;
+}
+.chip-red.is-active {
+  color: #fff;
+  text-shadow:
+    0 0 8px rgb(0 0 0 / 0.6),
+    0 2px 0 #450a0a;
+}
+.chip-ind-gold {
+  background: linear-gradient(110deg, #b45309, #fbbf24 30%, #fff7c2 50%, #fbbf24 70%, #b45309);
+  background-size: 220% 100%;
+  box-shadow: 0 0 22px rgb(251 191 36 / 0.65);
+  animation: rarity-badge-sheen 3s linear infinite;
+}
+.chip-ind-red {
+  background: linear-gradient(110deg, #450a0a, #b91c1c 40%, #ef4444 60%, #7f1d1d);
+  background-size: 220% 100%;
+  box-shadow: 0 0 22px rgb(239 68 68 / 0.7);
+  animation: rarity-badge-sheen 3s linear infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .chip-gold:not(.is-active),
+  .chip-red:not(.is-active),
+  .chip-ind-gold,
+  .chip-ind-red {
+    animation: none;
+  }
+}

@@ -9,7 +9,7 @@ import { CinematicIntro } from "@/components/CinematicIntro";
 import { Spotlight } from "@/components/Spotlight";
 import { Marquee } from "@/components/Marquee";
 import { FeatureBento } from "@/components/FeatureBento";
-import { TierSections } from "@/components/TierSections";
+import { TierView } from "@/components/TierView";
 import { Link } from "@tanstack/react-router";
 import { BIRD_COURSE_THRESHOLD, useBirdCourses } from "@/lib/ratings";
 import { COURSES, getRailsForMajor, getFeaturedDeckForMajor, type FilterId } from "@/lib/courses";
@@ -60,8 +60,6 @@ export function HomePage() {
         <Marquee />
       </div>
 
-      <TierSections />
-
       <div className="px-6 pt-6 md:px-10 md:pt-10">
         <p className="text-xs font-semibold uppercase tracking-[0.3em] text-muted-foreground">
           Your feed
@@ -99,18 +97,23 @@ export function HomePage() {
       )}
 
       <main className="relative mt-8 space-y-12 pb-24 md:space-y-16">
-        {rails.length === 0 && (
+        {(filter === "bird" || filter === "danger") && <TierView kind={filter} />}
+        {filter !== "bird" && filter !== "danger" && rails.length === 0 && (
           <p className="px-6 md:px-10 text-sm text-muted-foreground">
             No courses match this filter for your program yet — try another chip.
           </p>
         )}
-        {studentBirds && <CourseRail rail={studentBirds} index={0} gold />}
-        {rails.map((r, index) => (
-          <Fragment key={r.title}>
-            <CourseRail rail={r} index={index} />
-            {index === 0 && <ProgramPromptCard />}
-          </Fragment>
-        ))}
+        {filter !== "bird" && filter !== "danger" && (
+          <>
+            {studentBirds && <CourseRail rail={studentBirds} index={0} gold />}
+            {rails.map((r, index) => (
+              <Fragment key={r.title}>
+                <CourseRail rail={r} index={index} />
+                {index === 0 && <ProgramPromptCard />}
+              </Fragment>
+            ))}
+          </>
+        )}
       </main>
 
       <FeatureBento />
