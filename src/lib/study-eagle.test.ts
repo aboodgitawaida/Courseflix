@@ -1,6 +1,6 @@
-import { beforeEach, describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { EAGLE_LINES, EAGLE_LINE_COOLDOWN_MS } from "./eagle-lines";
-import { pickEagleLine, resetEagleLines } from "./study-eagle";
+import { celebrateEagle, pickEagleLine, resetEagleLines } from "./study-eagle";
 
 describe("eagle lines", () => {
   beforeEach(() => resetEagleLines());
@@ -40,5 +40,22 @@ describe("eagle lines", () => {
       expect(pool.length).toBeGreaterThan(0);
       for (const line of pool) expect(line.length).toBeLessThanOrEqual(100);
     }
+  });
+});
+
+describe("celebrateEagle", () => {
+  it("asks for the trophy animation when told to, and the cheer otherwise", () => {
+    const heard: Array<{ message?: string; animation?: string }> = [];
+    const listener = (e: Event) => heard.push((e as CustomEvent).detail);
+    vi.stubGlobal("window", new EventTarget());
+    window.addEventListener("study-eagle-celebrate", listener);
+    celebrateEagle(null, "trophy");
+    celebrateEagle("Nice");
+    window.removeEventListener("study-eagle-celebrate", listener);
+    vi.unstubAllGlobals();
+    expect(heard).toEqual([
+      { message: undefined, animation: "trophy" },
+      { message: "Nice", animation: undefined },
+    ]);
   });
 });
