@@ -1,10 +1,12 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { useEffect } from "react";
 import { ArrowRight, LockKeyhole, Sparkles, Trophy } from "lucide-react";
 import { TopNav } from "@/components/TopNav";
 import { PageBackdrop } from "@/components/PageBackdrop";
 import { useAuth } from "@/hooks/use-auth";
 import { useAchievements } from "@/lib/achievements";
 import { QueryErrorState } from "@/components/QueryErrorState";
+import { celebrateEagle } from "@/lib/study-eagle";
 
 export const Route = createFileRoute("/achievements")({
   head: () => ({
@@ -24,6 +26,10 @@ function AchievementsPage() {
   const { signedIn } = useAuth();
   const { achievements, isLoading, error, refetch } = useAchievements(signedIn);
   const unlocked = achievements.filter((achievement) => achievement.unlocked).length;
+  // The eagle lifts his trophy every time you open the shelf.
+  useEffect(() => {
+    celebrateEagle(null, "trophy");
+  }, []);
   return (
     <div className="relative min-h-screen overflow-x-clip text-foreground">
       <PageBackdrop />
