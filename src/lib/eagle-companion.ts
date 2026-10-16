@@ -16,6 +16,8 @@ export type CompanionMemory = {
   spokenDay: string | null;
   spokenCount: number;
   lastSpoken: number | null;
+  /** The local day he last said something about the day itself (a holiday, Friday…). */
+  flavorDay: string | null;
 };
 
 export const EMPTY_MEMORY: CompanionMemory = {
@@ -25,6 +27,7 @@ export const EMPTY_MEMORY: CompanionMemory = {
   spokenDay: null,
   spokenCount: 0,
   lastSpoken: null,
+  flavorDay: null,
 };
 
 /** He says at most this many unprompted lines a day, and never two within the gap. */

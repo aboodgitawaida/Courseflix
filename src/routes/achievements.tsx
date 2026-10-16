@@ -6,7 +6,8 @@ import { PageBackdrop } from "@/components/PageBackdrop";
 import { useAuth } from "@/hooks/use-auth";
 import { useAchievements } from "@/lib/achievements";
 import { QueryErrorState } from "@/components/QueryErrorState";
-import { celebrateEagle } from "@/lib/study-eagle";
+import { achievementsEvent } from "@/lib/eagle-reactions";
+import { celebrateEagle, firstThisSession, pickEagleLine, reactEagle } from "@/lib/study-eagle";
 
 export const Route = createFileRoute("/achievements")({
   head: () => ({
@@ -26,10 +27,19 @@ function AchievementsPage() {
   const { signedIn } = useAuth();
   const { achievements, isLoading, error, refetch } = useAchievements(signedIn);
   const unlocked = achievements.filter((achievement) => achievement.unlocked).length;
-  // The eagle lifts his trophy every time you open the shelf.
+  // He reacts to the shelf once it has loaded: the trophy and a line when you have
+  // badges (the line once per session), a nudge when you have none.
   useEffect(() => {
-    celebrateEagle(null, "trophy");
-  }, []);
+    if (signedIn && (isLoading || error)) return;
+    const event = achievementsEvent({ signedIn, unlocked, total: achievements.length });
+    const vars = { unlocked, total: achievements.length };
+    if (signedIn && unlocked > 0) {
+      if (firstThisSession(event)) celebrateEagle(pickEagleLine(event, vars), "trophy");
+      else celebrateEagle(null, "trophy");
+    } else {
+      reactEagle(event, vars);
+    }
+  }, [signedIn, isLoading, error, unlocked, achievements.length]);
   return (
     <div className="relative min-h-screen overflow-x-clip text-foreground">
       <PageBackdrop />

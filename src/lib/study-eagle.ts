@@ -36,6 +36,37 @@ export function sayEagle(event: EagleLineEvent, vars: Record<string, string | nu
   window.dispatchEvent(new CustomEvent("study-eagle-say", { detail: { message } }));
 }
 
+const REACTED_PREFIX = "courseflix.eagle.reacted.";
+
+/** True the first time a key is seen in this browser session, false after that. */
+export function firstThisSession(key: string): boolean {
+  try {
+    if (window.sessionStorage.getItem(REACTED_PREFIX + key)) return false;
+    window.sessionStorage.setItem(REACTED_PREFIX + key, "1");
+  } catch {
+    return false; // storage blocked: stay quiet rather than repeat himself
+  }
+  return true;
+}
+
+/**
+ * A reaction to what is on a page ("look at all those achievements"). Says it once
+ * per session for the key (default: the event), so going back and forth between
+ * pages doesn't make him repeat himself. With an animation it also celebrates.
+ */
+export function reactEagle(
+  event: EagleLineEvent,
+  vars: Record<string, string | number> = {},
+  options: { once?: string; animation?: "trophy" } = {},
+) {
+  if (typeof window === "undefined") return;
+  if (!firstThisSession(options.once ?? event)) return;
+  const message = pickEagleLine(event, vars);
+  if (!message) return;
+  if (options.animation) celebrateEagle(message, options.animation);
+  else window.dispatchEvent(new CustomEvent("study-eagle-say", { detail: { message } }));
+}
+
 const lastIndex = new Map<EagleLineEvent, number>();
 const lastShown = new Map<EagleLineEvent, number>();
 
