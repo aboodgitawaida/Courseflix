@@ -1,0 +1,8 @@
+{
+  "first_frame": "@assets/eagle-src/pixellab-base-awake.png",
+  "last_frame": "@assets/eagle-src/pixellab-base-awake.png",
+  "frame_count": 10,
+  "no_background": true,
+  "action": "the eagle hops up and flaps its wings once, catching a golden trophy cup in its talons, then holds the gold trophy high with a proud puffed chest while the cup twinkles, bounces slightly in a victory pose, then lowers it; feet end back gripping the branch",
+  "seed": 323
+}
