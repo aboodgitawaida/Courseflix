@@ -18,6 +18,8 @@ import {
 import { getCourse } from "@/lib/courses";
 import { QueryErrorState } from "@/components/QueryErrorState";
 import { announce } from "@/lib/a11y";
+import { countPhrase, friendsEvent } from "@/lib/eagle-reactions";
+import { reactEagle } from "@/lib/study-eagle";
 
 export const Route = createFileRoute("/friends")({
   head: () => ({
@@ -81,6 +83,13 @@ function FriendsPage() {
       );
     }
   }, [data?.accepted.length, friendshipsError, isLoading, signedIn]);
+
+  useEffect(() => {
+    if (!signedIn || isLoading || friendshipsError || !data) return;
+    const incoming = data.incoming.length;
+    const event = friendsEvent({ friends: data.accepted.length, incoming });
+    if (event) reactEagle(event, { what: countPhrase(incoming, "friend request") });
+  }, [data, friendshipsError, isLoading, signedIn]);
 
   const uid = data?.uid ?? null;
   const people = data?.people;
