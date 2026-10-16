@@ -73,7 +73,7 @@ function HowWeKnow({ info, code }: { info: CourseRarity; code?: string }) {
     return (
       <>
         <p>
-          We collected every Reddit comment that mentioned <b>{name}</b>. Out of{" "}
+          We read the r/UTM and r/UofT comments we&apos;ve found that mention <b>{name}</b>. Out of{" "}
           <b>{signal.votes}</b> people who said whether it was easy or hard,{" "}
           <b>{signal.percent}%</b> said it was <b>{signal.kind}</b>.
         </p>
@@ -90,8 +90,8 @@ function HowWeKnow({ info, code }: { info: CourseRarity; code?: string }) {
           <span>{signal.hard} said hard</span>
         </div>
         <p className="reddit-says-note">
-          Based on the comments read so far. A computer program labels each one, so a few can be
-          wrong.
+          A snapshot of the comments read so far, not live. A computer program labels each one, so a
+          few can be wrong. Not affiliated with Reddit.
         </p>
       </>
     );

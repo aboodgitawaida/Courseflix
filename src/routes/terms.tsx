@@ -32,7 +32,7 @@ function TermsPage() {
             of use.
           </span>
         </h1>
-        <p className="mt-2 text-sm text-muted-foreground">Last updated: October 9, 2026</p>
+        <p className="mt-2 text-sm text-muted-foreground">Last updated: October 16, 2026</p>
 
         <div className="mt-8 space-y-8 text-sm leading-7 text-muted-foreground">
           <section>
@@ -55,6 +55,14 @@ function TermsPage() {
               reviews shows no score. Workload, essay, and project signals are derived from the
               official listed hours and course descriptions; they are not verified student
               experiences, promises, or statements by an instructor or the University of Toronto.
+            </p>
+            <p className="mt-2">
+              Separately, the gold and red “Reddit says” labels summarise public comments on r/UTM
+              and r/UofT that a computer program has classified as calling a course easy or hard.
+              They are not Courseflix reviews, are not mixed into review-based scores, may be
+              incomplete, out of date or mislabelled, and show only counts, not the comments
+              themselves. Professor scores from Rate My Professors are shown separately, are overall
+              professor ratings rather than course ratings, and belong to that service.
             </p>
             <p className="mt-2">
               Review-based results can change as more reviews are submitted, and a small number of
@@ -80,6 +88,11 @@ function TermsPage() {
               Study Eagle summaries are automated, abbreviated interpretations for convenience and
               should not be treated as official course descriptions.
             </p>
+            <p className="mt-2">
+              Courseflix is not affiliated with or endorsed by the University of Toronto, Reddit or
+              Rate My Professors. Their names belong to their owners, and information from them may
+              be inaccurate.
+            </p>
           </section>
 
           <section>
@@ -99,6 +112,11 @@ function TermsPage() {
               You keep ownership of your content. We may remove content or restrict accounts that
               violate these Terms, applicable law, or the integrity of the service.
             </p>
+            <p className="mt-2">
+              New and edited reviews are checked automatically (using an AI service) for threats,
+              hate, sexual harassment, other people’s private information and spam, and you must
+              confirm your email before posting a review. Harsh but honest opinions are allowed.
+            </p>
           </section>
 
           <section>
@@ -106,10 +124,11 @@ function TermsPage() {
               5. Accounts and acceptable use
             </h2>
             <p className="mt-2">
-              Keep your account credentials secure and provide accurate information. You may use
-              Courseflix only for lawful, personal, non-commercial purposes. Do not scrape, reverse
-              engineer, disrupt, overload, bypass access controls, create deceptive accounts, or use
-              the service to invade another person’s privacy.
+              You must be at least 16 years old to create an account. Keep your account credentials
+              secure and provide accurate information. You may use Courseflix only for lawful,
+              personal, non-commercial purposes. Do not scrape, reverse engineer, disrupt, overload,
+              bypass access controls, create deceptive accounts, or use the service to invade
+              another person’s privacy.
             </p>
           </section>
 

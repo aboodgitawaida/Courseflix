@@ -119,10 +119,7 @@ export function AuthPage() {
           },
         });
         if (error) throw error;
-        if (!data.session) {
-          setSent(true);
-          toast.success("Check your email to confirm your account.");
-        }
+        if (!data.session) toast.success("Check your email to confirm your account.");
       } else {
         const { error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
@@ -238,6 +235,17 @@ export function AuthPage() {
           >
             {busy ? "Redirecting…" : "Continue with Google"}
           </button>
+          <p className="mt-3 text-center text-[11px] leading-5 text-neutral-500">
+            By continuing you agree to the{" "}
+            <Link to="/terms" className="underline hover:text-brand">
+              Terms
+            </Link>{" "}
+            and{" "}
+            <Link to="/privacy" className="underline hover:text-brand">
+              Privacy Policy
+            </Link>
+            .
+          </p>
           <div className="flex items-center gap-3 my-5 text-xs text-neutral-500">
             <div className="h-px flex-1 bg-white/[0.08]" /> or{" "}
             <div className="h-px flex-1 bg-white/[0.08]" />
@@ -265,10 +273,6 @@ export function AuthPage() {
                 </button>
               </form>
             )
-          ) : sent ? (
-            <p className="text-sm text-brand">
-              We sent a confirmation link to {email}. Click it, then come back and sign in.
-            </p>
           ) : (
             <form onSubmit={onSubmit} className="space-y-3">
               {mode === "signup" && (
@@ -303,19 +307,6 @@ export function AuthPage() {
               >
                 {busy ? "…" : mode === "signin" ? "Sign in" : "Create account"}
               </button>
-              {mode === "signup" && (
-                <p className="text-center text-[11px] leading-5 text-neutral-500">
-                  By creating an account you agree to the{" "}
-                  <Link to="/terms" className="underline hover:text-brand">
-                    Terms
-                  </Link>{" "}
-                  and{" "}
-                  <Link to="/privacy" className="underline hover:text-brand">
-                    Privacy Policy
-                  </Link>
-                  .
-                </p>
-              )}
             </form>
           )}
           {forgotPassword ? (
