@@ -23,7 +23,9 @@ import { StudyEagle } from "@/components/StudyEagle";
 import { ProgramPickerSheet } from "@/components/ProgramPicker";
 import { MajorProfileSync } from "@/components/MajorProfileSync";
 import { INTRO_HEAD_SCRIPT } from "@/lib/intro";
-import { AUTH_HINT_HEAD_SCRIPT } from "@/lib/auth-hint";
+import { AUTH_HINT_HEAD_SCRIPT, RETURNING_HEAD_SCRIPT } from "@/lib/auth-hint";
+import { MAJOR_STORAGE_KEY } from "@/hooks/use-major";
+import { AppReadyGate } from "@/components/AppReadyGate";
 import { NetworkStatusBanner } from "@/components/NetworkStatusBanner";
 import { MobileTabBar } from "@/components/MobileTabBar";
 import { InstallPrompt } from "@/components/InstallPrompt";
@@ -171,6 +173,7 @@ function RootShell({ children }: { children: ReactNode }) {
       <head>
         <script dangerouslySetInnerHTML={{ __html: INTRO_HEAD_SCRIPT }} />
         <script dangerouslySetInnerHTML={{ __html: AUTH_HINT_HEAD_SCRIPT }} />
+        <script dangerouslySetInnerHTML={{ __html: RETURNING_HEAD_SCRIPT(MAJOR_STORAGE_KEY) }} />
         <HeadContent />
       </head>
       <body>
@@ -217,6 +220,7 @@ function RootComponent() {
         <SoundProvider>
           <EagleProvider>
             <CourseUIProvider>
+              <AppReadyGate />
               <NetworkStatusBanner />
               <p className="sr-only" role="status" aria-live="polite" aria-atomic="true">
                 {announcement}
