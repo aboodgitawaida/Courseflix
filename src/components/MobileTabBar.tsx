@@ -11,7 +11,6 @@ import {
   Settings,
   Star,
   UserRound,
-  Sparkles,
   Users,
 } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
@@ -54,7 +53,6 @@ export function MobileTabBar() {
 
   const meLinks = [
     ...(signedIn ? [] : [{ to: "/auth" as const, label: "Sign in", icon: LogIn }]),
-    ...(signedIn ? [{ to: "/feed" as const, label: "Feed", icon: Sparkles }] : []),
     { to: "/friends" as const, label: "Friends", icon: Users },
     { to: "/achievements" as const, label: "Achievements", icon: Award },
     ...(signedIn ? [{ to: "/reviews" as const, label: "My reviews", icon: Star }] : []),

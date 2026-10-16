@@ -64,11 +64,6 @@ export function TopNav() {
             My Shortlist
           </Link>
           {signedIn && (
-            <Link to="/feed" className={desktopLink(pathname === "/feed")}>
-              Feed
-            </Link>
-          )}
-          {signedIn && (
             <Link to="/reviews" className={desktopLink(pathname === "/reviews")}>
               My Reviews
             </Link>
