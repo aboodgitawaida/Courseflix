@@ -5,6 +5,7 @@ import {
   MANY_PREVIEWS,
   arrival,
   canSpeak,
+  dayKey,
   lateness,
   loadMemory,
   nextBreakMilestone,
@@ -13,6 +14,8 @@ import {
   saveMemory,
   type Arrival,
 } from "@/lib/eagle-companion";
+import { holidayEvent, weekdayEvent } from "@/lib/eagle-calendar";
+import type { EagleLineEvent } from "@/lib/eagle-lines";
 import { pickEagleLine, takeLateNightLine } from "@/lib/study-eagle";
 
 type Options = {
@@ -90,7 +93,23 @@ export function useEagleCompanion({ active, isBusy, say }: Options) {
         speak(() => pickEagleLine("gettingLate"));
         return;
       }
-      if (visit) speak(() => welcomeLine(visit));
+      // Outside world: a holiday beats everything but late nights; a big welcome (first
+      // time, a streak, days away) beats the mood of the week; the week beats a plain
+      // "back again".
+      const today = dayKey(now);
+      const flavorTaken = memory.flavorDay === today;
+      const holiday = flavorTaken ? null : holidayEvent(now);
+      const weekday = flavorTaken ? null : weekdayEvent(now);
+      const bigWelcome = visit !== null && visit.kind !== "later" && visit.kind !== "tomorrow";
+      const sayFlavor = (event: EagleLineEvent) => {
+        if (speak(() => pickEagleLine(event))) {
+          saveMemory({ ...loadMemory(), flavorDay: today });
+        }
+      };
+      if (holiday) sayFlavor(holiday);
+      else if (bigWelcome) speak(() => welcomeLine(visit));
+      else if (weekday) sayFlavor(weekday);
+      else if (visit) speak(() => welcomeLine(visit));
     }, ARRIVAL_DELAY_MS);
     return () => window.clearTimeout(timer);
   }, [active]);

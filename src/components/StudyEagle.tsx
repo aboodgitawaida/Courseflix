@@ -29,7 +29,9 @@ import { courseSummary, lighterOptions, prereqSentence } from "@/lib/eagle-chat"
 import { useAllCourseStats } from "@/lib/ratings";
 import { EAGLE_LINES } from "@/lib/eagle-lines";
 import { EAGLE_AVOID_SELECTOR, choosePanelSpot, type PanelSpot } from "@/lib/eagle-layout";
-import { pickEagleLine, takeLateNightLine } from "@/lib/study-eagle";
+import { countPhrase } from "@/lib/eagle-reactions";
+import { firstThisSession, pickEagleLine, takeLateNightLine } from "@/lib/study-eagle";
+import { useNotifications } from "@/lib/social";
 import {
   EAGLE_MODES as SPRITE_MODES,
   MODE_DURATION_MS,
@@ -228,6 +230,23 @@ export function StudyEagle() {
   });
   const noteBrowse = useRef(companion.noteBrowse);
   noteBrowse.current = companion.noteBrowse;
+
+  // New notifications waiting (a friend request, an achievement): he mentions it
+  // once per session, at the first quiet moment after they load.
+  const notifications = useNotifications();
+  const unread = notifications.data?.rows.filter((row) => !row.read).length ?? 0;
+  useEffect(() => {
+    if (!enabled || compact || unread === 0) return;
+    // Wait out the arrival greeting so the two don't talk over each other.
+    const timer = window.setTimeout(() => {
+      if (busyRef.current || !firstThisSession("unread-notifications")) return;
+      const line = pickEagleLine("unreadNotifications", {
+        what: countPhrase(unread, "new notification"),
+      });
+      if (line) showStatus(line);
+    }, 9_000);
+    return () => window.clearTimeout(timer);
+  }, [enabled, compact, unread]);
 
   useEffect(() => {
     if (!course && summaryCourseCode && summaryContext === "page") {
