@@ -718,17 +718,14 @@ def snap_trophy(frames, k=8):
     return out
 
 
-trophy80 = snap_trophy(pixellab_frames("trophy"))
+# Variant E (seed 322), kept exactly as PixelLab drew it, same treatment as the cheer.
+trophy80 = [shift(f) for f in (lambda sheet: [sheet[:, 80 * i:80 * i + 80].copy()
+              for i in range(sheet.shape[1] // 80)])(
+                  np.asarray(Image.open(SRC / "pixellab-trophy.png").convert("RGBA")))]
 for f in trophy80:
     f[LOCK:] = awake80[LOCK:]
-    f[BRANCH_TOP:LOCK] = np.where((f[BRANCH_TOP:LOCK, :, 3:4] > 0) & ~(is_foot_px(f[BRANCH_TOP:LOCK])[..., None]),
-                                  awake80[BRANCH_TOP:LOCK], f[BRANCH_TOP:LOCK])
-    # PixelLab lit the far end of the branch orange in the middle frames; put the wood back
-    lit = (f[..., 3] > 0) & ~trophy_gold(f)
-    rgbf = f[..., :3].astype(int)
-    lit &= (rgbf[..., 0] > 150) & (rgbf[..., 0] > rgbf[..., 2] + 60)
-    lit[:BRANCH_TOP - 4] = False; lit[:, FOOT[0] - 3:FOOT[1] + 4] = False
-    f[lit] = awake80[lit]
+trophy80 = snap_extra(trophy80)
+for f in trophy80:
     f[:y0] = 0; f[y1:] = 0; f[:, x1:] = 0
 Image.fromarray(finish(trophy80), "RGBA").save(OUT / "eagle-trophy.png", optimize=True)
 
