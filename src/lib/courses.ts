@@ -204,6 +204,9 @@ function buildCourse(row: (typeof CATALOG)[number]): Course {
 export const COURSES: Course[] = CATALOG.map(buildCourse);
 
 const byCode = new Map(COURSES.map((c) => [c.code, c]));
+/** "MAT102H5" -> "MAT102", the way students write course codes. */
+export const shortCode = (code: string) => code.replace(/[HY]\d$/, "");
+
 export const getCourse = (code: string) =>
   byCode.get(code.toUpperCase()) ??
   COURSES.find((c) => c.code.toLowerCase() === code.toLowerCase());
