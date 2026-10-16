@@ -100,7 +100,7 @@ export function HomePage() {
       )}
 
       <main className="relative mt-8 space-y-12 pb-24 md:space-y-16">
-        {(filter === "bird" || filter === "danger") && <TierView kind={filter} />}
+        {(filter === "bird" || filter === "danger") && <TierView key={filter} kind={filter} />}
         {filter !== "bird" && filter !== "danger" && rails.length === 0 && (
           <p className="px-6 md:px-10 text-sm text-muted-foreground">
             No courses match this filter for your program yet — try another chip.
