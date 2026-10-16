@@ -6,7 +6,7 @@ import { recordSubjectInterest } from "@/lib/interest";
 import { getSessionUser } from "@/lib/session";
 import { submitReview } from "@/lib/submit-review";
 import type { User } from "@supabase/supabase-js";
-import { celebrateEagleWith } from "@/lib/study-eagle";
+import { celebrateEagleWith, sayEagle } from "@/lib/study-eagle";
 
 export type RatingRow = {
   id: string;
@@ -197,6 +197,7 @@ export function useSubmitRating(code: string) {
     },
     onSuccess: (_data, _input, context) => {
       if (!context?.reviewedBefore) celebrateEagleWith("reviewPosted");
+      else sayEagle("reviewUpdated");
       void queryClient.invalidateQueries({ queryKey: ["ratings", code] });
       void queryClient.invalidateQueries({ queryKey: ["rating-stats"] });
       void queryClient.invalidateQueries({ queryKey: ["my-ratings"] });
@@ -291,6 +292,8 @@ export function useToggleShortlist() {
       if (!saved) {
         celebrateEagleWith("courseAdded", { code });
         recordSubjectInterest(code.replace(/[0-9].*$/, ""), 2);
+      } else {
+        sayEagle("courseRemoved", { code });
       }
     },
     onSettled: () => {

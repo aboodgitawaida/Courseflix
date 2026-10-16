@@ -118,13 +118,18 @@ const PUT_AWAY: Partial<Record<EagleMode, EagleMode>> = {
   grinding: "closingNotepad",
 };
 
-/** Petting him this many times within PET_SPAM_WINDOW_MS makes him annoyed. */
+/** Petting him this many times within PET_SPAM_WINDOW_MS gets a warning, then (at PET_SPAM_COUNT) annoyed. */
+export const PET_WARN_COUNT = 3;
 export const PET_SPAM_COUNT = 6;
 export const PET_SPAM_WINDOW_MS = 5_000;
 
 /** The pets still inside the spam window, with the one at `now` added. */
 export function recentPets(times: number[], now: number): number[] {
   return [...times.filter((t) => now - t < PET_SPAM_WINDOW_MS), now];
+}
+
+export function isPetWarning(times: number[]) {
+  return times.length >= PET_WARN_COUNT && times.length < PET_SPAM_COUNT;
 }
 
 export function isPetSpam(times: number[]) {
