@@ -4,7 +4,8 @@
  *
  * Priority: what the user does (a pet) beats scripted reactions (grind, waking
  * up), which beat ambient states (idle, sleep, reading along with a preview).
- * A celebration is the one exception: it is never cut short, not even by a pet.
+ * A celebration (the cheer, or the trophy for an achievement) is the one exception: it
+ * is never cut short, not even by a pet.
  * A request with lower priority than the current state is dropped, not queued.
  */
 export const EAGLE_MODES = [
@@ -14,6 +15,7 @@ export const EAGLE_MODES = [
   "wakingUp",
   "startled",
   "celebrating",
+  "trophy",
   "petting",
   "openingBook",
   "reading",
@@ -55,6 +57,7 @@ export const MODE_PRIORITY: Record<EagleMode, number> = {
   startled: 2,
   petting: 2,
   celebrating: 3,
+  trophy: 3,
 };
 
 /** States that play once and then settle. Must match the animations in styles.css. */
@@ -63,6 +66,7 @@ export const MODE_DURATION_MS: Partial<Record<EagleMode, number>> = {
   wakingUp: 1_200, // 8-frame stretch
   startled: 1_000, // 8-frame jolt awake
   celebrating: 1_400, // 10-frame victory cheer
+  trophy: 2_000, // 11-frame trophy lift, for a new achievement
   petting: 900, // 8-frame head-bob
   openingBook: 900, // 6 frames: takes out the book
   openingGlass: 900, // 6 frames: takes out the magnifying glass
@@ -110,6 +114,10 @@ const PUT_AWAY: Partial<Record<EagleMode, EagleMode>> = {
   grinding: "closingNotepad",
 };
 
+export function isCelebration(mode: EagleMode) {
+  return mode === "celebrating" || mode === "trophy";
+}
+
 export function isDozing(mode: EagleMode) {
   return mode === "sleeping" || mode === "fallingAsleep";
 }
@@ -156,8 +164,8 @@ export function request(
     return wanted === "wakingUp" ? { mode: "wakingUp" } : { mode: "wakingUp", queued: wanted };
   }
   // A celebration during the wake-up waits for it to finish.
-  if ((current === "wakingUp" || current === "startled") && wanted === "celebrating") {
-    return { mode: current, queued: "celebrating" };
+  if ((current === "wakingUp" || current === "startled") && isCelebration(wanted)) {
+    return { mode: current, queued: wanted };
   }
   if (MODE_PRIORITY[wanted] < MODE_PRIORITY[current]) return null;
   return { mode: wanted };
