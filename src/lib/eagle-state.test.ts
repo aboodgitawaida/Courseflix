@@ -54,7 +54,7 @@ describe("eagle state machine", () => {
     expect(settle("trophy", idle)).toBe("awake");
     expect(settle("trophy", typing)).toBe("grinding");
     expect(settle("wakingUp", idle, "trophy")).toBe("trophy");
-    expect(MODE_DURATION_MS.trophy).toBe(2_000);
+    expect(MODE_DURATION_MS.trophy).toBe(2_400);
   });
 
   it("drops grinding while he's being petted", () => {
