@@ -144,6 +144,102 @@ export const EAGLE_LINES = {
     "Even owls rest. Occasionally.",
     "Bed is undefeated. Just saying.",
   ],
+  /** The first time he sees you on this device. */
+  welcomeFirst: [
+    "Hi. I'm the Study Eagle. Tap me whenever you like.",
+    "New face! I live here. Rent is head scratches.",
+    "Welcome. I read the course pages so you don't have to.",
+    "First time? I'll keep the perch warm.",
+    "Hello! Ask me about a course. Or just pet me.",
+  ],
+  /** Back later the same day. */
+  welcomeLater: [
+    "Back again. Good.",
+    "Oh, you're back. I saved your spot.",
+    "Round two. Let's go.",
+    "There you are. Missed me?",
+    "Welcome back. Where were we?",
+  ],
+  /** Back the next day. */
+  welcomeTomorrow: [
+    "Morning, if it's morning. Hi.",
+    "A new day, a clean slate.",
+    "You came back. I'm touched.",
+    "Day two. The plan survives.",
+    "Welcome back. Slept well? I did. Constantly.",
+  ],
+  /** Back after a few days. */
+  welcomeFewDays: [
+    "{days} days! I was starting to worry.",
+    "Look who's back after {days} days.",
+    "{days} days without you. The perch got dusty.",
+    "It's been {days} days. I'll pretend I wasn't counting.",
+    "Back after {days} days. Shall we catch up?",
+  ],
+  /** Back after a week or more. */
+  welcomeLongAway: [
+    "{days} days! I nearly filed a missing-student report.",
+    "It's been {days} days. I kept the syllabus warm.",
+    "Long time. {days} days. Did you miss me? I'll say yes.",
+    "You're back after {days} days. The perch has a new coat of moss.",
+    "{days} days away. Welcome home.",
+  ],
+  /** Three or more days in a row. */
+  welcomeStreak: [
+    "{days} days in a row. Look at you.",
+    "Day {days}. That's a streak. I'm impressed.",
+    "{days} days straight. Consistency looks good on you.",
+    "{days} in a row. I'd say I'm not counting, but I am.",
+    "Day {days} together. This is basically a partnership.",
+  ],
+  /** From 11pm: getting late. */
+  gettingLate: [
+    "It's getting late. Maybe wrap up soon?",
+    "Past eleven. Tomorrow-you will want that sleep.",
+    "Late-ish. One more course, then bed?",
+    "The night's young, but you might not be. Just saying.",
+    "Eleven already. Time flies when you're browsing.",
+  ],
+  /** Still here well after midnight, a while after the first nudge. */
+  lateLong: [
+    "We've been up a while now. Water, then bed.",
+    "Okay. Final answer: sleep is also productive.",
+    "I'll keep your shortlist safe. Go rest.",
+    "Still going? Brave. Also tired. Both can be true.",
+    "The course list isn't going anywhere. You should.",
+  ],
+  /** A long stretch on the site: time to move. */
+  breakNudge: [
+    "You've been at it a while. Stretch break?",
+    "Time for water and a stretch. I'll hold the perch.",
+    "Look away from the screen for twenty seconds. Doctor's orders.",
+    "A long session. Your eyes deserve a minute.",
+    "Break time. The courses will wait.",
+  ],
+  /** Back to the tab after being away a while. */
+  awayBack: [
+    "Welcome back. I kept your spot.",
+    "Oh, you're back. I wasn't peeking at your tabs.",
+    "There you are. Ready to continue?",
+    "You vanished. I assume snacks.",
+    "Back at it. I only dozed a little.",
+  ],
+  /** Lots of course previews in one sitting. */
+  manyPreviews: [
+    "That's {count} previews. Want to compare a couple?",
+    "{count} courses peeked at. Anything catching your eye?",
+    "Lots of browsing. Shortlist the ones you'd actually take.",
+    "{count} previews in. Decision fatigue is real.",
+    "You've looked at {count}. Try Lighter options on your favourite.",
+  ],
+  /** A round number of courses on the shortlist. */
+  shortlistMilestone: [
+    "{count} on your shortlist. Time to compare?",
+    "Shortlist: {count}. That's a real plan taking shape.",
+    "{count} saved. Check your workload balance.",
+    "{count} courses in. Might be time to trim.",
+    "Your list is up to {count}. Impressive.",
+  ],
   /** Answers in the chat panel. */
   tips: [
     "Try the course preview first, then shortlist anything that still feels like a good fit.",

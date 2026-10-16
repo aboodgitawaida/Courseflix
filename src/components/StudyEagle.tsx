@@ -44,6 +44,7 @@ import {
   type EagleContext,
   type EagleMode,
 } from "@/lib/eagle-state";
+import { useEagleCompanion } from "@/hooks/use-eagle-companion";
 import { useInputBurst } from "@/hooks/use-input-burst";
 import { useReviewFocus } from "@/hooks/use-review-focus";
 
@@ -214,16 +215,19 @@ export function StudyEagle() {
     if (enabled) preloadEagleSheets();
   }, [enabled]);
 
-  // After midnight, a gentle nudge once per session. On phones the eagle is
-  // tucked away, so it waits for the first tap instead (see petEagle).
-  useEffect(() => {
-    if (!enabled || isCompact()) return;
-    const timer = window.setTimeout(() => {
-      const line = takeLateNightLine();
-      if (line) showStatus(line);
-    }, 4_000);
-    return () => window.clearTimeout(timer);
-  }, [enabled]);
+  // The companion side: greets you for how long you were away, notices late
+  // nights and long sessions. On phones the eagle is tucked away, so it stays
+  // quiet there (the late-night line waits for the first tap, see petEagle).
+  const busyRef = useRef(false);
+  busyRef.current =
+    chatOpen || isDragging || isDozing(mode) || isCelebration(mode) || mode === "annoyed";
+  const companion = useEagleCompanion({
+    active: enabled && !compact,
+    isBusy: () => busyRef.current,
+    say: (line) => showStatus(line),
+  });
+  const noteBrowse = useRef(companion.noteBrowse);
+  noteBrowse.current = companion.noteBrowse;
 
   useEffect(() => {
     if (!course && summaryCourseCode && summaryContext === "page") {
@@ -259,6 +263,7 @@ export function StudyEagle() {
       const { course, context } =
         (event as CustomEvent<{ course?: Course; context?: "preview" | "page" }>).detail ?? {};
       if (!course) return;
+      noteBrowse.current(course.code);
       // A new course is activity: wake up before reading it out.
       setActivityVersion((version) => version + 1);
       if (isDozing(modeRef.current)) go("wakingUp");
