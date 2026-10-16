@@ -1,4 +1,5 @@
 import { useLayoutEffect, useRef, useState } from "react";
+import { Feather, Skull } from "lucide-react";
 import { FILTERS, type FilterId } from "@/lib/courses";
 
 export function FilterChips({
@@ -25,6 +26,8 @@ export function FilterChips({
     return () => ro.disconnect();
   }, [value]);
 
+  const activeSpecial = FILTERS.find((f) => f.id === value)?.special;
+
   return (
     <div className="relative z-30 px-3 py-2 md:px-6 lg:sticky lg:top-[4.75rem]">
       <div className="glass mx-auto max-w-max overflow-hidden rounded-full p-1">
@@ -32,7 +35,13 @@ export function FilterChips({
           {indicator && (
             <span
               aria-hidden="true"
-              className="absolute inset-y-0 rounded-full bg-brand shadow-lg shadow-brand/40 transition-all duration-500 ease-[cubic-bezier(0.22,1,0.36,1)]"
+              className={`absolute inset-y-0 rounded-full transition-all duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] ${
+                activeSpecial === "gold"
+                  ? "chip-ind-gold"
+                  : activeSpecial === "red"
+                    ? "chip-ind-red"
+                    : "bg-brand shadow-lg shadow-brand/40"
+              }`}
               style={{ left: indicator.left, width: indicator.width }}
             />
           )}
@@ -45,9 +54,17 @@ export function FilterChips({
                 onClick={() => onChange(f.id)}
                 aria-pressed={active}
                 className={`relative z-10 shrink-0 rounded-full px-4 py-3 text-xs font-semibold lg:py-2 transition-colors duration-300 active:scale-[0.97] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/30 ${
-                  active ? "text-primary-foreground" : "text-muted-foreground hover:text-foreground"
-                } ${active && !indicator ? "bg-brand" : ""}`}
+                  f.special === "gold"
+                    ? `chip-gold ${active ? "is-active" : ""}`
+                    : f.special === "red"
+                      ? `chip-red ${active ? "is-active" : ""}`
+                      : active
+                        ? "text-primary-foreground"
+                        : "text-muted-foreground hover:text-foreground"
+                } ${active && !indicator && !f.special ? "bg-brand" : ""}`}
               >
+                {f.special === "gold" && <Feather className="chip-icon" aria-hidden="true" />}
+                {f.special === "red" && <Skull className="chip-icon" aria-hidden="true" />}
                 {f.label}
               </button>
             );
