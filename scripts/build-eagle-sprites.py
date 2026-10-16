@@ -586,7 +586,7 @@ FOOT = (_fx.min(), _fx.max())
 def trophy_gold(f):
     """Bright, saturated gold: the trophy and its sparkles (not lit feathers or the beak)."""
     rgb = f[..., :3].astype(int)
-    return (f[..., 3] > 0) & (rgb[..., 0] > 200) & (rgb[..., 1] > 155) & (rgb[..., 2] < 120)
+    return (f[..., 3] > 0) & (rgb[..., 0] > 200) & (rgb[..., 1] > 172) & (rgb[..., 2] < 120)
 
 
 def brown_mask(f):
@@ -609,16 +609,60 @@ def match_brightness(f, ref_lum):
     return f
 
 
+def head_mask(f):
+    """The white head: the biggest blob of near-white pixels in the top of the frame."""
+    rgb = f[..., :3].astype(int)
+    white = (f[..., 3] > 0) & (rgb.min(-1) > 195)
+    white[48:] = False
+    seen = np.zeros_like(white); best = []
+    for y, x in zip(*np.nonzero(white)):
+        if seen[y, x]: continue
+        comp, q = [], deque([(y, x)]); seen[y, x] = True
+        while q:
+            cy, cx = q.popleft(); comp.append((cy, cx))
+            for ny in (cy - 1, cy, cy + 1):
+                for nx in (cx - 1, cx, cx + 1):
+                    if 0 <= ny < 80 and 0 <= nx < 80 and white[ny, nx] and not seen[ny, nx]:
+                        seen[ny, nx] = True; q.append((ny, nx))
+        if len(comp) > len(best): best = comp
+    m = np.zeros_like(white)
+    for cy, cx in best: m[cy, cx] = True
+    return m
+
+
+def beak_zone(f):
+    """Where the beak is: just in front of and below the middle of the white head."""
+    ys, xs = np.nonzero(head_mask(f))
+    z = np.zeros(f.shape[:2], bool)
+    z[int(ys.mean()) - 3:ys.max() + 4, xs.max() - 4:xs.max() + 8] = True
+    return z
+
+
+def match_head(f, ref_rgb):
+    """PixelLab drew the head pure white (a glow) in the lifting frames; give it back the
+    awake head's tones, by rank so the shading stays as drawn."""
+    f = f.copy(); m = head_mask(f)
+    lum = f[m][:, :3].astype(float) @ np.array([0.299, 0.587, 0.114])
+    order = lum.argsort()
+    idx = np.interp(np.linspace(0, 1, len(lum)), np.linspace(0, 1, len(ref_rgb)), np.arange(len(ref_rgb))).round().astype(int)
+    new = np.empty((len(lum), 3), np.uint8); new[order] = ref_rgb[idx]
+    f[m, :3] = new
+    return f
+
+
 def snap_trophy(frames, k=8):
     ref = awake80[brown_mask(awake80)][:, :3].astype(float) @ np.array([0.299, 0.587, 0.114])
-    frames = [match_brightness(f, np.sort(ref)) for f in frames]
+    head_ref = awake80[head_mask(awake80)][:, :3]
+    head_ref = head_ref[(head_ref.astype(float) @ np.array([0.299, 0.587, 0.114])).argsort()]
+    zones = [beak_zone(f) for f in frames]      # measured before the head is toned down
+    frames = [match_head(match_brightness(f, np.sort(ref)), head_ref) for f in frames]
     gold = trophy_gold
-    px = np.concatenate([f[gold(f)][:, :3].astype(float) for f in frames])
+    px = np.concatenate([f[gold(f) & ~z][:, :3].astype(float) for f, z in zip(frames, zones)])
     nearest = ((px[:, None] - c2[None]) ** 2).sum(2).min(1)
     extra = kmeans(px[nearest > 900], k, 2).astype(int)
     out = []
-    for f in frames:
-        f = f.copy(); a = f[..., 3] > 0; g = gold(f)
+    for f, z in zip(frames, zones):
+        f = f.copy(); a = f[..., 3] > 0; g = gold(f) & ~z   # the beak snaps to the eagle palette
         rows = np.arange(80)[:, None, None]
         base_d = ((f[..., None, :3].astype(int) - c2[None, None]) ** 2).sum(-1)
         base_d = np.where((rows < LOCK - 2) & GREEN[None, None], 1 << 30, base_d)
