@@ -290,7 +290,9 @@ export function useToggleShortlist() {
     onSuccess: (_data, { code, saved }) => {
       announce(saved ? `${code} removed from your shortlist.` : `${code} added to your shortlist.`);
       if (!saved) {
-        celebrateEagleWith("courseAdded", { code });
+        const count = queryClient.getQueryData<string[]>(["shortlist"])?.length ?? 0;
+        const milestone = count === 5 || count === 10;
+        celebrateEagleWith(milestone ? "shortlistMilestone" : "courseAdded", { code, count });
         recordSubjectInterest(code.replace(/[0-9].*$/, ""), 2);
       } else {
         sayEagle("courseRemoved", { code });
