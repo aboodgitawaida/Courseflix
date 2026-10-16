@@ -49,6 +49,8 @@ const EAGLE_REPLIES = EAGLE_LINES.tips;
 const PERCH_KEY = "courseflix.eagle.perchY";
 const DEFAULT_PERCH = 0.62;
 const SLEEP_AFTER_MS = 10_000;
+/** Cramming (the notepad when you type or click fast) is off for now. */
+const CRAMMING_ON: boolean = false;
 /** On phones a celebration pops the tucked-away eagle out for this long. */
 const POP_OUT_MS = 3_000;
 const POP_OUT_EXIT_MS = 250; // the slide back out in styles.css
@@ -150,7 +152,7 @@ export function StudyEagle() {
   // Typing in the search box or a review is searching or writing, not cramming,
   // so the burst detector pauses (and forgets) while either is in use.
   const reviewFocused = useReviewFocus(enabled);
-  const grinding = useInputBurst(enabled && !searchOpen && !reviewFocused);
+  const grinding = useInputBurst(CRAMMING_ON && enabled && !searchOpen && !reviewFocused);
   const searching = searchOpen;
   // The full compare table shows from two courses up; one is just a reminder bar.
   const comparing = compare.length >= 2;
