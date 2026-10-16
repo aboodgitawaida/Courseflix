@@ -1,6 +1,6 @@
 import { Link } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
-import { Bell } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import { Bell, Trophy } from "lucide-react";
 import { avatarSrc } from "@/lib/profile";
 import { useClearNotifications, useMarkNotificationsRead, useNotifications } from "@/lib/social";
 import {
@@ -35,9 +35,19 @@ export function NotificationBell() {
   const { data, isLoading, error, refetch } = useNotifications();
   const markRead = useMarkNotificationsRead();
   const clearNotifications = useClearNotifications();
-  const rows = data?.rows ?? [];
+  const rows = useMemo(() => data?.rows ?? [], [data?.rows]);
   const people = data?.people;
   const unread = rows.filter((r) => !r.read).length;
+  // Rows that were unread when the panel opened (or arrived while it was open).
+  // They stay marked until the panel closes, then everything is marked read.
+  const [open, setOpen] = useState(false);
+  const [fresh, setFresh] = useState<Set<string>>(() => new Set());
+  useEffect(() => {
+    if (!open) return;
+    const ids = rows.filter((r) => !r.read).map((r) => r.id);
+    if (ids.length === 0) return;
+    setFresh((prev) => (ids.every((id) => prev.has(id)) ? prev : new Set([...prev, ...ids])));
+  }, [open, rows]);
   useEffect(() => {
     if (!isLoading && !error)
       announce(`${rows.length} notification${rows.length === 1 ? "" : "s"} loaded.`);
@@ -48,8 +58,12 @@ export function NotificationBell() {
   }, []);
   return (
     <DropdownMenu
-      onOpenChange={(open) => {
-        if (open && unread > 0) void markRead.mutateAsync();
+      onOpenChange={(next) => {
+        setOpen(next);
+        if (!next) {
+          setFresh(new Set());
+          if (unread > 0) void markRead.mutateAsync();
+        }
       }}
     >
       <DropdownMenuTrigger
@@ -122,9 +136,15 @@ export function NotificationBell() {
                   : "/friends";
             const params =
               r.kind === "shortlist_add" && r.course_code ? { code: r.course_code } : {};
+            const isNew = !r.read || fresh.has(r.id);
             return (
               <DropdownMenuItem key={r.id} asChild>
-                <Link to={destination} params={params} className="flex items-start gap-2">
+                <Link
+                  to={destination}
+                  params={params}
+                  data-new={isNew ? "true" : undefined}
+                  className={`flex items-start gap-2 ${isNew ? "bg-amber-400/10" : ""}`}
+                >
                   <img
                     src={achievement?.icon ?? avatarSrc(person?.avatar_id)}
                     alt=""
@@ -133,9 +153,20 @@ export function NotificationBell() {
                     className="h-7 w-7 shrink-0 rounded-full object-contain"
                   />
                   <span className="min-w-0 flex-1 text-xs leading-snug">
+                    {achievement && (
+                      <Trophy
+                        aria-hidden="true"
+                        className="mr-1 inline h-3 w-3 -translate-y-px text-amber-500"
+                      />
+                    )}
                     {line(r.kind, name, r.course_code)}
-                    {!r.read && (
-                      <span className="ml-1 inline-block h-1.5 w-1.5 rounded-full bg-brand align-middle" />
+                    {isNew && (
+                      <span className="ml-1.5 inline-flex items-center gap-1 align-middle">
+                        <span className="h-1.5 w-1.5 rounded-full bg-amber-400" />
+                        <span className="text-[9px] font-bold uppercase tracking-wide text-amber-600 dark:text-amber-400">
+                          New
+                        </span>
+                      </span>
                     )}
                     <span className="mt-0.5 block text-[10px] text-muted-foreground">
                       {relativeMinutes(r.created_at, now)}
