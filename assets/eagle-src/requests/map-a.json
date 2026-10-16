@@ -1,0 +1,8 @@
+{
+  "first_frame": "@assets/eagle-src/pixellab-base-awake.png",
+  "action": "reading a map: the eagle pulls out a folded parchment treasure map, unfolds it and holds the big open map in both wings at chest height, the map shows a dotted trail with a red X, one wing tip traces along the trail while its eyes follow the route, occasionally nodding",
+  "frame_count": 12,
+  "seed": 601,
+  "enhance_prompt": false,
+  "no_background": true
+}
