@@ -1,4 +1,5 @@
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link, notFound, useNavigate } from "@tanstack/react-router";
+import { FEATURES } from "@/lib/features";
 import { useEffect, useMemo, useState } from "react";
 import { Check, Flame, Link2, Lock, MessageCircle, Trophy } from "lucide-react";
 import { toast } from "sonner";
@@ -33,6 +34,9 @@ import { siteUrl } from "@/lib/site";
 import { renderBracketStory } from "@/lib/story-card";
 
 export const Route = createFileRoute("/bracket")({
+  beforeLoad: () => {
+    if (!FEATURES.bracket) throw notFound();
+  },
   head: () => ({
     meta: [
       { title: "Hardest Course at UTM: The Bracket — Courseflix" },
