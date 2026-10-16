@@ -2781,7 +2781,7 @@
   letter-spacing: 0.02em;
 }
 .chip-gold:not(.is-active) {
-  background: linear-gradient(100deg, #f59e0b, #fff7c2 30%, #fbbf24 50%, #b45309 70%, #f59e0b);
+  background: linear-gradient(100deg, #fbbf24, #fff7c2 30%, #fcd34d 50%, #f59e0b 70%, #fbbf24);
   background-size: 250% 100%;
   -webkit-background-clip: text;
   background-clip: text;
@@ -2869,11 +2869,4 @@
   .row-title-gold {
     animation: none;
   }
-}
-
-/* A bird or danger row can hold 30+ cards, so cards scrolled out of view (sideways or down) are
-   skipped. Only the card's contents are contained; its own glow is still drawn. */
-.tier .tilt-card {
-  content-visibility: auto;
-  contain-intrinsic-block-size: auto none;
 }
