@@ -513,6 +513,12 @@
   background-size: 800% 100%;
   animation: eagle-pet-frames 0.9s steps(8, jump-none) forwards;
 }
+/* Annoyed: 11-frame huff and ruffle after too many pets, played once (MODE_DURATION_MS in eagle-state.ts). */
+.study-eagle-sprite-annoyed {
+  background-image: url("/eagle-annoyed.png");
+  background-size: 1100% 100%;
+  animation: eagle-annoyed-frames 1.2s steps(11, jump-none) forwards;
+}
 /* Celebration: 10-frame victory cheer, played once (MODE_DURATION_MS in eagle-state.ts). */
 .study-eagle-sprite-celebrating {
   background-image: url("/eagle-celebrate.png");
@@ -653,6 +659,14 @@
   }
 }
 @keyframes eagle-pet-frames {
+  from {
+    background-position-x: 0%;
+  }
+  to {
+    background-position-x: 100%;
+  }
+}
+@keyframes eagle-annoyed-frames {
   from {
     background-position-x: 0%;
   }

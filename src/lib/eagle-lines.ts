@@ -16,6 +16,14 @@ export const EAGLE_LINES = {
     "I accept payment in head scratches.",
     "Careful. I'm very majestic.",
   ],
+  /** Petted too many times in a row: fed up. */
+  petSpam: [
+    "Okay. That's enough.",
+    "I'm a bird, not a stress ball.",
+    "Hands off the feathers. Please.",
+    "You've had your turn. Study.",
+    "Personal space. It's a thing.",
+  ],
   /** Nodding off after a while with nothing happening. */
   fallAsleep: [
     "Time for a study break.",

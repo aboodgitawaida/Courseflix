@@ -1,5 +1,15 @@
 import { describe, expect, it } from "vitest";
-import { MODE_DURATION_MS, ambient, request, settle, type EagleContext } from "./eagle-state";
+import {
+  MODE_DURATION_MS,
+  PET_SPAM_COUNT,
+  PET_SPAM_WINDOW_MS,
+  ambient,
+  isPetSpam,
+  recentPets,
+  request,
+  settle,
+  type EagleContext,
+} from "./eagle-state";
 
 const idle: EagleContext = {
   reading: false,
@@ -59,6 +69,17 @@ describe("eagle state machine", () => {
 
   it("drops grinding while he's being petted", () => {
     expect(request("petting", "grinding")).toBeNull();
+  });
+
+  it("ignores pets while annoyed, but a celebration can still cut in", () => {
+    expect(request("petting", "annoyed")?.mode).toBe("annoyed");
+    expect(request("awake", "annoyed")?.mode).toBe("annoyed");
+    expect(request("annoyed", "petting")).toBeNull();
+    expect(request("annoyed", "trophy")?.mode).toBe("trophy");
+    expect(request("annoyed", "celebrating")?.mode).toBe("celebrating");
+    expect(settle("annoyed", idle)).toBe("awake");
+    expect(settle("annoyed", typing)).toBe("grinding");
+    expect(MODE_DURATION_MS.annoyed).toBe(1_200);
   });
 
   it("wakes up first, and a pet only wakes him", () => {
@@ -153,5 +174,20 @@ describe("eagle state machine", () => {
     expect(ambient("reading", preview)).toBeNull();
     expect(ambient("openingBook", preview)).toBeNull();
     expect(ambient("grinding", typing)).toBeNull();
+  });
+});
+
+describe("pet spam", () => {
+  it("only counts pets inside the window", () => {
+    let times: number[] = [];
+    for (let i = 0; i < PET_SPAM_COUNT - 1; i++) times = recentPets(times, i * 500);
+    expect(isPetSpam(times)).toBe(false);
+    expect(isPetSpam(recentPets(times, (PET_SPAM_COUNT - 1) * 500))).toBe(true);
+  });
+
+  it("forgets slow petting", () => {
+    let times: number[] = [];
+    for (let i = 0; i < 30; i++) times = recentPets(times, i * (PET_SPAM_WINDOW_MS / 2 + 1_000));
+    expect(isPetSpam(times)).toBe(false);
   });
 });
