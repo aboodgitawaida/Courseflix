@@ -278,7 +278,7 @@ function CoursePage() {
             )}
           </div>
 
-          <RatingSection code={course.code} />
+          <RatingSection key={course.code} code={course.code} />
         </div>
 
         <aside className="space-y-8 md:sticky md:top-24 md:self-start">
