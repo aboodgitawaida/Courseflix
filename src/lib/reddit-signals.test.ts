@@ -3,7 +3,13 @@ import { getRedditSignal } from "./reddit-signals";
 
 describe("getRedditSignal", () => {
   it("marks mostly-easy courses with enough opinions", () => {
-    expect(getRedditSignal("PHY100")).toEqual({ kind: "easy", percent: 100, votes: 67 });
+    expect(getRedditSignal("PHY100")).toEqual({
+      kind: "easy",
+      percent: 100,
+      votes: 67,
+      easy: 67,
+      hard: 0,
+    });
   });
   it("marks mostly-hard courses with enough opinions", () => {
     expect(getRedditSignal("MAT102")?.kind).toBe("hard");
