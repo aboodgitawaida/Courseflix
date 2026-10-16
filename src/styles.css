@@ -2324,3 +2324,13 @@
 .auth-hint-skeleton .auth-hint-name::after {
   content: var(--auth-name, "");
 }
+
+/* Returning visitors: keep the page hidden until the app has restored their session and
+   saved program (AppReadyGate), instead of flashing the anonymous server HTML first.
+   The dark page background still paints; the intro overlay stays visible. */
+html.returning:not(.app-ready) body {
+  visibility: hidden;
+}
+html.returning:not(.app-ready) .cinematic-overlay {
+  visibility: visible;
+}

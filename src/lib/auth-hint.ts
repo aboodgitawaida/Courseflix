@@ -1,5 +1,17 @@
 export const AUTH_HINT_KEY = "courseflix.auth.hint";
 export const AUTH_HINT_CLASS = "auth-hint";
+export const RETURNING_CLASS = "returning";
+export const APP_READY_CLASS = "app-ready";
+
+/**
+ * Server HTML is always built as if for a first-time, signed-out visitor, so for
+ * returning visitors (saved program or auth hint) the page would visibly change once
+ * the client restores their session and program. This marks them as returning so CSS
+ * can keep the page hidden until <AppReadyGate> reports the app is ready; the timer
+ * reveals it regardless if anything stalls, so the page can never stay hidden.
+ */
+export const RETURNING_HEAD_SCRIPT = (majorKey: string) =>
+  `try{var l=localStorage;if(l.getItem("${AUTH_HINT_KEY}")||l.getItem("${majorKey}")){var e=document.documentElement;e.classList.add("${RETURNING_CLASS}");setTimeout(function(){e.classList.add("${APP_READY_CLASS}")},1500)}}catch(e){}`;
 
 /** What we remember about the signed-in user so the first paint can show them. */
 export type AuthHint = { u: string; a: string; n: string };
