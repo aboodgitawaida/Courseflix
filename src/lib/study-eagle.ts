@@ -26,8 +26,9 @@ export function celebrateEagleWith(
 
 /**
  * Have the Study Eagle say a line from one of the pools in eagle-lines.ts in his
- * status bubble without celebrating (no cheer). Does nothing on the server, while
- * the event is cooling down, or when the eagle is turned off or asleep.
+ * status bubble without celebrating (no cheer). A sleeping eagle wakes up to say it.
+ * Does nothing on the server, while the event is cooling down, or when the eagle is
+ * turned off.
  */
 export function sayEagle(event: EagleLineEvent, vars: Record<string, string | number> = {}) {
   if (typeof window === "undefined") return;
