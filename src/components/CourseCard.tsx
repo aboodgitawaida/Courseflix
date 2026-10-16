@@ -90,12 +90,9 @@ function Motif({ motif, accent }: { motif: string; accent: string }) {
 export const CourseCard = memo(function CourseCard({
   course,
   size = "md",
-  lite = false,
 }: {
   course: Course;
   size?: "md" | "lg";
-  /** Drop the floating sparks and embers, for screens that show dozens of cards at once. */
-  lite?: boolean;
 }) {
   const w = size === "lg" ? "w-[300px] md:w-[340px]" : "w-[240px] md:w-[280px]";
   const art = getArt(course.subject);
@@ -195,7 +192,7 @@ export const CourseCard = memo(function CourseCard({
       className={`tilt-card group relative shrink-0 ${w} cursor-pointer rounded-[20px] border ${rarity ? `rarity-card rarity-${rarity} border-transparent` : "border-white/[0.08]"} bg-surface overflow-hidden focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/70`}
     >
       <div className="tilt-glare" aria-hidden="true" />
-      {rarity && <RarityFx rarity={rarity} particles={!lite} />}
+      {rarity && <RarityFx rarity={rarity} />}
       {/* Outside the picture box so its panel can grow past the picture without being clipped. */}
       <div className="absolute top-9 left-2 z-[7] max-w-[calc(100%-1rem)]">
         <RedditSays info={rarityInfo} code={course.code} />
