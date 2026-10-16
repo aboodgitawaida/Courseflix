@@ -3,9 +3,24 @@ import { Feather, Skull, Sparkles } from "lucide-react";
 import { useBirdCourses } from "@/lib/ratings";
 import { getTiers } from "@/lib/tiers";
 import { CourseCard } from "@/components/CourseCard";
+import { useReveal } from "@/hooks/use-reveal";
+import type { Course } from "@/lib/courses";
 
 const SPARKLE_SPOTS = [6, 20, 34, 52, 68, 82, 93];
 const EMBER_SPOTS = [4, 15, 27, 41, 58, 71, 86, 95];
+
+/**
+ * One card in the grid. It fades up as it scrolls into view, like the rows on the rest of the
+ * page, and `content-visibility` lets the browser skip the cards that are off screen.
+ */
+function TierCard({ course, index }: { course: Course; index: number }) {
+  const ref = useReveal<HTMLDivElement>({ rootMargin: "0px 0px -6% 0px" });
+  return (
+    <div ref={ref} className="tier-card" style={{ transitionDelay: `${(index % 4) * 70}ms` }}>
+      <CourseCard course={course} lite />
+    </div>
+  );
+}
 
 /** Every bird course (gold) or danger-zone course (red), shown when its filter chip is picked. */
 export function TierView({ kind }: { kind: "bird" | "danger" }) {
@@ -13,6 +28,7 @@ export function TierView({ kind }: { kind: "bird" | "danger" }) {
   const tiers = useMemo(() => getTiers(birdMentions), [birdMentions]);
   const courses = kind === "bird" ? tiers.birds : tiers.danger;
   const bird = kind === "bird";
+  const headRef = useReveal<HTMLDivElement>();
 
   return (
     <section
@@ -33,7 +49,7 @@ export function TierView({ kind }: { kind: "bird" | "danger" }) {
           <span>{"DANGER ✕ ".repeat(24)}</span>
         </div>
       )}
-      <div className={`relative px-6 md:px-10 ${bird ? "" : "pt-6"}`}>
+      <div ref={headRef} className={`reveal relative px-6 md:px-10 ${bird ? "" : "pt-6"}`}>
         <p className="tier-eyebrow">
           {bird ? (
             <>
@@ -62,9 +78,9 @@ export function TierView({ kind }: { kind: "bird" | "danger" }) {
         </p>
       </div>
       {courses.length ? (
-        <div className="relative flex flex-wrap gap-x-5 gap-y-7 px-6 py-8 md:px-10">
-          {courses.map((c) => (
-            <CourseCard key={c.code} course={c} />
+        <div className="tier-grid relative flex flex-wrap px-5 py-6 md:px-9">
+          {courses.map((c, i) => (
+            <TierCard key={c.code} course={c} index={i} />
           ))}
         </div>
       ) : (
