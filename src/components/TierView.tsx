@@ -72,6 +72,7 @@ export function TierView({ kind }: { kind: "bird" | "danger" }) {
               index={i}
               gold={bird}
               danger={!bird}
+              progressive
               rail={{
                 title: row.title,
                 blurb: `${row.courses.length} ${bird ? "bird" : "danger zone"} course${row.courses.length === 1 ? "" : "s"}`,

@@ -1,9 +1,12 @@
-import { useRef, useState, memo, useMemo } from "react";
+import { useEffect, useRef, useState, memo, useMemo } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { COURSES, type Rail } from "@/lib/courses";
 import { CourseCard } from "./CourseCard";
 import { CourseCardSkeleton } from "./CourseCardSkeleton";
 import { useReveal } from "@/hooks/use-reveal";
+
+const FIRST_BATCH = 10;
+const NEXT_BATCH = 8;
 
 export const CourseRail = memo(function CourseRail({
   rail,
@@ -11,6 +14,7 @@ export const CourseRail = memo(function CourseRail({
   index = 0,
   gold = false,
   danger = false,
+  progressive = false,
 }: {
   rail: Rail;
   loading?: boolean;
@@ -18,6 +22,8 @@ export const CourseRail = memo(function CourseRail({
   gold?: boolean;
   /** Red, horror-styled row for the danger zone. */
   danger?: boolean;
+  /** Mount a few cards at first and the rest as the row is scrolled, for rows of 30+ cards. */
+  progressive?: boolean;
 }) {
   const ref = useRef<HTMLDivElement>(null);
   const [hover, setHover] = useState(false);
@@ -29,6 +35,26 @@ export const CourseRail = memo(function CourseRail({
       rail.codes.map((c) => COURSES.find((x) => x.code === c)).filter(Boolean) as typeof COURSES,
     [rail.codes],
   );
+
+  const [shown, setShown] = useState(progressive ? FIRST_BATCH : courses.length);
+  const sentinelRef = useRef<HTMLDivElement>(null);
+  const hasMore = progressive && shown < courses.length;
+  useEffect(() => {
+    const root = ref.current;
+    const sentinel = sentinelRef.current;
+    if (!hasMore || !root || !sentinel || typeof IntersectionObserver === "undefined") {
+      if (hasMore) setShown(courses.length);
+      return;
+    }
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries.some((e) => e.isIntersecting)) setShown((n) => n + NEXT_BATCH);
+      },
+      { root, rootMargin: "0px 700px 0px 0px" },
+    );
+    observer.observe(sentinel);
+    return () => observer.disconnect();
+  }, [hasMore, shown, courses.length]);
 
   const revealRef = useReveal<HTMLElement>();
   const number = String(index + 1).padStart(2, "0");
@@ -88,7 +114,8 @@ export const CourseRail = memo(function CourseRail({
         >
           {loading
             ? Array.from({ length: 6 }).map((_, i) => <CourseCardSkeleton key={`skeleton-${i}`} />)
-            : courses.map((c) => <CourseCard key={c.code} course={c} />)}
+            : courses.slice(0, shown).map((c) => <CourseCard key={c.code} course={c} />)}
+          {hasMore && <div ref={sentinelRef} aria-hidden="true" className="w-px shrink-0" />}
         </div>
       </div>
     </section>
