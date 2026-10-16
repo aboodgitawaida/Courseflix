@@ -17,6 +17,7 @@ export const EAGLE_MODES = [
   "celebrating",
   "trophy",
   "petting",
+  "annoyed",
   "openingBook",
   "reading",
   "openingGlass",
@@ -56,6 +57,8 @@ export const MODE_PRIORITY: Record<EagleMode, number> = {
   wakingUp: 2,
   startled: 2,
   petting: 2,
+  // Ignores further pets while he sulks, but a celebration can still cut in.
+  annoyed: 3,
   celebrating: 3,
   trophy: 3,
 };
@@ -68,6 +71,7 @@ export const MODE_DURATION_MS: Partial<Record<EagleMode, number>> = {
   celebrating: 1_400, // 10-frame victory cheer
   trophy: 2_000, // 11-frame trophy lift, for a new achievement
   petting: 900, // 8-frame head-bob
+  annoyed: 1_200, // 11-frame huff and ruffle, after being petted too much in a row
   openingBook: 900, // 6 frames: takes out the book
   openingGlass: 900, // 6 frames: takes out the magnifying glass
   openingScale: 900, // 6 frames: takes out the balance scale
@@ -113,6 +117,19 @@ const PUT_AWAY: Partial<Record<EagleMode, EagleMode>> = {
   writing: "closingQuill",
   grinding: "closingNotepad",
 };
+
+/** Petting him this many times within PET_SPAM_WINDOW_MS makes him annoyed. */
+export const PET_SPAM_COUNT = 6;
+export const PET_SPAM_WINDOW_MS = 5_000;
+
+/** The pets still inside the spam window, with the one at `now` added. */
+export function recentPets(times: number[], now: number): number[] {
+  return [...times.filter((t) => now - t < PET_SPAM_WINDOW_MS), now];
+}
+
+export function isPetSpam(times: number[]) {
+  return times.length >= PET_SPAM_COUNT;
+}
 
 export function isCelebration(mode: EagleMode) {
   return mode === "celebrating" || mode === "trophy";
