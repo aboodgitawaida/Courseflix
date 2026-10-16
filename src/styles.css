@@ -1475,6 +1475,26 @@
   padding: 6px 14px 6px 11px;
   font-size: 12px;
 }
+.reddit-says-btn {
+  cursor: pointer;
+  transition:
+    filter 0.2s ease,
+    transform 0.2s ease;
+}
+.reddit-says-btn:hover {
+  filter: brightness(1.18);
+  transform: translateY(-1px);
+}
+.reddit-says-btn:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 2px;
+}
+.reddit-says-info {
+  width: 1em;
+  height: 1em;
+  flex: none;
+  opacity: 0.65;
+}
 .reddit-says-icon {
   width: 1.15em;
   height: 1.15em;

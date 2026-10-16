@@ -179,7 +179,7 @@ function CoursePage() {
               {course.area} · {course.credits} credit{course.credits === 1 ? "" : "s"}
               {course.hours ? ` · ${course.hours}` : ""}
             </span>
-            <RedditSays info={rarityInfo} size="lg" />
+            <RedditSays info={rarityInfo} code={course.code} size="lg" />
           </div>
           <h1 className="mt-5 font-mega text-[clamp(2.8rem,9vw,8rem)] font-black leading-[0.9] tracking-[-0.05em]">
             <span className="word-mask">
