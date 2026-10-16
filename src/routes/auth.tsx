@@ -119,10 +119,7 @@ export function AuthPage() {
           },
         });
         if (error) throw error;
-        if (!data.session) {
-          setSent(true);
-          toast.success("Check your email to confirm your account.");
-        }
+        if (!data.session) toast.success("Check your email to confirm your account.");
       } else {
         const { error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
@@ -276,10 +273,6 @@ export function AuthPage() {
                 </button>
               </form>
             )
-          ) : sent ? (
-            <p className="text-sm text-brand">
-              We sent a confirmation link to {email}. Click it, then come back and sign in.
-            </p>
           ) : (
             <form onSubmit={onSubmit} className="space-y-3">
               {mode === "signup" && (
