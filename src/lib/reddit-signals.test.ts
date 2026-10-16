@@ -15,7 +15,7 @@ describe("getRedditSignal", () => {
   });
   it("ignores split opinions, thin evidence and unknown courses", () => {
     expect(getRedditSignal("MAT135")).toBeNull();
-    expect(getRedditSignal("ENG101")).toBeNull();
+    expect(getRedditSignal("PSY202")).toBeNull();
     expect(getRedditSignal("XXX999")).toBeNull();
   });
 });
