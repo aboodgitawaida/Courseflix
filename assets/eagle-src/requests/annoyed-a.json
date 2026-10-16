@@ -1,0 +1,8 @@
+{
+  "first_frame": "@assets/eagle-src/pixellab-base-awake.png",
+  "last_frame": "@assets/eagle-src/pixellab-base-awake.png",
+  "frame_count": 10,
+  "no_background": true,
+  "action": "annoyed after being petted too much while perched on the branch: the eagle puffs up all its feathers into a big ruffled round shape, shakes its whole body side to side sharply, glares forward with a grumpy stare, then slowly smooths its feathers back down and settles; feet stay gripping the branch",
+  "seed": 501
+}

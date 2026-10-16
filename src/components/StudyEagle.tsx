@@ -34,7 +34,10 @@ import {
   EAGLE_MODES as SPRITE_MODES,
   MODE_DURATION_MS,
   ambient,
+  isCelebration,
   isDozing,
+  isPetSpam,
+  recentPets,
   request,
   settle,
   type EagleContext,
@@ -65,6 +68,7 @@ const EAGLE_SHEETS = [
   "/eagle-celebrate.png",
   "/eagle-trophy.png",
   "/eagle-pet.png",
+  "/eagle-annoyed.png",
   "/eagle-fallasleep.png",
   "/eagle-wakeup.png",
   "/eagle-reading-open.png",
@@ -109,6 +113,9 @@ export function StudyEagle() {
   const [summaryRun, setSummaryRun] = useState(0);
   const [petCount, setPetCount] = useState(0);
   const [petKey, setPetKey] = useState(0);
+  // Bumped each time he gets fed up, so the sulk restarts from frame 1.
+  const [annoyedKey, setAnnoyedKey] = useState(0);
+  const petTimes = useRef<number[]>([]);
   // Bumped on every celebration so back-to-back ones restart the wing-flap.
   const [celebrateKey, setCelebrateKey] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
@@ -190,7 +197,7 @@ export function StudyEagle() {
       setMode(settle(mode, context.current, queued));
     }, duration);
     return () => window.clearTimeout(timer);
-  }, [mode, petKey, celebrateKey]);
+  }, [mode, petKey, celebrateKey, annoyedKey]);
 
   // Reading and grinding start and stop around whatever else is playing.
   useEffect(() => {
@@ -448,6 +455,17 @@ export function StudyEagle() {
     if (isDozing(modeRef.current)) {
       go("petting"); // only wakes him
       const line = takeLateNightLine() ?? pickEagleLine("wokenUp");
+      if (line) showStatus(line);
+      return;
+    }
+    // Mid-sulk (or mid-celebration) he ignores pets.
+    if (modeRef.current === "annoyed") return;
+    petTimes.current = recentPets(petTimes.current, Date.now());
+    if (isPetSpam(petTimes.current) && !isCelebration(modeRef.current)) {
+      petTimes.current = [];
+      setAnnoyedKey((key) => key + 1);
+      go("annoyed");
+      const line = pickEagleLine("petSpam");
       if (line) showStatus(line);
       return;
     }
@@ -797,7 +815,9 @@ export function StudyEagle() {
                     ? `${sprite}-${celebrateKey}`
                     : sprite === "petting"
                       ? `pet-${petKey}`
-                      : sprite
+                      : sprite === "annoyed"
+                        ? `annoyed-${annoyedKey}`
+                        : sprite
                 }
                 className={`study-eagle-sprite study-eagle-sprite-${sprite} ${
                   sprite === mode ? "is-active" : ""
