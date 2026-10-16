@@ -23,6 +23,7 @@ import { StudyEagle } from "@/components/StudyEagle";
 import { ProgramPickerSheet } from "@/components/ProgramPicker";
 import { MajorProfileSync } from "@/components/MajorProfileSync";
 import { INTRO_HEAD_SCRIPT } from "@/lib/intro";
+import { AUTH_HINT_HEAD_SCRIPT } from "@/lib/auth-hint";
 import { NetworkStatusBanner } from "@/components/NetworkStatusBanner";
 import { MobileTabBar } from "@/components/MobileTabBar";
 import { InstallPrompt } from "@/components/InstallPrompt";
@@ -165,10 +166,11 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
 
 function RootShell({ children }: { children: ReactNode }) {
   return (
-    // The intro script may add a class to <html> before hydration.
+    // The intro and auth-hint scripts may add classes/styles to <html> before hydration.
     <html lang="en" suppressHydrationWarning>
       <head>
         <script dangerouslySetInnerHTML={{ __html: INTRO_HEAD_SCRIPT }} />
+        <script dangerouslySetInnerHTML={{ __html: AUTH_HINT_HEAD_SCRIPT }} />
         <HeadContent />
       </head>
       <body>
