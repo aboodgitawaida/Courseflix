@@ -5,7 +5,9 @@ import {
   CalendarHeart,
   GraduationCap,
   LockKeyhole,
+  Share2,
   Trophy,
+  UserPlus,
 } from "lucide-react";
 import { TopNav } from "@/components/TopNav";
 import { PageBackdrop } from "@/components/PageBackdrop";
@@ -15,8 +17,16 @@ import { useAuth } from "@/hooks/use-auth";
 import { avatarSrc } from "@/lib/profile";
 import { getMajor } from "@/lib/majors";
 import { getCourse } from "@/lib/courses";
+import { useShortlist } from "@/lib/ratings";
 import { useFriendAchievements } from "@/lib/achievements";
-import { useFriendShortlist, useFriendships, usePublicProfile } from "@/lib/social";
+import { toast } from "sonner";
+import {
+  useFriendShortlist,
+  useFriendships,
+  usePublicProfile,
+  useRespondToRequest,
+  useSendFriendRequest,
+} from "@/lib/social";
 
 export const Route = createFileRoute("/profile/$id")({
   head: () => ({
@@ -71,28 +81,29 @@ function FriendProfilePage() {
             <div className="h-48 animate-pulse rounded-3xl bg-primary/10" />
           </div>
         ) : !canView ? (
-          <div className="mt-6 rounded-3xl glass p-8">
-            <LockKeyhole className="h-7 w-7 text-brand" />
-            <h1 className="mt-4 font-display text-3xl font-bold">Friends only</h1>
-            <p className="mt-2 max-w-lg text-sm text-muted-foreground">
-              Profiles are visible once you've added each other as friends.
-            </p>
-            <Link
-              to="/friends"
-              className="mt-6 inline-flex rounded-full bg-brand px-5 py-2.5 text-sm font-semibold text-primary-foreground transition hover:bg-brand-glow"
-            >
-              Find friends
-            </Link>
-          </div>
+          <LockedProfile
+            userId={id}
+            pendingOut={Boolean(friendships?.outgoing.some((row) => row.addressee_id === id))}
+            incomingId={friendships?.incoming.find((row) => row.requester_id === id)?.id ?? null}
+          />
         ) : (
-          <ProfileBody userId={id} friendsSince={friendship?.created_at ?? null} />
+          <ProfileBody userId={id} isSelf={isSelf} friendsSince={friendship?.created_at ?? null} />
         )}
       </main>
     </div>
   );
 }
 
-function ProfileBody({ userId, friendsSince }: { userId: string; friendsSince: string | null }) {
+function ProfileBody({
+  userId,
+  isSelf,
+  friendsSince,
+}: {
+  userId: string;
+  isSelf: boolean;
+  friendsSince: string | null;
+}) {
+  const { data: mine = [] } = useShortlist();
   const profile = usePublicProfile(userId);
   const shortlist = useFriendShortlist(userId);
   const achievements = useFriendAchievements(userId);
@@ -115,6 +126,22 @@ function ProfileBody({ userId, friendsSince }: { userId: string; friendsSince: s
   const major = getMajor(p.major_id);
   const codes = shortlist.data ?? [];
   const earned = (achievements.data ?? []).filter((a) => a.unlocked);
+  const mineSet = new Set(mine);
+  const common = isSelf ? [] : codes.filter((code) => mineSet.has(code));
+
+  async function copyInvite() {
+    const url = `${window.location.origin}/profile/${userId}`;
+    try {
+      if (navigator.share) {
+        await navigator.share({ title: "Add me on Courseflix", url });
+      } else {
+        await navigator.clipboard.writeText(url);
+        toast.success("Invite link copied — send it to a classmate");
+      }
+    } catch {
+      // Share sheet dismissed.
+    }
+  }
 
   return (
     <>
@@ -171,6 +198,48 @@ function ProfileBody({ userId, friendsSince }: { userId: string; friendsSince: s
           />
         </div>
       </section>
+
+      {isSelf && (
+        <div className="mt-4 flex flex-wrap items-center gap-3 rounded-2xl glass p-4">
+          <p className="min-w-0 flex-1 text-sm text-muted-foreground">
+            This is how friends see you. Share your link so classmates can add you in one tap.
+          </p>
+          <button
+            onClick={() => void copyInvite()}
+            className="inline-flex items-center gap-1.5 rounded-full bg-brand px-4 py-2 text-sm font-semibold text-primary-foreground transition hover:bg-brand-glow"
+          >
+            <Share2 className="h-4 w-4" /> Share invite link
+          </button>
+          <Link
+            to="/settings"
+            hash="profile"
+            className="inline-flex rounded-full border border-border/60 px-4 py-2 text-sm font-semibold transition hover:border-brand/50"
+          >
+            Edit profile
+          </Link>
+        </div>
+      )}
+
+      {common.length > 0 && (
+        <section className="mt-8">
+          <h2 className="font-display text-2xl">In common</h2>
+          <p className="mt-1 text-sm text-muted-foreground">
+            You've both shortlisted {common.length} course{common.length === 1 ? "" : "s"}.
+          </p>
+          <div className="mt-3 flex flex-wrap gap-2">
+            {common.map((code) => (
+              <Link
+                key={code}
+                to="/course/$code"
+                params={{ code }}
+                className="rounded-full border border-brand/50 bg-brand/10 px-3 py-1.5 text-xs font-bold text-brand transition hover:bg-brand/20"
+              >
+                {code}
+              </Link>
+            ))}
+          </div>
+        </section>
+      )}
 
       <section className="mt-8">
         <h2 className="font-display text-2xl">Shortlist</h2>
@@ -260,6 +329,94 @@ function Stat({
       <div className="font-mega text-2xl font-black text-brand">{value}</div>
       <div className="mt-0.5 inline-flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
         {icon} {label}
+      </div>
+    </div>
+  );
+}
+
+function LockedProfile({
+  userId,
+  pendingOut,
+  incomingId,
+}: {
+  userId: string;
+  pendingOut: boolean;
+  incomingId: string | null;
+}) {
+  const profile = usePublicProfile(userId);
+  const send = useSendFriendRequest();
+  const respond = useRespondToRequest();
+  const p = profile.data;
+  const major = getMajor(p?.major_id ?? null);
+  const name = p?.display_name ?? "This student";
+
+  async function add() {
+    try {
+      await send.mutateAsync(userId);
+      toast.success(`Friend request sent to ${name}`);
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Could not send request");
+    }
+  }
+
+  return (
+    <div className="mt-6 rounded-3xl glass p-8">
+      {p ? (
+        <div className="flex flex-wrap items-center gap-4">
+          <img
+            src={avatarSrc(p.avatar_id)}
+            alt=""
+            width={72}
+            height={72}
+            className="h-[72px] w-[72px] rounded-full border border-border/60 bg-surface-2 object-contain"
+          />
+          <div className="min-w-0">
+            <h1 className="truncate font-display text-3xl font-bold">
+              {p.display_name}
+              {p.is_verified && <VerifiedBadge className="ml-2 h-5 w-5 align-middle" />}
+            </h1>
+            <p className="text-sm text-muted-foreground">
+              {p.username ? `@${p.username}` : ""}
+              {major ? ` · ${major.emoji} ${major.name}` : ""}
+            </p>
+          </div>
+        </div>
+      ) : (
+        <LockKeyhole className="h-7 w-7 text-brand" />
+      )}
+      <p className="mt-4 max-w-lg text-sm text-muted-foreground">
+        <LockKeyhole className="mr-1 inline h-3.5 w-3.5 -translate-y-px" />
+        Shortlists and achievements are visible once you've added each other as friends.
+      </p>
+      <div className="mt-6">
+        {incomingId ? (
+          <button
+            disabled={respond.isPending}
+            onClick={() => respond.mutate({ id: incomingId, accept: true })}
+            className="inline-flex items-center gap-1.5 rounded-full bg-brand px-5 py-2.5 text-sm font-semibold text-primary-foreground transition hover:bg-brand-glow disabled:opacity-60"
+          >
+            <UserPlus className="h-4 w-4" /> Accept friend request
+          </button>
+        ) : pendingOut || send.isSuccess ? (
+          <span className="inline-flex rounded-full border border-border/60 px-5 py-2.5 text-sm font-semibold text-muted-foreground">
+            Request pending
+          </span>
+        ) : p ? (
+          <button
+            disabled={send.isPending}
+            onClick={() => void add()}
+            className="inline-flex items-center gap-1.5 rounded-full bg-brand px-5 py-2.5 text-sm font-semibold text-primary-foreground transition hover:bg-brand-glow disabled:opacity-60"
+          >
+            <UserPlus className="h-4 w-4" /> Add friend
+          </button>
+        ) : (
+          <Link
+            to="/friends"
+            className="inline-flex rounded-full bg-brand px-5 py-2.5 text-sm font-semibold text-primary-foreground transition hover:bg-brand-glow"
+          >
+            Find friends
+          </Link>
+        )}
       </div>
     </div>
   );

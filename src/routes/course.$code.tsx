@@ -3,6 +3,7 @@ import { TopNav } from "@/components/TopNav";
 import { CourseCard } from "@/components/CourseCard";
 import { RatingSection } from "@/components/RatingSection";
 import { PrereqTree } from "@/components/PrereqTree";
+import { FriendsOnCourse } from "@/components/FriendsOnCourse";
 import { COURSES, getCourse } from "@/lib/courses";
 import { useAuth } from "@/hooks/use-auth";
 import { useCourseStats, useShortlist, useToggleShortlist } from "@/lib/ratings";
@@ -282,6 +283,7 @@ function CoursePage() {
         </div>
 
         <aside className="space-y-8 md:sticky md:top-24 md:self-start">
+          <FriendsOnCourse code={course.code} />
           <div>
             <div className="flex items-center gap-2 mb-3">
               <GraduationCap className="h-5 w-5 text-brand" />

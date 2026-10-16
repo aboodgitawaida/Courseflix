@@ -6,8 +6,8 @@
   pixellab-celebrate.png      PixelLab animation from the awake frame: wing-flap (8 x 80x80); no longer
                               shown, but still part of the shared palette and frame size
   pixellab-celebrate-cheer.png PixelLab animation from the awake frame: victory cheer, wings flung up (10 x 80x80)
-  pixellab-trophy.png         PixelLab animation from the awake frame: lifts a gold trophy, it gleams (11 x 80x80;
-                              variant E, seed 322, of pixellab-trophy-{a..f}_N.png)
+  pixellab-trophy.png         PixelLab animation from the awake frame: lifts a gold trophy (11 x 80x80;
+                              variant E, seed 322, of pixellab-trophy-{a,b,c}_N.png)
   pixellab-pet.png            PixelLab animation from the awake frame: happy head-bob (8 x 80x80)
   pixellab-fallasleep.png     PixelLab animation, awake frame -> sleep frame 1: a yawn, then the head sinks (8 x 80x80)
   pixellab-wakeup.png         PixelLab animation, sleep frame 1 -> awake frame: head up, wing stretch (8 x 80x80)
@@ -566,14 +566,169 @@ for f in cheer80:
     f[:y0] = 0; f[y1:] = 0; f[:, x1:] = 0
 celebrate80 = cheer80
 
-# The achievement trophy, also kept exactly as PixelLab drew it (same treatment as the cheer).
-trophy80 = [shift(f) for f in (lambda sheet: [sheet[:, 80 * i:80 * i + 80].copy()
-              for i in range(sheet.shape[1] // 80)])(
-                  np.asarray(Image.open(SRC / "pixellab-trophy.png").convert("RGBA")))]
+BRANCH_TOP = 55
+
+
+def is_foot_px(f):
+    rgb = f[..., :3].astype(int)
+    return (f[..., 3] > 0) & (rgb[..., 0] > 150) & (rgb[..., 1] > 90) & (rgb[..., 2] < 90) & (rgb[..., 0] > rgb[..., 1] + 25)
+
+
+_fx = np.nonzero(is_foot_px(awake80)[BRANCH_TOP - 4:].any(0))[0]
+FOOT = (_fx.min(), _fx.max())
+
+
+# The achievement trophy (PixelLab variant E), kept as drawn. PixelLab washed the whole
+# eagle lighter and the moss lime green in the middle frames (a lighting shift), so the
+# eagle and branch snap to the shared eagle palette like every other sheet, and only the
+# gold of the trophy and its sparkles gets extra colours of its own. The branch below the
+# feet is the awake frame's, as for the other sheets.
+def trophy_gold(f):
+    """Bright, saturated gold: the trophy and its sparkles (not lit feathers or the beak)."""
+    rgb = f[..., :3].astype(int)
+    return (f[..., 3] > 0) & (rgb[..., 0] > 200) & (rgb[..., 1] > 172) & (rgb[..., 2] < 120)
+
+
+def brown_mask(f):
+    rgb = f[..., :3].astype(int)
+    warm_gold = (rgb[..., 0] > 180) & (rgb[..., 1] > 110) & (rgb[..., 2] < 150)
+    green = (rgb[..., 1] > rgb[..., 0] + 8) & (rgb[..., 1] > rgb[..., 2] + 8)
+    brown = (rgb[..., 0] - rgb[..., 2] > 12)      # not the grey of the head's shading
+    return (f[..., 3] > 0) & (rgb.max(-1) < 170) & ~warm_gold & ~green & brown
+
+
+def match_brightness(f, ref_lum):
+    """Undo PixelLab's lighting shift: give the frame's brown feathers and wood the same
+    brightness distribution as the awake eagle (a rank match; the shading stays as drawn)."""
+    f = f.copy(); m = brown_mask(f)
+    rgb = f[m][:, :3].astype(float)
+    lum = rgb @ np.array([0.299, 0.587, 0.114])
+    order = lum.argsort()
+    target = np.interp(np.linspace(0, 1, len(lum)), np.linspace(0, 1, len(ref_lum)), ref_lum)
+    new = np.empty_like(lum); new[order] = target
+    f[m, :3] = (rgb * (new / np.maximum(lum, 1))[:, None]).clip(0, 255).round().astype(np.uint8)
+    return f
+
+
+def head_mask(f):
+    """The white head: the biggest blob of near-white pixels in the top of the frame."""
+    rgb = f[..., :3].astype(int)
+    white = (f[..., 3] > 0) & (rgb.min(-1) > 195)
+    white[48:] = False
+    seen = np.zeros_like(white); best = []
+    for y, x in zip(*np.nonzero(white)):
+        if seen[y, x]: continue
+        comp, q = [], deque([(y, x)]); seen[y, x] = True
+        while q:
+            cy, cx = q.popleft(); comp.append((cy, cx))
+            for ny in (cy - 1, cy, cy + 1):
+                for nx in (cx - 1, cx, cx + 1):
+                    if 0 <= ny < 80 and 0 <= nx < 80 and white[ny, nx] and not seen[ny, nx]:
+                        seen[ny, nx] = True; q.append((ny, nx))
+        if len(comp) > len(best): best = comp
+    m = np.zeros_like(white)
+    for cy, cx in best: m[cy, cx] = True
+    return m
+
+
+def beak_zone(f):
+    """Where the beak is: just in front of and below the middle of the white head."""
+    ys, xs = np.nonzero(head_mask(f))
+    z = np.zeros(f.shape[:2], bool)
+    z[int(ys.mean()) - 3:ys.max() + 4, xs.max() - 4:xs.max() + 8] = True
+    return z
+
+
+def match_head(f, ref_rgb):
+    """PixelLab drew the head pure white (a glow) in the lifting frames; give it back the
+    awake head's tones, by rank so the shading stays as drawn."""
+    f = f.copy(); m = head_mask(f)
+    lum = f[m][:, :3].astype(float) @ np.array([0.299, 0.587, 0.114])
+    order = lum.argsort()
+    idx = np.interp(np.linspace(0, 1, len(lum)), np.linspace(0, 1, len(ref_rgb)), np.arange(len(ref_rgb))).round().astype(int)
+    new = np.empty((len(lum), 3), np.uint8); new[order] = ref_rgb[idx]
+    f[m, :3] = new
+    return f
+
+
+LUM = np.array([0.299, 0.587, 0.114])
+
+
+def rank_recolour(f, mask, ref_rgb):
+    """Give the masked pixels the reference colours, assigned by brightness rank. Any tint
+    PixelLab added (amber highlights, a yellow wash) goes; the shading stays as drawn."""
+    if mask.sum() == 0 or len(ref_rgb) == 0:
+        return
+    lum = f[mask][:, :3].astype(float) @ LUM
+    order = lum.argsort()
+    # only the reference's main tones: its rare tints would scatter as speckles
+    cols, counts = np.unique(ref_rgb, axis=0, return_counts=True)
+    ref_rgb = np.repeat(cols[counts >= max(1, 0.03 * len(ref_rgb))], counts[counts >= max(1, 0.03 * len(ref_rgb))], axis=0)
+    ref = ref_rgb[(ref_rgb.astype(float) @ LUM).argsort(kind="stable")]
+    idx = np.interp(np.linspace(0, 1, len(lum)), np.linspace(0, 1, len(ref)), np.arange(len(ref))).round().astype(int)
+    new = np.empty((len(lum), 3), np.uint8); new[order] = ref[idx]
+    f[mask, :3] = new
+
+
+def eagle_regions(f):
+    """Masks for the parts of the eagle whose colour must match the awake frame."""
+    head = head_mask(f)
+    rgb = f[..., :3].astype(int)
+    warm = (f[..., 3] > 0) & (rgb[..., 0] > 190) & (rgb[..., 1] > 100) & (rgb[..., 2] < 110) & (rgb[..., 0] > rgb[..., 1] + 25)
+    beak = warm & beak_zone(f) & ~trophy_gold(f)
+    feet = is_foot_px(f) & ~beak
+    feet[:BRANCH_TOP - 4] = False; feet[:, :FOOT[0] - 3] = False; feet[:, FOOT[1] + 4:] = False
+    body = brown_mask(f) & ~head & ~beak & ~feet
+    return {"body": body, "head": head, "beak": beak, "feet": feet}
+
+
+AWAKE_REGIONS = None
+
+
+def grade_to_awake(f):
+    """Re-colour the eagle (not the trophy) from the awake frame's own colours."""
+    global AWAKE_REGIONS
+    if AWAKE_REGIONS is None:
+        AWAKE_REGIONS = {k: awake80[m][:, :3] for k, m in eagle_regions(awake80).items()}
+    f = f.copy()
+    for name, mask in eagle_regions(f).items():
+        rank_recolour(f, mask, AWAKE_REGIONS[name])
+    return f
+
+
+def snap_trophy(frames, k=8):
+    zones = [beak_zone(f) for f in frames]      # measured before the eagle is re-coloured
+    frames = [grade_to_awake(f) for f in frames]
+    gold = trophy_gold
+    px = np.concatenate([f[gold(f) & ~z][:, :3].astype(float) for f, z in zip(frames, zones)])
+    nearest = ((px[:, None] - c2[None]) ** 2).sum(2).min(1)
+    extra = kmeans(px[nearest > 900], k, 2).astype(int)
+    out = []
+    for f, z in zip(frames, zones):
+        f = f.copy(); a = f[..., 3] > 0; g = gold(f) & ~z   # the beak snaps to the eagle palette
+        rows = np.arange(80)[:, None, None]
+        base_d = ((f[..., None, :3].astype(int) - c2[None, None]) ** 2).sum(-1)
+        base_d = np.where((rows < LOCK - 2) & GREEN[None, None], 1 << 30, base_d)
+        body = c2[base_d.argmin(-1)]
+        pal = np.concatenate([c2, extra])
+        gd = ((f[..., None, :3].astype(int) - pal[None, None]) ** 2).sum(-1)
+        f[..., :3] = np.where(g[..., None], pal[gd.argmin(-1)], body)
+        f[..., 3] = np.where(a, 255, 0)
+        out.append(f)
+    return out
+
+
+trophy80 = snap_trophy(pixellab_frames("trophy"))
 for f in trophy80:
     f[LOCK:] = awake80[LOCK:]
-trophy80 = snap_extra(trophy80)
-for f in trophy80:
+    f[BRANCH_TOP:LOCK] = np.where((f[BRANCH_TOP:LOCK, :, 3:4] > 0) & ~(is_foot_px(f[BRANCH_TOP:LOCK])[..., None]),
+                                  awake80[BRANCH_TOP:LOCK], f[BRANCH_TOP:LOCK])
+    # PixelLab lit the far end of the branch orange in the middle frames; put the wood back
+    lit = (f[..., 3] > 0) & ~trophy_gold(f)
+    rgbf = f[..., :3].astype(int)
+    lit &= (rgbf[..., 0] > 150) & (rgbf[..., 0] > rgbf[..., 2] + 60)
+    lit[:BRANCH_TOP - 4] = False; lit[:, FOOT[0] - 3:FOOT[1] + 4] = False
+    f[lit] = awake80[lit]
     f[:y0] = 0; f[y1:] = 0; f[:, x1:] = 0
 Image.fromarray(finish(trophy80), "RGBA").save(OUT / "eagle-trophy.png", optimize=True)
 
