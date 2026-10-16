@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { ambient, request, settle, type EagleContext } from "./eagle-state";
+import { MODE_DURATION_MS, ambient, request, settle, type EagleContext } from "./eagle-state";
 
 const idle: EagleContext = {
   reading: false,
@@ -42,6 +42,19 @@ describe("eagle state machine", () => {
     expect(request("celebrating", "grinding")).toBeNull();
     expect(request("petting", "celebrating")?.mode).toBe("celebrating");
     expect(request("celebrating", "celebrating")?.mode).toBe("celebrating"); // restarts
+  });
+
+  it("treats the achievement trophy like a celebration", () => {
+    expect(request("trophy", "petting")).toBeNull();
+    expect(request("trophy", "grinding")).toBeNull();
+    expect(request("petting", "trophy")?.mode).toBe("trophy");
+    expect(request("awake", "trophy")?.mode).toBe("trophy");
+    expect(request("sleeping", "trophy")).toEqual({ mode: "wakingUp", queued: "trophy" });
+    expect(request("startled", "trophy")).toEqual({ mode: "startled", queued: "trophy" });
+    expect(settle("trophy", idle)).toBe("awake");
+    expect(settle("trophy", typing)).toBe("grinding");
+    expect(settle("wakingUp", idle, "trophy")).toBe("trophy");
+    expect(MODE_DURATION_MS.trophy).toBe(2_000);
   });
 
   it("drops grinding while he's being petted", () => {

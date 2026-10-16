@@ -114,11 +114,13 @@ export async function createAchievementNotifications(ids: string[]) {
     return; // another tab announced them first
   }
   if (newIds.length === 1) {
-    celebrateEagleWith("achievement", {
-      name: achievementDefinition(newIds[0])?.name ?? "a new badge",
-    });
+    celebrateEagleWith(
+      "achievement",
+      { name: achievementDefinition(newIds[0])?.name ?? "a new badge" },
+      "trophy",
+    );
   } else {
-    celebrateEagleWith("achievements", { count: newIds.length });
+    celebrateEagleWith("achievements", { count: newIds.length }, "trophy");
   }
 }
 

@@ -1,0 +1,8 @@
+{
+  "first_frame": "@assets/eagle-src/pixellab-base-awake.png",
+  "last_frame": "@assets/eagle-src/pixellab-base-awake.png",
+  "frame_count": 10,
+  "no_background": true,
+  "action": "trophy reveal: a golden trophy cup rises up in front of the eagle, the eagle grabs it with both talons and lifts it above its head with a proud look, the trophy glows and gleams with a bright flash of light and sparkles, holds it triumphantly for a moment, then sets it down out of view and settles back; feet stay gripping the branch",
+  "seed": 313
+}

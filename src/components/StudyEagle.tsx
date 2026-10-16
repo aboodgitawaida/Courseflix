@@ -63,6 +63,7 @@ const EAGLE_SHEETS = [
   "/eagle-awake.png",
   "/eagle-sleep.png",
   "/eagle-celebrate.png",
+  "/eagle-trophy.png",
   "/eagle-pet.png",
   "/eagle-fallasleep.png",
   "/eagle-wakeup.png",
@@ -288,7 +289,8 @@ export function StudyEagle() {
       setReply(EAGLE_REPLIES[0]);
     };
     const onCelebration = (event: Event) => {
-      const { message } = (event as CustomEvent<{ message?: string }>).detail ?? {};
+      const { message, animation } =
+        (event as CustomEvent<{ message?: string; animation?: "trophy" }>).detail ?? {};
       setActivityVersion((version) => version + 1);
       if (message) showStatus(message);
       if (isCompact() && !revealedRef.current) {
@@ -303,7 +305,7 @@ export function StudyEagle() {
         }, POP_OUT_MS);
       }
       setCelebrateKey((key) => key + 1);
-      go("celebrating");
+      go(animation === "trophy" ? "trophy" : "celebrating");
     };
     window.addEventListener("study-eagle-summarize", onSummary);
     window.addEventListener("study-eagle-clear", onClearSummary);
@@ -791,8 +793,8 @@ export function StudyEagle() {
             {SPRITE_MODES.map((sprite) => (
               <span
                 key={
-                  sprite === "celebrating"
-                    ? `celebrate-${celebrateKey}`
+                  sprite === "celebrating" || sprite === "trophy"
+                    ? `${sprite}-${celebrateKey}`
                     : sprite === "petting"
                       ? `pet-${petKey}`
                       : sprite
