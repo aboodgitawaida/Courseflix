@@ -105,9 +105,10 @@ export function ProfileMenu() {
       <DropdownMenuContent align="end" className="w-72 p-1.5">
         <DropdownMenuLabel className="p-0">
           <Link
-            to="/settings"
-            hash="profile"
+            to="/profile/$id"
+            params={{ id: user?.id ?? "" }}
             onClick={() => setOpen(false)}
+            aria-label="View your profile"
             className="flex items-center gap-3 rounded-lg p-2 font-normal transition hover:bg-white/[0.06]"
           >
             {avatarReady ? (
@@ -160,8 +161,13 @@ export function ProfileMenu() {
         <DropdownMenuGroup>
           <DropdownMenuLabel className={groupLabel}>You</DropdownMenuLabel>
           <DropdownMenuItem asChild>
+            <Link to="/profile/$id" params={{ id: user?.id ?? "" }}>
+              <User className="mr-2 h-4 w-4" /> View my profile
+            </Link>
+          </DropdownMenuItem>
+          <DropdownMenuItem asChild>
             <Link to="/settings" hash="profile">
-              <User className="mr-2 h-4 w-4" /> Profile
+              <Settings className="mr-2 h-4 w-4" /> Edit profile
             </Link>
           </DropdownMenuItem>
           <DropdownMenuItem asChild>

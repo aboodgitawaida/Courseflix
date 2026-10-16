@@ -184,22 +184,29 @@ function FriendsPage() {
                               : "Add";
                       return (
                         <div key={p.id} className="flex items-center gap-3 rounded-xl glass p-3">
-                          <img
-                            src={avatarSrc(p.avatar_id)}
-                            alt=""
-                            width={40}
-                            height={40}
-                            className="h-10 w-10 rounded-full object-contain"
-                          />
-                          <div className="min-w-0 flex-1">
-                            <div className="truncate text-sm font-semibold">
-                              {p.display_name}
-                              {p.is_verified && <VerifiedBadge className="ml-1 h-4 w-4" />}
+                          <Link
+                            to="/profile/$id"
+                            params={{ id: p.id }}
+                            aria-label={`View ${p.display_name}'s profile`}
+                            className="group flex min-w-0 flex-1 items-center gap-3"
+                          >
+                            <img
+                              src={avatarSrc(p.avatar_id)}
+                              alt=""
+                              width={40}
+                              height={40}
+                              className="h-10 w-10 rounded-full object-contain"
+                            />
+                            <div className="min-w-0 flex-1">
+                              <div className="truncate text-sm font-semibold transition group-hover:text-brand">
+                                {p.display_name}
+                                {p.is_verified && <VerifiedBadge className="ml-1 h-4 w-4" />}
+                              </div>
+                              <div className="truncate text-xs text-muted-foreground">
+                                {p.username ? `@${p.username}` : "no username yet"}
+                              </div>
                             </div>
-                            <div className="truncate text-xs text-muted-foreground">
-                              {p.username ? `@${p.username}` : "no username yet"}
-                            </div>
-                          </div>
+                          </Link>
                           <button
                             onClick={() => void add(p.id)}
                             disabled={disabled}
@@ -227,17 +234,24 @@ function FriendsPage() {
                     const p = people?.get(r.requester_id);
                     return (
                       <div key={r.id} className="flex items-center gap-3 rounded-xl glass p-3">
-                        <img
-                          src={avatarSrc(p?.avatar_id)}
-                          alt=""
-                          width={40}
-                          height={40}
-                          className="h-10 w-10 rounded-full object-contain"
-                        />
-                        <div className="min-w-0 flex-1 truncate text-sm font-semibold">
-                          {p?.display_name ?? "A student"}
-                          {p?.is_verified && <VerifiedBadge className="ml-1 h-4 w-4" />}
-                        </div>
+                        <Link
+                          to="/profile/$id"
+                          params={{ id: r.requester_id }}
+                          aria-label={`View ${p?.display_name ?? "this student"}'s profile`}
+                          className="group flex min-w-0 flex-1 items-center gap-3"
+                        >
+                          <img
+                            src={avatarSrc(p?.avatar_id)}
+                            alt=""
+                            width={40}
+                            height={40}
+                            className="h-10 w-10 rounded-full object-contain"
+                          />
+                          <div className="min-w-0 flex-1 truncate text-sm font-semibold transition group-hover:text-brand">
+                            {p?.display_name ?? "A student"}
+                            {p?.is_verified && <VerifiedBadge className="ml-1 h-4 w-4" />}
+                          </div>
+                        </Link>
                         <button
                           disabled={respond.isPending}
                           onClick={() => respond.mutate({ id: r.id, accept: true })}
