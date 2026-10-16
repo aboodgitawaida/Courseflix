@@ -1489,11 +1489,113 @@
   outline: 2px solid currentColor;
   outline-offset: 2px;
 }
-.reddit-says-info {
+.reddit-says-chevron {
   width: 1em;
   height: 1em;
   flex: none;
-  opacity: 0.65;
+  opacity: 0.7;
+  transition: transform 0.25s ease;
+}
+.reddit-says-chevron.is-open {
+  transform: rotate(180deg);
+}
+.reddit-says-wrap {
+  position: relative;
+  display: inline-flex;
+  max-width: 100%;
+}
+.reddit-says-wrap .reddit-says {
+  max-width: none;
+}
+.reddit-says-panel-sm .reddit-says-note {
+  display: none;
+}
+.reddit-says-panel {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  z-index: 30;
+  width: 13.75rem;
+  max-width: calc(100vw - 2rem);
+  border: 1px solid;
+  border-radius: 16px;
+  padding: 10px 12px 11px;
+  font-size: 11px;
+  line-height: 1.45;
+  color: rgb(255 255 255 / 0.82);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  transform-origin: top left;
+  animation: reddit-says-open 0.28s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.reddit-says-panel-lg {
+  width: 22rem;
+  padding: 14px 16px 15px;
+  font-size: 13px;
+}
+.reddit-says-panel-gold {
+  border-color: rgb(251 191 36 / 0.6);
+  background: rgb(28 18 2 / 0.98);
+  box-shadow: 0 8px 28px -8px rgb(251 191 36 / 0.45);
+}
+.reddit-says-panel-red {
+  border-color: rgb(248 113 113 / 0.55);
+  background: rgb(36 6 6 / 0.98);
+  box-shadow: 0 8px 28px -8px rgb(239 68 68 / 0.5);
+}
+.reddit-says-panel b {
+  color: #fff;
+}
+.reddit-says-panel p + p,
+.reddit-says-panel p + .reddit-says-bar {
+  margin-top: 8px;
+}
+.reddit-says-panel-title {
+  margin-bottom: 6px;
+  font-size: 0.85em;
+  font-weight: 800;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: #fff;
+}
+.reddit-says-bar {
+  display: flex;
+  height: 8px;
+  overflow: hidden;
+  border-radius: 9999px;
+  background: rgb(255 255 255 / 0.12);
+}
+.reddit-says-bar-easy {
+  background: #fbbf24;
+}
+.reddit-says-bar-hard {
+  background: #ef4444;
+}
+.reddit-says-counts {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 5px;
+  font-size: 0.92em;
+  font-variant-numeric: tabular-nums;
+  color: rgb(255 255 255 / 0.7);
+}
+.reddit-says-note {
+  font-size: 0.88em;
+  color: rgb(255 255 255 / 0.5);
+}
+@keyframes reddit-says-open {
+  from {
+    opacity: 0;
+    transform: translateY(-6px) scale(0.92);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .reddit-says-panel {
+    animation: none;
+  }
+  .reddit-says-chevron {
+    transition: none;
+  }
 }
 .reddit-says-icon {
   width: 1.15em;

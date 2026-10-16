@@ -193,6 +193,10 @@ export const CourseCard = memo(function CourseCard({
     >
       <div className="tilt-glare" aria-hidden="true" />
       {rarity && <RarityFx rarity={rarity} />}
+      {/* Outside the picture box so its panel can grow past the picture without being clipped. */}
+      <div className="absolute top-9 left-2 z-[7] max-w-[calc(100%-1rem)]">
+        <RedditSays info={rarityInfo} code={course.code} />
+      </div>
       <div className={`course-card-art relative aspect-video bg-gradient-to-br ${art.gradient}`}>
         <img
           src={imageSrc}
@@ -208,7 +212,6 @@ export const CourseCard = memo(function CourseCard({
         <div className="absolute top-2 left-2 z-[5] rounded-lg border border-white/[0.12] bg-white/[0.08] px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-white/80">
           {course.area}
         </div>
-        <RedditSays info={rarityInfo} code={course.code} className="absolute top-9 left-2 z-[7]" />
 
         <div className="absolute top-2 right-2 z-[5] flex items-center gap-1.5 transition lg:opacity-0 lg:group-hover:opacity-100 lg:focus-within:opacity-100">
           <button
