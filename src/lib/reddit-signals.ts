@@ -6,7 +6,13 @@ export const REDDIT_MIN_VOTES = 10;
 export const REDDIT_EASY_SHARE = 0.85;
 export const REDDIT_HARD_SHARE = 0.8;
 
-export type RedditSignal = { kind: "easy" | "hard"; percent: number; votes: number };
+export type RedditSignal = {
+  kind: "easy" | "hard";
+  percent: number;
+  votes: number;
+  easy: number;
+  hard: number;
+};
 
 const COUNTS = data.courses as unknown as Record<string, [number, number]>;
 
@@ -20,9 +26,9 @@ export function getRedditSignal(code: string): RedditSignal | null {
   const votes = easy + hard;
   if (votes < REDDIT_MIN_VOTES) return null;
   if (easy / votes >= REDDIT_EASY_SHARE)
-    return { kind: "easy", percent: Math.round((100 * easy) / votes), votes };
+    return { kind: "easy", percent: Math.round((100 * easy) / votes), votes, easy, hard };
   if (hard / votes >= REDDIT_HARD_SHARE)
-    return { kind: "hard", percent: Math.round((100 * hard) / votes), votes };
+    return { kind: "hard", percent: Math.round((100 * hard) / votes), votes, easy, hard };
   return null;
 }
 

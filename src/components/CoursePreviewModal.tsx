@@ -102,7 +102,7 @@ export function CoursePreviewModal() {
               )}
               <div className="absolute inset-x-0 bottom-0 z-[5] h-2/3 bg-gradient-to-t from-[#121216] via-[#121216]/70 to-transparent" />
               <div className="absolute inset-x-0 bottom-0 z-[5] p-6">
-                <RedditSays info={rarityInfo} size="lg" className="mb-3" />
+                <RedditSays info={rarityInfo} code={course.code} size="lg" className="mb-3" />
                 <DialogTitle
                   className={`font-mega text-4xl font-black tracking-[-0.05em] md:text-6xl ${rarity ? "rarity-title" : ""}`}
                 >

@@ -208,7 +208,7 @@ export const CourseCard = memo(function CourseCard({
         <div className="absolute top-2 left-2 z-[5] rounded-lg border border-white/[0.12] bg-white/[0.08] px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-white/80">
           {course.area}
         </div>
-        <RedditSays info={rarityInfo} className="absolute top-9 left-2 z-[7]" />
+        <RedditSays info={rarityInfo} code={course.code} className="absolute top-9 left-2 z-[7]" />
 
         <div className="absolute top-2 right-2 z-[5] flex items-center gap-1.5 transition lg:opacity-0 lg:group-hover:opacity-100 lg:focus-within:opacity-100">
           <button
