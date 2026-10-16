@@ -2,19 +2,15 @@ import { COURSES, type Course } from "@/lib/courses";
 import { BIRD_COURSE_THRESHOLD } from "@/lib/ratings";
 import { getRedditSignal } from "@/lib/reddit-signals";
 
-export type Year = 1 | 2;
-
-export type YearTiers = { birds: Course[]; danger: Course[] };
+export type Tiers = { birds: Course[]; danger: Course[] };
 
 // The same rule as the gold and red cards (see course-rarity.ts): a course is a bird course when
 // Reddit mostly calls it easy or enough students tagged it one, and in the danger zone when Reddit
 // mostly calls it hard. Courses with the most opinions behind them come first.
-export function getYearTiers(year: Year, birdMentions?: ReadonlyMap<string, number>): YearTiers {
-  const level = year * 100;
+export function getTiers(birdMentions?: ReadonlyMap<string, number>): Tiers {
   const birds: Array<{ course: Course; weight: number }> = [];
   const danger: Array<{ course: Course; weight: number }> = [];
   for (const course of COURSES) {
-    if (course.level !== level) continue;
     const signal = getRedditSignal(course.code);
     const students = birdMentions?.get(course.code) ?? 0;
     const weight = (signal?.votes ?? 0) + students;
