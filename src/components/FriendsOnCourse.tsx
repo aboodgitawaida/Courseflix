@@ -1,7 +1,7 @@
 import { Link } from "@tanstack/react-router";
 import { Users } from "lucide-react";
 import { avatarSrc } from "@/lib/profile";
-import { useFriendsOnCourse } from "@/lib/feed";
+import { useFriendsOnCourse } from "@/lib/friend-courses";
 
 export function FriendsOnCourse({ code }: { code: string }) {
   const { friendIds, people } = useFriendsOnCourse(code);
