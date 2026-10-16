@@ -2418,35 +2418,7 @@
   }
 }
 
-/* ───────────────────────── By year: bird courses and danger zone ───────────────────────── */
-
-.year-toggle {
-  display: inline-flex;
-  gap: 4px;
-  padding: 4px;
-  border-radius: 9999px;
-  border: 1px solid rgb(255 255 255 / 0.12);
-  background: rgb(255 255 255 / 0.05);
-  backdrop-filter: blur(10px);
-}
-.year-toggle button {
-  border-radius: 9999px;
-  padding: 8px 18px;
-  font-size: 13px;
-  font-weight: 700;
-  letter-spacing: 0.02em;
-  color: rgb(255 255 255 / 0.65);
-  transition:
-    background 0.25s ease,
-    color 0.25s ease;
-}
-.year-toggle button:hover {
-  color: #fff;
-}
-.year-toggle button.is-active {
-  background: #fff;
-  color: #0a0a0c;
-}
+/* ───────────────────────── Bird courses and danger zone ───────────────────────── */
 
 .tier {
   position: relative;
