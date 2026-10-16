@@ -1,4 +1,5 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, notFound } from "@tanstack/react-router";
+import { FEATURES } from "@/lib/features";
 import { useCallback, useEffect, useMemo, useState, type ReactNode } from "react";
 import { ChevronLeft, ChevronRight, Link2, RotateCcw, Sparkles } from "lucide-react";
 import { toast } from "sonner";
@@ -15,6 +16,9 @@ import { parseShortlistCodesWithStats, parseShortlistSearch } from "@/lib/valida
 import { buildWrapped, type Wrapped } from "@/lib/wrapped";
 
 export const Route = createFileRoute("/wrapped")({
+  beforeLoad: () => {
+    if (!FEATURES.wrapped) throw notFound();
+  },
   validateSearch: parseShortlistSearch,
   head: () => ({
     meta: [

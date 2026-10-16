@@ -18,6 +18,7 @@ import { getCourse } from "@/lib/courses";
 import { useAuth } from "@/hooks/use-auth";
 import { useShortlist, useToggleShortlist } from "@/lib/ratings";
 import { siteUrl } from "@/lib/site";
+import { FEATURES } from "@/lib/features";
 import { parseShortlistCodesWithStats, parseShortlistSearch } from "@/lib/validation";
 import { QueryErrorState } from "@/components/QueryErrorState";
 import { announce } from "@/lib/a11y";
@@ -123,13 +124,15 @@ function ListPage() {
 
         {courses.length > 0 && (
           <div className="mt-6 flex flex-wrap gap-2">
-            <Link
-              to="/wrapped"
-              search={shared ? { ids } : {}}
-              className="shine inline-flex items-center gap-2 rounded-full bg-white px-5 py-2.5 text-sm font-bold text-black shadow-lg shadow-white/10 transition hover:bg-white/90 active:scale-[0.97]"
-            >
-              <Sparkles className="h-4 w-4" /> {shared ? "See their Wrapped" : "See my Wrapped"}
-            </Link>
+            {FEATURES.wrapped && (
+              <Link
+                to="/wrapped"
+                search={shared ? { ids } : {}}
+                className="shine inline-flex items-center gap-2 rounded-full bg-white px-5 py-2.5 text-sm font-bold text-black shadow-lg shadow-white/10 transition hover:bg-white/90 active:scale-[0.97]"
+              >
+                <Sparkles className="h-4 w-4" /> {shared ? "See their Wrapped" : "See my Wrapped"}
+              </Link>
+            )}
             <ShareStoryButton
               render={() => renderShortlistStory(courses, { shared })}
               fileName="courseflix-lineup.png"
