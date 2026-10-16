@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { EAGLE_LINES, EAGLE_LINE_COOLDOWN_MS } from "./eagle-lines";
-import { celebrateEagle, pickEagleLine, resetEagleLines } from "./study-eagle";
+import { celebrateEagle, pickEagleLine, resetEagleLines, sayEagle } from "./study-eagle";
 
 describe("eagle lines", () => {
   beforeEach(() => resetEagleLines());
@@ -35,6 +35,26 @@ describe("eagle lines", () => {
     }
   });
 
+  it("never repeats a line, within a pool or across pools", () => {
+    const seen = new Map<string, string>();
+    for (const [event, pool] of Object.entries(EAGLE_LINES)) {
+      for (const line of pool) {
+        const key = line
+          .toLowerCase()
+          .replace(/[^a-z0-9{}]+/g, " ")
+          .trim();
+        expect(seen.get(key), `"${line}" in ${event} also in ${seen.get(key)}`).toBeUndefined();
+        seen.set(key, event);
+      }
+    }
+  });
+
+  it("gives every event enough lines to stay fresh", () => {
+    for (const [event, pool] of Object.entries(EAGLE_LINES)) {
+      expect(pool.length, event).toBeGreaterThanOrEqual(5);
+    }
+  });
+
   it("keeps every line short", () => {
     for (const pool of Object.values(EAGLE_LINES)) {
       expect(pool.length).toBeGreaterThan(0);
@@ -57,5 +77,22 @@ describe("celebrateEagle", () => {
       { message: undefined, animation: "trophy" },
       { message: "Nice", animation: undefined },
     ]);
+  });
+});
+
+describe("sayEagle", () => {
+  beforeEach(() => resetEagleLines());
+
+  it("says a line without celebrating, and respects the cooldown", () => {
+    const heard: Array<{ message?: string }> = [];
+    const listener = (e: Event) => heard.push((e as CustomEvent).detail);
+    vi.stubGlobal("window", new EventTarget());
+    window.addEventListener("study-eagle-say", listener);
+    sayEagle("courseRemoved", { code: "CSC108H5" });
+    sayEagle("courseRemoved", { code: "CSC108H5" }); // inside the cooldown: stays quiet
+    window.removeEventListener("study-eagle-say", listener);
+    vi.unstubAllGlobals();
+    expect(heard).toHaveLength(1);
+    expect(heard[0].message).not.toMatch(/[{}]/);
   });
 });

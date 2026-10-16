@@ -2,9 +2,11 @@ import { describe, expect, it } from "vitest";
 import {
   MODE_DURATION_MS,
   PET_SPAM_COUNT,
+  PET_WARN_COUNT,
   PET_SPAM_WINDOW_MS,
   ambient,
   isPetSpam,
+  isPetWarning,
   recentPets,
   request,
   settle,
@@ -189,5 +191,17 @@ describe("pet spam", () => {
     let times: number[] = [];
     for (let i = 0; i < 30; i++) times = recentPets(times, i * (PET_SPAM_WINDOW_MS / 2 + 1_000));
     expect(isPetSpam(times)).toBe(false);
+  });
+
+  it("warns on the way to being annoyed, then stops warning", () => {
+    let times: number[] = [];
+    const states: boolean[] = [];
+    for (let i = 0; i < PET_SPAM_COUNT; i++) {
+      times = recentPets(times, i * 300);
+      states.push(isPetWarning(times));
+    }
+    expect(states.slice(0, PET_WARN_COUNT - 1).every((x) => !x)).toBe(true);
+    expect(states[PET_WARN_COUNT - 1]).toBe(true);
+    expect(states[PET_SPAM_COUNT - 1]).toBe(false); // the sulk takes over
   });
 });

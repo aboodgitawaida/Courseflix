@@ -24,6 +24,18 @@ export function celebrateEagleWith(
   celebrateEagle(pickEagleLine(event, vars), animation);
 }
 
+/**
+ * Have the Study Eagle say a line from one of the pools in eagle-lines.ts in his
+ * status bubble without celebrating (no cheer). Does nothing on the server, while
+ * the event is cooling down, or when the eagle is turned off or asleep.
+ */
+export function sayEagle(event: EagleLineEvent, vars: Record<string, string | number> = {}) {
+  if (typeof window === "undefined") return;
+  const message = pickEagleLine(event, vars);
+  if (!message) return;
+  window.dispatchEvent(new CustomEvent("study-eagle-say", { detail: { message } }));
+}
+
 const lastIndex = new Map<EagleLineEvent, number>();
 const lastShown = new Map<EagleLineEvent, number>();
 
