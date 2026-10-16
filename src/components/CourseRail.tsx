@@ -10,11 +10,14 @@ export const CourseRail = memo(function CourseRail({
   loading = false,
   index = 0,
   gold = false,
+  danger = false,
 }: {
   rail: Rail;
   loading?: boolean;
   index?: number;
   gold?: boolean;
+  /** Red, horror-styled row for the danger zone. */
+  danger?: boolean;
 }) {
   const ref = useRef<HTMLDivElement>(null);
   const [hover, setHover] = useState(false);
@@ -45,10 +48,14 @@ export const CourseRail = memo(function CourseRail({
           {number}
         </span>
         <div
-          className={`min-w-0 flex-1 border-b ${gold ? "border-amber-400/40" : "border-white/[0.08]"} pb-3`}
+          className={`min-w-0 flex-1 border-b ${gold ? "border-amber-400/40" : danger ? "border-red-500/40" : "border-white/[0.08]"} pb-3`}
         >
           <h2
-            className={`font-display text-xl font-bold tracking-tight md:text-3xl ${gold ? "text-amber-300" : "text-white"}`}
+            className={
+              danger
+                ? "row-title-danger text-2xl md:text-4xl"
+                : `font-display text-xl font-bold tracking-tight md:text-3xl ${gold ? "row-title-gold" : "text-white"}`
+            }
           >
             {rail.title}
           </h2>

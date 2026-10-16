@@ -24,3 +24,15 @@ export function getTiers(birdMentions?: ReadonlyMap<string, number>): Tiers {
     danger: danger.sort(byWeight).map((x) => x.course),
   };
 }
+
+export type TierRow = { key: string; title: string; courses: Course[] };
+
+/** Splits a tier into rows by year, skipping years with no courses. */
+export function groupByYear(courses: Course[]): TierRow[] {
+  const rows: TierRow[] = [
+    { key: "y1", title: "1st year", courses: courses.filter((c) => c.level <= 100) },
+    { key: "y2", title: "2nd year", courses: courses.filter((c) => c.level === 200) },
+    { key: "y3", title: "3rd & 4th year", courses: courses.filter((c) => c.level >= 300) },
+  ];
+  return rows.filter((r) => r.courses.length > 0);
+}
