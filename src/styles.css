@@ -2307,6 +2307,34 @@
   background-color: rgb(255 255 255 / 0.85);
 }
 
+/* Top-bar account area while the session is still being restored (see auth-hint.ts).
+   Server HTML has both; AUTH_HINT_HEAD_SCRIPT adds .auth-hint for returning users. */
+.auth-hint .auth-hint-signin {
+  display: none;
+}
+.auth-hint-skeleton {
+  display: none;
+}
+.auth-hint .auth-hint-skeleton {
+  display: flex;
+}
+.auth-hint-skeleton .auth-hint-avatar {
+  background: var(--auth-avatar) center / contain no-repeat;
+}
+.auth-hint-skeleton .auth-hint-name::after {
+  content: var(--auth-name, "");
+}
+
+/* Returning visitors: keep the page hidden until the app has restored their session and
+   saved program (AppReadyGate), instead of flashing the anonymous server HTML first.
+   The dark page background still paints; the intro overlay stays visible. */
+html.returning:not(.app-ready) body {
+  visibility: hidden;
+}
+html.returning:not(.app-ready) .cinematic-overlay {
+  visibility: visible;
+}
+
 /* Achievements page: after the eagle lifts his trophy, each card "locks in" (--lock-delay
    staggers them). Unlocked cards drop from grey into colour with a gold ring pulse and a
    gleam; their badge pops and the progress bar fills. Locked cards just click their padlock. */

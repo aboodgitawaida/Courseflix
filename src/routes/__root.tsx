@@ -23,6 +23,9 @@ import { StudyEagle } from "@/components/StudyEagle";
 import { ProgramPickerSheet } from "@/components/ProgramPicker";
 import { MajorProfileSync } from "@/components/MajorProfileSync";
 import { INTRO_HEAD_SCRIPT } from "@/lib/intro";
+import { AUTH_HINT_HEAD_SCRIPT, RETURNING_HEAD_SCRIPT } from "@/lib/auth-hint";
+import { MAJOR_STORAGE_KEY } from "@/hooks/use-major";
+import { AppReadyGate } from "@/components/AppReadyGate";
 import { NetworkStatusBanner } from "@/components/NetworkStatusBanner";
 import { MobileTabBar } from "@/components/MobileTabBar";
 import { InstallPrompt } from "@/components/InstallPrompt";
@@ -165,10 +168,12 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
 
 function RootShell({ children }: { children: ReactNode }) {
   return (
-    // The intro script may add a class to <html> before hydration.
+    // The intro and auth-hint scripts may add classes/styles to <html> before hydration.
     <html lang="en" suppressHydrationWarning>
       <head>
         <script dangerouslySetInnerHTML={{ __html: INTRO_HEAD_SCRIPT }} />
+        <script dangerouslySetInnerHTML={{ __html: AUTH_HINT_HEAD_SCRIPT }} />
+        <script dangerouslySetInnerHTML={{ __html: RETURNING_HEAD_SCRIPT(MAJOR_STORAGE_KEY) }} />
         <HeadContent />
       </head>
       <body>
@@ -215,6 +220,7 @@ function RootComponent() {
         <SoundProvider>
           <EagleProvider>
             <CourseUIProvider>
+              <AppReadyGate />
               <NetworkStatusBanner />
               <p className="sr-only" role="status" aria-live="polite" aria-atomic="true">
                 {announcement}

@@ -2,6 +2,7 @@ import { Link, useRouterState } from "@tanstack/react-router";
 import { Search, User } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useAuth } from "@/hooks/use-auth";
+import { clearAuthHint } from "@/lib/auth-hint";
 import { useCourseUI } from "@/hooks/use-course-ui";
 import { ProgramButton } from "@/components/ProgramPicker";
 import { ProfileMenu } from "@/components/ProfileMenu";
@@ -15,6 +16,11 @@ export function TopNav() {
   const [scrolled, setScrolled] = useState(false);
   const section = useHomeSection();
   const goTo = useGoToHomeSection();
+
+  useEffect(() => {
+    // Session restored and nobody is signed in: forget the previous visit's hint.
+    if (!loading && !signedIn) clearAuthHint();
+  }, [loading, signedIn]);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 24);
@@ -94,11 +100,24 @@ export function TopNav() {
         <ProgramButton />
 
         {loading ? (
-          // Session is still being restored on reload; don't flash "Sign in".
-          <div
-            aria-hidden="true"
-            className="h-10 w-10 shrink-0 animate-pulse rounded-full bg-white/[0.06] sm:w-[104px]"
-          />
+          // Session is still being restored on reload. The server can't know who is
+          // signed in, so render both and let the <html>.auth-hint class (set before
+          // first paint from the last visit) choose, instead of flashing the wrong one.
+          <>
+            <Link
+              to="/auth"
+              className="auth-hint-signin shine flex h-10 shrink-0 items-center gap-1.5 rounded-full bg-brand px-4 text-sm font-semibold text-primary-foreground shadow-lg shadow-brand/30 transition hover:bg-brand-glow"
+            >
+              <User className="h-4 w-4" /> <span className="hidden sm:inline">Sign in</span>
+            </Link>
+            <div aria-hidden="true" className="auth-hint-skeleton shrink-0 items-center gap-1.5">
+              <span className="h-9 w-9 shrink-0" />
+              <span className="flex h-9 shrink-0 items-center gap-2 rounded-full border border-border/60 bg-surface-2 pl-1 pr-3">
+                <span className="auth-hint-avatar h-7 w-7 rounded-full bg-surface" />
+                <span className="auth-hint-name hidden max-w-[110px] truncate text-xs font-semibold sm:inline" />
+              </span>
+            </div>
+          </>
         ) : signedIn ? (
           <div className="flex shrink-0 items-center gap-1.5">
             <NotificationBell />
