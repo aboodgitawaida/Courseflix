@@ -5,6 +5,7 @@ import {
   CalendarHeart,
   GraduationCap,
   LockKeyhole,
+  Share2,
   Trophy,
   UserPlus,
 } from "lucide-react";
@@ -16,6 +17,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { avatarSrc } from "@/lib/profile";
 import { getMajor } from "@/lib/majors";
 import { getCourse } from "@/lib/courses";
+import { useShortlist } from "@/lib/ratings";
 import { useFriendAchievements } from "@/lib/achievements";
 import { toast } from "sonner";
 import {
@@ -85,14 +87,23 @@ function FriendProfilePage() {
             incomingId={friendships?.incoming.find((row) => row.requester_id === id)?.id ?? null}
           />
         ) : (
-          <ProfileBody userId={id} friendsSince={friendship?.created_at ?? null} />
+          <ProfileBody userId={id} isSelf={isSelf} friendsSince={friendship?.created_at ?? null} />
         )}
       </main>
     </div>
   );
 }
 
-function ProfileBody({ userId, friendsSince }: { userId: string; friendsSince: string | null }) {
+function ProfileBody({
+  userId,
+  isSelf,
+  friendsSince,
+}: {
+  userId: string;
+  isSelf: boolean;
+  friendsSince: string | null;
+}) {
+  const { data: mine = [] } = useShortlist();
   const profile = usePublicProfile(userId);
   const shortlist = useFriendShortlist(userId);
   const achievements = useFriendAchievements(userId);
@@ -115,6 +126,22 @@ function ProfileBody({ userId, friendsSince }: { userId: string; friendsSince: s
   const major = getMajor(p.major_id);
   const codes = shortlist.data ?? [];
   const earned = (achievements.data ?? []).filter((a) => a.unlocked);
+  const mineSet = new Set(mine);
+  const common = isSelf ? [] : codes.filter((code) => mineSet.has(code));
+
+  async function copyInvite() {
+    const url = `${window.location.origin}/profile/${userId}`;
+    try {
+      if (navigator.share) {
+        await navigator.share({ title: "Add me on Courseflix", url });
+      } else {
+        await navigator.clipboard.writeText(url);
+        toast.success("Invite link copied — send it to a classmate");
+      }
+    } catch {
+      // Share sheet dismissed.
+    }
+  }
 
   return (
     <>
@@ -171,6 +198,48 @@ function ProfileBody({ userId, friendsSince }: { userId: string; friendsSince: s
           />
         </div>
       </section>
+
+      {isSelf && (
+        <div className="mt-4 flex flex-wrap items-center gap-3 rounded-2xl glass p-4">
+          <p className="min-w-0 flex-1 text-sm text-muted-foreground">
+            This is how friends see you. Share your link so classmates can add you in one tap.
+          </p>
+          <button
+            onClick={() => void copyInvite()}
+            className="inline-flex items-center gap-1.5 rounded-full bg-brand px-4 py-2 text-sm font-semibold text-primary-foreground transition hover:bg-brand-glow"
+          >
+            <Share2 className="h-4 w-4" /> Share invite link
+          </button>
+          <Link
+            to="/settings"
+            hash="profile"
+            className="inline-flex rounded-full border border-border/60 px-4 py-2 text-sm font-semibold transition hover:border-brand/50"
+          >
+            Edit profile
+          </Link>
+        </div>
+      )}
+
+      {common.length > 0 && (
+        <section className="mt-8">
+          <h2 className="font-display text-2xl">In common</h2>
+          <p className="mt-1 text-sm text-muted-foreground">
+            You've both shortlisted {common.length} course{common.length === 1 ? "" : "s"}.
+          </p>
+          <div className="mt-3 flex flex-wrap gap-2">
+            {common.map((code) => (
+              <Link
+                key={code}
+                to="/course/$code"
+                params={{ code }}
+                className="rounded-full border border-brand/50 bg-brand/10 px-3 py-1.5 text-xs font-bold text-brand transition hover:bg-brand/20"
+              >
+                {code}
+              </Link>
+            ))}
+          </div>
+        </section>
+      )}
 
       <section className="mt-8">
         <h2 className="font-display text-2xl">Shortlist</h2>
