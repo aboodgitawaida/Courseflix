@@ -66,7 +66,7 @@ export const MODE_DURATION_MS: Partial<Record<EagleMode, number>> = {
   wakingUp: 1_200, // 8-frame stretch
   startled: 1_000, // 8-frame jolt awake
   celebrating: 1_400, // 10-frame victory cheer
-  trophy: 2_400, // 13-frame trophy lift with a gleam, for a new achievement
+  trophy: 2_000, // 11-frame trophy lift, for a new achievement
   petting: 900, // 8-frame head-bob
   openingBook: 900, // 6 frames: takes out the book
   openingGlass: 900, // 6 frames: takes out the magnifying glass
