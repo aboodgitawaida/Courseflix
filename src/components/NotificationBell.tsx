@@ -1,6 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { Bell } from "lucide-react";
+import { Bell, Trophy } from "lucide-react";
 import { avatarSrc } from "@/lib/profile";
 import { useClearNotifications, useMarkNotificationsRead, useNotifications } from "@/lib/social";
 import {
@@ -49,7 +49,8 @@ export function NotificationBell() {
   return (
     <DropdownMenu
       onOpenChange={(open) => {
-        if (open && unread > 0) void markRead.mutateAsync();
+        // Mark read on close, so unread rows stay marked "New" while the panel is open.
+        if (!open && unread > 0) void markRead.mutateAsync();
       }}
     >
       <DropdownMenuTrigger
@@ -124,18 +125,32 @@ export function NotificationBell() {
               r.kind === "shortlist_add" && r.course_code ? { code: r.course_code } : {};
             return (
               <DropdownMenuItem key={r.id} asChild>
-                <Link to={destination} params={params} className="flex items-start gap-2">
-                  <img
-                    src={achievement?.icon ?? avatarSrc(person?.avatar_id)}
-                    alt=""
-                    width={28}
-                    height={28}
-                    className="h-7 w-7 shrink-0 rounded-full object-contain"
-                  />
+                <Link
+                  to={destination}
+                  params={params}
+                  className={`flex items-start gap-2 ${r.read ? "" : "bg-brand/10"}`}
+                >
+                  <span className="relative shrink-0">
+                    <img
+                      src={achievement?.icon ?? avatarSrc(person?.avatar_id)}
+                      alt=""
+                      width={28}
+                      height={28}
+                      className="h-7 w-7 rounded-full object-contain"
+                    />
+                    {achievement && (
+                      <Trophy
+                        aria-hidden
+                        className="absolute -bottom-1 -right-1 h-3.5 w-3.5 rounded-full bg-background p-0.5 text-amber-500"
+                      />
+                    )}
+                  </span>
                   <span className="min-w-0 flex-1 text-xs leading-snug">
                     {line(r.kind, name, r.course_code)}
                     {!r.read && (
-                      <span className="ml-1 inline-block h-1.5 w-1.5 rounded-full bg-brand align-middle" />
+                      <span className="ml-1.5 inline-block rounded-full bg-brand px-1.5 align-middle text-[9px] font-bold uppercase leading-4 text-primary-foreground">
+                        New
+                      </span>
                     )}
                     <span className="mt-0.5 block text-[10px] text-muted-foreground">
                       {relativeMinutes(r.created_at, now)}
