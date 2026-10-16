@@ -12,7 +12,6 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AchievementsRouteImport } from './routes/achievements'
 import { Route as AuthRouteImport } from './routes/auth'
-import { Route as FeedRouteImport } from './routes/feed'
 import { Route as FriendsRouteImport } from './routes/friends'
 import { Route as HelpRouteImport } from './routes/help'
 import { Route as ListRouteImport } from './routes/list'
@@ -38,11 +37,6 @@ const AchievementsRoute = AchievementsRouteImport.update({
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
   path: '/auth',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const FeedRoute = FeedRouteImport.update({
-  id: '/feed',
-  path: '/feed',
   getParentRoute: () => rootRouteImport,
 } as any)
 const FriendsRoute = FriendsRouteImport.update({
@@ -105,7 +99,6 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/achievements': typeof AchievementsRoute
   '/auth': typeof AuthRouteWithChildren
-  '/feed': typeof FeedRoute
   '/friends': typeof FriendsRoute
   '/help': typeof HelpRoute
   '/list': typeof ListRoute
@@ -122,7 +115,6 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/achievements': typeof AchievementsRoute
   '/auth': typeof AuthRouteWithChildren
-  '/feed': typeof FeedRoute
   '/friends': typeof FriendsRoute
   '/help': typeof HelpRoute
   '/list': typeof ListRoute
@@ -140,7 +132,6 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/achievements': typeof AchievementsRoute
   '/auth': typeof AuthRouteWithChildren
-  '/feed': typeof FeedRoute
   '/friends': typeof FriendsRoute
   '/help': typeof HelpRoute
   '/list': typeof ListRoute
@@ -159,7 +150,6 @@ export interface FileRouteTypes {
     | '/'
     | '/achievements'
     | '/auth'
-    | '/feed'
     | '/friends'
     | '/help'
     | '/list'
@@ -176,7 +166,6 @@ export interface FileRouteTypes {
     | '/'
     | '/achievements'
     | '/auth'
-    | '/feed'
     | '/friends'
     | '/help'
     | '/list'
@@ -193,7 +182,6 @@ export interface FileRouteTypes {
     | '/'
     | '/achievements'
     | '/auth'
-    | '/feed'
     | '/friends'
     | '/help'
     | '/list'
@@ -211,7 +199,6 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AchievementsRoute: typeof AchievementsRoute
   AuthRoute: typeof AuthRouteWithChildren
-  FeedRoute: typeof FeedRoute
   FriendsRoute: typeof FriendsRoute
   HelpRoute: typeof HelpRoute
   ListRoute: typeof ListRoute
@@ -245,13 +232,6 @@ declare module '@tanstack/react-router' {
       path: '/auth'
       fullPath: '/auth'
       preLoaderRoute: typeof AuthRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/feed': {
-      id: '/feed'
-      path: '/feed'
-      fullPath: '/feed'
-      preLoaderRoute: typeof FeedRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/friends': {
@@ -348,7 +328,6 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AchievementsRoute: AchievementsRoute,
   AuthRoute: AuthRouteWithChildren,
-  FeedRoute: FeedRoute,
   FriendsRoute: FriendsRoute,
   HelpRoute: HelpRoute,
   ListRoute: ListRoute,
