@@ -1,13 +1,6 @@
-import { Feather, Flame, Info } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { ChevronDown, Feather, Flame } from "lucide-react";
 import type { CourseRarity, Rarity } from "@/lib/course-rarity";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
 
 // Each tier has its own particle field: gold twinkles in place, red embers rise and fade.
 // Positions are fixed so server and client render the same markup.
@@ -78,53 +71,47 @@ function HowWeKnow({ info, code }: { info: CourseRarity; code?: string }) {
   if (info.source === "Reddit" && signal) {
     const easyShare = (100 * signal.easy) / signal.votes;
     return (
-      <div className="space-y-4 text-sm leading-relaxed text-white/80">
+      <>
         <p>
-          We collected every Reddit comment that mentioned <b className="text-white">{name}</b> and
-          read what each one said about the course.
+          We collected every Reddit comment that mentioned <b>{name}</b>. Out of{" "}
+          <b>{signal.votes}</b> people who said whether it was easy or hard,{" "}
+          <b>{signal.percent}%</b> said it was <b>{signal.kind}</b>.
         </p>
-        <p>
-          Out of <b className="text-white">{signal.votes}</b> comments that said whether it was easy
-          or hard, <b className="text-white">{signal.percent}%</b> said it was{" "}
-          <b className="text-white">{signal.kind}</b>.
-        </p>
-        <div>
-          <div
-            className="flex h-2.5 overflow-hidden rounded-full bg-white/10"
-            role="img"
-            aria-label={`${signal.easy} comments said easy, ${signal.hard} said hard`}
-          >
-            <div className="bg-amber-400" style={{ width: `${easyShare}%` }} />
-            <div className="bg-red-500" style={{ width: `${100 - easyShare}%` }} />
-          </div>
-          <div className="mt-1.5 flex justify-between text-xs tabular-nums text-white/70">
-            <span>{signal.easy} said easy</span>
-            <span>{signal.hard} said hard</span>
-          </div>
+        <div
+          className="reddit-says-bar"
+          role="img"
+          aria-label={`${signal.easy} comments said easy, ${signal.hard} said hard`}
+        >
+          <span className="reddit-says-bar-easy" style={{ width: `${easyShare}%` }} />
+          <span className="reddit-says-bar-hard" style={{ width: `${100 - easyShare}%` }} />
         </div>
-        <p className="text-xs text-white/50">
-          Based on the Reddit comments read so far. A computer program labels each comment, so a few
-          labels can be wrong.
+        <div className="reddit-says-counts">
+          <span>{signal.easy} said easy</span>
+          <span>{signal.hard} said hard</span>
+        </div>
+        <p className="reddit-says-note">
+          Based on the comments read so far. A computer program labels each one, so a few can be
+          wrong.
         </p>
-      </div>
+      </>
     );
   }
   return (
-    <div className="space-y-4 text-sm leading-relaxed text-white/80">
+    <>
       <p>
-        <b className="text-white">{info.birdMentions}</b> reviews written by CourseFlix students
-        call <b className="text-white">{name}</b> a bird course.
+        <b>{info.birdMentions}</b> reviews written by CourseFlix students call <b>{name}</b> a bird
+        course.
       </p>
-      <p className="text-xs text-white/50">
+      <p className="reddit-says-note">
         We count reviews that use the words &ldquo;bird course&rdquo; in the comment.
       </p>
-    </div>
+    </>
   );
 }
 
 /**
  * "Reddit says: easy" pill, styled for the tier. Renders nothing without real data.
- * Click it for a short explanation of where the verdict comes from.
+ * Click it and it grows a panel that shows where the verdict comes from.
  */
 export function RedditSays({
   info,
@@ -137,51 +124,68 @@ export function RedditSays({
   className?: string;
   code?: string;
 }) {
+  const [open, setOpen] = useState(false);
+  const root = useRef<HTMLSpanElement>(null);
+
+  // Close on Escape or a click anywhere else. Escape is caught on the way down so it closes
+  // only this panel, not the course preview around it.
+  useEffect(() => {
+    if (!open) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key !== "Escape") return;
+      e.stopPropagation();
+      setOpen(false);
+    };
+    const onDown = (e: PointerEvent) => {
+      if (!root.current?.contains(e.target as Node)) setOpen(false);
+    };
+    window.addEventListener("keydown", onKey, true);
+    document.addEventListener("pointerdown", onDown);
+    return () => {
+      window.removeEventListener("keydown", onKey, true);
+      document.removeEventListener("pointerdown", onDown);
+    };
+  }, [open]);
+
   if (!info.rarity || !info.verdict) return null;
   const Icon = info.rarity === "gold" ? Feather : Flame;
   return (
-    // The pill sits inside clickable cards. Stop clicks and keys here, including those that
-    // bubble up from the portal-rendered dialog, so they do not open the course preview.
+    // The pill sits inside clickable cards, so clicks and keys stop here instead of opening
+    // the course preview.
     <span
-      className={`inline-flex ${className}`}
+      ref={root}
+      className={`reddit-says-wrap ${className}`}
       onClick={(e) => e.stopPropagation()}
       onKeyDown={(e) => e.stopPropagation()}
     >
-      <Dialog>
-        <DialogTrigger asChild>
-          <button
-            type="button"
-            title={info.detail ?? undefined}
-            aria-label={`${info.source} says ${info.verdict}. How we find this out`}
-            className={`reddit-says reddit-says-btn reddit-says-${info.rarity} reddit-says-${size}`}
-          >
-            <Icon className="reddit-says-icon" aria-hidden="true" />
-            <span className="reddit-says-source">{info.source} says</span>
-            <span className="reddit-says-verdict">{info.verdict}</span>
-            {info.signal && info.source === "Reddit" && (
-              <span className="reddit-says-meta">
-                {info.signal.percent}%
-                <span className="sr-only"> of {info.signal.votes} opinions</span>
-              </span>
-            )}
-            <Info className="reddit-says-info" aria-hidden="true" />
-          </button>
-        </DialogTrigger>
-        <DialogContent
-          className={`max-w-md border-2 bg-[#121216] text-white ${info.rarity === "gold" ? "border-amber-400/60" : "border-red-500/60"}`}
+      <button
+        type="button"
+        aria-expanded={open}
+        aria-label={`${info.source} says ${info.verdict}. How we find this out`}
+        onClick={() => setOpen((v) => !v)}
+        className={`reddit-says reddit-says-btn reddit-says-${info.rarity} reddit-says-${size}`}
+      >
+        <Icon className="reddit-says-icon" aria-hidden="true" />
+        <span className="reddit-says-source">{info.source} says</span>
+        <span className="reddit-says-verdict">{info.verdict}</span>
+        {info.signal && info.source === "Reddit" && (
+          <span className="reddit-says-meta">
+            {info.signal.percent}%<span className="sr-only"> of {info.signal.votes} opinions</span>
+          </span>
+        )}
+        <ChevronDown
+          className={`reddit-says-chevron ${open ? "is-open" : ""}`}
+          aria-hidden="true"
+        />
+      </button>
+      {open && (
+        <div
+          className={`reddit-says-panel reddit-says-panel-${info.rarity} reddit-says-panel-${size}`}
         >
-          <DialogHeader>
-            <DialogTitle className="font-mega text-2xl tracking-[-0.04em]">
-              How we find this out
-            </DialogTitle>
-            <DialogDescription className="text-white/60">
-              {code ? `${code}: ` : ""}
-              {info.source} says {info.verdict}
-            </DialogDescription>
-          </DialogHeader>
+          <div className="reddit-says-panel-title">How we find this out</div>
           <HowWeKnow info={info} code={code} />
-        </DialogContent>
-      </Dialog>
+        </div>
+      )}
     </span>
   );
 }
