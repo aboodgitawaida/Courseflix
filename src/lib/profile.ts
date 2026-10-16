@@ -8,6 +8,12 @@ import squirrel from "@/assets/avatars/squirrel.webp";
 import goose from "@/assets/avatars/goose.webp";
 import maanjiwe from "@/assets/avatars/maanjiwe.webp";
 import coffee from "@/assets/avatars/coffee.webp";
+import raccoon from "@/assets/avatars/raccoon.webp";
+import deer from "@/assets/avatars/deer.webp";
+import gradcap from "@/assets/avatars/gradcap.webp";
+import allnighter from "@/assets/avatars/allnighter.webp";
+import flask from "@/assets/avatars/flask.webp";
+import snowman from "@/assets/avatars/snowman.webp";
 import { getSessionUser } from "@/lib/session";
 import { celebrateEagleWith } from "@/lib/study-eagle";
 
@@ -29,6 +35,12 @@ export const AVATARS = [
   { id: "squirrel", label: "Campus Squirrel", src: squirrel },
   { id: "goose", label: "Angry Goose", src: goose },
   { id: "coffee", label: "8am Lecture Coffee", src: coffee },
+  { id: "raccoon", label: "Midnight Raccoon", src: raccoon },
+  { id: "deer", label: "Ravine Deer", src: deer },
+  { id: "gradcap", label: "Grad Cap", src: gradcap },
+  { id: "allnighter", label: "3AM All-Nighter", src: allnighter },
+  { id: "flask", label: "Chem Lab Flask", src: flask },
+  { id: "snowman", label: "Snow Day", src: snowman },
 ] as const;
 
 export const avatarSrc = (id: string | null | undefined) =>
