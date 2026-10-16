@@ -47,6 +47,15 @@ from public.course_ratings where user_id = '<user-id>' order by created_at desc;
 
 If it breaks the Terms (personal attacks, someone's private information, spam, fake or duplicate reviews), save a copy of the row first, then delete that one row in the Table Editor (`course_ratings`). Stats update automatically. For repeat or clearly malicious accounts, delete the user under Authentication → Users. Negative but honest reviews ("hard tests, unclear lectures") stay up.
 
+## Course bracket
+
+`/bracket` runs a 16-course "Hardest course at UTM" knockout that signed-in students vote on (`src/lib/bracket.ts`, migration `20261016120000_course_brackets.sql`). Until that migration is run, the page says "coming soon" and the home banner stays hidden.
+
+- **Starting it.** Deploy first, then run the migration. The bracket opens at the next full hour, and each of the four rounds lasts 48 hours (8 days in total). To choose another start, change it before anyone votes: `update public.brackets set starts_at = '2026-10-20 12:00-04' where id = 'hardest-course-fall-2026';`
+- **Votes.** One vote per person per matchup, changeable until the round closes. Votes go through the `cast_bracket_vote` function, which rejects closed rounds. The public only sees counts (`bracket_vote_tallies`), never who voted. Ties go to the higher seed.
+- **Seeds** are frozen in the migration (the courses r/UTM most often calls hard, at most two per subject), so later Reddit updates don't reshuffle a live bracket.
+- **A new bracket** (say "best bird course") is a new `brackets` row with its own id and 16 seeds, plus pointing `ACTIVE_BRACKET_ID` at it. Old votes stay where they are.
+
 ## Keeping Supabase awake
 
 Free Supabase projects pause after about a week without activity. `.github/workflows/keep-supabase-awake.yml` makes one read-only request every 3 days. It needs the `SUPABASE_URL` and `SUPABASE_PUBLISHABLE_KEY` repository secrets.

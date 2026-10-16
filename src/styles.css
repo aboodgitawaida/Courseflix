@@ -2418,6 +2418,40 @@
   }
 }
 
+/* Course Wrapped: the active slide's progress bar fills over the slide's duration. */
+@keyframes wrapped-progress {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+.wrapped-progress {
+  animation: wrapped-progress linear forwards;
+}
+
+/* Bracket: vote share bars grow in once a result is shown. */
+@keyframes bracket-bar {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+.bracket-bar {
+  transform-origin: left;
+  animation: bracket-bar 0.7s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .wrapped-progress,
+  .bracket-bar {
+    animation: none;
+  }
+}
+
 /* ───────────────────────── Bird courses and danger zone ───────────────────────── */
 
 .tier {

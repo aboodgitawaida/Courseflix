@@ -64,6 +64,9 @@ vi.mock("@/components/FilterChips", () => ({
   FilterChips: () => <div>Filters</div>,
 }));
 
+vi.mock("@/components/BracketBanner", () => ({
+  BracketBanner: () => null,
+}));
 vi.mock("@/components/CinematicIntro", () => ({
   CinematicIntro: () => <div>Intro</div>,
 }));

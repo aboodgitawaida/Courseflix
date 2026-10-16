@@ -63,6 +63,9 @@ export function TopNav() {
           <Link to="/list" className={desktopLink(pathname === "/list")}>
             My Shortlist
           </Link>
+          <Link to="/bracket" className={desktopLink(pathname === "/bracket")}>
+            Bracket
+          </Link>
           {signedIn && (
             <Link to="/reviews" className={desktopLink(pathname === "/reviews")}>
               My Reviews

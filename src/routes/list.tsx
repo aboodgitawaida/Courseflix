@@ -1,7 +1,16 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useMemo } from "react";
 import { toast } from "sonner";
-import { Bookmark, Copy, Link2, MessageCircle, Share2, Trash2, Users } from "lucide-react";
+import {
+  Bookmark,
+  Copy,
+  Link2,
+  MessageCircle,
+  Share2,
+  Sparkles,
+  Trash2,
+  Users,
+} from "lucide-react";
 import { TopNav } from "@/components/TopNav";
 import { PageBackdrop } from "@/components/PageBackdrop";
 import { CourseCard } from "@/components/CourseCard";
@@ -114,6 +123,13 @@ function ListPage() {
 
         {courses.length > 0 && (
           <div className="mt-6 flex flex-wrap gap-2">
+            <Link
+              to="/wrapped"
+              search={shared ? { ids } : {}}
+              className="shine inline-flex items-center gap-2 rounded-full bg-white px-5 py-2.5 text-sm font-bold text-black shadow-lg shadow-white/10 transition hover:bg-white/90 active:scale-[0.97]"
+            >
+              <Sparkles className="h-4 w-4" /> {shared ? "See their Wrapped" : "See my Wrapped"}
+            </Link>
             <ShareStoryButton
               render={() => renderShortlistStory(courses, { shared })}
               fileName="courseflix-lineup.png"
