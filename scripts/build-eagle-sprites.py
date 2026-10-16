@@ -7,7 +7,7 @@
                               shown, but still part of the shared palette and frame size
   pixellab-celebrate-cheer.png PixelLab animation from the awake frame: victory cheer, wings flung up (10 x 80x80)
   pixellab-trophy.png         PixelLab animation from the awake frame: lifts a gold trophy, it gleams (11 x 80x80;
-                              variant C, seed 313, of pixellab-trophy-{a,b,c}_N.png)
+                              variant E, seed 322, of pixellab-trophy-{a..f}_N.png)
   pixellab-pet.png            PixelLab animation from the awake frame: happy head-bob (8 x 80x80)
   pixellab-fallasleep.png     PixelLab animation, awake frame -> sleep frame 1: a yawn, then the head sinks (8 x 80x80)
   pixellab-wakeup.png         PixelLab animation, sleep frame 1 -> awake frame: head up, wing stretch (8 x 80x80)
