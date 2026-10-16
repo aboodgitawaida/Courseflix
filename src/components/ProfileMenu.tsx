@@ -1,7 +1,7 @@
 import { Link, useNavigate } from "@tanstack/react-router";
 import { VerifiedBadge } from "@/components/VerifiedBadge";
 import { useQueryClient } from "@tanstack/react-query";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Award,
   Bookmark,
@@ -19,6 +19,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { useTheme } from "@/hooks/use-theme";
 import { useSound } from "@/hooks/use-sound";
 import { avatarSrc, useProfile } from "@/lib/profile";
+import { clearAuthHint, readAuthHint, writeAuthHint } from "@/lib/auth-hint";
 import { useShortlist } from "@/lib/ratings";
 import { useAchievements } from "@/lib/achievements";
 import { SwitchTrack } from "@/components/ui/switch";
@@ -38,9 +39,10 @@ const groupLabel =
 export function ProfileMenu() {
   const { user } = useAuth();
   const { data: profile, isError: profileError } = useProfile(user?.id);
-  // Until the profile row arrives, avatarSrc() would show the default avatar and
-  // then swap to the saved one, so show a neutral placeholder instead.
-  const avatarReady = Boolean(profile) || profileError;
+  // What the previous visit saved, so the avatar/name are right before the profile
+  // row arrives. Safe to read here: this only renders after the session is restored
+  // on the client, never in the server HTML.
+  const [hint] = useState(() => readAuthHint(user?.id));
   const { theme, toggleTheme } = useTheme();
   const { muted, toggleMuted, play } = useSound();
   const [open, setOpen] = useState(false);
@@ -52,12 +54,24 @@ export function ProfileMenu() {
   const qc = useQueryClient();
   const name =
     profile?.display_name ??
+    hint?.n ??
     user?.user_metadata?.display_name ??
     user?.email?.split("@")[0] ??
     "Account";
+  // Until the profile row arrives, avatarSrc() would show the default avatar and
+  // then swap to the saved one, so use the remembered one, else a neutral placeholder.
+  const avatarUrl = profile ? avatarSrc(profile.avatar_id) : (hint?.a ?? null);
+  const avatarReady = avatarUrl !== null || profileError;
+  const shownAvatar = avatarUrl ?? avatarSrc(undefined);
+
+  useEffect(() => {
+    if (user && profile) writeAuthHint({ u: user.id, a: avatarSrc(profile.avatar_id), n: name });
+  }, [user, profile, name]);
+
   const handle = profile?.username ? `@${profile.username}` : (user?.email ?? "");
 
   async function signOut() {
+    clearAuthHint();
     await qc.cancelQueries();
     qc.clear();
     await supabase.auth.signOut();
@@ -72,7 +86,7 @@ export function ProfileMenu() {
       >
         {avatarReady ? (
           <img
-            src={avatarSrc(profile?.avatar_id)}
+            src={shownAvatar}
             alt=""
             width={32}
             height={32}
@@ -98,7 +112,7 @@ export function ProfileMenu() {
           >
             {avatarReady ? (
               <img
-                src={avatarSrc(profile?.avatar_id)}
+                src={shownAvatar}
                 alt=""
                 width={48}
                 height={48}
