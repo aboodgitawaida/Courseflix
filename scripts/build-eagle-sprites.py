@@ -593,7 +593,8 @@ def brown_mask(f):
     rgb = f[..., :3].astype(int)
     warm_gold = (rgb[..., 0] > 180) & (rgb[..., 1] > 110) & (rgb[..., 2] < 150)
     green = (rgb[..., 1] > rgb[..., 0] + 8) & (rgb[..., 1] > rgb[..., 2] + 8)
-    return (f[..., 3] > 0) & (rgb.max(-1) < 170) & ~warm_gold & ~green
+    brown = (rgb[..., 0] - rgb[..., 2] > 12)      # not the grey of the head's shading
+    return (f[..., 3] > 0) & (rgb.max(-1) < 170) & ~warm_gold & ~green & brown
 
 
 def match_brightness(f, ref_lum):
@@ -650,12 +651,54 @@ def match_head(f, ref_rgb):
     return f
 
 
+LUM = np.array([0.299, 0.587, 0.114])
+
+
+def rank_recolour(f, mask, ref_rgb):
+    """Give the masked pixels the reference colours, assigned by brightness rank. Any tint
+    PixelLab added (amber highlights, a yellow wash) goes; the shading stays as drawn."""
+    if mask.sum() == 0 or len(ref_rgb) == 0:
+        return
+    lum = f[mask][:, :3].astype(float) @ LUM
+    order = lum.argsort()
+    # only the reference's main tones: its rare tints would scatter as speckles
+    cols, counts = np.unique(ref_rgb, axis=0, return_counts=True)
+    ref_rgb = np.repeat(cols[counts >= max(1, 0.03 * len(ref_rgb))], counts[counts >= max(1, 0.03 * len(ref_rgb))], axis=0)
+    ref = ref_rgb[(ref_rgb.astype(float) @ LUM).argsort(kind="stable")]
+    idx = np.interp(np.linspace(0, 1, len(lum)), np.linspace(0, 1, len(ref)), np.arange(len(ref))).round().astype(int)
+    new = np.empty((len(lum), 3), np.uint8); new[order] = ref[idx]
+    f[mask, :3] = new
+
+
+def eagle_regions(f):
+    """Masks for the parts of the eagle whose colour must match the awake frame."""
+    head = head_mask(f)
+    rgb = f[..., :3].astype(int)
+    warm = (f[..., 3] > 0) & (rgb[..., 0] > 190) & (rgb[..., 1] > 100) & (rgb[..., 2] < 110) & (rgb[..., 0] > rgb[..., 1] + 25)
+    beak = warm & beak_zone(f) & ~trophy_gold(f)
+    feet = is_foot_px(f) & ~beak
+    feet[:BRANCH_TOP - 4] = False; feet[:, :FOOT[0] - 3] = False; feet[:, FOOT[1] + 4:] = False
+    body = brown_mask(f) & ~head & ~beak & ~feet
+    return {"body": body, "head": head, "beak": beak, "feet": feet}
+
+
+AWAKE_REGIONS = None
+
+
+def grade_to_awake(f):
+    """Re-colour the eagle (not the trophy) from the awake frame's own colours."""
+    global AWAKE_REGIONS
+    if AWAKE_REGIONS is None:
+        AWAKE_REGIONS = {k: awake80[m][:, :3] for k, m in eagle_regions(awake80).items()}
+    f = f.copy()
+    for name, mask in eagle_regions(f).items():
+        rank_recolour(f, mask, AWAKE_REGIONS[name])
+    return f
+
+
 def snap_trophy(frames, k=8):
-    ref = awake80[brown_mask(awake80)][:, :3].astype(float) @ np.array([0.299, 0.587, 0.114])
-    head_ref = awake80[head_mask(awake80)][:, :3]
-    head_ref = head_ref[(head_ref.astype(float) @ np.array([0.299, 0.587, 0.114])).argsort()]
-    zones = [beak_zone(f) for f in frames]      # measured before the head is toned down
-    frames = [match_head(match_brightness(f, np.sort(ref)), head_ref) for f in frames]
+    zones = [beak_zone(f) for f in frames]      # measured before the eagle is re-coloured
+    frames = [grade_to_awake(f) for f in frames]
     gold = trophy_gold
     px = np.concatenate([f[gold(f) & ~z][:, :3].astype(float) for f, z in zip(frames, zones)])
     nearest = ((px[:, None] - c2[None]) ** 2).sum(2).min(1)
