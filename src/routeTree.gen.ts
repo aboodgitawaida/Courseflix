@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AchievementsRouteImport } from './routes/achievements'
 import { Route as AuthRouteImport } from './routes/auth'
+import { Route as BracketRouteImport } from './routes/bracket'
 import { Route as FriendsRouteImport } from './routes/friends'
 import { Route as HelpRouteImport } from './routes/help'
 import { Route as ListRouteImport } from './routes/list'
@@ -20,6 +21,7 @@ import { Route as ReviewsRouteImport } from './routes/reviews'
 import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as TermsRouteImport } from './routes/terms'
 import { Route as VerifyEmailRouteImport } from './routes/verify-email'
+import { Route as WrappedRouteImport } from './routes/wrapped'
 import { Route as AuthResetPasswordRouteImport } from './routes/auth.reset-password'
 import { Route as CourseCodeRouteImport } from './routes/course.$code'
 import { Route as ProfileIdRouteImport } from './routes/profile.$id'
@@ -37,6 +39,11 @@ const AchievementsRoute = AchievementsRouteImport.update({
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
   path: '/auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BracketRoute = BracketRouteImport.update({
+  id: '/bracket',
+  path: '/bracket',
   getParentRoute: () => rootRouteImport,
 } as any)
 const FriendsRoute = FriendsRouteImport.update({
@@ -79,6 +86,11 @@ const VerifyEmailRoute = VerifyEmailRouteImport.update({
   path: '/verify-email',
   getParentRoute: () => rootRouteImport,
 } as any)
+const WrappedRoute = WrappedRouteImport.update({
+  id: '/wrapped',
+  path: '/wrapped',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthResetPasswordRoute = AuthResetPasswordRouteImport.update({
   id: '/reset-password',
   path: '/reset-password',
@@ -99,6 +111,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/achievements': typeof AchievementsRoute
   '/auth': typeof AuthRouteWithChildren
+  '/bracket': typeof BracketRoute
   '/friends': typeof FriendsRoute
   '/help': typeof HelpRoute
   '/list': typeof ListRoute
@@ -107,6 +120,7 @@ export interface FileRoutesByFullPath {
   '/settings': typeof SettingsRoute
   '/terms': typeof TermsRoute
   '/verify-email': typeof VerifyEmailRoute
+  '/wrapped': typeof WrappedRoute
   '/auth/reset-password': typeof AuthResetPasswordRoute
   '/course/$code': typeof CourseCodeRoute
   '/profile/$id': typeof ProfileIdRoute
@@ -115,6 +129,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/achievements': typeof AchievementsRoute
   '/auth': typeof AuthRouteWithChildren
+  '/bracket': typeof BracketRoute
   '/friends': typeof FriendsRoute
   '/help': typeof HelpRoute
   '/list': typeof ListRoute
@@ -123,6 +138,7 @@ export interface FileRoutesByTo {
   '/settings': typeof SettingsRoute
   '/terms': typeof TermsRoute
   '/verify-email': typeof VerifyEmailRoute
+  '/wrapped': typeof WrappedRoute
   '/auth/reset-password': typeof AuthResetPasswordRoute
   '/course/$code': typeof CourseCodeRoute
   '/profile/$id': typeof ProfileIdRoute
@@ -132,6 +148,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/achievements': typeof AchievementsRoute
   '/auth': typeof AuthRouteWithChildren
+  '/bracket': typeof BracketRoute
   '/friends': typeof FriendsRoute
   '/help': typeof HelpRoute
   '/list': typeof ListRoute
@@ -140,6 +157,7 @@ export interface FileRoutesById {
   '/settings': typeof SettingsRoute
   '/terms': typeof TermsRoute
   '/verify-email': typeof VerifyEmailRoute
+  '/wrapped': typeof WrappedRoute
   '/auth/reset-password': typeof AuthResetPasswordRoute
   '/course/$code': typeof CourseCodeRoute
   '/profile/$id': typeof ProfileIdRoute
@@ -150,6 +168,7 @@ export interface FileRouteTypes {
     | '/'
     | '/achievements'
     | '/auth'
+    | '/bracket'
     | '/friends'
     | '/help'
     | '/list'
@@ -158,6 +177,7 @@ export interface FileRouteTypes {
     | '/settings'
     | '/terms'
     | '/verify-email'
+    | '/wrapped'
     | '/auth/reset-password'
     | '/course/$code'
     | '/profile/$id'
@@ -166,6 +186,7 @@ export interface FileRouteTypes {
     | '/'
     | '/achievements'
     | '/auth'
+    | '/bracket'
     | '/friends'
     | '/help'
     | '/list'
@@ -174,6 +195,7 @@ export interface FileRouteTypes {
     | '/settings'
     | '/terms'
     | '/verify-email'
+    | '/wrapped'
     | '/auth/reset-password'
     | '/course/$code'
     | '/profile/$id'
@@ -182,6 +204,7 @@ export interface FileRouteTypes {
     | '/'
     | '/achievements'
     | '/auth'
+    | '/bracket'
     | '/friends'
     | '/help'
     | '/list'
@@ -190,6 +213,7 @@ export interface FileRouteTypes {
     | '/settings'
     | '/terms'
     | '/verify-email'
+    | '/wrapped'
     | '/auth/reset-password'
     | '/course/$code'
     | '/profile/$id'
@@ -199,6 +223,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AchievementsRoute: typeof AchievementsRoute
   AuthRoute: typeof AuthRouteWithChildren
+  BracketRoute: typeof BracketRoute
   FriendsRoute: typeof FriendsRoute
   HelpRoute: typeof HelpRoute
   ListRoute: typeof ListRoute
@@ -207,6 +232,7 @@ export interface RootRouteChildren {
   SettingsRoute: typeof SettingsRoute
   TermsRoute: typeof TermsRoute
   VerifyEmailRoute: typeof VerifyEmailRoute
+  WrappedRoute: typeof WrappedRoute
   CourseCodeRoute: typeof CourseCodeRoute
   ProfileIdRoute: typeof ProfileIdRoute
 }
@@ -232,6 +258,13 @@ declare module '@tanstack/react-router' {
       path: '/auth'
       fullPath: '/auth'
       preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/bracket': {
+      id: '/bracket'
+      path: '/bracket'
+      fullPath: '/bracket'
+      preLoaderRoute: typeof BracketRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/friends': {
@@ -290,6 +323,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof VerifyEmailRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/wrapped': {
+      id: '/wrapped'
+      path: '/wrapped'
+      fullPath: '/wrapped'
+      preLoaderRoute: typeof WrappedRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/auth/reset-password': {
       id: '/auth/reset-password'
       path: '/reset-password'
@@ -328,6 +368,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AchievementsRoute: AchievementsRoute,
   AuthRoute: AuthRouteWithChildren,
+  BracketRoute: BracketRoute,
   FriendsRoute: FriendsRoute,
   HelpRoute: HelpRoute,
   ListRoute: ListRoute,
@@ -336,6 +377,7 @@ const rootRouteChildren: RootRouteChildren = {
   SettingsRoute: SettingsRoute,
   TermsRoute: TermsRoute,
   VerifyEmailRoute: VerifyEmailRoute,
+  WrappedRoute: WrappedRoute,
   CourseCodeRoute: CourseCodeRoute,
   ProfileIdRoute: ProfileIdRoute,
 }

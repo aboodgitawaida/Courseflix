@@ -9,7 +9,9 @@ import {
   LogIn,
   Search,
   Settings,
+  Sparkles,
   Star,
+  Swords,
   UserRound,
   Users,
 } from "lucide-react";
@@ -19,7 +21,16 @@ import { useGoToHomeSection } from "@/hooks/use-home-section";
 import { useShortlist } from "@/lib/ratings";
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from "@/components/ui/dialog";
 
-const ME_PATHS = ["/friends", "/achievements", "/reviews", "/settings", "/help", "/auth"];
+const ME_PATHS = [
+  "/bracket",
+  "/wrapped",
+  "/friends",
+  "/achievements",
+  "/reviews",
+  "/settings",
+  "/help",
+  "/auth",
+];
 
 /** App-style bottom navigation for phones and tablets. */
 export function MobileTabBar() {
@@ -53,6 +64,8 @@ export function MobileTabBar() {
 
   const meLinks = [
     ...(signedIn ? [] : [{ to: "/auth" as const, label: "Sign in", icon: LogIn }]),
+    { to: "/bracket" as const, label: "Hardest course bracket", icon: Swords },
+    { to: "/wrapped" as const, label: "Course Wrapped", icon: Sparkles },
     { to: "/friends" as const, label: "Friends", icon: Users },
     { to: "/achievements" as const, label: "Achievements", icon: Award },
     ...(signedIn ? [{ to: "/reviews" as const, label: "My reviews", icon: Star }] : []),

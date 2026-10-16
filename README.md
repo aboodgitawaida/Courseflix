@@ -16,6 +16,8 @@ Choosing courses at the University of Toronto Mississauga means jumping between 
 - **A page for every course.** Official description, prerequisites drawn as a "what this unlocks" path, this term's published instructors with their Rate My Professors ratings, and links to the calendar, timetable and Reddit.
 - **Student reviews.** Rate difficulty, workload and "would take again". Reviews are anonymous to the public, and posting needs a confirmed email so ratings stay trustworthy.
 - **Shortlist and sharing.** Save courses, compare them side by side, share your list as a link, or export it as an Instagram-story image.
+- **Course Wrapped.** A Spotify Wrapped-style recap of your shortlist (your course persona, toughest pick and bird-course count) that exports as an Instagram story or a link.
+- **Hardest-course bracket.** Students vote through a 16-course knockout of the courses r/UTM calls hardest, with live results and a shareable story.
 - **Friends.** Add classmates, see each other's shortlists (unless set to private) and get notified when a friend saves a course.
 - **Search everywhere.** A ⌘K command palette searches codes, titles and descriptions.
 - **The little things.** Achievements, the Study Eagle mascot, light and dark themes, and installable as a phone app.
