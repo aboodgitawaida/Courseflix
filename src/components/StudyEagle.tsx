@@ -37,6 +37,7 @@ import {
   isCelebration,
   isDozing,
   isPetSpam,
+  isPetWarning,
   recentPets,
   request,
   settle,
@@ -314,13 +315,19 @@ export function StudyEagle() {
       setCelebrateKey((key) => key + 1);
       go(animation === "trophy" ? "trophy" : "celebrating");
     };
+    const onSay = (event: Event) => {
+      const { message } = (event as CustomEvent<{ message?: string }>).detail ?? {};
+      if (message && !isDozing(modeRef.current)) showStatus(message);
+    };
     window.addEventListener("study-eagle-summarize", onSummary);
     window.addEventListener("study-eagle-clear", onClearSummary);
     window.addEventListener("study-eagle-celebrate", onCelebration);
+    window.addEventListener("study-eagle-say", onSay);
     return () => {
       window.removeEventListener("study-eagle-summarize", onSummary);
       window.removeEventListener("study-eagle-clear", onClearSummary);
       window.removeEventListener("study-eagle-celebrate", onCelebration);
+      window.removeEventListener("study-eagle-say", onSay);
     };
   }, []);
 
@@ -473,7 +480,10 @@ export function StudyEagle() {
     // Happy head-bob, unless it is mid-celebration (that wins).
     go("petting");
     setPetCount((count) => count + 1);
-    const line = takeLateNightLine() ?? pickEagleLine("pet") ?? EAGLE_LINES.pet[0];
+    const line =
+      takeLateNightLine() ??
+      pickEagleLine(isPetWarning(petTimes.current) ? "petWarn" : "pet") ??
+      EAGLE_LINES.pet[0];
     showStatus(line);
     setSummaryCourseCode(null);
     setSummaryText(null);
