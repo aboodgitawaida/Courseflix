@@ -8,6 +8,7 @@ import { ProgramButton } from "@/components/ProgramPicker";
 import { ProfileMenu } from "@/components/ProfileMenu";
 import { NotificationBell } from "@/components/NotificationBell";
 import { useGoToHomeSection, useHomeSection } from "@/hooks/use-home-section";
+import { FEATURES } from "@/lib/features";
 
 export function TopNav() {
   const { signedIn, loading } = useAuth();
@@ -63,9 +64,11 @@ export function TopNav() {
           <Link to="/list" className={desktopLink(pathname === "/list")}>
             My Shortlist
           </Link>
-          <Link to="/bracket" className={desktopLink(pathname === "/bracket")}>
-            Bracket
-          </Link>
+          {FEATURES.bracket && (
+            <Link to="/bracket" className={desktopLink(pathname === "/bracket")}>
+              Bracket
+            </Link>
+          )}
           {signedIn && (
             <Link to="/reviews" className={desktopLink(pathname === "/reviews")}>
               My Reviews
