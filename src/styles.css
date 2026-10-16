@@ -2822,3 +2822,36 @@
     animation: none;
   }
 }
+
+/* Bird / danger grids show dozens of cards at once, so keep scrolling light:
+   - off-screen cards are skipped entirely (content-visibility). That clips to the wrapper's
+     box, so the wrapper's padding is the room the card's outer glow has;
+   - cards fade up as they come into view, like the rows elsewhere on the page;
+   - the pill's backdrop blur is the most expensive thing per card, and its background is
+     already nearly solid, so it is dropped here. */
+.tier-card {
+  margin: -6px;
+  padding: 24px;
+  content-visibility: auto;
+  contain-intrinsic-size: auto 280px auto 300px;
+  opacity: 0;
+  transform: translate3d(0, 24px, 0);
+  transition:
+    opacity 0.7s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.tier-card.reveal-in {
+  opacity: 1;
+  transform: none;
+}
+.tier .reddit-says {
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  .tier-card {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+}
