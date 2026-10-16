@@ -37,7 +37,10 @@ const groupLabel =
 
 export function ProfileMenu() {
   const { user } = useAuth();
-  const { data: profile } = useProfile(user?.id);
+  const { data: profile, isError: profileError } = useProfile(user?.id);
+  // Until the profile row arrives, avatarSrc() would show the default avatar and
+  // then swap to the saved one, so show a neutral placeholder instead.
+  const avatarReady = Boolean(profile) || profileError;
   const { theme, toggleTheme } = useTheme();
   const { muted, toggleMuted, play } = useSound();
   const [open, setOpen] = useState(false);
@@ -67,13 +70,17 @@ export function ProfileMenu() {
         className="flex h-9 shrink-0 items-center gap-2 rounded-full border border-border/60 bg-surface-2 pl-1 pr-3 transition hover:border-brand/50"
         aria-label="Account menu"
       >
-        <img
-          src={avatarSrc(profile?.avatar_id)}
-          alt=""
-          width={32}
-          height={32}
-          className="h-7 w-7 rounded-full bg-surface object-contain"
-        />
+        {avatarReady ? (
+          <img
+            src={avatarSrc(profile?.avatar_id)}
+            alt=""
+            width={32}
+            height={32}
+            className="h-7 w-7 rounded-full bg-surface object-contain"
+          />
+        ) : (
+          <span aria-hidden="true" className="h-7 w-7 animate-pulse rounded-full bg-surface" />
+        )}
         <span className="hidden max-w-[110px] truncate text-xs font-semibold sm:inline">
           {name}
         </span>
@@ -89,13 +96,20 @@ export function ProfileMenu() {
             onClick={() => setOpen(false)}
             className="flex items-center gap-3 rounded-lg p-2 font-normal transition hover:bg-white/[0.06]"
           >
-            <img
-              src={avatarSrc(profile?.avatar_id)}
-              alt=""
-              width={48}
-              height={48}
-              className="h-12 w-12 shrink-0 rounded-full bg-surface-2 object-contain ring-2 ring-brand/40"
-            />
+            {avatarReady ? (
+              <img
+                src={avatarSrc(profile?.avatar_id)}
+                alt=""
+                width={48}
+                height={48}
+                className="h-12 w-12 shrink-0 rounded-full bg-surface-2 object-contain ring-2 ring-brand/40"
+              />
+            ) : (
+              <span
+                aria-hidden="true"
+                className="h-12 w-12 shrink-0 animate-pulse rounded-full bg-surface-2 ring-2 ring-brand/40"
+              />
+            )}
             <span className="min-w-0 flex-1 leading-tight">
               <span className="block truncate text-sm font-semibold">
                 {name}

@@ -9,7 +9,7 @@ import { NotificationBell } from "@/components/NotificationBell";
 import { useGoToHomeSection, useHomeSection } from "@/hooks/use-home-section";
 
 export function TopNav() {
-  const { signedIn } = useAuth();
+  const { signedIn, loading } = useAuth();
   const { setSearchOpen } = useCourseUI();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const [scrolled, setScrolled] = useState(false);
@@ -93,7 +93,13 @@ export function TopNav() {
 
         <ProgramButton />
 
-        {signedIn ? (
+        {loading ? (
+          // Session is still being restored on reload; don't flash "Sign in".
+          <div
+            aria-hidden="true"
+            className="h-10 w-10 shrink-0 animate-pulse rounded-full bg-white/[0.06] sm:w-[104px]"
+          />
+        ) : signedIn ? (
           <div className="flex shrink-0 items-center gap-1.5">
             <NotificationBell />
             <ProfileMenu />
