@@ -133,9 +133,15 @@ export function NotificationBell() {
                 ? "/achievements"
                 : r.kind === "shortlist_add" && r.course_code
                   ? "/course/$code"
-                  : "/friends";
+                  : r.actor_id && (r.kind === "friend_accepted" || r.kind === "friend_request")
+                    ? "/profile/$id"
+                    : "/friends";
             const params =
-              r.kind === "shortlist_add" && r.course_code ? { code: r.course_code } : {};
+              r.kind === "shortlist_add" && r.course_code
+                ? { code: r.course_code }
+                : destination === "/profile/$id"
+                  ? { id: r.actor_id! }
+                  : {};
             const isNew = !r.read || fresh.has(r.id);
             return (
               <DropdownMenuItem key={r.id} asChild>
