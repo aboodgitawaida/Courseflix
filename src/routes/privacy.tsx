@@ -50,7 +50,7 @@ function PrivacyPage() {
             policy.
           </span>
         </h1>
-        <p className="mt-2 text-sm text-muted-foreground">Last updated: October 11, 2026</p>
+        <p className="mt-2 text-sm text-muted-foreground">Last updated: October 16, 2026</p>
 
         <div className="mt-8 space-y-8 text-sm leading-7 text-muted-foreground">
           <Section title="The short version">
@@ -104,6 +104,15 @@ function PrivacyPage() {
             </p>
           </Section>
 
+          <Section title="2a. Public Reddit comments">
+            <p>
+              The “Reddit says” labels on courses are built from public comments on r/UTM and
+              r/UofT. We process them offline and publish only per-course counts of “easy” and
+              “hard”, never the comments, usernames or links. This does not involve your Courseflix
+              account or any information we hold about you.
+            </p>
+          </Section>
+
           <Section title="3. What other people can see">
             <p>
               <strong className="text-foreground">Your profile</strong> (display name, username,
@@ -141,9 +150,9 @@ function PrivacyPage() {
             <p>
               Only to run Courseflix: to sign you in, show your shortlist and profile, calculate
               course ratings from student reviews, power friends and notifications, screen reviews
-              for threats and personal information, send password-reset emails, prevent abuse, and
-              understand which pages are used so we can improve the site. We don&apos;t sell
-              personal information or use it for advertising.
+              for threats and personal information, send password-reset and email-confirmation
+              emails, prevent abuse, and understand which pages are used so we can improve the site.
+              We don&apos;t sell personal information or use it for advertising.
             </p>
           </Section>
 
@@ -152,7 +161,7 @@ function PrivacyPage() {
             <ul className="list-disc space-y-1 pl-5">
               <li>Supabase: database and sign-in.</li>
               <li>Vercel: website hosting, analytics and performance measurement.</li>
-              <li>Resend: sending password-reset emails.</li>
+              <li>Resend: sending password-reset and email-confirmation emails.</li>
               <li>
                 Anthropic: before a review is published, its comment and instructor field are sent
                 to Anthropic&apos;s Claude API to check for threats, hate, and other people&apos;s
