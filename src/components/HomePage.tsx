@@ -9,6 +9,7 @@ import { CinematicIntro } from "@/components/CinematicIntro";
 import { Spotlight } from "@/components/Spotlight";
 import { Marquee } from "@/components/Marquee";
 import { FeatureBento } from "@/components/FeatureBento";
+import { YearTiers } from "@/components/YearTiers";
 import { Link } from "@tanstack/react-router";
 import { BIRD_COURSE_THRESHOLD, useBirdCourses } from "@/lib/ratings";
 import { COURSES, getRailsForMajor, getFeaturedDeckForMajor, type FilterId } from "@/lib/courses";
@@ -58,6 +59,8 @@ export function HomePage() {
       <div className="hidden md:block">
         <Marquee />
       </div>
+
+      <YearTiers />
 
       <div className="px-6 pt-6 md:px-10 md:pt-10">
         <p className="text-xs font-semibold uppercase tracking-[0.3em] text-muted-foreground">
