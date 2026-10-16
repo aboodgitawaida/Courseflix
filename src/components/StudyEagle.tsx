@@ -341,7 +341,13 @@ export function StudyEagle() {
     };
     const onSay = (event: Event) => {
       const { message } = (event as CustomEvent<{ message?: string }>).detail ?? {};
-      if (message && !isDozing(modeRef.current)) showStatus(message);
+      if (!message) return;
+      // These lines answer something you just did (opened a page, removed a course),
+      // and each is said once, so a sleeping eagle wakes up to say it instead of
+      // dropping it.
+      setActivityVersion((version) => version + 1);
+      if (isDozing(modeRef.current)) go("wakingUp");
+      showStatus(message);
     };
     window.addEventListener("study-eagle-summarize", onSummary);
     window.addEventListener("study-eagle-clear", onClearSummary);
