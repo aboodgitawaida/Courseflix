@@ -26,12 +26,15 @@ export const EAGLE_MODES = [
   "weighing",
   "openingQuill",
   "writing",
+  "openingMap",
+  "mapping",
   "grinding",
   // Putting each prop away: its take-out animation played backwards.
   "closingBook",
   "closingGlass",
   "closingScale",
   "closingQuill",
+  "closingMap",
   "closingNotepad",
 ] as const;
 export type EagleMode = (typeof EAGLE_MODES)[number];
@@ -48,11 +51,14 @@ export const MODE_PRIORITY: Record<EagleMode, number> = {
   weighing: 0,
   openingQuill: 0,
   writing: 0,
+  openingMap: 0,
+  mapping: 0,
   grinding: 1,
   closingBook: 0,
   closingGlass: 0,
   closingScale: 0,
   closingQuill: 0,
+  closingMap: 0,
   closingNotepad: 0,
   wakingUp: 2,
   startled: 2,
@@ -76,10 +82,12 @@ export const MODE_DURATION_MS: Partial<Record<EagleMode, number>> = {
   openingGlass: 900, // 6 frames: takes out the magnifying glass
   openingScale: 900, // 6 frames: takes out the balance scale
   openingQuill: 900, // 6 frames: takes out the quill and scroll
+  openingMap: 900, // 6 frames: unfolds the map
   closingBook: 900, // the take-out animations, backwards
   closingGlass: 900,
   closingScale: 900,
   closingQuill: 900,
+  closingMap: 900,
   closingNotepad: 900,
 };
 
@@ -95,6 +103,8 @@ export type EagleContext = {
   comparing: boolean;
   /** The review box has focus: he writes along with a quill. */
   writing: boolean;
+  /** The prerequisite map is on screen: he studies a map of his own. */
+  mapping: boolean;
 };
 
 /** Prop animations: a one-shot "take it out" state, then the loop it settles into. */
@@ -103,6 +113,7 @@ const OPENING_TO_LOOP: Partial<Record<EagleMode, EagleMode>> = {
   openingGlass: "searching",
   openingScale: "weighing",
   openingQuill: "writing",
+  openingMap: "mapping",
 };
 
 /** Putting a prop away, from its take-out state or its loop. */
@@ -115,6 +126,8 @@ const PUT_AWAY: Partial<Record<EagleMode, EagleMode>> = {
   weighing: "closingScale",
   openingQuill: "closingQuill",
   writing: "closingQuill",
+  openingMap: "closingMap",
+  mapping: "closingMap",
   grinding: "closingNotepad",
 };
 
@@ -153,6 +166,7 @@ export function isDozing(mode: EagleMode) {
 export function restingMode(ctx: EagleContext): EagleMode {
   if (ctx.writing) return "openingQuill";
   if (ctx.searching) return "openingGlass";
+  if (ctx.mapping) return "openingMap";
   if (ctx.grinding) return "grinding";
   if (ctx.reading) return "openingBook";
   if (ctx.comparing) return "openingScale";

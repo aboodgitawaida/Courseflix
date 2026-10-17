@@ -607,12 +607,25 @@
   background-size: 600% 100%;
   animation: eagle-reading-frames 1.2s steps(6, jump-none) infinite;
 }
+/* Studying the prerequisite map: unfolds a map (once), then traces the route in a loop
+   for as long as the map is on screen. */
+.study-eagle-sprite-openingMap {
+  background-image: url("/eagle-map-open.png");
+  background-size: 600% 100%;
+  animation: eagle-reading-frames 0.9s steps(6, jump-none) forwards;
+}
+.study-eagle-sprite-mapping {
+  background-image: url("/eagle-map.png");
+  background-size: 600% 100%;
+  animation: eagle-reading-frames 1.2s steps(6, jump-none) infinite;
+}
 /* Putting a prop away: the take-out animation played backwards, ending on his
    normal pose (closing* in eagle-state.ts). */
 .study-eagle-sprite-closingBook,
 .study-eagle-sprite-closingGlass,
 .study-eagle-sprite-closingScale,
 .study-eagle-sprite-closingQuill,
+.study-eagle-sprite-closingMap,
 .study-eagle-sprite-closingNotepad {
   background-size: 600% 100%;
   animation: eagle-reading-frames 0.9s steps(6, jump-none) reverse forwards;
@@ -628,6 +641,9 @@
 }
 .study-eagle-sprite-closingQuill {
   background-image: url("/eagle-quill-open.png");
+}
+.study-eagle-sprite-closingMap {
+  background-image: url("/eagle-map-open.png");
 }
 .study-eagle-sprite-closingNotepad {
   background-image: url("/eagle-grind-open.png");

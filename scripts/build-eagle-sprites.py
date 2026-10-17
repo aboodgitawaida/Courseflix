@@ -9,6 +9,8 @@
   pixellab-trophy.png         PixelLab animation from the awake frame: lifts a gold trophy (11 x 80x80;
                               variant E, seed 322, of pixellab-trophy-{a,b,c}_N.png)
   pixellab-pet.png            PixelLab animation from the awake frame: happy head-bob (8 x 80x80)
+  pixellab-map.png            PixelLab animation from the awake frame: unfolds a map and traces the route (12 x 80x80;
+                              variant A, seed 601, of pixellab-map-{a,b}_N.png)
   pixellab-annoyed.png        PixelLab animation from the awake frame: fed up with being petted, head turns
                               away, feathers ruffle (11 x 80x80; variant B, seed 502, of pixellab-annoyed-{a,b,c}_N.png)
   pixellab-fallasleep.png     PixelLab animation, awake frame -> sleep frame 1: a yawn, then the head sinks (8 x 80x80)
@@ -28,6 +30,8 @@ cut end sits against the right edge of the screen:
   public/eagle-celebrate.png  10 frames (played once): the victory cheer
   public/eagle-trophy.png     11 frames (played once, on a new achievement): raises the trophy
   public/eagle-pet.png        8 frames (played once per tap)
+  public/eagle-map-open.png   6 frames (played once: unfolds the map; played backwards to put it away)
+  public/eagle-map.png        6 frames (loop: studying the map while the prerequisite map is on screen)
   public/eagle-annoyed.png    11 frames (played once, after petting him too much in a row)
   public/eagle-fallasleep.png 8 frames (played once, awake -> sleeping)
   public/eagle-wakeup.png     8 frames (played once, sleeping -> awake)
@@ -201,6 +205,7 @@ idle80, celebrate80, pet80, fallasleep80, wakeup80, reading80, grind80 = (
 startled80 = pixellab_frames("startled")
 search80 = pixellab_frames("search")
 quill80 = pixellab_frames("quill")
+map80 = pixellab_frames("map")
 
 
 # The balance scale: PixelLab drew him taking it out, but its pans barely move, and
@@ -285,7 +290,7 @@ grind80 = [drop_specks(f) for f in grind80]
 # lock the branch (and tail) below the feet to the awake frame, so it never flickers
 LOCK = 61 + dy
 for f in (idle80 + celebrate80 + pet80 + fallasleep80 + wakeup80 + reading80 + grind80 + startled80
-          + search80 + compare80 + weighing80 + quill80 + sleep80):
+          + search80 + compare80 + weighing80 + quill80 + map80 + sleep80):
     f[LOCK:] = awake80[LOCK:]
 
 # one shared palette for all four art sources. The beak and eyes (warm oranges and
@@ -361,6 +366,7 @@ grind80 = snap_extra(grind80)
 startled80 = snap_extra(startled80)
 search80 = snap_extra(search80)
 quill80 = snap_extra(quill80)
+map80 = snap_extra(map80)
 compare80, weighing80 = (lambda both: (both[:6], both[6:]))(snap_extra(compare80 + weighing80))
 
 
@@ -468,7 +474,7 @@ ys, xs = np.nonzero(al)
 y0, y1, x1 = ys.min(), ys.max() + 1, xs.max() + 1
 # The magnifying glass pokes a pixel past the shared frame; trim it rather than
 # grow every sheet.
-for f in search80 + compare80 + weighing80 + quill80:
+for f in search80 + compare80 + weighing80 + quill80 + map80:
     f[:y0] = 0; f[y1:] = 0; f[:, x1:] = 0
 
 
@@ -759,4 +765,10 @@ QUILL_OPEN, QUILL_LOOP = range(0, 6), range(6, 12)
 Image.fromarray(finish([quill80[i] for i in QUILL_OPEN]), "RGBA").save(OUT / "eagle-quill-open.png", optimize=True)
 Image.fromarray(finish([quill80[i] for i in QUILL_LOOP]), "RGBA").save(OUT / "eagle-quill.png", optimize=True)
 
-print("frame size", x1 - STUB_X, "x", y1 - y0, "| wrote eagle-awake, -sleep, -celebrate, -trophy, -annoyed, -pet, -fallasleep, -wakeup, -reading-open, -reading, -grind, -grind-open, -startled, -search-open, -search, -compare-open, -compare, -quill-open, -quill")
+# ---------- 13. map: unfolds the prerequisite map once, then traces the route ----------
+# Kept as PixelLab drew it (variant A, seed 601, of pixellab-map-{a,b}_N.png).
+MAP_OPEN, MAP_LOOP = range(0, 6), range(6, 12)
+Image.fromarray(finish([map80[i] for i in MAP_OPEN]), "RGBA").save(OUT / "eagle-map-open.png", optimize=True)
+Image.fromarray(finish([map80[i] for i in MAP_LOOP]), "RGBA").save(OUT / "eagle-map.png", optimize=True)
+
+print("frame size", x1 - STUB_X, "x", y1 - y0, "| wrote eagle-awake, -sleep, -celebrate, -trophy, -annoyed, -pet, -fallasleep, -wakeup, -reading-open, -reading, -grind, -grind-open, -startled, -search-open, -search, -compare-open, -compare, -quill-open, -quill, -map-open, -map")

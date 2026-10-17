@@ -86,6 +86,8 @@ const EAGLE_SHEETS = [
   "/eagle-compare.png",
   "/eagle-quill-open.png",
   "/eagle-quill.png",
+  "/eagle-map-open.png",
+  "/eagle-map.png",
 ];
 // Holding the decoded images keeps them in memory for the life of the page.
 let preloadedSheets: HTMLImageElement[] | null = null;
@@ -169,8 +171,37 @@ export function StudyEagle() {
   // The full compare table shows from two courses up; one is just a reminder bar.
   const comparing = compare.length >= 2;
   const writing = reviewFocused;
-  const context = useRef<EagleContext>({ reading, searching, grinding, comparing, writing });
-  context.current = { reading, searching, grinding, comparing, writing };
+  // The prerequisite map (marked data-eagle-avoid) is on screen: he studies a map too.
+  const [mapping, setMapping] = useState(false);
+  useEffect(() => {
+    if (!enabled) return;
+    const check = () => {
+      const tree = document.querySelector<HTMLElement>(EAGLE_AVOID_SELECTOR);
+      const rect = tree?.getBoundingClientRect();
+      const onScreen =
+        !!rect && rect.height > 0 && rect.bottom > 120 && rect.top < window.innerHeight - 120;
+      setMapping((current) => (current === onScreen ? current : onScreen));
+    };
+    check();
+    // The tree appears after its course loads, and moves as you scroll.
+    const timer = window.setInterval(check, 600);
+    window.addEventListener("scroll", check, { capture: true, passive: true });
+    window.addEventListener("resize", check);
+    return () => {
+      window.clearInterval(timer);
+      window.removeEventListener("scroll", check, { capture: true });
+      window.removeEventListener("resize", check);
+    };
+  }, [enabled, pathname]);
+  const context = useRef<EagleContext>({
+    reading,
+    searching,
+    grinding,
+    comparing,
+    writing,
+    mapping,
+  });
+  context.current = { reading, searching, grinding, comparing, writing, mapping };
 
   useEffect(() => {
     modeRef.current = mode;
@@ -209,9 +240,9 @@ export function StudyEagle() {
       go("grinding");
       return;
     }
-    const next = ambient(mode, { reading, searching, grinding, comparing, writing });
+    const next = ambient(mode, { reading, searching, grinding, comparing, writing, mapping });
     if (next) setMode(next);
-  }, [mode, reading, searching, grinding, comparing, writing]);
+  }, [mode, reading, searching, grinding, comparing, writing, mapping]);
 
   useEffect(() => {
     if (enabled) preloadEagleSheets();
