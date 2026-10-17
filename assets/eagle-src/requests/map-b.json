@@ -1,0 +1,8 @@
+{
+  "first_frame": "@assets/eagle-src/pixellab-base-awake.png",
+  "action": "planning a route: the eagle unrolls a large cream parchment map showing little circles joined by branching lines like a path tree, holds the open map in both wings at chest height, taps a wing tip on one circle then slides along a line to the next, eyes scanning the map, nodding thoughtfully",
+  "frame_count": 12,
+  "seed": 602,
+  "enhance_prompt": false,
+  "no_background": true
+}

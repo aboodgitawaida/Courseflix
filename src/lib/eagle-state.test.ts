@@ -19,6 +19,7 @@ const idle: EagleContext = {
   grinding: false,
   comparing: false,
   writing: false,
+  mapping: false,
 };
 const preview: EagleContext = {
   reading: true,
@@ -26,6 +27,7 @@ const preview: EagleContext = {
   grinding: false,
   comparing: false,
   writing: false,
+  mapping: false,
 };
 const typing: EagleContext = {
   reading: false,
@@ -33,6 +35,7 @@ const typing: EagleContext = {
   grinding: true,
   comparing: false,
   writing: false,
+  mapping: false,
 };
 const search: EagleContext = {
   reading: false,
@@ -40,6 +43,7 @@ const search: EagleContext = {
   grinding: false,
   comparing: false,
   writing: false,
+  mapping: false,
 };
 
 describe("eagle state machine", () => {
@@ -124,6 +128,7 @@ describe("eagle state machine", () => {
         grinding: true,
         comparing: false,
         writing: false,
+        mapping: false,
       }),
     ).toBe("closingBook");
     expect(ambient("grinding", preview)).toBe("closingNotepad");
@@ -161,6 +166,25 @@ describe("eagle state machine", () => {
     expect(ambient("writing", { ...writing, grinding: true })).toBeNull();
     expect(ambient("writing", { ...preview })).toBe("closingQuill");
     expect(ambient("writing", idle)).toBe("closingQuill");
+  });
+
+  it("studies a map while the prerequisite map is on screen", () => {
+    const map = { ...idle, mapping: true };
+    expect(ambient("awake", map)).toBe("openingMap");
+    expect(settle("openingMap", map)).toBe("mapping");
+    expect(ambient("mapping", map)).toBeNull();
+    expect(ambient("mapping", idle)).toBe("closingMap");
+    expect(settle("closingMap", idle)).toBe("awake");
+    // the map wins over the book (a course page also counts as reading) ...
+    expect(ambient("awake", { ...map, reading: true })).toBe("openingMap");
+    expect(ambient("reading", { ...map, reading: true })).toBe("closingBook");
+    expect(settle("closingBook", { ...map, reading: true })).toBe("openingMap");
+    // ... but searching and writing a review still win over the map
+    expect(ambient("awake", { ...map, searching: true })).toBe("openingGlass");
+    expect(ambient("awake", { ...map, writing: true })).toBe("openingQuill");
+    // scrolling past the map puts it away and goes back to the book
+    expect(ambient("mapping", { ...idle, reading: true })).toBe("closingMap");
+    expect(settle("closingMap", { ...idle, reading: true })).toBe("openingBook");
   });
 
   it("puts a prop away before going idle or taking out the next one", () => {
