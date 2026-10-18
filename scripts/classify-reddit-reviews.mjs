@@ -165,6 +165,9 @@ async function classifyLocal(content) {
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
+// Gemini answered but with nothing to read, usually because it blocked something in the batch.
+class EmptyOutputError extends Error {}
+
 async function classifyGemini(content, attempt = 1) {
   // After two overloaded replies, try the lighter model, which is usually less busy.
   const model = attempt > 2 ? GEMINI_FALLBACK : GEMINI_MODEL;
@@ -176,6 +179,14 @@ async function classifyGemini(content, attempt = 1) {
       body: JSON.stringify({
         systemInstruction: { parts: [{ text: SYSTEM }] },
         contents: [{ role: "user", parts: [{ text: content }] }],
+        // These are student comments we only classify. The default filters can block a whole
+        // batch because one comment is crude or sensitive, which leaves it unlabelled.
+        safetySettings: [
+          "HARM_CATEGORY_HARASSMENT",
+          "HARM_CATEGORY_HATE_SPEECH",
+          "HARM_CATEGORY_SEXUALLY_EXPLICIT",
+          "HARM_CATEGORY_DANGEROUS_CONTENT",
+        ].map((category) => ({ category, threshold: "BLOCK_NONE" })),
         generationConfig: {
           temperature: 0,
           responseMimeType: "application/json",
@@ -209,8 +220,12 @@ async function classifyGemini(content, attempt = 1) {
     }
     throw new Error(`Gemini ${res.status}: ${body.slice(0, 300)}`);
   }
-  const text = (await res.json()).candidates?.[0]?.content?.parts?.[0]?.text;
-  if (!text) throw new Error("Gemini returned no output");
+  const json = await res.json();
+  const text = json.candidates?.[0]?.content?.parts?.[0]?.text;
+  if (!text) {
+    const why = json.promptFeedback?.blockReason ?? json.candidates?.[0]?.finishReason ?? "unknown";
+    throw new EmptyOutputError(`Gemini returned no output (${why})`);
+  }
   return JSON.parse(text).results;
 }
 
@@ -321,12 +336,32 @@ async function main() {
   async function worker() {
     while (next < batches.length) {
       const batch = batches[next++];
-      try {
-        for (const { index, ...labels } of await classify(batch)) {
-          const item = batch[index];
+      const apply = (items, results) => {
+        for (const { index, ...labels } of results) {
+          const item = items[index];
           if (!item) continue;
           item.entry.labels = labels;
           item.entry.labelsVersion = VERSION;
+        }
+      };
+      try {
+        try {
+          apply(batch, await classify(batch));
+        } catch (e) {
+          if (!(e instanceof EmptyOutputError) || batch.length === 1) throw e;
+          // One comment probably tripped it. Send them one at a time so only that one is left out.
+          console.log(`  ${e.message}; retrying its ${batch.length} comments one by one`);
+          let skipped = 0;
+          for (const item of batch) {
+            try {
+              apply([item], await classify([item]));
+            } catch (single) {
+              if (!(single instanceof EmptyOutputError)) throw single;
+              skipped++;
+              console.log(`  skipped ${item.code} comment ${item.entry.id}: ${single.message}`);
+            }
+          }
+          if (skipped === batch.length) throw e;
         }
         failedInARow = 0;
       } catch (e) {
