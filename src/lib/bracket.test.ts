@@ -96,14 +96,19 @@ describe("hardest-course seeds", () => {
     expect(new Set(picked).size).toBe(16);
   });
 
-  it("matches the seeds frozen in the migration", () => {
+  // The seeds are frozen in the migration on purpose, so a later Reddit update must not change
+  // them mid-vote. That means this cannot compare them with a fresh pick from the live data.
+  it("keeps 16 distinct catalog courses frozen in the migration", () => {
     const sql = readFileSync(
       new URL("../../supabase/migrations/20261016120000_course_brackets.sql", import.meta.url),
       "utf8",
     );
     expect(sql).toContain(`'${ACTIVE_BRACKET_ID}'`);
     const frozen = [...sql.matchAll(/'([A-Z]{3}\d{3}[HY]\d)'/g)].map((m) => m[1]);
-    expect(frozen).toEqual(picked);
+    expect(frozen).toHaveLength(16);
+    expect(new Set(frozen).size).toBe(16);
+    const catalog = new Set(COURSES.map((c) => c.code));
+    expect(frozen.filter((code) => !catalog.has(code))).toEqual([]);
   });
 });
 
