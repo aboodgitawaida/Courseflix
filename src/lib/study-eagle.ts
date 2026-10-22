@@ -68,6 +68,29 @@ export function reactEagle(
   else window.dispatchEvent(new CustomEvent("study-eagle-say", { detail: { message } }));
 }
 
+/** He goes gold at most this often, so a page of bird courses doesn't strobe him. */
+export const GOLDEN_GAP_MS = 20_000;
+let lastGolden = Number.NEGATIVE_INFINITY;
+
+/**
+ * Have the Study Eagle power up into gold for a moment (a bird course, or the bird
+ * section), with a line from the pool. Once per key per session when `once` is given.
+ * Does nothing on the server, or within GOLDEN_GAP_MS of the last time.
+ */
+export function goldenEagle(
+  event: "birdCourse" | "birdSection",
+  vars: Record<string, string | number> = {},
+  options: { once?: string } = {},
+  now = Date.now(),
+) {
+  if (typeof window === "undefined") return;
+  if (now - lastGolden < GOLDEN_GAP_MS) return;
+  if (options.once && !firstThisSession(options.once)) return;
+  lastGolden = now;
+  const message = pickEagleLine(event, vars, now) ?? undefined;
+  window.dispatchEvent(new CustomEvent("study-eagle-golden", { detail: { message } }));
+}
+
 const lastIndex = new Map<EagleLineEvent, number>();
 const lastShown = new Map<EagleLineEvent, number>();
 
@@ -121,4 +144,5 @@ export function takeLateNightLine(date = new Date()): string | null {
 export function resetEagleLines() {
   lastIndex.clear();
   lastShown.clear();
+  lastGolden = Number.NEGATIVE_INFINITY;
 }

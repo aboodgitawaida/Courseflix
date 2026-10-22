@@ -519,6 +519,15 @@
   background-size: 1100% 100%;
   animation: eagle-annoyed-frames 1.2s steps(11, jump-none) forwards;
 }
+/* Golden: powers up into gold for a bird course, then back; played once (MODE_DURATION_MS).
+   The glow is a drop-shadow that swells while he is gold and fades with him. */
+.study-eagle-sprite-golden {
+  background-image: url("/eagle-golden.png");
+  background-size: 1000% 100%;
+  animation:
+    eagle-golden-frames 1.5s steps(10, jump-none) forwards,
+    eagle-golden-glow 1.5s ease-in-out forwards;
+}
 /* Celebration: 10-frame victory cheer, played once (MODE_DURATION_MS in eagle-state.ts). */
 .study-eagle-sprite-celebrating {
   background-image: url("/eagle-celebrate.png");
@@ -688,6 +697,24 @@
   }
   to {
     background-position-x: 100%;
+  }
+}
+@keyframes eagle-golden-frames {
+  from {
+    background-position-x: 0%;
+  }
+  to {
+    background-position-x: 100%;
+  }
+}
+@keyframes eagle-golden-glow {
+  0%,
+  100% {
+    filter: drop-shadow(0 0 0 rgba(255, 196, 40, 0));
+  }
+  35%,
+  70% {
+    filter: drop-shadow(0 0 6px rgba(255, 196, 40, 0.95)) drop-shadow(0 0 14px rgba(255, 160, 20, 0.6));
   }
 }
 @keyframes eagle-celebrate-frames {
