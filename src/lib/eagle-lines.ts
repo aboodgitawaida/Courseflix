@@ -400,6 +400,22 @@ export const EAGLE_LINES = {
     "Cheers to the year! Shortlist for the new one tomorrow.",
     "Year's almost over. You did well. Go have fun.",
   ],
+  /** Opening a gold (bird) course: he powers up into gold. */
+  birdCourse: [
+    "Fellow bird. Respect.",
+    "A bird course. Time to go gold.",
+    "Gold standard. Literally.",
+    "Now that's a course after my own heart.",
+    "Powering up. Easy courses bring out my best.",
+  ],
+  /** Opening the bird section: the whole shelf is gold. */
+  birdSection: [
+    "Welcome to the aviary.",
+    "Bird courses. My people.",
+    "Go gold or go home.",
+    "The gold section. Handle with shine.",
+    "All gold, all the time.",
+  ],
   /** Answers in the chat panel. */
   tips: [
     "Try the course preview first, then shortlist anything that still feels like a good fit.",

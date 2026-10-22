@@ -1,15 +1,20 @@
-import { useMemo } from "react";
+import { useEffect, useMemo } from "react";
 import { Feather, Skull, Sparkles } from "lucide-react";
 import { useBirdCourses } from "@/lib/ratings";
 import { getTiers, groupByYear } from "@/lib/tiers";
 import { CourseRail } from "@/components/CourseRail";
 import { useReveal } from "@/hooks/use-reveal";
+import { goldenEagle } from "@/lib/study-eagle";
 
 const SPARKLE_SPOTS = [6, 20, 34, 52, 68, 82, 93];
 const EMBER_SPOTS = [4, 15, 27, 41, 58, 71, 86, 95];
 
 /** Bird courses (gold) or the danger zone (red), as rows like the rest of the page. */
 export function TierView({ kind }: { kind: "bird" | "danger" }) {
+  // Opening the bird section: he goes gold.
+  useEffect(() => {
+    if (kind === "bird") goldenEagle("birdSection");
+  }, [kind]);
   const { data: birdMentions } = useBirdCourses();
   const tiers = useMemo(() => getTiers(birdMentions), [birdMentions]);
   const courses = kind === "bird" ? tiers.birds : tiers.danger;

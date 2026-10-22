@@ -18,6 +18,7 @@ export const EAGLE_MODES = [
   "trophy",
   "petting",
   "annoyed",
+  "golden",
   "openingBook",
   "reading",
   "openingGlass",
@@ -65,6 +66,8 @@ export const MODE_PRIORITY: Record<EagleMode, number> = {
   petting: 2,
   // Ignores further pets while he sulks, but a celebration can still cut in.
   annoyed: 3,
+  // Powering up into gold for a bird course: a pet does not cut it short.
+  golden: 3,
   celebrating: 3,
   trophy: 3,
 };
@@ -78,6 +81,7 @@ export const MODE_DURATION_MS: Partial<Record<EagleMode, number>> = {
   trophy: 2_000, // 11-frame trophy lift, for a new achievement
   petting: 900, // 8-frame head-bob
   annoyed: 1_200, // 11-frame huff and ruffle, after being petted too much in a row
+  golden: 1_500, // 10-frame power-up into gold, for a bird course
   openingBook: 900, // 6 frames: takes out the book
   openingGlass: 900, // 6 frames: takes out the magnifying glass
   openingScale: 900, // 6 frames: takes out the balance scale
