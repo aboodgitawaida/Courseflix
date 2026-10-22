@@ -81,7 +81,7 @@ export const MODE_DURATION_MS: Partial<Record<EagleMode, number>> = {
   trophy: 2_000, // 11-frame trophy lift, for a new achievement
   petting: 900, // 8-frame head-bob
   annoyed: 1_200, // 11-frame huff and ruffle, after being petted too much in a row
-  golden: 1_500, // 11-frame power-up into gold, for a bird course
+  golden: 2_000, // 17-frame power-up into gold, for a bird course
   openingBook: 900, // 6 frames: takes out the book
   openingGlass: 900, // 6 frames: takes out the magnifying glass
   openingScale: 900, // 6 frames: takes out the balance scale

@@ -35,7 +35,7 @@ cut end sits against the right edge of the screen:
   public/eagle-map-open.png   6 frames (played once: unfolds the map; played backwards to put it away)
   public/eagle-map.png        6 frames (loop: studying the map while the prerequisite map is on screen)
   public/eagle-annoyed.png    11 frames (played once, after petting him too much in a row)
-  public/eagle-golden.png     11 frames (played once, for a bird course: a super saiyan power-up)
+  public/eagle-golden.png     17 frames (played once, for a bird course: a super saiyan power-up)
   public/eagle-fallasleep.png 8 frames (played once, awake -> sleeping)
   public/eagle-wakeup.png     8 frames (played once, sleeping -> awake)
   public/eagle-reading-open.png 6 frames (played once: takes out the book and opens it)
@@ -866,15 +866,66 @@ BOLTS = (
     ((36, 21), (40, 25), (44, 20), (49, 25)),
     ((34, 69), (38, 65), (43, 70), (48, 65)),
 )
-for i, f in enumerate(golden80):
-    if i in AURA:
+def flash(f):
+    """The moment he powers up: everything blows out towards white, in a pale halo."""
+    a = f[..., 3] > 0
+    halo = a.copy()
+    for _ in range(3):
+        halo = halo | np.roll(halo, 1, 0) | np.roll(halo, -1, 0) | np.roll(halo, 1, 1) | np.roll(halo, -1, 1)
+    f[halo & ~a] = (*GOLD_PALE, 255)
+    f[a, :3] = (f[a, :3] * 0.4 + 255 * 0.6).astype(np.uint8)
+
+
+def spikes(f, k, strength):
+    """Tall jagged aura spikes standing up from the top of his silhouette, different every frame."""
+    rng = np.random.default_rng(900 + k)
+    a = f[..., 3] > 0
+    top = np.where(a.any(0), a.argmax(0), -1)
+    heights = np.zeros(80, int)
+    x = 18
+    while x < 74:
+        half = int(rng.integers(2, 4))
+        peak = int(round(rng.integers(5, 12) * strength))
+        centre = x + half
+        for dx in range(-half, half + 1):
+            if 0 <= centre + dx < 80:
+                heights[centre + dx] = max(heights[centre + dx], round(peak * (1 - abs(dx) / (half + 1))))
+        x += 2 * half + int(rng.integers(0, 2))
+    for x in range(80):
+        if top[x] < 0:
+            continue
+        for j in range(1, heights[x] + 1):
+            y = top[x] - j
+            if y < 0 or a[y, x]:
+                continue
+            tip = j >= heights[x] - 1
+            f[y, x] = (*((255, 252, 215) if tip else GOLD_PALE if j % 3 else GOLD), 255)
+
+
+# the pose frames of variant C in order, held and flickered so he stays powered up for a while
+SEQUENCE = (0, 1, 2, "flash", 3, 4, 5, 6, 7, 8, 6, 7, 5, 8, 6, 9, 10)
+STRENGTH = {2: 0.35, "flash": 0.0, 3: 0.6, 4: 0.9, 9: 0.4, 1: 0.0, 0: 0.0, 10: 0.0}
+out = []
+for k, step in enumerate(SEQUENCE):
+    base = 2 if step == "flash" else step
+    f = golden80[base].copy()
+    if base in AURA:
         recolor_aura(f)
-    if i in POWER:
+    if base in POWER:
         gold_head(f)
         pants(f)
-        for n, bolt in enumerate(BOLTS):
-            if (i + n) % 2 == 0:       # the bolts flicker, a different pair each frame
-                line(f, bolt)
+    if step == "flash":
+        flash(f)
+    else:
+        strength = STRENGTH.get(step, 1.0)
+        if strength:
+            spikes(f, k, strength)
+        if base in POWER and 4 <= k <= 14:
+            for n, bolt in enumerate(BOLTS):
+                if (k + n) % 2 == 0:       # the bolts flicker, a different pair each frame
+                    line(f, bolt)
+    out.append(f)
+golden80 = out
 for f in golden80:
     f[:y0] = 0; f[y1:] = 0; f[:, x1:] = 0
 Image.fromarray(finish(golden80), "RGBA").save(OUT / "eagle-golden.png", optimize=True)
