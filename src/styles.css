@@ -523,9 +523,9 @@
    The glow is a drop-shadow that swells while he is gold and fades with him. */
 .study-eagle-sprite-golden {
   background-image: url("/eagle-golden.png");
-  background-size: 1000% 100%;
+  background-size: 1100% 100%;
   animation:
-    eagle-golden-frames 1.5s steps(10, jump-none) forwards,
+    eagle-golden-frames 1.5s steps(11, jump-none) forwards,
     eagle-golden-glow 1.5s ease-in-out forwards;
 }
 /* Celebration: 10-frame victory cheer, played once (MODE_DURATION_MS in eagle-state.ts). */
