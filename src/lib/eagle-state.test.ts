@@ -178,7 +178,7 @@ describe("eagle state machine", () => {
     expect(settle("wakingUp", idle, "golden")).toBe("golden");
     expect(settle("golden", idle)).toBe("awake");
     expect(settle("golden", preview)).toBe("openingBook");
-    expect(MODE_DURATION_MS.golden).toBe(2_000);
+    expect(MODE_DURATION_MS.golden).toBe(1_500);
   });
 
   it("studies a map while the prerequisite map is on screen", () => {
