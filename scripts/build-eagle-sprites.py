@@ -9,6 +9,8 @@
   pixellab-trophy.png         PixelLab animation from the awake frame: lifts a gold trophy (11 x 80x80;
                               variant E, seed 322, of pixellab-trophy-{a,b,c}_N.png)
   pixellab-pet.png            PixelLab animation from the awake frame: happy head-bob (8 x 80x80)
+  pixellab-golden.png         PixelLab animation from the awake frame: powers up in a gold flame aura (11 x 80x80;
+                              variant A, seed 701, of pixellab-goldup-{a,b,c}_N.png)
   pixellab-map.png            PixelLab animation from the awake frame: unfolds a map and traces the route (12 x 80x80;
                               variant A, seed 601, of pixellab-map-{a,b}_N.png)
   pixellab-annoyed.png        PixelLab animation from the awake frame: fed up with being petted, head turns
@@ -33,6 +35,7 @@ cut end sits against the right edge of the screen:
   public/eagle-map-open.png   6 frames (played once: unfolds the map; played backwards to put it away)
   public/eagle-map.png        6 frames (loop: studying the map while the prerequisite map is on screen)
   public/eagle-annoyed.png    11 frames (played once, after petting him too much in a row)
+  public/eagle-golden.png     11 frames (played once, for a bird course: a super saiyan power-up)
   public/eagle-fallasleep.png 8 frames (played once, awake -> sleeping)
   public/eagle-wakeup.png     8 frames (played once, sleeping -> awake)
   public/eagle-reading-open.png 6 frames (played once: takes out the book and opens it)
@@ -751,6 +754,17 @@ for f in annoyed80:
     f[:y0] = 0; f[y1:] = 0; f[:, x1:] = 0
 Image.fromarray(finish(annoyed80), "RGBA").save(OUT / "eagle-annoyed.png", optimize=True)
 
+# ---------- golden: powers up into a gold aura for a bird course, then back ----------
+# Kept exactly as PixelLab drew it (variant A, seed 701, of pixellab-goldup-{a,b,c}_N.png):
+# only the branch lock, palette, trim and mirror every sheet gets.
+golden80 = pixellab_frames("golden")
+for f in golden80:
+    f[LOCK:] = awake80[LOCK:]
+golden80 = snap_extra(golden80)
+for f in golden80:
+    f[:y0] = 0; f[y1:] = 0; f[:, x1:] = 0
+Image.fromarray(finish(golden80), "RGBA").save(OUT / "eagle-golden.png", optimize=True)
+
 for name, frames in (("eagle-awake", idle80), ("eagle-sleep", sleep80), ("eagle-celebrate", celebrate80),
                      ("eagle-pet", pet80), ("eagle-fallasleep", fallasleep80), ("eagle-wakeup", wakeup80)):
     Image.fromarray(finish(frames), "RGBA").save(OUT / f"{name}.png", optimize=True)
@@ -771,4 +785,4 @@ MAP_OPEN, MAP_LOOP = range(0, 6), range(6, 12)
 Image.fromarray(finish([map80[i] for i in MAP_OPEN]), "RGBA").save(OUT / "eagle-map-open.png", optimize=True)
 Image.fromarray(finish([map80[i] for i in MAP_LOOP]), "RGBA").save(OUT / "eagle-map.png", optimize=True)
 
-print("frame size", x1 - STUB_X, "x", y1 - y0, "| wrote eagle-awake, -sleep, -celebrate, -trophy, -annoyed, -pet, -fallasleep, -wakeup, -reading-open, -reading, -grind, -grind-open, -startled, -search-open, -search, -compare-open, -compare, -quill-open, -quill, -map-open, -map")
+print("frame size", x1 - STUB_X, "x", y1 - y0, "| wrote eagle-awake, -sleep, -celebrate, -trophy, -annoyed, -golden, -pet, -fallasleep, -wakeup, -reading-open, -reading, -grind, -grind-open, -startled, -search-open, -search, -compare-open, -compare, -quill-open, -quill, -map-open, -map")

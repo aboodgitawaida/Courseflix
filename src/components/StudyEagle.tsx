@@ -73,6 +73,7 @@ const EAGLE_SHEETS = [
   "/eagle-trophy.png",
   "/eagle-pet.png",
   "/eagle-annoyed.png",
+  "/eagle-golden.png",
   "/eagle-fallasleep.png",
   "/eagle-wakeup.png",
   "/eagle-reading-open.png",
@@ -121,6 +122,8 @@ export function StudyEagle() {
   const [petKey, setPetKey] = useState(0);
   // Bumped each time he gets fed up, so the sulk restarts from frame 1.
   const [annoyedKey, setAnnoyedKey] = useState(0);
+  // Bumped each time he goes gold, so a repeat restarts from frame 1.
+  const [goldenKey, setGoldenKey] = useState(0);
   const petTimes = useRef<number[]>([]);
   // Bumped on every celebration so back-to-back ones restart the wing-flap.
   const [celebrateKey, setCelebrateKey] = useState(0);
@@ -232,7 +235,7 @@ export function StudyEagle() {
       setMode(settle(mode, context.current, queued));
     }, duration);
     return () => window.clearTimeout(timer);
-  }, [mode, petKey, celebrateKey, annoyedKey]);
+  }, [mode, petKey, celebrateKey, annoyedKey, goldenKey]);
 
   // Reading and grinding start and stop around whatever else is playing.
   useEffect(() => {
@@ -383,12 +386,23 @@ export function StudyEagle() {
     window.addEventListener("study-eagle-summarize", onSummary);
     window.addEventListener("study-eagle-clear", onClearSummary);
     window.addEventListener("study-eagle-celebrate", onCelebration);
+    const onGolden = (event: Event) => {
+      const { message } = (event as CustomEvent<{ message?: string }>).detail ?? {};
+      // Tucked away on a phone he stays put; everywhere else he powers up (waking first).
+      if (isCompact() && !revealedRef.current) return;
+      setActivityVersion((version) => version + 1);
+      setGoldenKey((key) => key + 1);
+      go("golden");
+      if (message) showStatus(message);
+    };
     window.addEventListener("study-eagle-say", onSay);
+    window.addEventListener("study-eagle-golden", onGolden);
     return () => {
       window.removeEventListener("study-eagle-summarize", onSummary);
       window.removeEventListener("study-eagle-clear", onClearSummary);
       window.removeEventListener("study-eagle-celebrate", onCelebration);
       window.removeEventListener("study-eagle-say", onSay);
+      window.removeEventListener("study-eagle-golden", onGolden);
     };
   }, []);
 
@@ -888,7 +902,9 @@ export function StudyEagle() {
                       ? `pet-${petKey}`
                       : sprite === "annoyed"
                         ? `annoyed-${annoyedKey}`
-                        : sprite
+                        : sprite === "golden"
+                          ? `golden-${goldenKey}`
+                          : sprite
                 }
                 className={`study-eagle-sprite study-eagle-sprite-${sprite} ${
                   sprite === mode ? "is-active" : ""

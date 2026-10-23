@@ -31,6 +31,7 @@ import { PUBLISHED_INSTRUCTORS } from "@/lib/course-instructors";
 import { loadDescriptions } from "@/lib/course-description";
 import { recordSubjectInterest } from "@/lib/interest";
 import { useCourseRarity } from "@/lib/course-rarity";
+import { goldenEagle } from "@/lib/study-eagle";
 import { RarityFx, RedditSays } from "@/components/RarityFx";
 
 export const Route = createFileRoute("/course/$code")({
@@ -106,6 +107,10 @@ function CoursePage() {
   const [burst, setBurst] = useState(0);
   const rarityInfo = useCourseRarity(course.code);
   const { rarity } = rarityInfo;
+  // Opening a gold (bird) course makes him power up into gold.
+  useEffect(() => {
+    if (rarity === "gold") goldenEagle("birdCourse");
+  }, [rarity, course.code]);
 
   useEffect(() => {
     window.dispatchEvent(
