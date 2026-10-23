@@ -3,6 +3,8 @@ import { EAGLE_LINES, EAGLE_LINE_COOLDOWN_MS } from "./eagle-lines";
 import {
   celebrateEagle,
   firstThisSession,
+  GOLDEN_GAP_MS,
+  goldenEagle,
   pickEagleLine,
   reactEagle,
   resetEagleLines,
@@ -148,5 +150,39 @@ describe("reactEagle", () => {
     expect(firstThisSession("x")).toBe(true);
     expect(firstThisSession("x")).toBe(false);
     vi.unstubAllGlobals();
+  });
+});
+
+describe("goldenEagle", () => {
+  function listen() {
+    const target = new EventTarget() as EventTarget & { sessionStorage: Storage };
+    const store = new Map<string, string>();
+    target.sessionStorage = {
+      getItem: (k: string) => store.get(k) ?? null,
+      setItem: (k: string, v: string) => void store.set(k, v),
+    } as Storage;
+    vi.stubGlobal("window", target);
+    const heard: Array<{ message?: string }> = [];
+    target.addEventListener("study-eagle-golden", (e) => heard.push((e as CustomEvent).detail));
+    return heard;
+  }
+
+  beforeEach(() => resetEagleLines());
+
+  it("goes gold with a line, then waits before doing it again", () => {
+    const heard = listen();
+    goldenEagle("birdSection", {}, 1_000);
+    goldenEagle("birdSection", {}, 1_000 + GOLDEN_GAP_MS - 1); // too soon
+    goldenEagle("birdCourse", {}, 1_000 + GOLDEN_GAP_MS);
+    vi.unstubAllGlobals();
+    expect(heard).toHaveLength(2);
+    expect(heard[0].message).toBeTruthy();
+  });
+
+  it("goes gold every time you open a bird course, once the gap has passed", () => {
+    const heard = listen();
+    for (let i = 0; i < 4; i++) goldenEagle("birdCourse", {}, 1_000 + i * GOLDEN_GAP_MS);
+    vi.unstubAllGlobals();
+    expect(heard).toHaveLength(4);
   });
 });

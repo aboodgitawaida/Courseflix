@@ -168,6 +168,19 @@ describe("eagle state machine", () => {
     expect(ambient("writing", idle)).toBe("closingQuill");
   });
 
+  it("powers up into gold without being cut short by a pet", () => {
+    expect(request("awake", "golden")?.mode).toBe("golden");
+    expect(request("reading", "golden")?.mode).toBe("golden");
+    expect(request("golden", "petting")).toBeNull();
+    expect(request("golden", "celebrating")?.mode).toBe("celebrating");
+    // asleep: wakes up first, then powers up
+    expect(request("sleeping", "golden")).toEqual({ mode: "wakingUp", queued: "golden" });
+    expect(settle("wakingUp", idle, "golden")).toBe("golden");
+    expect(settle("golden", idle)).toBe("awake");
+    expect(settle("golden", preview)).toBe("openingBook");
+    expect(MODE_DURATION_MS.golden).toBe(1_500);
+  });
+
   it("studies a map while the prerequisite map is on screen", () => {
     const map = { ...idle, mapping: true };
     expect(ambient("awake", map)).toBe("openingMap");

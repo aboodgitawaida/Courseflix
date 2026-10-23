@@ -15,6 +15,7 @@ import { useEffect, useState } from "react";
 import { calendarUrl } from "@/lib/links";
 import { recordSubjectInterest } from "@/lib/interest";
 import { useCourseRarity } from "@/lib/course-rarity";
+import { goldenEagle } from "@/lib/study-eagle";
 import { RarityFx, RedditSays } from "./RarityFx";
 
 export function CoursePreviewModal() {
@@ -39,6 +40,11 @@ export function CoursePreviewModal() {
   const majorName = getMajor(major)?.name;
   const rarityInfo = useCourseRarity(course?.code ?? "");
   const { rarity } = rarityInfo;
+  // Opening a gold (bird) course makes him power up into gold.
+  const goldCode = course?.code;
+  useEffect(() => {
+    if (rarity === "gold" && goldCode) goldenEagle("birdCourse");
+  }, [rarity, goldCode]);
 
   useEffect(() => {
     setImageSrc(getCourseImage(course?.subject ?? ""));
