@@ -171,20 +171,18 @@ describe("goldenEagle", () => {
 
   it("goes gold with a line, then waits before doing it again", () => {
     const heard = listen();
-    goldenEagle("birdSection", {}, {}, 1_000);
-    goldenEagle("birdSection", {}, {}, 1_000 + GOLDEN_GAP_MS - 1); // too soon
-    goldenEagle("birdSection", {}, {}, 1_000 + GOLDEN_GAP_MS);
+    goldenEagle("birdSection", {}, 1_000);
+    goldenEagle("birdSection", {}, 1_000 + GOLDEN_GAP_MS - 1); // too soon
+    goldenEagle("birdCourse", {}, 1_000 + GOLDEN_GAP_MS);
     vi.unstubAllGlobals();
     expect(heard).toHaveLength(2);
     expect(heard[0].message).toBeTruthy();
   });
 
-  it("does a given course once per session", () => {
+  it("goes gold every time you open a bird course, once the gap has passed", () => {
     const heard = listen();
-    goldenEagle("birdCourse", {}, { once: "gold-CSC108H5" }, 1_000);
-    goldenEagle("birdCourse", {}, { once: "gold-CSC108H5" }, 1_000 + 2 * GOLDEN_GAP_MS);
-    goldenEagle("birdCourse", {}, { once: "gold-MAT135H5" }, 1_000 + 4 * GOLDEN_GAP_MS);
+    for (let i = 0; i < 4; i++) goldenEagle("birdCourse", {}, 1_000 + i * GOLDEN_GAP_MS);
     vi.unstubAllGlobals();
-    expect(heard).toHaveLength(2);
+    expect(heard).toHaveLength(4);
   });
 });

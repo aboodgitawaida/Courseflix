@@ -107,9 +107,9 @@ function CoursePage() {
   const [burst, setBurst] = useState(0);
   const rarityInfo = useCourseRarity(course.code);
   const { rarity } = rarityInfo;
-  // A gold (bird) course makes him go gold, once per course per session.
+  // Opening a gold (bird) course makes him power up into gold.
   useEffect(() => {
-    if (rarity === "gold") goldenEagle("birdCourse", {}, { once: `gold-${course.code}` });
+    if (rarity === "gold") goldenEagle("birdCourse");
   }, [rarity, course.code]);
 
   useEffect(() => {

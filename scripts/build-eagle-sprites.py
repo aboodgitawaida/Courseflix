@@ -9,8 +9,8 @@
   pixellab-trophy.png         PixelLab animation from the awake frame: lifts a gold trophy (11 x 80x80;
                               variant E, seed 322, of pixellab-trophy-{a,b,c}_N.png)
   pixellab-pet.png            PixelLab animation from the awake frame: happy head-bob (8 x 80x80)
-  pixellab-golden.png         PixelLab animation from the awake frame: super saiyan power-up pose (11 x 80x80; variant C,
-                              seed 703); the gold effects are added by the build, see section 'golden'
+  pixellab-golden.png         PixelLab animation from the awake frame: powers up in a gold flame aura (11 x 80x80;
+                              variant A, seed 701, of pixellab-goldup-{a,b,c}_N.png)
   pixellab-map.png            PixelLab animation from the awake frame: unfolds a map and traces the route (12 x 80x80;
                               variant A, seed 601, of pixellab-map-{a,b}_N.png)
   pixellab-annoyed.png        PixelLab animation from the awake frame: fed up with being petted, head turns
@@ -35,7 +35,7 @@ cut end sits against the right edge of the screen:
   public/eagle-map-open.png   6 frames (played once: unfolds the map; played backwards to put it away)
   public/eagle-map.png        6 frames (loop: studying the map while the prerequisite map is on screen)
   public/eagle-annoyed.png    11 frames (played once, after petting him too much in a row)
-  public/eagle-golden.png     17 frames (played once, for a bird course: a super saiyan power-up)
+  public/eagle-golden.png     11 frames (played once, for a bird course: a super saiyan power-up)
   public/eagle-fallasleep.png 8 frames (played once, awake -> sleeping)
   public/eagle-wakeup.png     8 frames (played once, sleeping -> awake)
   public/eagle-reading-open.png 6 frames (played once: takes out the book and opens it)
@@ -754,178 +754,13 @@ for f in annoyed80:
     f[:y0] = 0; f[y1:] = 0; f[:, x1:] = 0
 Image.fromarray(finish(annoyed80), "RGBA").save(OUT / "eagle-annoyed.png", optimize=True)
 
-# ---------- golden: powers up into a super saiyan, then back ----------
-# PixelLab drew the pose (variant C, seed 703, of pixellab-goldup-{a,b,c}_N.png): the scream,
-# flared wings and a flame outline. Its flame came out orange and red, which read as "on
-# fire", so the effects below are done here: the aura is recoloured to pale gold, the white
-# head turns gold and spikes up, the eyes glow teal, lightning crackles, and he wears
-# Goku's orange pants and blue sash while it lasts.
+# ---------- golden: powers up into a gold aura for a bird course, then back ----------
+# Kept exactly as PixelLab drew it (variant A, seed 701, of pixellab-goldup-{a,b,c}_N.png):
+# only the branch lock, palette, trim and mirror every sheet gets.
 golden80 = pixellab_frames("golden")
 for f in golden80:
     f[LOCK:] = awake80[LOCK:]
 golden80 = snap_extra(golden80)
-POWER = range(2, 9)       # frames where the aura is at full strength
-AURA = range(1, 10)       # frames that have any flame at all
-GOLD = (252, 208, 66)
-GOLD_PALE = (255, 244, 150)
-
-
-def lum(rgb):
-    return rgb @ np.array([0.299, 0.587, 0.114])
-
-
-def recolor_aura(f):
-    rgb = f[..., :3].astype(int); a = f[..., 3] > 0
-    r, g, b = rgb[..., 0], rgb[..., 1], rgb[..., 2]
-    flame = a & (((r >= 238) & (g >= 140) & (g <= 190) & (b <= 70)) | ((r > 150) & (g < 90) & (b < 90)))
-    f[flame, :3] = GOLD
-    low = a & (r >= 225) & (g >= 60) & (g < 140) & (b < 80)   # leftover fire near the feet
-    low[:LOCK - 16] = False
-    f[low & ~flame, :3] = GOLD
-    pale = a & (r >= 245) & (g >= 240) & (b < 200) & ~flame
-    f[pale, :3] = GOLD_PALE
-
-
-def gold_head(f):
-    """The white head and its shading, as a gold ramp; spikes up like Goku's hair; teal eyes."""
-    rgb = f[..., :3].astype(int)
-    seed = head_mask(f)
-    if not seed.any():
-        return
-    gray = (f[..., 3] > 0) & (rgb.max(-1) - rgb.min(-1) < 24) & (lum(rgb) > 85)
-    gray[44:] = False
-    head = seed.copy(); q = deque(zip(*np.nonzero(seed)))
-    while q:
-        cy, cx = q.popleft()
-        for ny in (cy - 1, cy, cy + 1):
-            for nx in (cx - 1, cx, cx + 1):
-                if 0 <= ny < 80 and 0 <= nx < 80 and gray[ny, nx] and not head[ny, nx]:
-                    head[ny, nx] = True; q.append((ny, nx))
-    ys, xs = np.nonzero(head)
-    ty, cx = ys.min(), int(xs.mean())
-    # the pupil: dark pixels in the upper head with the head all around them
-    eye_rows = range(ty + 2, ty + 2 + (ys.max() - ty) * 6 // 10)
-    for y, x in zip(*np.nonzero(f[..., 3] > 0)):
-        if y in eye_rows and not head[y, x] and lum(rgb[y, x]) < 50 \
-                and head[max(y - 2, 0):y + 3, max(x - 2, 0):x + 3].sum() >= 14:
-            f[y, x, :3] = (40, 235, 220)
-    level = lum(rgb)
-    ramp = ((215, (255, 238, 120)), (185, (250, 208, 70)), (140, (228, 170, 40)), (0, (150, 100, 25)))
-    for y, x in zip(*np.nonzero(head)):
-        f[y, x, :3] = next(col for t, col in ramp if level[y, x] > t)
-    # spikes: gold triangles up from the top of the head
-    for dx, h in ((-7, 5), (-3, 8), (1, 9), (5, 6)):
-        for k in range(h):
-            width = max(3 - (3 * k) // h, 1)
-            for w in range(width):
-                y, x = ty - 1 - k, cx + dx + w - width // 2
-                if 0 <= y < 80 and 0 <= x < 80 and not head[y, x]:
-                    f[y, x] = (*((255, 238, 120) if w == width // 2 else (250, 208, 70)), 255)
-
-
-def pants(f):
-    """Goku's orange gi pants and blue sash over the lower body (only the brown body is painted)."""
-    rgb = f[..., :3].astype(int)
-    body = (f[..., 3] > 0) & (lum(rgb) <= 100) & (rgb[..., 0] >= rgb[..., 2]) & ~(rgb[..., 1] > rgb[..., 0] + 8)
-    cols = np.nonzero(body[LOCK - 8:LOCK - 2].any(0))[0]
-    if not len(cols):
-        return
-    xc = int(cols.mean())
-    sash_top, pants_top = LOCK - 14, LOCK - 10
-    orange = ((50, (214, 96, 14)), (70, (240, 128, 26)), (90, (252, 158, 44)), (101, (255, 184, 66)))
-    blue = ((45, (30, 56, 140)), (65, (44, 86, 200)), (85, (70, 118, 225)), (101, (110, 160, 240)))
-    level = lum(rgb)
-    for y in range(sash_top, LOCK - 2):
-        ramp = blue if y < pants_top else orange
-        for x in range(xc - 12, xc + 13):
-            if not (0 <= x < 80 and body[y, x]) or level[y, x] < 30:
-                continue
-            if y >= LOCK - 4 and x % 3 == 0:   # torn hem
-                continue
-            f[y, x, :3] = next(col for t, col in ramp if level[y, x] < t)
-    for y in range(sash_top, sash_top + 7):     # the sash tail, fluttering at his side
-        for x in (xc + 10, xc + 11):
-            f[y, x] = (36 if x == xc + 10 else 22, 64 if x == xc + 10 else 40, 160 if x == xc + 10 else 105, 255)
-
-
-def line(f, pts, color=(255, 255, 255), glow=GOLD_PALE):
-    for (y0_, x0_), (y1_, x1_) in zip(pts, pts[1:]):
-        n = max(abs(y1_ - y0_), abs(x1_ - x0_), 1)
-        for i in range(n + 1):
-            y = round(y0_ + (y1_ - y0_) * i / n); x = round(x0_ + (x1_ - x0_) * i / n)
-            for gx in (-1, 1):
-                if 0 <= y < 80 and 0 <= x + gx < 80 and f[y, x + gx, 3] == 0:
-                    f[y, x + gx] = (*glow, 255)
-            if 0 <= y < 80 and 0 <= x < 80:
-                f[y, x] = (*color, 255)
-
-
-BOLTS = (
-    ((8, 24), (13, 28), (17, 23), (22, 28), (27, 23), (33, 27)),
-    ((8, 66), (13, 62), (18, 67), (23, 62), (29, 66)),
-    ((36, 21), (40, 25), (44, 20), (49, 25)),
-    ((34, 69), (38, 65), (43, 70), (48, 65)),
-)
-def flash(f):
-    """The moment he powers up: everything blows out towards white, in a pale halo."""
-    a = f[..., 3] > 0
-    halo = a.copy()
-    for _ in range(3):
-        halo = halo | np.roll(halo, 1, 0) | np.roll(halo, -1, 0) | np.roll(halo, 1, 1) | np.roll(halo, -1, 1)
-    f[halo & ~a] = (*GOLD_PALE, 255)
-    f[a, :3] = (f[a, :3] * 0.4 + 255 * 0.6).astype(np.uint8)
-
-
-def spikes(f, k, strength):
-    """Tall jagged aura spikes standing up from the top of his silhouette, different every frame."""
-    rng = np.random.default_rng(900 + k)
-    a = f[..., 3] > 0
-    top = np.where(a.any(0), a.argmax(0), -1)
-    heights = np.zeros(80, int)
-    x = 18
-    while x < 74:
-        half = int(rng.integers(2, 4))
-        peak = int(round(rng.integers(5, 12) * strength))
-        centre = x + half
-        for dx in range(-half, half + 1):
-            if 0 <= centre + dx < 80:
-                heights[centre + dx] = max(heights[centre + dx], round(peak * (1 - abs(dx) / (half + 1))))
-        x += 2 * half + int(rng.integers(0, 2))
-    for x in range(80):
-        if top[x] < 0:
-            continue
-        for j in range(1, heights[x] + 1):
-            y = top[x] - j
-            if y < 0 or a[y, x]:
-                continue
-            tip = j >= heights[x] - 1
-            f[y, x] = (*((255, 252, 215) if tip else GOLD_PALE if j % 3 else GOLD), 255)
-
-
-# the pose frames of variant C in order, held and flickered so he stays powered up for a while
-SEQUENCE = (0, 1, 2, "flash", 3, 4, 5, 6, 7, 8, 6, 7, 5, 8, 6, 9, 10)
-STRENGTH = {2: 0.35, "flash": 0.0, 3: 0.6, 4: 0.9, 9: 0.4, 1: 0.0, 0: 0.0, 10: 0.0}
-out = []
-for k, step in enumerate(SEQUENCE):
-    base = 2 if step == "flash" else step
-    f = golden80[base].copy()
-    if base in AURA:
-        recolor_aura(f)
-    if base in POWER:
-        gold_head(f)
-        pants(f)
-    if step == "flash":
-        flash(f)
-    else:
-        strength = STRENGTH.get(step, 1.0)
-        if strength:
-            spikes(f, k, strength)
-        if base in POWER and 4 <= k <= 14:
-            for n, bolt in enumerate(BOLTS):
-                if (k + n) % 2 == 0:       # the bolts flicker, a different pair each frame
-                    line(f, bolt)
-    out.append(f)
-golden80 = out
 for f in golden80:
     f[:y0] = 0; f[y1:] = 0; f[:, x1:] = 0
 Image.fromarray(finish(golden80), "RGBA").save(OUT / "eagle-golden.png", optimize=True)
