@@ -13,10 +13,10 @@ export const Route = createFileRoute("/achievements")({
   head: () => ({
     meta: [
       { name: "robots", content: "noindex, nofollow" },
-      { title: "Achievements — Courseflix UTM" },
+      { title: "Achievements — CourseFlix UTM" },
       {
         name: "description",
-        content: "Collect Courseflix achievements as you explore UTM courses.",
+        content: "Collect CourseFlix achievements as you explore UTM courses.",
       },
     ],
   }),
@@ -57,7 +57,7 @@ function AchievementsPage() {
               </span>
             </h1>
             <p className="mt-3 max-w-xl text-sm leading-6 text-muted-foreground">
-              Tiny milestones for making Courseflix more useful for you — and for the next UTM
+              Tiny milestones for making CourseFlix more useful for you — and for the next UTM
               student.
             </p>
           </div>
@@ -79,7 +79,7 @@ function AchievementsPage() {
             <Sparkles className="h-7 w-7 text-brand" />
             <h2 className="mt-4 font-display text-3xl font-bold">Your story starts here</h2>
             <p className="mt-2 max-w-lg text-sm text-muted-foreground">
-              Sign in to collect badges for reviews, shortlist picks, and building your Courseflix
+              Sign in to collect badges for reviews, shortlist picks, and building your CourseFlix
               circle.
             </p>
             <Link

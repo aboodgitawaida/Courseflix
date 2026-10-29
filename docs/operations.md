@@ -1,6 +1,6 @@
 # Operations
 
-How Courseflix is run day to day. See [`CLAUDE.md`](../CLAUDE.md) for the rules that protect production data.
+How CourseFlix is run day to day. See [`CLAUDE.md`](../CLAUDE.md) for the rules that protect production data.
 
 ## Local development
 

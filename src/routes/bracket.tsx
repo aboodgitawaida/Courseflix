@@ -39,7 +39,7 @@ export const Route = createFileRoute("/bracket")({
   },
   head: () => ({
     meta: [
-      { title: "Hardest Course at UTM: The Bracket — Courseflix" },
+      { title: "Hardest Course at UTM: The Bracket — CourseFlix" },
       {
         name: "description",
         content:

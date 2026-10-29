@@ -105,7 +105,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
   head: () => ({
     meta: [
       { charSet: "utf-8" },
-      { title: "Courseflix | Browse & Discover UTM Courses Like Netflix" },
+      { title: "CourseFlix | Browse & Discover UTM Courses Like Netflix" },
       {
         name: "description",
         content:
@@ -115,29 +115,29 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "apple-mobile-web-app-capable", content: "yes" },
       { name: "mobile-web-app-capable", content: "yes" },
       { name: "apple-mobile-web-app-status-bar-style", content: "black-translucent" },
-      { name: "apple-mobile-web-app-title", content: "Courseflix" },
+      { name: "apple-mobile-web-app-title", content: "CourseFlix" },
       { name: "theme-color", content: "#060607" },
-      { property: "og:title", content: "Courseflix | Browse & Discover UTM Courses Like Netflix" },
+      { property: "og:title", content: "CourseFlix | Browse & Discover UTM Courses Like Netflix" },
       {
         property: "og:description",
         content:
           "Browse every UTM course like Netflix. Pick your major, get curated rows, save a shortlist, and share it with friends.",
       },
-      { property: "og:site_name", content: "Courseflix" },
+      { property: "og:site_name", content: "CourseFlix" },
       { property: "og:type", content: "website" },
       { property: "og:image", content: "https://www.courseflix.ca/og-image.jpg" },
       { property: "og:image:width", content: "1200" },
       { property: "og:image:height", content: "630" },
-      { property: "og:image:alt", content: "Courseflix: discover UTM courses like Netflix" },
+      { property: "og:image:alt", content: "CourseFlix: discover UTM courses like Netflix" },
       { name: "twitter:card", content: "summary_large_image" },
-      { name: "twitter:title", content: "Courseflix | Browse & Discover UTM Courses Like Netflix" },
+      { name: "twitter:title", content: "CourseFlix | Browse & Discover UTM Courses Like Netflix" },
       {
         name: "twitter:description",
         content:
           "Browse every UTM course like Netflix. Pick your major, get curated rows, save a shortlist, and share it with friends.",
       },
       { name: "twitter:image", content: "https://www.courseflix.ca/og-image.jpg" },
-      { name: "twitter:image:alt", content: "Courseflix: discover UTM courses like Netflix" },
+      { name: "twitter:image:alt", content: "CourseFlix: discover UTM courses like Netflix" },
       { name: "robots", content: "index, follow" },
     ],
     links: [

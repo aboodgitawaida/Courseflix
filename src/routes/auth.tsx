@@ -180,7 +180,7 @@ export function AuthPage() {
           className="mesh-blob -left-20 top-1/4 h-[460px] w-[460px] bg-brand/30"
         />
         <Link to="/" className="relative wordmark text-3xl leading-none">
-          Courseflix
+          CourseFlix
         </Link>
         <div className="relative">
           <p className="text-xs font-semibold uppercase tracking-[0.3em] text-muted-foreground">
@@ -218,7 +218,7 @@ export function AuthPage() {
 
       <div className="relative flex flex-col items-center justify-center px-6 py-16">
         <Link to="/" className="wordmark relative z-10 mb-10 text-3xl leading-none lg:hidden">
-          Courseflix
+          CourseFlix
         </Link>
         <div className="glass relative z-10 w-full max-w-md rounded-[2rem] p-7 md:p-10">
           <h1 className="font-mega text-3xl font-extrabold tracking-[-0.04em] text-white md:text-4xl">
