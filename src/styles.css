@@ -714,7 +714,8 @@
   }
   35%,
   70% {
-    filter: drop-shadow(0 0 5px rgba(255, 240, 150, 0.95)) drop-shadow(0 0 12px rgba(255, 214, 80, 0.55));
+    filter: drop-shadow(0 0 5px rgba(255, 240, 150, 0.95))
+      drop-shadow(0 0 12px rgba(255, 214, 80, 0.55));
   }
 }
 @keyframes eagle-celebrate-frames {
