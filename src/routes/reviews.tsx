@@ -13,7 +13,7 @@ export const Route = createFileRoute("/reviews")({
   head: () => ({
     meta: [
       { title: "My reviews — Courseflix UTM" },
-      { name: "description", content: "View and manage your CourseFlix course reviews." },
+      { name: "description", content: "View and manage your Courseflix course reviews." },
     ],
   }),
   component: ReviewsPage,
