@@ -33,3 +33,14 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Tooling caches and local deploy state
+.vercel
+coverage
+*.tsbuildinfo
+.eslintcache
+__pycache__/
+*.pyc
+
+# Local data pulled by the scripts/ pipelines (large, re-creatable)
+data/

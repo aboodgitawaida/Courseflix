@@ -74,10 +74,7 @@ export const resetPassword = createServerFn()
     try {
       const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
       const resendApiKey = process.env.RESEND_API_KEY;
-      const supabaseUrl =
-        process.env.SUPABASE_URL ||
-        process.env.VITE_SUPABASE_URL ||
-        process.env.NEXT_PUBLIC_SUPABASE_URL;
+      const supabaseUrl = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL;
 
       if (!serviceRoleKey || !resendApiKey || !supabaseUrl) {
         serverLog.error("password_reset_configuration_missing");
