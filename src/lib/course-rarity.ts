@@ -9,7 +9,7 @@ export type CourseRarity = {
   birdMentions: number;
   /** Short pill text, e.g. "easy" or a curated take. Only built from real data. */
   verdict: string | null;
-  /** Who said it: Reddit or CourseFlix students. */
+  /** Who said it: Reddit or Courseflix students. */
   source: "Reddit" | "Students";
   /** Evidence line for tooltips and screen readers. */
   detail: string | null;

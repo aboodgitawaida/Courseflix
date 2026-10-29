@@ -105,7 +105,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
   head: () => ({
     meta: [
       { charSet: "utf-8" },
-      { title: "CourseFlix | Browse & Discover UTM Courses Like Netflix" },
+      { title: "Courseflix | Browse & Discover UTM Courses Like Netflix" },
       {
         name: "description",
         content:
@@ -117,7 +117,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "apple-mobile-web-app-status-bar-style", content: "black-translucent" },
       { name: "apple-mobile-web-app-title", content: "Courseflix" },
       { name: "theme-color", content: "#060607" },
-      { property: "og:title", content: "CourseFlix | Browse & Discover UTM Courses Like Netflix" },
+      { property: "og:title", content: "Courseflix | Browse & Discover UTM Courses Like Netflix" },
       {
         property: "og:description",
         content:
@@ -130,7 +130,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { property: "og:image:height", content: "630" },
       { property: "og:image:alt", content: "Courseflix: discover UTM courses like Netflix" },
       { name: "twitter:card", content: "summary_large_image" },
-      { name: "twitter:title", content: "CourseFlix | Browse & Discover UTM Courses Like Netflix" },
+      { name: "twitter:title", content: "Courseflix | Browse & Discover UTM Courses Like Netflix" },
       {
         name: "twitter:description",
         content:

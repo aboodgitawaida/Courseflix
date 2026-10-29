@@ -1,6 +1,6 @@
 # Security
 
-If you find a vulnerability in CourseFlix, please email **abood.awaida@mail.utoronto.ca**
+If you find a vulnerability in Courseflix, please email **abood.awaida@mail.utoronto.ca**
 rather than opening a public issue. I'll reply within a few days.
 
 Please include what you found, how to reproduce it, and what an attacker could do with it.

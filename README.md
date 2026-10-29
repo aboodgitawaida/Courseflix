@@ -1,11 +1,11 @@
-# CourseFlix
+# Courseflix
 
 **Browse every University of Toronto Mississauga course like you browse Netflix.**
 
 [![CI](https://github.com/aboodgitawaida/courseflix/actions/workflows/ci.yml/badge.svg)](https://github.com/aboodgitawaida/courseflix/actions/workflows/ci.yml)
 **Live:** [courseflix.ca](https://www.courseflix.ca) · **Status:** beta-tested with 10 students, public launch December 2026
 
-![CourseFlix home page](docs/screenshots/home.jpg)
+![Courseflix home page](docs/screenshots/home.jpg)
 
 - **The problem:** picking courses at UTM means juggling the Academic Calendar, the Timetable Builder, Rate My Professors and r/UTM.
 - **The product:** one page per course and a home feed rebuilt around your program, covering **2,600+ courses** and **44 programs**.
@@ -17,7 +17,7 @@
 | ---------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------- |
 | ![Rows of courses with filters for bird courses and the danger zone](docs/screenshots/feed.jpg)                        | ![CSC148H5 course page with the Reddit difficulty signal](docs/screenshots/course.jpg) |
 | **Prerequisites, instructors and the Study Eagle**                                                                     | **Phone**                                                                              |
-| ![Prerequisite path, Rate My Professors rating and the Study Eagle holding a map](docs/screenshots/course-details.jpg) | <img src="docs/screenshots/mobile.jpg" alt="CourseFlix on a phone" width="220">        |
+| ![Prerequisite path, Rate My Professors rating and the Study Eagle holding a map](docs/screenshots/course-details.jpg) | <img src="docs/screenshots/mobile.jpg" alt="Courseflix on a phone" width="220">        |
 
 ## Features
 
@@ -183,7 +183,7 @@ docs/             operations guide and screenshots
 
 ## How it was built
 
-I built CourseFlix with AI coding tools. It started from a Lovable scaffold, and much of the code was written with Claude Code, which is why many commits are authored by Claude. My job was deciding what the product should be and holding the work to that: I set the requirements, made the trade-offs, reviewed and tested changes on the live site, and ran the database and launch setup myself.
+I built Courseflix with AI coding tools. It started from a Lovable scaffold, and much of the code was written with Claude Code, which is why many commits are authored by Claude. My job was deciding what the product should be and holding the work to that: I set the requirements, made the trade-offs, reviewed and tested changes on the live site, and ran the database and launch setup myself.
 
 Some of the calls I made along the way:
 
@@ -194,7 +194,7 @@ Some of the calls I made along the way:
 
 ## Data sources
 
-Course information comes from the [UTM Academic Calendar](https://utm.calendar.utoronto.ca/) and instructors from the [UTM Timetable Builder](https://ttb.utoronto.ca/). Professor ratings are from [Rate My Professors](https://www.ratemyprofessors.com/), shown with a link to each profile and the date they were retrieved. Reddit signals come from public r/UTM and r/UofT comments. CourseFlix is an independent student project, not affiliated with the University of Toronto or Netflix.
+Course information comes from the [UTM Academic Calendar](https://utm.calendar.utoronto.ca/) and instructors from the [UTM Timetable Builder](https://ttb.utoronto.ca/). Professor ratings are from [Rate My Professors](https://www.ratemyprofessors.com/), shown with a link to each profile and the date they were retrieved. Reddit signals come from public r/UTM and r/UofT comments. Courseflix is an independent student project, not affiliated with the University of Toronto or Netflix.
 
 ## License
 
