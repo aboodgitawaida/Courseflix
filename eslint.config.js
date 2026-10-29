@@ -37,7 +37,7 @@ export default tseslint.config(
         {
           allowConstantExport: true,
           // Context providers export their hook alongside the component.
-          allowExportNames: ["buttonVariants", "useCourseUI", "useEagle", "useSound", "useTheme"],
+          allowExportNames: ["useCourseUI", "useEagle", "useSound", "useTheme"],
         },
       ],
       "@typescript-eslint/no-unused-vars": "off",
