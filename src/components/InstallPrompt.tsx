@@ -25,7 +25,7 @@ function write(key: string, value: string) {
   }
 }
 
-/** Nudges returning phone users to add CourseFlix to their home screen. */
+/** Nudges returning phone users to add Courseflix to their home screen. */
 export function InstallPrompt() {
   const [deferred, setDeferred] = useState<BeforeInstallPromptEvent | null>(null);
   const [mode, setMode] = useState<"android" | "ios" | null>(null);
@@ -75,12 +75,12 @@ export function InstallPrompt() {
   return (
     <div
       role="dialog"
-      aria-label="Install CourseFlix"
+      aria-label="Install Courseflix"
       className="above-tabbar glass fixed inset-x-3 z-[var(--z-toast)] mx-auto flex max-w-md items-center gap-3 rounded-3xl bg-background/90 p-3 pl-4 shadow-2xl shadow-black/60 animate-fade-in-up lg:hidden"
     >
       <img src="/icon-192.png" alt="" className="h-11 w-11 shrink-0 rounded-xl" />
       <div className="min-w-0 flex-1">
-        <p className="text-sm font-semibold">Get the CourseFlix app</p>
+        <p className="text-sm font-semibold">Get the Courseflix app</p>
         {mode === "ios" ? (
           <p className="text-xs text-muted-foreground">
             Tap <Share className="inline h-3.5 w-3.5 align-[-2px]" /> then “Add to Home Screen”.

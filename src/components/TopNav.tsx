@@ -46,11 +46,11 @@ export function TopNav() {
       >
         <Link
           to="/"
-          aria-label="CourseFlix home"
+          aria-label="Courseflix home"
           onClick={(e) => goTo("browse", e)}
           className="shrink-0"
         >
-          <span className="wordmark text-2xl leading-none md:text-[1.7rem]">CourseFlix</span>
+          <span className="wordmark text-2xl leading-none md:text-[1.7rem]">Courseflix</span>
         </Link>
 
         <nav className="ml-2 hidden shrink-0 items-center gap-0.5 text-sm font-medium text-muted-foreground lg:flex">

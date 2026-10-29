@@ -123,7 +123,7 @@ function ResetPasswordPage() {
   return (
     <div className="relative flex min-h-screen flex-col items-center justify-center overflow-x-clip px-6 pb-32 pt-16 text-foreground lg:pb-16">
       <PageBackdrop />
-      <div className="wordmark relative z-10 mb-10 text-3xl leading-none">CourseFlix</div>
+      <div className="wordmark relative z-10 mb-10 text-3xl leading-none">Courseflix</div>
       <div className="glass relative z-10 w-full max-w-md rounded-[2rem] p-7 md:p-10">
         {readyToVerify ? (
           <>

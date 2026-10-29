@@ -8,7 +8,7 @@ export const Route = createFileRoute("/verify-email")({
   head: () => ({
     meta: [
       { name: "robots", content: "noindex, nofollow" },
-      { title: "Confirm your email — CourseFlix" },
+      { title: "Confirm your email — Courseflix" },
     ],
   }),
   component: VerifyEmailPage,
@@ -59,7 +59,7 @@ function VerifyEmailPage() {
           <>
             <h1 className="font-display text-2xl font-bold">Email confirmed</h1>
             <p className="mt-3 text-sm text-muted-foreground">
-              You can now post course reviews. Thanks for helping keep CourseFlix honest.
+              You can now post course reviews. Thanks for helping keep Courseflix honest.
             </p>
           </>
         )}

@@ -63,7 +63,7 @@ export function FeatureBento() {
       <div className="mb-10 flex flex-col gap-4 md:mb-14 md:flex-row md:items-end md:justify-between">
         <div>
           <p className="text-xs font-semibold uppercase tracking-[0.3em] text-muted-foreground">
-            Why CourseFlix
+            Why Courseflix
           </p>
           <h2
             id="why-title"

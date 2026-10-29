@@ -22,13 +22,13 @@ export const Route = createFileRoute("/wrapped")({
   validateSearch: parseShortlistSearch,
   head: () => ({
     meta: [
-      { title: "Course Wrapped — CourseFlix UTM" },
+      { title: "Course Wrapped — Courseflix UTM" },
       {
         name: "description",
         content:
           "Your UTM course lineup, Wrapped: your boss fights, bird courses and course persona. Make yours and share it.",
       },
-      { property: "og:title", content: "My UTM Course Wrapped — CourseFlix" },
+      { property: "og:title", content: "My UTM Course Wrapped — Courseflix" },
       {
         property: "og:description",
         content: "Boss fights, bird courses and a course persona. Get your own UTM Wrapped.",
@@ -327,7 +327,7 @@ function buildSlides(w: Wrapped, shared: boolean, reviewCount: number | null): S
       tone: "bg-[radial-gradient(120%_80%_at_0%_0%,#e50914_0%,#3b0a0e_45%,#060607_100%)]",
       content: (
         <>
-          <Kicker>CourseFlix presents</Kicker>
+          <Kicker>Courseflix presents</Kicker>
           <h1 className="mt-4 font-mega text-5xl font-black leading-[0.9] tracking-[-0.05em]">
             {shared ? "A friend's" : "Your"} UTM lineup,{" "}
             <span className="font-serif-accent text-[1.15em] font-normal italic">Wrapped.</span>

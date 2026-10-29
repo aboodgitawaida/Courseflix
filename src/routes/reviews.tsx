@@ -12,8 +12,8 @@ import { getCourse } from "@/lib/courses";
 export const Route = createFileRoute("/reviews")({
   head: () => ({
     meta: [
-      { title: "My reviews — CourseFlix UTM" },
-      { name: "description", content: "View and manage your CourseFlix course reviews." },
+      { title: "My reviews — Courseflix UTM" },
+      { name: "description", content: "View and manage your Courseflix course reviews." },
     ],
   }),
   component: ReviewsPage,
