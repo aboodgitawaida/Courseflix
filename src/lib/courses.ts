@@ -345,7 +345,14 @@ export function isCourseworkHeavy(c: Course) {
 }
 
 export type FilterId =
-  "all" | "bird" | "danger" | "science" | "social" | "humanities" | "l100" | "l200";
+  | "all"
+  | "bird"
+  | "danger"
+  | "science"
+  | "social"
+  | "humanities"
+  | "l100"
+  | "l200";
 
 // `special` chips get their own gold or red look in FilterChips.
 export const FILTERS: Array<{ id: FilterId; label: string; special?: "gold" | "red" }> = [

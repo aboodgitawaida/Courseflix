@@ -11,3 +11,8 @@ src/lib/utm-catalog.ts
 src/lib/professor-ratings.ts
 src/lib/course-descriptions.ts
 src/lib/featured-descriptions.ts
+
+# Generated: written by scripts or the Supabase CLI, not by hand
+src/lib/reddit-signals.json
+src/integrations/supabase/types.ts
+assets/

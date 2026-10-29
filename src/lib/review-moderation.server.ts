@@ -5,7 +5,8 @@ import { serverLog } from "./server-log";
 // and API key never reach the browser bundle.
 
 export type ModerationResult =
-  { allowed: true } | { allowed: false; category: BlockCategory; message: string };
+  | { allowed: true }
+  | { allowed: false; category: BlockCategory; message: string };
 
 type BlockCategory = "threat" | "hate" | "private_info" | "sexual_harassment" | "spam";
 
