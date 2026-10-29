@@ -32,6 +32,7 @@ Why not one chat: reactions like petting or achievements would either pop a big 
 ## 2. Course summary: when does he summarize? (DECIDE)
 
 Options:
+
 - A. Auto-summarize on opening any preview or course page (today's behavior on desktop).
 - B. Eagle wakes and reads only when the user wakes him (tap), and auto-opening wakes him only for something notable.
 - C. Hybrid: opening a course makes him wake up and show a one-line teaser in the mini bubble ("Reading this one…"); the full summary appears in the big panel once he has "read" it.
