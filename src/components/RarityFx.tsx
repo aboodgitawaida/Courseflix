@@ -99,7 +99,7 @@ function HowWeKnow({ info, code }: { info: CourseRarity; code?: string }) {
   return (
     <>
       <p>
-        <b>{info.birdMentions}</b> reviews written by CourseFlix students call <b>{name}</b> a bird
+        <b>{info.birdMentions}</b> reviews written by Courseflix students call <b>{name}</b> a bird
         course.
       </p>
       <p className="reddit-says-note">

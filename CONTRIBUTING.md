@@ -1,6 +1,6 @@
 # Contributing
 
-CourseFlix is a solo project, but it is run like a team one. This is the workflow.
+Courseflix is a solo project, but it is run like a team one. This is the workflow.
 
 ## Setup
 
