@@ -81,6 +81,19 @@ describe("safeAuthRedirect", () => {
     expect(safeAuthRedirect("https://example.com")).toBe("/");
     expect(safeAuthRedirect("//example.com")).toBe("/");
   });
+
+  it("blocks tricks that browsers turn into another site", () => {
+    // Browsers drop tabs and newlines, so these would become //evil.com.
+    expect(safeAuthRedirect("/\t/evil.com")).toBe("/");
+    expect(safeAuthRedirect("/\n/evil.com")).toBe("/");
+    expect(safeAuthRedirect("/\\evil.com")).toBe("/");
+    expect(safeAuthRedirect("javascript:alert(1)")).toBe("/");
+  });
+
+  it("keeps query strings and encoded characters on internal paths", () => {
+    expect(safeAuthRedirect("/list?ids=CSC108H5")).toBe("/list?ids=CSC108H5");
+    expect(safeAuthRedirect("/course/%2F%2Fevil.com")).toBe("/course/%2F%2Fevil.com");
+  });
 });
 
 describe("error capture", () => {
