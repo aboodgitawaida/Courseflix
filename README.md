@@ -2,13 +2,13 @@
 
 **Browse every University of Toronto Mississauga course like you browse Netflix.**
 
-[![CI](https://github.com/aboodgitawaida/courseflix-utm/actions/workflows/ci.yml/badge.svg)](https://github.com/aboodgitawaida/courseflix-utm/actions/workflows/ci.yml)
+[![CI](https://github.com/aboodgitawaida/courseflix/actions/workflows/ci.yml/badge.svg)](https://github.com/aboodgitawaida/courseflix/actions/workflows/ci.yml)
 **Live:** [courseflix.ca](https://www.courseflix.ca) · **Status:** beta-tested with 10 students, public launch December 2026
 
 ![CourseFlix home page](docs/screenshots/home.jpg)
 
 - **The problem:** picking courses at UTM means juggling the Academic Calendar, the Timetable Builder, Rate My Professors and r/UTM.
-- **The product:** one page per course and a home feed rebuilt around your program, covering **2,491 courses** and **44 programs**.
+- **The product:** one page per course and a home feed rebuilt around your program, covering **2,600+ courses** and **44 programs**.
 - **The stack:** TypeScript, React 19, TanStack Start (SSR), Supabase Postgres with row-level security, Vercel, and the Claude API.
 
 ## Screenshots
@@ -111,8 +111,8 @@ flowchart LR
 You need Node 22+ and a free [Supabase](https://supabase.com) project.
 
 ```bash
-git clone https://github.com/aboodgitawaida/courseflix-utm.git
-cd courseflix-utm
+git clone https://github.com/aboodgitawaida/courseflix.git
+cd courseflix
 npm ci
 cp .env.example .env        # add your Supabase URL and publishable key
 npm run hooks:install       # optional: Conventional Commits check
