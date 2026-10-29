@@ -21,7 +21,7 @@ function line(kind: string, name: string, code: string | null) {
   if (kind === "achievement_unlocked") {
     return `You unlocked ${achievementDefinition(code ?? "")?.name ?? "an achievement"}`;
   }
-  return `${name} did something on CourseFlix`;
+  return `${name} did something on Courseflix`;
 }
 
 function relativeMinutes(createdAt: string, now: number) {

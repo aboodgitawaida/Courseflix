@@ -8,11 +8,11 @@ import { siteUrl } from "@/lib/site";
 export const Route = createFileRoute("/privacy")({
   head: () => ({
     meta: [
-      { title: "Privacy Policy — CourseFlix" },
+      { title: "Privacy Policy — Courseflix" },
       {
         name: "description",
         content:
-          "What CourseFlix collects, what is public, who processes it, and how to delete your account.",
+          "What Courseflix collects, what is public, who processes it, and how to delete your account.",
       },
     ],
     links: [{ rel: "canonical", href: siteUrl("/privacy") }],
@@ -42,7 +42,7 @@ function PrivacyPage() {
       <TopNav />
       <main className="mx-auto max-w-3xl px-6 pb-24 pt-10 md:px-10">
         <Link to="/" className="text-sm text-brand hover:underline">
-          ← Back to CourseFlix
+          ← Back to Courseflix
         </Link>
         <h1 className="mt-6 font-mega text-[clamp(2.6rem,7vw,5.5rem)] font-black leading-[0.92] tracking-[-0.05em] animate-fade-in-up">
           Privacy{" "}
@@ -65,7 +65,7 @@ function PrivacyPage() {
 
           <Section title="1. Who we are">
             <p>
-              CourseFlix is an independent student project for University of Toronto Mississauga
+              Courseflix is an independent student project for University of Toronto Mississauga
               students. It is not affiliated with the University of Toronto. Questions about this
               policy or your information can be sent to {mail}.
             </p>
@@ -108,7 +108,7 @@ function PrivacyPage() {
             <p>
               The “Reddit says” labels on courses are built from public comments on r/UTM and
               r/UofT. We process them offline and publish only per-course counts of “easy” and
-              “hard”, never the comments, usernames or links. This does not involve your CourseFlix
+              “hard”, never the comments, usernames or links. This does not involve your Courseflix
               account or any information we hold about you.
             </p>
           </Section>
@@ -138,7 +138,7 @@ function PrivacyPage() {
 
           <Section title="5. What stays on your device">
             <p>
-              CourseFlix uses your browser&apos;s local storage, not cookies, to keep you signed in
+              Courseflix uses your browser&apos;s local storage, not cookies, to keep you signed in
               and to remember preferences such as your selected program, theme, sound setting, which
               subjects you browse most (used to suggest a program), dismissed prompts, and the link
               or campaign that first brought you to the site. This information stays in your browser
@@ -148,7 +148,7 @@ function PrivacyPage() {
 
           <Section title="6. How we use it">
             <p>
-              Only to run CourseFlix: to sign you in, show your shortlist and profile, calculate
+              Only to run Courseflix: to sign you in, show your shortlist and profile, calculate
               course ratings from student reviews, power friends and notifications, screen reviews
               for threats and personal information, send password-reset and email-confirmation
               emails, prevent abuse, and understand which pages are used so we can improve the site.
