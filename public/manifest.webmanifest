@@ -1,6 +1,6 @@
 {
-  "name": "Courseflix — UTM course discovery",
-  "short_name": "Courseflix",
+  "name": "CourseFlix — UTM course discovery",
+  "short_name": "CourseFlix",
   "description": "Browse every UTM course like Netflix. Save a shortlist, rate courses and share picks with friends.",
   "start_url": "/",
   "scope": "/",

@@ -8,16 +8,16 @@ import { CREATOR_EMAIL, UTM_LINKS } from "@/lib/links";
 export const Route = createFileRoute("/help")({
   head: () => ({
     meta: [
-      { title: "Help centre — Courseflix UTM" },
+      { title: "Help centre — CourseFlix UTM" },
       {
         name: "description",
         content:
-          "Questions about Courseflix ratings, shortlists, privacy or friends? Read the basics or email the creator directly.",
+          "Questions about CourseFlix ratings, shortlists, privacy or friends? Read the basics or email the creator directly.",
       },
-      { property: "og:title", content: "Help centre — Courseflix UTM" },
+      { property: "og:title", content: "Help centre — CourseFlix UTM" },
       {
         property: "og:description",
-        content: "How Courseflix ratings, shortlists and privacy work, plus how to get in touch.",
+        content: "How CourseFlix ratings, shortlists and privacy work, plus how to get in touch.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
@@ -30,11 +30,11 @@ export const Route = createFileRoute("/help")({
 const FAQ = [
   {
     q: "Where do the ratings come from?",
-    a: "Course titles, descriptions, prerequisites and listed hours come from the UTM Academic Calendar. Ratings, difficulty and workload scores come only from reviews students submit on Courseflix; a course with no reviews shows no score. Light-workload and essay/project signals are based on the calendar's listed hours and description. Two other things are shown separately and never mixed into those scores: the gold and red “Reddit says” pill (see below) and professors' overall Rate My Professors ratings, which are not specific to a course.",
+    a: "Course titles, descriptions, prerequisites and listed hours come from the UTM Academic Calendar. Ratings, difficulty and workload scores come only from reviews students submit on CourseFlix; a course with no reviews shows no score. Light-workload and essay/project signals are based on the calendar's listed hours and description. Two other things are shown separately and never mixed into those scores: the gold and red “Reddit says” pill (see below) and professors' overall Rate My Professors ratings, which are not specific to a course.",
   },
   {
     q: "What does the “Reddit says” pill mean?",
-    a: "We read public comments on r/UTM and r/UofT that mention a course and a program labels each one as calling the course easy or hard. When enough comments agree (at least 10 opinions), the course gets a gold (easy) or red (hard) pill. It is based on the comments we've read so far, a few labels can be wrong, and it is not a review by a Courseflix student. Courseflix is not affiliated with or endorsed by Reddit.",
+    a: "We read public comments on r/UTM and r/UofT that mention a course and a program labels each one as calling the course easy or hard. When enough comments agree (at least 10 opinions), the course gets a gold (easy) or red (hard) pill. It is based on the comments we've read so far, a few labels can be wrong, and it is not a review by a CourseFlix student. CourseFlix is not affiliated with or endorsed by Reddit.",
   },
   {
     q: "Why can't I post a review?",
@@ -54,7 +54,7 @@ const FAQ = [
   },
   {
     q: "Why is a course missing?",
-    a: "Courseflix only covers UTM courses (codes ending in H5 or Y5) from the current Academic Calendar. Courses offered only at St. George or Scarborough are intentionally left out.",
+    a: "CourseFlix only covers UTM courses (codes ending in H5 or Y5) from the current Academic Calendar. Courses offered only at St. George or Scarborough are intentionally left out.",
   },
   {
     q: "Can I rate a course I haven't taken?",
@@ -74,7 +74,7 @@ function HelpPage() {
             centre.
           </span>
         </h1>
-        <p className="mt-2 text-sm text-muted-foreground">Everything about how Courseflix works.</p>
+        <p className="mt-2 text-sm text-muted-foreground">Everything about how CourseFlix works.</p>
 
         <div className="mt-8 space-y-3">
           {FAQ.map((f) => (
@@ -92,7 +92,7 @@ function HelpPage() {
             creator, Abood Awaida, and include what you expected to happen.
           </p>
           <a
-            href={`mailto:${CREATOR_EMAIL}?subject=${encodeURIComponent("Courseflix launch feedback")}`}
+            href={`mailto:${CREATOR_EMAIL}?subject=${encodeURIComponent("CourseFlix launch feedback")}`}
             className="mt-4 inline-flex items-center gap-2 rounded-full bg-brand px-5 py-2.5 text-sm font-semibold text-primary-foreground transition hover:bg-brand-glow"
           >
             <Mail className="h-4 w-4" /> Send launch feedback

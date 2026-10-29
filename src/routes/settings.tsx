@@ -33,7 +33,7 @@ import { supabase } from "@/integrations/supabase/client";
 export const Route = createFileRoute("/settings")({
   head: () => ({
     meta: [
-      { title: "Account & settings — Courseflix UTM" },
+      { title: "Account & settings — CourseFlix UTM" },
       { name: "robots", content: "noindex, nofollow" },
     ],
   }),
@@ -173,7 +173,7 @@ function SettingsPage() {
           </span>
         </h1>
         <p className="mt-2 text-sm text-muted-foreground">
-          Your profile, how Courseflix looks and sounds, and who can see your shortlist.
+          Your profile, how CourseFlix looks and sounds, and who can see your shortlist.
         </p>
 
         {!signedIn && (

@@ -32,13 +32,13 @@ export const Route = createFileRoute("/list")({
 
   head: () => ({
     meta: [
-      { title: "My Short List — Courseflix UTM" },
+      { title: "My Short List — CourseFlix UTM" },
       {
         name: "description",
         content:
           "Your saved UTM courses in one place. Share your shortlist link with friends and compare picks before enrolment opens.",
       },
-      { property: "og:title", content: "My Shortlist — Courseflix UTM" },
+      { property: "og:title", content: "My Shortlist — CourseFlix UTM" },
       {
         property: "og:description",
         content: "Save UTM courses, share your shortlist, and compare picks with friends.",

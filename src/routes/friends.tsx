@@ -25,13 +25,13 @@ export const Route = createFileRoute("/friends")({
   head: () => ({
     meta: [
       { name: "robots", content: "noindex, nofollow" },
-      { title: "Friends — Courseflix UTM" },
+      { title: "Friends — CourseFlix UTM" },
       {
         name: "description",
         content:
-          "Add UTM classmates on Courseflix, accept friend requests, and see which courses your friends have shortlisted.",
+          "Add UTM classmates on CourseFlix, accept friend requests, and see which courses your friends have shortlisted.",
       },
-      { property: "og:title", content: "Friends — Courseflix UTM" },
+      { property: "og:title", content: "Friends — CourseFlix UTM" },
       {
         property: "og:description",
         content: "See what your UTM friends are planning to take next term.",

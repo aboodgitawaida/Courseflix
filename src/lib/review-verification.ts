@@ -53,13 +53,13 @@ export const sendReviewVerification = createServerFn({ method: "POST" })
       const link = `${SITE_URL}/verify-email?token=${token}`;
       const { Resend } = await import("resend");
       const sent = await new Resend(resendApiKey).emails.send({
-        from: "Courseflix <noreply@courseflix.ca>",
+        from: "CourseFlix <noreply@courseflix.ca>",
         to: [email],
-        subject: "Confirm your email to post reviews on Courseflix",
+        subject: "Confirm your email to post reviews on CourseFlix",
         html: `
           <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
             <h2>Confirm your email</h2>
-            <p>Click the button below to confirm your email and start posting course reviews on Courseflix.</p>
+            <p>Click the button below to confirm your email and start posting course reviews on CourseFlix.</p>
             <a href="${link}" style="display: inline-block; padding: 12px 24px; background-color: #e50914; color: white; border-radius: 8px; text-decoration: none; font-weight: bold;">Confirm email</a>
             <p style="margin-top: 20px; font-size: 12px; color: #666;">This link works for 24 hours. If you didn't ask for it, you can ignore this email.</p>
           </div>

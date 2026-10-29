@@ -48,7 +48,7 @@ export function ShareStoryButton({
         typeof window.matchMedia === "function" && window.matchMedia("(pointer: coarse)").matches;
       if (isTouch && navigator.canShare?.({ files: [file] })) {
         try {
-          await navigator.share({ files: [file], title: "Courseflix" });
+          await navigator.share({ files: [file], title: "CourseFlix" });
           return;
         } catch (err) {
           if (err instanceof DOMException && err.name === "AbortError") return;
@@ -110,7 +110,7 @@ export function ShareStoryButton({
           {url && (
             <img
               src={url}
-              alt="Preview of your Courseflix story image"
+              alt="Preview of your CourseFlix story image"
               className="mx-auto mt-2 max-h-[55vh] w-auto rounded-2xl border border-white/10 shadow-2xl shadow-black/60"
             />
           )}

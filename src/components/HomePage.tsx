@@ -180,7 +180,7 @@ export function HomePage() {
         </div>
 
         <div className="flex flex-wrap justify-between gap-2 border-t border-white/[0.08] py-6 text-xs text-neutral-500">
-          <span>Courseflix · unofficial · built by Abood Awaida</span>
+          <span>CourseFlix · unofficial · built by Abood Awaida</span>
           <span>
             Course data from the UTM Academic Calendar. Ratings come only from student reviews. Not
             affiliated with UofT or Netflix.

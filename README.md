@@ -1,4 +1,4 @@
-# Courseflix
+# CourseFlix
 
 **Browse every UTM course like you browse Netflix.** Pick your program, scroll curated rows, check what students and Rate My Professors say, and build a shortlist you can share with friends.
 
@@ -8,7 +8,7 @@
 
 ## Why
 
-Choosing courses at the University of Toronto Mississauga means jumping between the Academic Calendar, the Timetable Builder, Rate My Professors and r/UTM. Courseflix puts all of it on one page per course, and turns 2,491 courses into something you can actually browse.
+Choosing courses at the University of Toronto Mississauga means jumping between the Academic Calendar, the Timetable Builder, Rate My Professors and r/UTM. CourseFlix puts all of it on one page per course, and turns 2,491 courses into something you can actually browse.
 
 ## Features
 
@@ -47,7 +47,7 @@ Day-to-day running (migrations, moderation, reported reviews) is documented in [
 
 ## How it was built
 
-I built Courseflix with AI coding tools. It started from a Lovable scaffold, and much of the code was written with Claude Code, which is why many commits are authored by Claude. My job was deciding what the product should be and holding the work to that: I set the requirements, made the trade-offs, reviewed and tested changes on the live site, and ran the database and launch setup myself.
+I built CourseFlix with AI coding tools. It started from a Lovable scaffold, and much of the code was written with Claude Code, which is why many commits are authored by Claude. My job was deciding what the product should be and holding the work to that: I set the requirements, made the trade-offs, reviewed and tested changes on the live site, and ran the database and launch setup myself.
 
 Some of the calls I made along the way:
 
@@ -70,7 +70,7 @@ docs/              operations guide
 
 ## Data sources
 
-Course information comes from the [UTM Academic Calendar](https://utm.calendar.utoronto.ca/) and instructors from the [UTM Timetable Builder](https://ttb.utoronto.ca/). Professor ratings are from [Rate My Professors](https://www.ratemyprofessors.com/), shown with a link to each profile and the date they were retrieved. Courseflix is an independent student project, not affiliated with the University of Toronto or Netflix.
+Course information comes from the [UTM Academic Calendar](https://utm.calendar.utoronto.ca/) and instructors from the [UTM Timetable Builder](https://ttb.utoronto.ca/). Professor ratings are from [Rate My Professors](https://www.ratemyprofessors.com/), shown with a link to each profile and the date they were retrieved. CourseFlix is an independent student project, not affiliated with the University of Toronto or Netflix.
 
 ## License
 

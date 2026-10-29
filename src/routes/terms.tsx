@@ -6,10 +6,10 @@ import { siteUrl } from "@/lib/site";
 export const Route = createFileRoute("/terms")({
   head: () => ({
     meta: [
-      { title: "Terms of Use — Courseflix" },
+      { title: "Terms of Use — CourseFlix" },
       {
         name: "description",
-        content: "The terms that apply when you use Courseflix.",
+        content: "The terms that apply when you use CourseFlix.",
       },
     ],
     links: [{ rel: "canonical", href: siteUrl("/terms") }],
@@ -24,7 +24,7 @@ function TermsPage() {
       <TopNav />
       <main className="mx-auto max-w-3xl px-6 pb-24 pt-10 md:px-10">
         <Link to="/" className="text-sm text-brand hover:underline">
-          ← Back to Courseflix
+          ← Back to CourseFlix
         </Link>
         <h1 className="mt-6 font-mega text-[clamp(2.6rem,7vw,5.5rem)] font-black leading-[0.92] tracking-[-0.05em] animate-fade-in-up">
           Terms{" "}
@@ -38,9 +38,9 @@ function TermsPage() {
           <section>
             <h2 className="font-display text-2xl text-foreground">1. Agreement to these terms</h2>
             <p className="mt-2">
-              These Terms of Use govern your access to and use of Courseflix, including its website,
+              These Terms of Use govern your access to and use of CourseFlix, including its website,
               course catalogue, ratings, reviews, shortlists, recommendations, and Study Eagle
-              features. By accessing Courseflix, you confirm that you have read and accepted these
+              features. By accessing CourseFlix, you confirm that you have read and accepted these
               Terms. If you do not agree, please do not use the service.
             </p>
           </section>
@@ -50,8 +50,8 @@ function TermsPage() {
               2. Ratings, signals and student reviews
             </h2>
             <p className="mt-2">
-              Course rating, difficulty, workload, and “would take again” values on Courseflix are
-              calculated only from reviews submitted by students on Courseflix. A course with no
+              Course rating, difficulty, workload, and “would take again” values on CourseFlix are
+              calculated only from reviews submitted by students on CourseFlix. A course with no
               reviews shows no score. Workload, essay, and project signals are derived from the
               official listed hours and course descriptions; they are not verified student
               experiences, promises, or statements by an instructor or the University of Toronto.
@@ -59,7 +59,7 @@ function TermsPage() {
             <p className="mt-2">
               Separately, the gold and red “Reddit says” labels summarise public comments on r/UTM
               and r/UofT that a computer program has classified as calling a course easy or hard.
-              They are not Courseflix reviews, are not mixed into review-based scores, may be
+              They are not CourseFlix reviews, are not mixed into review-based scores, may be
               incomplete, out of date or mislabelled, and show only counts, not the comments
               themselves. Professor scores from Rate My Professors are shown separately, are overall
               professor ratings rather than course ratings, and belong to that service.
@@ -76,7 +76,7 @@ function TermsPage() {
               3. Course information and recommendations
             </h2>
             <p className="mt-2">
-              Courseflix is an independent discovery tool. Course descriptions, prerequisites,
+              CourseFlix is an independent discovery tool. Course descriptions, prerequisites,
               credits, schedules, availability, images, tags, recommendations, summaries, and other
               catalogue information may be incomplete, outdated, or inaccurate. Always confirm
               enrolment requirements, dates, delivery details, and course availability with the
@@ -84,12 +84,12 @@ function TermsPage() {
               decisions.
             </p>
             <p className="mt-2">
-              Courseflix does not provide academic, financial, career, or accessibility advice.
+              CourseFlix does not provide academic, financial, career, or accessibility advice.
               Study Eagle summaries are automated, abbreviated interpretations for convenience and
               should not be treated as official course descriptions.
             </p>
             <p className="mt-2">
-              Courseflix is not affiliated with or endorsed by the University of Toronto, Reddit or
+              CourseFlix is not affiliated with or endorsed by the University of Toronto, Reddit or
               Rate My Professors. Their names belong to their owners, and information from them may
               be inaccurate.
             </p>
@@ -107,7 +107,7 @@ function TermsPage() {
               manipulate ratings.
             </p>
             <p className="mt-2">
-              By submitting content, you grant Courseflix a non-exclusive, worldwide, royalty-free
+              By submitting content, you grant CourseFlix a non-exclusive, worldwide, royalty-free
               licence to host, reproduce, display, and use it to operate and improve the service.
               You keep ownership of your content. We may remove content or restrict accounts that
               violate these Terms, applicable law, or the integrity of the service.
@@ -125,7 +125,7 @@ function TermsPage() {
             </h2>
             <p className="mt-2">
               You must be at least 16 years old to create an account. Keep your account credentials
-              secure and provide accurate information. You may use Courseflix only for lawful,
+              secure and provide accurate information. You may use CourseFlix only for lawful,
               personal, non-commercial purposes. Do not scrape, reverse engineer, disrupt, overload,
               bypass access controls, create deceptive accounts, or use the service to invade
               another person’s privacy.
@@ -135,7 +135,7 @@ function TermsPage() {
           <section>
             <h2 className="font-display text-2xl text-foreground">6. Privacy</h2>
             <p className="mt-2">
-              Courseflix may process account details, profile settings, shortlists, reviews, and
+              CourseFlix may process account details, profile settings, shortlists, reviews, and
               usage information needed to provide the service. We do not sell personal information.
               We handle personal information in accordance with applicable Canadian privacy laws,
               which may include the federal Personal Information Protection and Electronic Documents
@@ -152,10 +152,10 @@ function TermsPage() {
               7. Availability and disclaimers
             </h2>
             <p className="mt-2">
-              Courseflix is provided on an “as is” and “as available” basis. We do not guarantee
+              CourseFlix is provided on an “as is” and “as available” basis. We do not guarantee
               that the service, catalogue, ratings, reviews, recommendations, or saved data will
               always be available, accurate, secure, or error-free. We are not responsible for
-              academic, financial, or other decisions made using Courseflix.
+              academic, financial, or other decisions made using CourseFlix.
             </p>
           </section>
 
@@ -166,7 +166,7 @@ function TermsPage() {
               of Canada applicable in Ontario, without regard to conflict-of-law rules. Subject to
               any mandatory rights you may have under applicable law, the courts located in Ontario
               have exclusive jurisdiction over disputes arising from these Terms or your use of
-              Courseflix.
+              CourseFlix.
             </p>
             <p className="mt-2">
               Nothing in these Terms limits a right or remedy that cannot lawfully be excluded or
@@ -177,7 +177,7 @@ function TermsPage() {
           <section>
             <h2 className="font-display text-2xl text-foreground">9. Changes and termination</h2>
             <p className="mt-2">
-              We may update these Terms as Courseflix changes. The updated version will be posted
+              We may update these Terms as CourseFlix changes. The updated version will be posted
               here with a new “Last updated” date. Continued use after an update means you accept
               the revised Terms. We may suspend or discontinue features or access at any time.
             </p>

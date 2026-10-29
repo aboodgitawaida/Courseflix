@@ -48,7 +48,7 @@ export function CinematicIntro() {
       <div className="cinematic-ambient pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-red-950/40 via-black to-black" />
 
       <div className="relative z-10 flex flex-col items-center">
-        <div aria-label="Courseflix" className="wordmark text-6xl leading-none md:text-9xl">
+        <div aria-label="CourseFlix" className="wordmark text-6xl leading-none md:text-9xl">
           {"COURSEFLIX".split("").map((ch, i) => (
             <span
               key={i}

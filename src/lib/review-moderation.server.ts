@@ -9,7 +9,7 @@ export type ModerationResult =
 
 type BlockCategory = "threat" | "hate" | "private_info" | "sexual_harassment" | "spam";
 
-const POLICY = `You moderate course reviews written by university students for Courseflix, a site where UTM students rate courses. Students must be able to speak freely about their courses and instructors, so you are deliberately lenient.
+const POLICY = `You moderate course reviews written by university students for CourseFlix, a site where UTM students rate courses. Students must be able to speak freely about their courses and instructors, so you are deliberately lenient.
 
 ALWAYS PUBLISH, even if harsh, rude or one-sided:
 - Negative opinions about a course, workload, grading, exams, or an instructor's teaching ("worst prof I've had", "lectures are useless", "he grades unfairly", "avoid this course").

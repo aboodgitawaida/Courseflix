@@ -1,4 +1,4 @@
-# Courseflix
+# CourseFlix
 
 ## Production data is not disposable
 

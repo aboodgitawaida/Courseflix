@@ -33,7 +33,7 @@ function Row({
 export function Marquee() {
   return (
     <section
-      aria-label="What Courseflix gives you"
+      aria-label="What CourseFlix gives you"
       className="relative overflow-hidden py-10 md:py-14"
     >
       <div className="relative -mx-[5%] w-[110%]">
