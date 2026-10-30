@@ -17,6 +17,10 @@ import snowman from "@/assets/avatars/snowman.webp";
 import { getSessionUser } from "@/lib/session";
 import { celebrateEagleWith } from "@/lib/study-eagle";
 
+// Zod 4 probes whether it may compile validators with new Function(). The site's CSP
+// forbids that, so the probe only logs a policy violation; jitless skips it.
+z.config({ jitless: true });
+
 export type Profile = {
   id: string;
   display_name: string;
