@@ -112,9 +112,11 @@ export function TopNav() {
           <>
             <Link
               to="/auth"
+              aria-label="Sign in"
               className="auth-hint-signin shine flex h-10 shrink-0 items-center gap-1.5 rounded-full bg-brand px-4 text-sm font-semibold text-primary-foreground shadow-lg shadow-brand/30 transition hover:bg-brand-glow"
             >
-              <User className="h-4 w-4" /> <span className="hidden sm:inline">Sign in</span>
+              <User className="h-4 w-4" aria-hidden="true" />{" "}
+              <span className="hidden sm:inline">Sign in</span>
             </Link>
             <div aria-hidden="true" className="auth-hint-skeleton shrink-0 items-center gap-1.5">
               <span className="h-9 w-9 shrink-0" />
@@ -132,9 +134,11 @@ export function TopNav() {
         ) : (
           <Link
             to="/auth"
+            aria-label="Sign in"
             className="shine flex h-10 shrink-0 items-center gap-1.5 rounded-full bg-brand px-4 text-sm font-semibold text-primary-foreground shadow-lg shadow-brand/30 transition hover:bg-brand-glow"
           >
-            <User className="h-4 w-4" /> <span className="hidden sm:inline">Sign in</span>
+            <User className="h-4 w-4" aria-hidden="true" />{" "}
+            <span className="hidden sm:inline">Sign in</span>
           </Link>
         )}
       </div>

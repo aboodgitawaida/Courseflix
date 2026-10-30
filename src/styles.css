@@ -284,12 +284,6 @@
 @utility brand-glow {
   box-shadow: 0 0 34px -8px oklch(0.55 0.23 28 / 0.8);
 }
-@utility text-brand {
-  color: var(--brand-text);
-}
-@utility text-neutral-500 {
-  color: var(--muted-foreground);
-}
 @utility wordmark {
   font-family: "Bebas Neue", ui-sans-serif, system-ui, sans-serif;
   letter-spacing: 0.06em;
@@ -2848,7 +2842,8 @@
   text-transform: uppercase;
 }
 .chip-red:not(.is-active) {
-  color: #ef2b2b;
+  /* Lighter than the danger title so the 15px label passes 4.5:1 on its red glow. */
+  color: #ff5c5c;
   text-shadow:
     0 0 8px rgb(239 43 43 / 0.9),
     0 0 18px rgb(220 38 38 / 0.6);
@@ -2912,5 +2907,19 @@
 @media (prefers-reduced-motion: reduce) {
   .row-title-gold {
     animation: none;
+  }
+}
+
+/* Readable small text (WCAG AA, 4.5:1). A same-named @utility loses to Tailwind's theme
+   colour, so these override it here. hover: variants still win: their selectors are
+   more specific. */
+@layer utilities {
+  /* Brand red (#e50914) is 4:1 on the near-black page; --brand-text is lighter. */
+  .text-brand {
+    color: var(--brand-text);
+  }
+  /* Tailwind's neutral-500 (#737373) is 4.3:1 on the near-black page; use the muted grey. */
+  .text-neutral-500 {
+    color: var(--muted-foreground);
   }
 }
