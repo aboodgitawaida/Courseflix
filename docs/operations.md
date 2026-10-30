@@ -56,6 +56,31 @@ If it breaks the Terms (personal attacks, someone's private information, spam, f
 - **Seeds** are frozen in the migration (the courses r/UTM most often calls hard, at most two per subject), so later Reddit updates don't reshuffle a live bracket.
 - **A new bracket** (say "best bird course") is a new `brackets` row with its own id and 16 seeds, plus pointing `ACTIVE_BRACKET_ID` at it. Old votes stay where they are.
 
+## Database backups
+
+`.github/workflows/backup-database.yml` saves an encrypted copy of the database every Monday (reviews, accounts, profiles, shortlists, friendships, notifications, achievements, bracket votes). It only reads, and each copy is kept for 90 days.
+
+**One-time setup** (repository Settings → Secrets and variables → Actions → New repository secret):
+
+- `SUPABASE_DB_URL`: in Supabase, click **Connect** at the top of the project, choose **Session pooler**, copy the URI and replace `[YOUR-PASSWORD]` with the database password (Project Settings → Database, where it can be reset; the site uses API keys, not this password). GitHub's runners can't reach the direct connection, so it must be the Session pooler one.
+- `BACKUP_PASSPHRASE`: a long password you make up and keep in a password manager. The repo is public, so backups are encrypted with it. **Without it, a backup can't be opened.**
+
+Then Actions → **Back up database** → **Run workflow** once to check it works.
+
+**Getting a backup:** Actions → Back up database → a run → **Artifacts**, then unzip it.
+
+```sh
+gpg --decrypt courseflix-2026-11-02.dump.gpg > courseflix.dump   # asks for BACKUP_PASSPHRASE
+pg_restore --list courseflix.dump                                   # what's inside
+
+# Just the reviews, as readable SQL:
+pg_restore --data-only --table=course_ratings -f reviews.sql courseflix.dump
+```
+
+**Restoring:** restore into a new, empty Supabase project or a local Postgres, never straight over production, and only after checking with the owner (see `CLAUDE.md`). `pg_restore --no-owner --no-privileges -d "<connection string>" courseflix.dump`. A "schema public already exists" message is normal.
+
+GitHub pauses scheduled workflows in a repository with no commits for 60 days. If that happens, the Actions tab shows a button to turn them back on (this also applies to the keep-awake job below).
+
 ## Keeping Supabase awake
 
 Free Supabase projects pause after about a week without activity. `.github/workflows/keep-supabase-awake.yml` makes one read-only request every 3 days. It needs the `SUPABASE_URL` and `SUPABASE_PUBLISHABLE_KEY` repository secrets.
