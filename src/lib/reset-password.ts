@@ -1,6 +1,5 @@
 import { createServerFn } from "@tanstack/react-start";
-import { createClient, type SupabaseClient } from "@supabase/supabase-js";
-import { Resend } from "resend";
+import type { SupabaseClient } from "@supabase/supabase-js";
 import { SITE_URL } from "./site";
 import { serverLog } from "./server-log";
 
@@ -62,7 +61,8 @@ async function isRateLimited(
   return false;
 }
 
-export const resetPassword = createServerFn()
+// POST keeps the email address out of the URL, so it never lands in request logs.
+export const resetPassword = createServerFn({ method: "POST" })
   .validator((email: string) => {
     const normalized = email.trim().toLowerCase();
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(normalized) || normalized.length > 254) {
@@ -81,6 +81,7 @@ export const resetPassword = createServerFn()
         return { error: "Password reset is temporarily unavailable. Please try again later." };
       }
 
+      const { createClient } = await import("@supabase/supabase-js");
       const supabaseAdmin = createClient(supabaseUrl, serviceRoleKey);
 
       const [emailHash, ip] = await Promise.all([sha256(email), clientIp()]);
@@ -90,6 +91,7 @@ export const resetPassword = createServerFn()
         return GENERIC_SUCCESS;
       }
 
+      const { Resend } = await import("resend");
       const resend = new Resend(resendApiKey);
 
       const { data, error } = await supabaseAdmin.auth.admin.generateLink({
