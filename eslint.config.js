@@ -19,7 +19,10 @@ export default tseslint.config(
       "react-refresh": reactRefresh,
     },
     rules: {
-      ...reactHooks.configs.recommended.rules,
+      // The two classic hook rules. Plugin v7's recommended set also adds React Compiler
+      // rules (set-state-in-effect and others), which this codebase hasn't adopted yet.
+      "react-hooks/rules-of-hooks": "error",
+      "react-hooks/exhaustive-deps": "warn",
       "no-restricted-imports": [
         "error",
         {
