@@ -1,4 +1,4 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient, type UseQueryResult } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { validateRatingInput } from "@/lib/validation";
 import { announce } from "@/lib/a11y";
@@ -7,6 +7,18 @@ import { getSessionUser } from "@/lib/session";
 import { submitReview } from "@/lib/submit-review";
 import type { User } from "@supabase/supabase-js";
 import { celebrateEagleWith, sayEagle } from "@/lib/study-eagle";
+import { useHydrated } from "@/hooks/use-hydrated";
+
+/**
+ * The server renders these queries as "loading". A request can still finish while
+ * the browser is hydrating the page, and React would then see different text
+ * (a rating instead of "—") and throw the server HTML away. Hiding the data until
+ * hydration ends keeps the first render identical; it appears one frame later.
+ */
+function useAfterHydration<T>(query: UseQueryResult<T>): UseQueryResult<T> {
+  const hydrated = useHydrated();
+  return hydrated ? query : ({ ...query, data: undefined } as UseQueryResult<T>);
+}
 
 export type RatingRow = {
   id: string;
@@ -33,21 +45,23 @@ export type RatingStats = {
 } | null;
 
 export function useCourseRatings(code: string) {
-  return useQuery({
-    queryKey: ["ratings", code],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("course_reviews_public")
-        .select(
-          "id, course_code, rating, difficulty, workload, would_take_again, prof_name, comment, created_at, is_mine",
-        )
-        .eq("course_code", code)
-        .order("created_at", { ascending: false });
-      if (error) throw new Error(`Could not load ratings: ${error.message}`);
-      return (data ?? []) as PublicReview[];
-    },
-    retry: 1,
-  });
+  return useAfterHydration(
+    useQuery({
+      queryKey: ["ratings", code],
+      queryFn: async () => {
+        const { data, error } = await supabase
+          .from("course_reviews_public")
+          .select(
+            "id, course_code, rating, difficulty, workload, would_take_again, prof_name, comment, created_at, is_mine",
+          )
+          .eq("course_code", code)
+          .order("created_at", { ascending: false });
+        if (error) throw new Error(`Could not load ratings: ${error.message}`);
+        return (data ?? []) as PublicReview[];
+      },
+      retry: 1,
+    }),
+  );
 }
 
 export function useMyRatings(userId: string | undefined) {
@@ -102,23 +116,27 @@ async function fetchAllCourseStats() {
 
 /** Every course's review averages, from the same cached request as useCourseStats. */
 export function useAllCourseStats(enabled = true) {
-  return useQuery({
-    queryKey: ["rating-stats"],
-    queryFn: fetchAllCourseStats,
-    staleTime: 5 * 60_000,
-    retry: 1,
-    enabled,
-  });
+  return useAfterHydration(
+    useQuery({
+      queryKey: ["rating-stats"],
+      queryFn: fetchAllCourseStats,
+      staleTime: 5 * 60_000,
+      retry: 1,
+      enabled,
+    }),
+  );
 }
 
 export function useCourseStats(code: string) {
-  return useQuery({
-    queryKey: ["rating-stats"],
-    queryFn: fetchAllCourseStats,
-    select: (stats): RatingStats => stats.get(code) ?? null,
-    staleTime: 5 * 60_000,
-    retry: 1,
-  });
+  return useAfterHydration(
+    useQuery({
+      queryKey: ["rating-stats"],
+      queryFn: fetchAllCourseStats,
+      select: (stats): RatingStats => stats.get(code) ?? null,
+      staleTime: 5 * 60_000,
+      retry: 1,
+    }),
+  );
 }
 
 // A course turns gold once this many students have called it a bird course.
@@ -141,22 +159,26 @@ async function fetchBirdMentions() {
 // One small request covers every card on a page; the view has one row per course
 // that at least one review calls a bird course.
 export function useBirdCourses() {
-  return useQuery({
-    queryKey: ["bird-courses"],
-    queryFn: fetchBirdMentions,
-    staleTime: 5 * 60_000,
-    retry: 1,
-  });
+  return useAfterHydration(
+    useQuery({
+      queryKey: ["bird-courses"],
+      queryFn: fetchBirdMentions,
+      staleTime: 5 * 60_000,
+      retry: 1,
+    }),
+  );
 }
 
 export function useBirdMentions(code: string) {
-  return useQuery({
-    queryKey: ["bird-courses"],
-    queryFn: fetchBirdMentions,
-    select: (mentions) => mentions.get(code) ?? 0,
-    staleTime: 5 * 60_000,
-    retry: 1,
-  });
+  return useAfterHydration(
+    useQuery({
+      queryKey: ["bird-courses"],
+      queryFn: fetchBirdMentions,
+      select: (mentions) => mentions.get(code) ?? 0,
+      staleTime: 5 * 60_000,
+      retry: 1,
+    }),
+  );
 }
 
 export type RatingInput = {
@@ -224,24 +246,26 @@ export function useDeleteRating() {
 }
 
 export function useShortlist() {
-  return useQuery({
-    queryKey: ["shortlist"],
-    queryFn: async () => {
-      const { data: auth, error: authError } = await getSessionUser();
-      if (authError) throw new Error(`Authentication failed: ${authError.message}`);
-      if (!auth.user) return [] as string[];
+  return useAfterHydration(
+    useQuery({
+      queryKey: ["shortlist"],
+      queryFn: async () => {
+        const { data: auth, error: authError } = await getSessionUser();
+        if (authError) throw new Error(`Authentication failed: ${authError.message}`);
+        if (!auth.user) return [] as string[];
 
-      const { data, error } = await supabase
-        .from("shortlists")
-        .select("course_code")
-        .eq("user_id", auth.user.id)
-        .order("created_at", { ascending: false });
-      if (error) throw new Error(`Could not load shortlist: ${error.message}`);
-      return (data ?? []).map((row) => row.course_code as string);
-    },
-    staleTime: 15_000,
-    retry: 1,
-  });
+        const { data, error } = await supabase
+          .from("shortlists")
+          .select("course_code")
+          .eq("user_id", auth.user.id)
+          .order("created_at", { ascending: false });
+        if (error) throw new Error(`Could not load shortlist: ${error.message}`);
+        return (data ?? []).map((row) => row.course_code as string);
+      },
+      staleTime: 15_000,
+      retry: 1,
+    }),
+  );
 }
 
 export function useToggleShortlist() {
