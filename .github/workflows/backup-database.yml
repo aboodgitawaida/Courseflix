@@ -1,0 +1,60 @@
+name: Back up database
+
+# Every Monday, saves a copy of everything students created (reviews, accounts,
+# profiles, shortlists, friendships, notifications, achievements, bracket votes).
+# It only reads the database: pg_dump never writes or changes data.
+#
+# The repository is public, so the copy is encrypted with BACKUP_PASSPHRASE before
+# it is uploaded. Without that passphrase the file is unreadable. Each backup is
+# kept for 90 days under Actions -> "Back up database" -> the run -> Artifacts.
+# How to open or restore one: docs/operations.md, "Database backups".
+#
+# Needs two repository secrets (Settings -> Secrets and variables -> Actions):
+#   SUPABASE_DB_URL     the Session pooler connection string, with the password filled in
+#   BACKUP_PASSPHRASE   a long password you keep somewhere safe (a password manager)
+
+on:
+  schedule:
+    - cron: "41 7 * * 1" # Mondays, 3:41 am in Toronto
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  backup:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
+      BACKUP_PASSPHRASE: ${{ secrets.BACKUP_PASSPHRASE }}
+    steps:
+      - name: Check the secrets are set
+        run: |
+          if [ -z "$SUPABASE_DB_URL" ] || [ -z "$BACKUP_PASSPHRASE" ]; then
+            echo "::error::Add the SUPABASE_DB_URL and BACKUP_PASSPHRASE repository secrets (see docs/operations.md)."
+            exit 1
+          fi
+
+      - name: Dump the database (read-only) and encrypt it
+        run: |
+          set -euo pipefail
+          mkdir -p backup
+          # pg_dump 17 reads any older Postgres too. Schemas: public (site data),
+          # private (helper functions) and auth (accounts, which reviews point to).
+          docker run --rm -e SUPABASE_DB_URL -v "$PWD/backup:/backup" postgres:17 \
+            sh -c 'pg_dump "$SUPABASE_DB_URL" --format=custom --no-owner --no-privileges \
+              --schema=public --schema=private --schema=auth --file=/backup/courseflix.dump'
+          name="courseflix-$(date -u +%Y-%m-%d).dump.gpg"
+          printf '%s' "$BACKUP_PASSPHRASE" | gpg --batch --yes --pinentry-mode loopback \
+            --passphrase-fd 0 --symmetric --cipher-algo AES256 \
+            --output "backup/$name" backup/courseflix.dump
+          rm backup/courseflix.dump
+          echo "Encrypted backup: $name ($(du -h "backup/$name" | cut -f1))"
+
+      - uses: actions/upload-artifact@v7
+        with:
+          name: courseflix-backup-${{ github.run_number }}
+          path: backup/*.dump.gpg
+          retention-days: 90
+          if-no-files-found: error
