@@ -136,7 +136,7 @@ function TermsPage() {
               We handle personal information in accordance with applicable Canadian privacy laws,
               which may include the federal Personal Information Protection and Electronic Documents
               Act (PIPEDA) and applicable Ontario law. Our{" "}
-              <Link to="/privacy" className="text-brand hover:underline">
+              <Link to="/privacy" className="text-brand underline underline-offset-2">
                 Privacy Policy
               </Link>{" "}
               explains what we collect, what is public, and how to delete your account.

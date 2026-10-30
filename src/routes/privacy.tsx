@@ -27,7 +27,7 @@ function Section({ title, children }: { title: string; children: ReactNode }) {
 
 function PrivacyPage() {
   const mail = (
-    <a href={`mailto:${CREATOR_EMAIL}`} className="text-brand hover:underline">
+    <a href={`mailto:${CREATOR_EMAIL}`} className="text-brand underline underline-offset-2">
       {CREATOR_EMAIL}
     </a>
   );
@@ -210,7 +210,7 @@ function PrivacyPage() {
             <p>
               If we change this policy, we&apos;ll post the new version here with a new “Last
               updated” date. See also our{" "}
-              <Link to="/terms" className="text-brand hover:underline">
+              <Link to="/terms" className="text-brand underline underline-offset-2">
                 Terms of Use
               </Link>
               .
