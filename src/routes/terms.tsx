@@ -1,19 +1,15 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { TopNav } from "@/components/TopNav";
 import { PageBackdrop } from "@/components/PageBackdrop";
-import { siteUrl } from "@/lib/site";
+import { pageHead } from "@/lib/site";
 
 export const Route = createFileRoute("/terms")({
-  head: () => ({
-    meta: [
-      { title: "Terms of Use — Courseflix" },
-      {
-        name: "description",
-        content: "The terms that apply when you use Courseflix.",
-      },
-    ],
-    links: [{ rel: "canonical", href: siteUrl("/terms") }],
-  }),
+  head: () =>
+    pageHead({
+      title: "Terms of use",
+      description: "The terms that apply when you use Courseflix.",
+      path: "/terms",
+    }),
   component: TermsPage,
 });
 

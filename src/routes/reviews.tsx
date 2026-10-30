@@ -8,14 +8,15 @@ import { QueryErrorState } from "@/components/QueryErrorState";
 import { useAuth } from "@/hooks/use-auth";
 import { useDeleteRating, useMyRatings, useSubmitRating } from "@/lib/ratings";
 import { getCourse } from "@/lib/courses";
+import { pageHead } from "@/lib/site";
 
 export const Route = createFileRoute("/reviews")({
-  head: () => ({
-    meta: [
-      { title: "My reviews — Courseflix UTM" },
-      { name: "description", content: "View and manage your Courseflix course reviews." },
-    ],
-  }),
+  head: () =>
+    pageHead({
+      title: "My reviews",
+      description: "View, edit and delete the course reviews you've posted on Courseflix.",
+      index: false,
+    }),
   component: ReviewsPage,
 });
 

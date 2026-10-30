@@ -19,7 +19,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { useShortlist, useToggleShortlist } from "@/lib/ratings";
 import { shortlistEvent } from "@/lib/eagle-reactions";
 import { reactEagle } from "@/lib/study-eagle";
-import { siteUrl } from "@/lib/site";
+import { pageHead, siteUrl } from "@/lib/site";
 import { FEATURES } from "@/lib/features";
 import { parseShortlistCodesWithStats, parseShortlistSearch } from "@/lib/validation";
 import { QueryErrorState } from "@/components/QueryErrorState";
@@ -30,25 +30,14 @@ import { renderShortlistStory } from "@/lib/story-card";
 export const Route = createFileRoute("/list")({
   validateSearch: parseShortlistSearch,
 
-  head: () => ({
-    meta: [
-      { title: "My Short List — Courseflix UTM" },
-      {
-        name: "description",
-        content:
-          "Your saved UTM courses in one place. Share your shortlist link with friends and compare picks before enrolment opens.",
-      },
-      { property: "og:title", content: "My Shortlist — Courseflix UTM" },
-      {
-        property: "og:description",
-        content: "Save UTM courses, share your shortlist, and compare picks with friends.",
-      },
-      { property: "og:type", content: "website" },
-      { property: "og:url", content: siteUrl("/list") },
-      { name: "twitter:card", content: "summary_large_image" },
-    ],
-    links: [{ rel: "canonical", href: siteUrl("/list") }],
-  }),
+  head: () =>
+    pageHead({
+      title: "My shortlist",
+      description:
+        "Your saved UTM courses in one place. Share your shortlist link with friends and compare picks before enrolment opens.",
+      path: "/list",
+      index: false,
+    }),
   component: ListPage,
 });
 

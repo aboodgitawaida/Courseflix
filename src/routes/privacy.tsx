@@ -3,20 +3,16 @@ import type { ReactNode } from "react";
 import { TopNav } from "@/components/TopNav";
 import { PageBackdrop } from "@/components/PageBackdrop";
 import { CREATOR_EMAIL } from "@/lib/links";
-import { siteUrl } from "@/lib/site";
+import { pageHead } from "@/lib/site";
 
 export const Route = createFileRoute("/privacy")({
-  head: () => ({
-    meta: [
-      { title: "Privacy Policy — Courseflix" },
-      {
-        name: "description",
-        content:
-          "What Courseflix collects, what is public, who processes it, and how to delete your account.",
-      },
-    ],
-    links: [{ rel: "canonical", href: siteUrl("/privacy") }],
-  }),
+  head: () =>
+    pageHead({
+      title: "Privacy policy",
+      description:
+        "What Courseflix collects, what is public, who processes it, and how to delete your account.",
+      path: "/privacy",
+    }),
   component: PrivacyPage,
 });
 

@@ -13,28 +13,20 @@ import { toast } from "sonner";
 import { resetPassword } from "@/lib/reset-password";
 import { safeAuthRedirect } from "@/lib/auth-redirect";
 import { PageBackdrop } from "@/components/PageBackdrop";
+import { pageHead } from "@/lib/site";
 
 export const Route = createFileRoute("/auth")({
   validateSearch: (s: Record<string, unknown>): { redirect?: string } =>
     typeof s["redirect"] === "string" ? { redirect: s["redirect"] as string } : {},
 
-  head: () => ({
-    meta: [
-      { title: "Sign in — courseflix UTM" },
-      {
-        name: "description",
-        content:
-          "Create a courseflix account to save UTM courses to your shortlist and rate the courses you've taken.",
-      },
-      { property: "og:title", content: "Sign in to courseflix" },
-      {
-        property: "og:description",
-        content: "Save courses to your shortlist and rate the ones you've taken.",
-      },
-      { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary_large_image" },
-    ],
-  }),
+  head: () =>
+    pageHead({
+      title: "Sign in",
+      description:
+        "Create a Courseflix account to save UTM courses to your shortlist and review the courses you've taken.",
+      path: "/auth",
+      index: false,
+    }),
   component: AuthLayout,
 });
 

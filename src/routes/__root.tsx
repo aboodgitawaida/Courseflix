@@ -36,6 +36,8 @@ import { A11Y_ANNOUNCE_EVENT } from "@/lib/a11y";
 function NotFoundComponent() {
   return (
     <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-background px-4">
+      {/* React moves this into <head>; search engines then skip the 404. */}
+      <meta name="robots" content="noindex" />
       <div
         aria-hidden="true"
         className="mesh-blob left-1/2 top-1/3 h-[420px] w-[420px] -translate-x-1/2 bg-brand/20"
