@@ -11,7 +11,6 @@ const codes = [
 
 const pages = [
   { path: "/", changefreq: "daily", priority: "1.0" },
-  { path: "/list", changefreq: "weekly", priority: "0.8" },
   // Add /bracket and /wrapped back here when they're switched on in src/lib/features.ts.
   { path: "/help", changefreq: "monthly", priority: "0.3" },
   { path: "/terms", changefreq: "yearly", priority: "0.2" },

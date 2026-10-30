@@ -3,14 +3,15 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useEffect, useRef, useState } from "react";
 import { PageBackdrop } from "@/components/PageBackdrop";
 import { confirmReviewVerification } from "@/lib/review-verification";
+import { pageHead } from "@/lib/site";
 
 export const Route = createFileRoute("/verify-email")({
-  head: () => ({
-    meta: [
-      { name: "robots", content: "noindex, nofollow" },
-      { title: "Confirm your email — Courseflix" },
-    ],
-  }),
+  head: () =>
+    pageHead({
+      title: "Confirm your email",
+      description: "Confirm your email to post course reviews on Courseflix.",
+      index: false,
+    }),
   component: VerifyEmailPage,
 });
 

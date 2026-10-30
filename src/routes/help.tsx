@@ -2,28 +2,17 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { Mail, MessageCircle, NotebookPen, Video } from "lucide-react";
 import { TopNav } from "@/components/TopNav";
 import { PageBackdrop } from "@/components/PageBackdrop";
-import { siteUrl } from "@/lib/site";
+import { pageHead } from "@/lib/site";
 import { CREATOR_EMAIL, UTM_LINKS } from "@/lib/links";
 
 export const Route = createFileRoute("/help")({
-  head: () => ({
-    meta: [
-      { title: "Help centre — Courseflix UTM" },
-      {
-        name: "description",
-        content:
-          "Questions about Courseflix ratings, shortlists, privacy or friends? Read the basics or email the creator directly.",
-      },
-      { property: "og:title", content: "Help centre — Courseflix UTM" },
-      {
-        property: "og:description",
-        content: "How Courseflix ratings, shortlists and privacy work, plus how to get in touch.",
-      },
-      { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary" },
-    ],
-    links: [{ rel: "canonical", href: siteUrl("/help") }],
-  }),
+  head: () =>
+    pageHead({
+      title: "Help centre",
+      description:
+        "How Courseflix ratings, shortlists, friends and privacy work, and how to contact the creator.",
+      path: "/help",
+    }),
   component: HelpPage,
 });
 
