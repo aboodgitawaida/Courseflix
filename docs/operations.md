@@ -6,11 +6,11 @@ How Courseflix is run day to day. See [`CLAUDE.md`](../CLAUDE.md) for the rules 
 
 ```sh
 cp .env.example .env   # fill in your Supabase and Resend keys
-npm install
+npm ci
 npm run dev
 ```
 
-Before pushing: `npm run typecheck && npm run lint && npm test`. CI runs the same checks, plus a production build, on every pull request.
+Before pushing: `npm run check` (typecheck, lint, formatting and tests). CI runs the same checks, plus a production build, on every pull request.
 
 ## Database changes
 
