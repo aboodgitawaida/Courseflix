@@ -2,6 +2,24 @@
 @source "../src";
 @import "tw-animate-css";
 
+/* Fonts are served from this site, not Google Fonts: no extra connections, no
+   render-blocking third-party stylesheet. Only the basic Latin subset is loaded: the
+   catalogue has just three letters outside it, which fall back to a system font. */
+@import "@fontsource/inter-tight/latin-400.css";
+@import "@fontsource/inter-tight/latin-500.css";
+@import "@fontsource/inter-tight/latin-600.css";
+@import "@fontsource/inter-tight/latin-700.css";
+@import "@fontsource/inter-tight/latin-800.css";
+@import "@fontsource/inter-tight/latin-900.css";
+@import "@fontsource/unbounded/latin-500.css";
+@import "@fontsource/unbounded/latin-700.css";
+@import "@fontsource/unbounded/latin-800.css";
+@import "@fontsource/unbounded/latin-900.css";
+@import "@fontsource/instrument-serif/latin-400.css";
+@import "@fontsource/instrument-serif/latin-400-italic.css";
+@import "@fontsource/bebas-neue/latin-400.css";
+@import "@fontsource/creepster/latin-400.css";
+
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
@@ -2922,4 +2940,12 @@
   .text-neutral-500 {
     color: var(--muted-foreground);
   }
+}
+
+/* Rows of courses well below the fold skip layout, paint and their cards' spinning
+   gold/red borders until the reader scrolls near them, which saves phones a lot of
+   work. "auto" remembers each row's real height once it has been shown. */
+.rail-cv {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 360px;
 }
