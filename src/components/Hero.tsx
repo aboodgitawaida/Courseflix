@@ -1,9 +1,10 @@
 import { Link } from "@tanstack/react-router";
-import { COURSES, SUBJECTS, type Course } from "@/lib/courses";
+import { SUBJECTS, type Course } from "@/lib/courses";
 import { ArrowRight, Search } from "lucide-react";
 import { useCourseUI } from "@/hooks/use-course-ui";
 import { prefersReducedMotion } from "@/hooks/use-reveal";
 import { HeroDeck } from "./HeroDeck";
+import { ADVERTISED_COURSE_COUNT } from "@/lib/site";
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 
 const HEADLINE: Array<{ text: string; accent?: boolean }> = [
@@ -164,7 +165,7 @@ export function Hero({ deck, major }: { deck: Course[]; major: string }) {
                 Courses
               </dt>
               <dd className="mt-1 font-mega text-2xl font-bold md:text-3xl">
-                <CountUp value={COURSES.length} />
+                <CountUp value={ADVERTISED_COURSE_COUNT} suffix="+" />
               </dd>
             </div>
             <div>

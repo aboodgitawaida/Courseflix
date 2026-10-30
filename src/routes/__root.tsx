@@ -11,6 +11,10 @@ import {
 import { useEffect, useState, type ReactNode } from "react";
 
 import appCss from "../styles.css?url";
+// The fonts the first screen needs (headline, body text, logo), fetched alongside the CSS.
+import headlineFont from "@fontsource/unbounded/files/unbounded-latin-800-normal.woff2?url";
+import bodyFont from "@fontsource/inter-tight/files/inter-tight-latin-400-normal.woff2?url";
+import logoFont from "@fontsource/bebas-neue/files/bebas-neue-latin-400-normal.woff2?url";
 import { Toaster } from "@/components/ui/sonner";
 import { CourseUIProvider } from "@/hooks/use-course-ui";
 import { SoundProvider } from "@/hooks/use-sound";
@@ -36,6 +40,8 @@ import { A11Y_ANNOUNCE_EVENT } from "@/lib/a11y";
 function NotFoundComponent() {
   return (
     <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-background px-4">
+      {/* React moves this into <head>; search engines then skip the 404. */}
+      <meta name="robots" content="noindex" />
       <div
         aria-hidden="true"
         className="mesh-blob left-1/2 top-1/3 h-[420px] w-[420px] -translate-x-1/2 bg-brand/20"
@@ -145,12 +151,13 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         rel: "stylesheet",
         href: appCss,
       },
-      { rel: "preconnect", href: "https://fonts.googleapis.com" },
-      { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
-      {
-        rel: "stylesheet",
-        href: "https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Creepster&family=Inter+Tight:wght@400;500;600;700;800;900&family=Unbounded:wght@500;700;800;900&family=Instrument+Serif:ital@0;1&display=swap",
-      },
+      ...[headlineFont, bodyFont, logoFont].map((href) => ({
+        rel: "preload",
+        as: "font",
+        type: "font/woff2",
+        href,
+        crossOrigin: "anonymous" as const,
+      })),
       { rel: "icon", type: "image/png", sizes: "32x32", href: "/eagle-favicon-v4-32x32.png" },
       { rel: "shortcut icon", type: "image/x-icon", href: "/eagle-favicon-v4.ico" },
       { rel: "icon", type: "image/x-icon", href: "/eagle-favicon-v4.ico" },

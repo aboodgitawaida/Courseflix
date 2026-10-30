@@ -1,6 +1,7 @@
 import { Bookmark, GitBranch, Search, Star, Users } from "lucide-react";
 import type { ReactNode } from "react";
-import { COURSES, SUBJECTS } from "@/lib/courses";
+import { SUBJECTS } from "@/lib/courses";
+import { ADVERTISED_COURSE_COUNT } from "@/lib/site";
 import { useCourseUI } from "@/hooks/use-course-ui";
 import { useReveal } from "@/hooks/use-reveal";
 
@@ -86,7 +87,9 @@ export function FeatureBento() {
           <Eyebrow icon={<Star className="h-3.5 w-3.5" />}>The whole catalog</Eyebrow>
           <div>
             <div className="font-mega text-7xl font-black leading-none tracking-tighter md:text-[9rem]">
-              <span className="text-gradient-brand">{COURSES.length}</span>
+              <span className="text-gradient-brand">
+                {ADVERTISED_COURSE_COUNT.toLocaleString("en-CA")}+
+              </span>
             </div>
             <p className="mt-3 max-w-md text-lg font-medium text-foreground/85 md:text-xl">
               UTM courses across {SUBJECTS.length} subjects, sorted into rows built for your

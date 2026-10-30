@@ -47,6 +47,12 @@ export default tseslint.config(
     },
   },
   {
+    // File routes must export `Route` next to their page components, and the TanStack
+    // router plugin handles hot reload for them, so this rule only produces noise here.
+    files: ["src/routes/**/*.tsx"],
+    rules: { "react-refresh/only-export-components": "off" },
+  },
+  {
     // Mocks in tests often need loose types.
     files: ["**/*.test.{ts,tsx}"],
     rules: { "@typescript-eslint/no-explicit-any": "off" },
