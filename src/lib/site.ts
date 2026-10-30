@@ -1,6 +1,8 @@
 export const SITE_URL = "https://www.courseflix.ca";
 export const SITE_NAME = "Courseflix";
 export const DEFAULT_OG_IMAGE = `${SITE_URL}/og-image.jpg`;
+/** The course count the site advertises (shown as "2,600+"). */
+export const ADVERTISED_COURSE_COUNT = 2600;
 
 export function siteUrl(path = "") {
   return `${SITE_URL}${path.startsWith("/") || path === "" ? path : `/${path}`}`;

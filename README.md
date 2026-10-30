@@ -8,7 +8,7 @@
 ![Courseflix home page](docs/screenshots/home.jpg)
 
 - **The problem:** picking courses at UTM means juggling the Academic Calendar, the Timetable Builder, Rate My Professors and r/UTM.
-- **The product:** one page per course and a home feed rebuilt around your program, covering all **2,491 courses** and **44 programs**.
+- **The product:** one page per course and a home feed rebuilt around your program, covering **2,600+ courses** and **44 programs**.
 - **The stack:** TypeScript, React 19, TanStack Start (SSR), Supabase Postgres with row-level security, Vercel, and the Claude API.
 
 ## Screenshots
