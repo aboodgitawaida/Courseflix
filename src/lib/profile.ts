@@ -119,7 +119,11 @@ export function useUpdateProfile() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: async (patch: Partial<Omit<Profile, "id">>) => {
-      const validatedPatch = profilePatchSchema.parse(patch);
+      const parsed = profilePatchSchema.safeParse(patch);
+      // Show the first problem in plain words, not Zod's JSON dump of every issue.
+      if (!parsed.success)
+        throw new Error(parsed.error.issues[0]?.message ?? "Check your profile details.");
+      const validatedPatch = parsed.data;
       const { data: auth } = await getSessionUser();
       const user = auth.user;
       const uid = user?.id;
