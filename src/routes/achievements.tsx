@@ -8,18 +8,15 @@ import { useAchievements } from "@/lib/achievements";
 import { QueryErrorState } from "@/components/QueryErrorState";
 import { achievementsEvent } from "@/lib/eagle-reactions";
 import { celebrateEagle, firstThisSession, pickEagleLine, reactEagle } from "@/lib/study-eagle";
+import { pageHead } from "@/lib/site";
 
 export const Route = createFileRoute("/achievements")({
-  head: () => ({
-    meta: [
-      { name: "robots", content: "noindex, nofollow" },
-      { title: "Achievements — Courseflix UTM" },
-      {
-        name: "description",
-        content: "Collect Courseflix achievements as you explore UTM courses.",
-      },
-    ],
-  }),
+  head: () =>
+    pageHead({
+      title: "Achievements",
+      description: "Collect Courseflix achievements as you explore UTM courses.",
+      index: false,
+    }),
   component: AchievementsPage,
 });
 

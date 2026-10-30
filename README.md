@@ -91,7 +91,9 @@ flowchart LR
 - **Privacy by design.** Reviews are read through a view that drops the author's ID, so they are public without being traceable, while each user can still edit and delete their own.
 - **Abuse limits in Postgres.** Friend requests, password resets and verification emails are rate-limited with database-backed counters, so the limits hold across serverless instances.
 - **Defence in depth.** Review verification is enforced in both the server function and the database policies. Security headers (CSP, HSTS, frame denial) are set in [`vercel.json`](vercel.json), and auth redirects only allow same-site paths.
-- **Performance.** Rating stats for every visible course load in one cached request instead of about 100 per page, and course descriptions, about two-thirds of the catalogue's size, are code-split.
+- **Performance.** Rating stats for every visible course load in one cached request instead of about 100 per page, and course descriptions, about two-thirds of the catalogue's size, are code-split. Rows below the fold skip rendering until you scroll near them (`content-visibility`), and fonts are self-hosted and preloaded.
+- **Hydration-safe data.** Live data that the server can't render (ratings, shortlists) is held back until the page has hydrated, so the server HTML is never thrown away and rebuilt in the browser ([`use-hydrated.ts`](src/hooks/use-hydrated.ts)).
+- **Accessible and searchable.** Lighthouse scores 100 for accessibility and SEO on the main pages. Every page gets a consistent title, link preview and indexing rule from one helper ([`site.ts`](src/lib/site.ts)), and course pages publish schema.org `Course` data.
 - **Honest data.** Ratings only ever come from real reviews or Rate My Professors, and the site says so when a course has none.
 - **Safe migrations.** Migrations only add things. A written policy ([CLAUDE.md](CLAUDE.md)) forbids anything that could remove or rewrite real students' data.
 
@@ -149,12 +151,14 @@ Apply the schema in [`supabase/migrations/`](supabase/migrations) to your projec
 
 Unit and component tests run on every pull request (Vitest, Testing Library, jsdom). They cover:
 
-- the recommendation rows,
-- input validation and the auth-redirect guard,
-- review verification and moderation, and
-- the Reddit signal thresholds and tiers,
-- plus the notification bell and a browser smoke test of the root layout,
-- and the Study Eagle's state machine.
+- the recommendation rows
+- input validation and the auth-redirect guard
+- review verification and moderation
+- the Reddit signal thresholds and tiers
+- server-render/hydration consistency
+- the notification bell, a browser smoke test of the root layout, and the Study Eagle's state machine
+
+CI also fails on any type error, lint warning or formatting difference.
 
 ## Project structure
 

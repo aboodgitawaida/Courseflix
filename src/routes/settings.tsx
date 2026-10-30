@@ -29,14 +29,15 @@ import { useMajor } from "@/hooks/use-major";
 import { announce } from "@/lib/a11y";
 import { deleteAccount } from "@/lib/delete-account";
 import { supabase } from "@/integrations/supabase/client";
+import { pageHead } from "@/lib/site";
 
 export const Route = createFileRoute("/settings")({
-  head: () => ({
-    meta: [
-      { title: "Account & settings — Courseflix UTM" },
-      { name: "robots", content: "noindex, nofollow" },
-    ],
-  }),
+  head: () =>
+    pageHead({
+      title: "Account & settings",
+      description: "Your Courseflix profile, privacy, theme and account settings.",
+      index: false,
+    }),
   component: SettingsPage,
 });
 

@@ -3,15 +3,15 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { PageBackdrop } from "@/components/PageBackdrop";
+import { pageHead } from "@/lib/site";
 
 export const Route = createFileRoute("/auth/reset-password")({
-  head: () => ({
-    meta: [
-      { name: "robots", content: "noindex, nofollow" },
-      { title: "Reset Password — courseflix UTM" },
-      { name: "description", content: "Reset your courseflix password." },
-    ],
-  }),
+  head: () =>
+    pageHead({
+      title: "Reset your password",
+      description: "Choose a new password for your Courseflix account.",
+      index: false,
+    }),
   component: ResetPasswordPage,
 });
 

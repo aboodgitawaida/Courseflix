@@ -10,7 +10,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { useSound } from "@/hooks/use-sound";
 import { getCourse, shortCode } from "@/lib/courses";
 import { useBirdCourses, useMyRatings, useShortlist } from "@/lib/ratings";
-import { siteUrl } from "@/lib/site";
+import { pageHead, siteUrl } from "@/lib/site";
 import { renderWrappedStory } from "@/lib/story-card";
 import { parseShortlistCodesWithStats, parseShortlistSearch } from "@/lib/validation";
 import { buildWrapped, type Wrapped } from "@/lib/wrapped";
@@ -20,25 +20,13 @@ export const Route = createFileRoute("/wrapped")({
     if (!FEATURES.wrapped) throw notFound();
   },
   validateSearch: parseShortlistSearch,
-  head: () => ({
-    meta: [
-      { title: "Course Wrapped — Courseflix UTM" },
-      {
-        name: "description",
-        content:
-          "Your UTM course lineup, Wrapped: your boss fights, bird courses and course persona. Make yours and share it.",
-      },
-      { property: "og:title", content: "My UTM Course Wrapped — Courseflix" },
-      {
-        property: "og:description",
-        content: "Boss fights, bird courses and a course persona. Get your own UTM Wrapped.",
-      },
-      { property: "og:type", content: "website" },
-      { property: "og:url", content: siteUrl("/wrapped") },
-      { name: "twitter:card", content: "summary_large_image" },
-    ],
-    links: [{ rel: "canonical", href: siteUrl("/wrapped") }],
-  }),
+  head: () =>
+    pageHead({
+      title: "Course Wrapped",
+      description:
+        "Your UTM course lineup, Wrapped: your boss fights, bird courses and course persona. Make yours and share it.",
+      path: "/wrapped",
+    }),
   component: WrappedPage,
 });
 

@@ -1,19 +1,15 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { TopNav } from "@/components/TopNav";
 import { PageBackdrop } from "@/components/PageBackdrop";
-import { siteUrl } from "@/lib/site";
+import { pageHead } from "@/lib/site";
 
 export const Route = createFileRoute("/terms")({
-  head: () => ({
-    meta: [
-      { title: "Terms of Use — Courseflix" },
-      {
-        name: "description",
-        content: "The terms that apply when you use Courseflix.",
-      },
-    ],
-    links: [{ rel: "canonical", href: siteUrl("/terms") }],
-  }),
+  head: () =>
+    pageHead({
+      title: "Terms of use",
+      description: "The terms that apply when you use Courseflix.",
+      path: "/terms",
+    }),
   component: TermsPage,
 });
 
@@ -140,7 +136,7 @@ function TermsPage() {
               We handle personal information in accordance with applicable Canadian privacy laws,
               which may include the federal Personal Information Protection and Electronic Documents
               Act (PIPEDA) and applicable Ontario law. Our{" "}
-              <Link to="/privacy" className="text-brand hover:underline">
+              <Link to="/privacy" className="text-brand underline underline-offset-2">
                 Privacy Policy
               </Link>{" "}
               explains what we collect, what is public, and how to delete your account.

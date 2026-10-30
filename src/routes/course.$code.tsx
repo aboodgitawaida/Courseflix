@@ -24,7 +24,7 @@ import { Spotlight } from "@/components/Spotlight";
 import { useReveal } from "@/hooks/use-reveal";
 import { Burst } from "@/components/Burst";
 import { useEffect, useState } from "react";
-import { siteUrl } from "@/lib/site";
+import { jsonLd, pageHead, siteUrl } from "@/lib/site";
 import { rmpTorontoSearchUrl, rmpUtmSearchUrl, timetableUrl } from "@/lib/links";
 import { getProfessorRating, SHOW_RMP_SCORES } from "@/lib/professor-ratings";
 import { PUBLISHED_INSTRUCTORS } from "@/lib/course-instructors";
@@ -41,34 +41,44 @@ export const Route = createFileRoute("/course/$code")({
     const descriptions = await loadDescriptions();
     return { course, description: descriptions[course.code] ?? "" };
   },
-  head: ({ loaderData }) => ({
-    meta: [
-      {
-        title: loaderData
-          ? `${loaderData.course.code} — ${loaderData.course.title} · courseflix`
-          : "courseflix",
-      },
-      { name: "description", content: loaderData?.description || "UTM course details" },
-      {
-        property: "og:title",
-        content: loaderData
-          ? `${loaderData.course.code} · ${loaderData.course.title}`
-          : "courseflix",
-      },
-      { property: "og:description", content: loaderData?.description ?? "" },
-      { property: "og:type", content: "article" },
-      {
-        property: "og:url",
-        content: loaderData ? siteUrl(`/course/${loaderData.course.code}`) : siteUrl(),
-      },
-      { property: "og:image", content: siteUrl("/og-image.jpg") },
-      { name: "twitter:card", content: "summary_large_image" },
-      { name: "twitter:image", content: siteUrl("/og-image.jpg") },
-    ],
-    links: loaderData
-      ? [{ rel: "canonical", href: siteUrl(`/course/${loaderData.course.code}`) }]
-      : [],
-  }),
+  head: ({ loaderData }) => {
+    if (!loaderData) {
+      return pageHead({
+        title: "Course not found",
+        description: "That course code isn't in the UTM catalogue.",
+        index: false,
+      });
+    }
+    const { course, description } = loaderData;
+    const path = `/course/${course.code}`;
+    const page = pageHead({
+      title: `${course.code}: ${course.title}`,
+      description: description
+        ? `${course.code} at UTM. ${description}`
+        : `${course.code} ${course.title} at UTM: prerequisites, instructors and student reviews.`,
+      path,
+      type: "article",
+    });
+    return {
+      ...page,
+      scripts: [
+        jsonLd({
+          "@type": "Course",
+          name: course.title,
+          courseCode: course.code,
+          description: description || `${course.code} ${course.title}`,
+          url: siteUrl(path),
+          numberOfCredits: course.credits,
+          ...(course.prereqRaw ? { coursePrerequisites: course.prereqRaw } : {}),
+          provider: {
+            "@type": "CollegeOrUniversity",
+            name: "University of Toronto Mississauga",
+            sameAs: "https://www.utm.utoronto.ca",
+          },
+        }),
+      ],
+    };
+  },
   notFoundComponent: () => (
     <div className="min-h-screen bg-background text-foreground">
       <TopNav />

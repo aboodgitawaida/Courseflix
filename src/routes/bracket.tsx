@@ -30,32 +30,20 @@ import {
 } from "@/lib/bracket-data";
 import { getCourse, shortCode } from "@/lib/courses";
 import { getRedditSignal } from "@/lib/reddit-signals";
-import { siteUrl } from "@/lib/site";
+import { pageHead, siteUrl } from "@/lib/site";
 import { renderBracketStory } from "@/lib/story-card";
 
 export const Route = createFileRoute("/bracket")({
   beforeLoad: () => {
     if (!FEATURES.bracket) throw notFound();
   },
-  head: () => ({
-    meta: [
-      { title: "Hardest Course at UTM: The Bracket — Courseflix" },
-      {
-        name: "description",
-        content:
-          "16 courses r/UTM calls the hardest. Four knockout rounds. UTM students vote on which one is the worst. Cast your vote.",
-      },
-      { property: "og:title", content: "Hardest course at UTM: vote in the bracket" },
-      {
-        property: "og:description",
-        content: "MAT102 vs MAT157. CSC148 vs PHY146. 16 courses, one survives. You decide.",
-      },
-      { property: "og:type", content: "website" },
-      { property: "og:url", content: siteUrl("/bracket") },
-      { name: "twitter:card", content: "summary_large_image" },
-    ],
-    links: [{ rel: "canonical", href: siteUrl("/bracket") }],
-  }),
+  head: () =>
+    pageHead({
+      title: "Hardest Course at UTM: The Bracket",
+      description:
+        "16 courses r/UTM calls the hardest. Four knockout rounds. UTM students vote on which one is the worst. Cast your vote.",
+      path: "/bracket",
+    }),
   component: BracketPage,
 });
 

@@ -27,15 +27,15 @@ import {
   useRespondToRequest,
   useSendFriendRequest,
 } from "@/lib/social";
+import { pageHead } from "@/lib/site";
 
 export const Route = createFileRoute("/profile/$id")({
-  head: () => ({
-    meta: [
-      { name: "robots", content: "noindex, nofollow" },
-      { title: "Profile — Courseflix UTM" },
-      { name: "description", content: "A friend's Courseflix profile." },
-    ],
-  }),
+  head: () =>
+    pageHead({
+      title: "Profile",
+      description: "A friend's Courseflix profile.",
+      index: false,
+    }),
   component: FriendProfilePage,
 });
 

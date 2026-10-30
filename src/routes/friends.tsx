@@ -20,26 +20,16 @@ import { QueryErrorState } from "@/components/QueryErrorState";
 import { announce } from "@/lib/a11y";
 import { countPhrase, friendsEvent } from "@/lib/eagle-reactions";
 import { reactEagle } from "@/lib/study-eagle";
+import { pageHead } from "@/lib/site";
 
 export const Route = createFileRoute("/friends")({
-  head: () => ({
-    meta: [
-      { name: "robots", content: "noindex, nofollow" },
-      { title: "Friends — Courseflix UTM" },
-      {
-        name: "description",
-        content:
-          "Add UTM classmates on Courseflix, accept friend requests, and see which courses your friends have shortlisted.",
-      },
-      { property: "og:title", content: "Friends — Courseflix UTM" },
-      {
-        property: "og:description",
-        content: "See what your UTM friends are planning to take next term.",
-      },
-      { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary" },
-    ],
-  }),
+  head: () =>
+    pageHead({
+      title: "Friends",
+      description:
+        "Add UTM classmates on Courseflix, accept friend requests, and see which courses your friends have shortlisted.",
+      index: false,
+    }),
   component: FriendsPage,
 });
 

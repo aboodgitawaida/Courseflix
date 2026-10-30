@@ -62,7 +62,7 @@ export const CourseRail = memo(function CourseRail({
   return (
     <section
       ref={revealRef}
-      className="reveal relative"
+      className="rail-cv reveal relative"
       onMouseEnter={() => setHover(true)}
       onMouseLeave={() => setHover(false)}
     >

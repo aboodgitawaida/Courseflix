@@ -1,34 +1,28 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { HomePage } from "@/components/HomePage";
-import { siteUrl } from "@/lib/site";
+import { jsonLd, pageHead, siteUrl } from "@/lib/site";
 
 export const Route = createFileRoute("/")({
-  head: () => ({
-    meta: [
-      { title: "Courseflix | Browse UTM Courses Like Netflix" },
-      {
-        name: "description",
-        content:
-          "Browse every UTM course like Netflix. Pick your major, get curated rows, save a shortlist and share it with friends.",
-      },
-      { property: "og:title", content: "Courseflix | Browse UTM Courses Like Netflix" },
-      {
-        property: "og:description",
-        content:
-          "Browse every UTM course like Netflix. Curated rows, bird courses, ratings and a shareable shortlist.",
-      },
-      { property: "og:type", content: "website" },
-      { property: "og:site_name", content: "Courseflix" },
-      { property: "og:url", content: siteUrl("/") },
-      { name: "twitter:card", content: "summary_large_image" },
-      { name: "twitter:title", content: "Courseflix | Browse UTM Courses Like Netflix" },
-      {
-        name: "twitter:description",
-        content:
-          "Browse every UTM course like Netflix. Curated rows, bird courses, ratings and a shareable shortlist.",
-      },
-    ],
-    links: [{ rel: "canonical", href: siteUrl("/") }],
-  }),
+  head: () => {
+    const page = pageHead({
+      title: "Courseflix | Browse UTM Courses Like Netflix",
+      description:
+        "Browse every UTM course like Netflix: rows built for your program, student reviews, bird courses and prerequisite paths. Save a shortlist and share it with friends.",
+      path: "/",
+    });
+    return {
+      ...page,
+      scripts: [
+        jsonLd({
+          "@type": "WebSite",
+          name: "Courseflix",
+          url: siteUrl("/"),
+          description:
+            "Course discovery for University of Toronto Mississauga students: every course, sorted into rows for your program, with student reviews and prerequisite paths.",
+          inLanguage: "en-CA",
+        }),
+      ],
+    };
+  },
   component: HomePage,
 });

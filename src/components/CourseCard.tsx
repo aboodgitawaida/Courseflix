@@ -110,13 +110,13 @@ export const CourseCard = memo(function CourseCard({
   const displayRating = stats?.rating_count ? stats.avg_rating : null;
   const inList = (saved as string[]).includes(course.code);
   const inCompare = compare.includes(course.code);
-  const cardRef = useRef<HTMLElement>(null);
+  const cardRef = useRef<HTMLDivElement>(null);
   const frame = useRef(0);
   const lastTick = useRef(0);
   const [burst, setBurst] = useState(0);
   const { play } = useSound();
 
-  function onPointerEnter(e: React.PointerEvent<HTMLElement>) {
+  function onPointerEnter(e: React.PointerEvent<HTMLDivElement>) {
     if (e.pointerType !== "mouse") return;
     const now = performance.now();
     const activated = (navigator as Navigator & { userActivation?: { hasBeenActive: boolean } })
@@ -127,7 +127,7 @@ export const CourseCard = memo(function CourseCard({
     }
   }
 
-  function onPointerMove(e: React.PointerEvent<HTMLElement>) {
+  function onPointerMove(e: React.PointerEvent<HTMLDivElement>) {
     if (e.pointerType !== "mouse") return;
     const el = cardRef.current;
     if (!el) return;
@@ -174,7 +174,7 @@ export const CourseCard = memo(function CourseCard({
   }
 
   return (
-    <article
+    <div
       ref={cardRef}
       onPointerEnter={onPointerEnter}
       onPointerMove={onPointerMove}
@@ -184,6 +184,8 @@ export const CourseCard = memo(function CourseCard({
       aria-label={`${course.code}, ${course.title}${displayRating === null ? ", no student rating yet" : `, rated ${displayRating.toFixed(1)} out of 5`}${rarityInfo.detail ? `, ${rarityInfo.detail}` : ""}`}
       onClick={() => openPreview(course.code)}
       onKeyDown={(e) => {
+        // Keys pressed on the save/compare buttons inside the card belong to them.
+        if (e.target !== e.currentTarget) return;
         if (e.key === "Enter" || e.key === " ") {
           e.preventDefault();
           openPreview(course.code);
@@ -280,6 +282,6 @@ export const CourseCard = memo(function CourseCard({
             </span>
           ))}
       </div>
-    </article>
+    </div>
   );
 });
