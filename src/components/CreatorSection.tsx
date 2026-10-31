@@ -5,7 +5,7 @@ import { useReveal } from "@/hooks/use-reveal";
 const SOCIALS = [
   { href: "https://github.com/aboodgitawaida", label: "GitHub", icon: Github },
   {
-    href: "https://www.linkedin.com/in/abood-awaida-83b988417/",
+    href: "https://www.linkedin.com/in/abood-awaida/",
     label: "LinkedIn",
     icon: Linkedin,
   },
