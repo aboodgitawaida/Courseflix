@@ -14,6 +14,8 @@ import { resetPassword } from "@/lib/reset-password";
 import { safeAuthRedirect } from "@/lib/auth-redirect";
 import { PageBackdrop } from "@/components/PageBackdrop";
 import { pageHead } from "@/lib/site";
+import { Turnstile } from "@/components/Turnstile";
+import { TURNSTILE_SITE_KEY } from "@/lib/turnstile";
 
 export const Route = createFileRoute("/auth")({
   validateSearch: (s: Record<string, unknown>): { redirect?: string } =>
@@ -53,6 +55,16 @@ export function AuthPage() {
   const [name, setName] = useState("");
   const [busy, setBusy] = useState(false);
   const [sent, setSent] = useState(false);
+  // Bot check for email sign-in and sign-up. Each token works once, so the widget
+  // is remounted (new key) after every attempt.
+  const [captchaToken, setCaptchaToken] = useState<string | null>(null);
+  const [captchaKey, setCaptchaKey] = useState(0);
+  const needsCaptcha = Boolean(TURNSTILE_SITE_KEY);
+
+  function resetCaptcha() {
+    setCaptchaToken(null);
+    setCaptchaKey((k) => k + 1);
+  }
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -99,6 +111,11 @@ export function AuthPage() {
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
+    if (needsCaptcha && !captchaToken) {
+      toast.error("Please finish the quick check above the button first.");
+      return;
+    }
+    const captcha = captchaToken ?? undefined;
     setBusy(true);
     try {
       if (mode === "signup") {
@@ -108,12 +125,17 @@ export function AuthPage() {
           options: {
             emailRedirectTo: `${window.location.origin}/auth`,
             data: { display_name: name.trim() || "UTM student" },
+            captchaToken: captcha,
           },
         });
         if (error) throw error;
         if (!data.session) toast.success("Check your email to confirm your account.");
       } else {
-        const { error } = await supabase.auth.signInWithPassword({ email, password });
+        const { error } = await supabase.auth.signInWithPassword({
+          email,
+          password,
+          options: { captchaToken: captcha },
+        });
         if (error) throw error;
       }
     } catch (err) {
@@ -123,11 +145,14 @@ export function AuthPage() {
         err.message === "Invalid login credentials"
       ) {
         toast.error("Incorrect email or password. New here? Create an account to get started.");
+      } else if (err instanceof Error && /captcha/i.test(err.message)) {
+        toast.error("The quick check didn't go through. Please try again.");
       } else {
         toast.error(err instanceof Error ? err.message : "Something went wrong");
       }
     } finally {
       setBusy(false);
+      if (needsCaptcha) resetCaptcha();
     }
   }
 
@@ -293,8 +318,9 @@ export function AuthPage() {
                 placeholder="Password"
                 className="w-full h-11 rounded-2xl bg-white/[0.04] border border-white/[0.08] px-4 text-sm outline-none transition focus:border-brand/60 focus:ring-4 focus:ring-brand/15"
               />
+              {needsCaptcha && <Turnstile key={captchaKey} onToken={setCaptchaToken} />}
               <button
-                disabled={busy}
+                disabled={busy || (needsCaptcha && !captchaToken)}
                 className="w-full h-11 shine rounded-2xl bg-brand text-primary-foreground font-semibold text-sm shadow-lg shadow-brand/30 hover:bg-brand-glow transition active:scale-[0.98] disabled:opacity-60"
               >
                 {busy ? "…" : mode === "signin" ? "Sign in" : "Create account"}
