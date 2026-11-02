@@ -31,6 +31,7 @@ import { AUTH_HINT_HEAD_SCRIPT } from "@/lib/auth-hint";
 import { NetworkStatusBanner } from "@/components/NetworkStatusBanner";
 import { MobileTabBar } from "@/components/MobileTabBar";
 import { InstallPrompt } from "@/components/InstallPrompt";
+import { ConfirmEmailReminder } from "@/components/ConfirmEmailReminder";
 import { supabase } from "@/integrations/supabase/client";
 import { captureFirstTouchAttribution } from "@/lib/attribution";
 import { inject as injectAnalytics } from "@vercel/analytics";
@@ -237,6 +238,7 @@ function RootComponent() {
               <StudyEagle />
               <MobileTabBar />
               <InstallPrompt />
+              <ConfirmEmailReminder />
               <Toaster position="top-center" />
             </CourseUIProvider>
           </EagleProvider>
