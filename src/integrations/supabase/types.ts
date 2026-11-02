@@ -329,6 +329,19 @@ export type Database = {
         Args: { _bracket: string; _course: string; _matchup: number; _round: number };
         Returns: undefined;
       };
+      find_profile_by_username: {
+        Args: { _username: string };
+        Returns: {
+          id: string;
+          display_name: string;
+          username: string;
+          avatar_id: string;
+          major_id: string | null;
+          year: number | null;
+          is_private: boolean;
+          is_verified: boolean;
+        }[];
+      };
     };
     Enums: {
       [_ in never]: never;
