@@ -22,6 +22,18 @@ Migrations only add things (tables, columns with defaults, policies, functions).
 
 Sign-up is instant ("Confirm email" is off in Supabase), so anyone can browse, save courses and add friends straight away. Posting a review requires a confirmed email: Google sign-ins count automatically, and email sign-ups click a one-time link the site sends through Resend (`src/lib/review-verification.ts`). The check runs in `submitReview` and in the `course_ratings` insert/update policies.
 
+Email sign-ups who haven't confirmed see a small, dismissible reminder a few seconds after they arrive (`ConfirmEmailReminder`). It shows their address, so typos get noticed, and sends the same one-time link. Dismissing it hides it for 3 days. Nothing is blocked.
+
+## Bot check on sign-in (Cloudflare Turnstile)
+
+Because sign-up needs no confirmation, the email sign-in and sign-up form can show a Cloudflare Turnstile check so one script can't create thousands of accounts. Google sign-in doesn't need it. It is off until a site key is set. Turn it on in this order, or every email sign-in will fail in between:
+
+1. In Cloudflare, open **Turnstile → Add widget**, choose **Managed** mode and add `courseflix.ca` and `www.courseflix.ca` as hostnames. Copy the **site key** and the **secret key**.
+2. In Vercel, add `VITE_TURNSTILE_SITE_KEY` (the site key) for Production and Preview, then **redeploy**. Check that the sign-in page shows the check.
+3. Only then, in Supabase, open **Authentication → Attack Protection**, turn on **Captcha protection**, choose **Turnstile**, paste the **secret key** and save.
+
+To turn it off again, reverse the order: switch off captcha in Supabase first, then remove the Vercel variable.
+
 ## Review moderation
 
 New and edited reviews go through the `submitReview` server function, which can ask Claude to check the comment and instructor field against a deliberately lenient policy in `src/lib/review-moderation.server.ts`. Only threats, hate, sexual harassment, someone's private information and spam are blocked; harsh opinions, profanity and criticism of instructors are published.

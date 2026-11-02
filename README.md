@@ -89,7 +89,7 @@ flowchart LR
 ## Engineering highlights
 
 - **Privacy by design.** Reviews are read through a view that drops the author's ID, so they are public without being traceable, while each user can still edit and delete their own.
-- **Abuse limits in Postgres.** Friend requests, password resets and verification emails are rate-limited with database-backed counters, so the limits hold across serverless instances.
+- **Abuse limits.** Friend requests, password resets and verification emails are rate-limited with database-backed counters, so the limits hold across serverless instances. A Cloudflare Turnstile check on email sign-in and sign-up stops scripted account creation.
 - **Defence in depth.** Review verification is enforced in both the server function and the database policies. Security headers (CSP, HSTS, frame denial) are set in [`vercel.json`](vercel.json), and auth redirects only allow same-site paths.
 - **Performance.** Rating stats for every visible course load in one cached request instead of about 100 per page, and course descriptions, about two-thirds of the catalogue's size, are code-split. Rows below the fold skip rendering until you scroll near them (`content-visibility`), and fonts are self-hosted and preloaded.
 - **Hydration-safe data.** Live data that the server can't render (ratings, shortlists) is held back until the page has hydrated, so the server HTML is never thrown away and rebuilt in the browser ([`use-hydrated.ts`](src/hooks/use-hydrated.ts)).
@@ -132,6 +132,7 @@ Apply the schema in [`supabase/migrations/`](supabase/migrations) to your projec
 | `SUPABASE_SERVICE_ROLE_KEY`                          | Password reset, verification emails                                 | Server only        |
 | `RESEND_API_KEY`                                     | Sending those emails                                                | Server only        |
 | `ANTHROPIC_API_KEY`                                  | Review moderation (optional; without it, reviews publish unchecked) | Server only        |
+| `VITE_TURNSTILE_SITE_KEY`                            | Bot check on email sign-in (optional; see docs/operations.md)       | Browser            |
 | `GEMINI_API_KEY`, `OLLAMA_*`, `PIXELLAB_API_KEY`     | Offline scripts only                                                | Your machine       |
 
 [`.env.example`](.env.example) has every variable with placeholders.
