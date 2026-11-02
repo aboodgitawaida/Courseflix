@@ -1,15 +1,16 @@
-import { Github, Linkedin, Mail, Code2, Instagram, ArrowUpRight } from "lucide-react";
+import { Mail, Code2, ArrowUpRight } from "lucide-react";
+import { GithubIcon, InstagramIcon, LinkedinIcon } from "@/components/BrandIcons";
 import { VerifiedBadge } from "@/components/VerifiedBadge";
 import { useReveal } from "@/hooks/use-reveal";
 
 const SOCIALS = [
-  { href: "https://github.com/aboodgitawaida", label: "GitHub", icon: Github },
+  { href: "https://github.com/aboodgitawaida", label: "GitHub", icon: GithubIcon },
   {
     href: "https://www.linkedin.com/in/abood-awaida/",
     label: "LinkedIn",
-    icon: Linkedin,
+    icon: LinkedinIcon,
   },
-  { href: "https://www.instagram.com/abood.awaida/", label: "Instagram", icon: Instagram },
+  { href: "https://www.instagram.com/abood.awaida/", label: "Instagram", icon: InstagramIcon },
 ];
 
 export function CreatorSection() {

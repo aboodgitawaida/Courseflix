@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
-import { Copy, Download, Instagram, Loader2 } from "lucide-react";
+import { Copy, Download, Loader2 } from "lucide-react";
+import { InstagramIcon } from "@/components/BrandIcons";
 import { toast } from "sonner";
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from "@/components/ui/dialog";
 
@@ -91,7 +92,11 @@ export function ShareStoryButton({
         aria-busy={busy}
         className={`shine inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-brand via-brand-glow to-brand-2 px-5 py-2.5 text-sm font-semibold text-primary-foreground shadow-lg shadow-brand/30 transition hover:brightness-110 active:scale-[0.97] disabled:cursor-wait disabled:opacity-70 ${className}`}
       >
-        {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : <Instagram className="h-4 w-4" />}
+        {busy ? (
+          <Loader2 className="h-4 w-4 animate-spin" />
+        ) : (
+          <InstagramIcon className="h-4 w-4" />
+        )}
         {busy ? "Making your story…" : label}
       </button>
 
