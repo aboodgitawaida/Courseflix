@@ -14,6 +14,10 @@ updates:
       # Remove this when the runtime moves to a newer Node major.
       - dependency-name: "@types/node"
         update-types: ["version-update:semver-major"]
+      # typescript-eslint only supports TypeScript below 6.1, so TypeScript 7 can't
+      # install yet. Remove this once typescript-eslint's peer range allows 7.
+      - dependency-name: "typescript"
+        versions: [">=7.0.0"]
   - package-ecosystem: github-actions
     directory: /
     schedule:
