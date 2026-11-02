@@ -9,6 +9,11 @@ updates:
     groups:
       minor-and-patch:
         update-types: [minor, patch]
+    ignore:
+      # Keep @types/node on the same major as the Node version CI runs (22, see ci.yml).
+      # Remove this when the runtime moves to a newer Node major.
+      - dependency-name: "@types/node"
+        update-types: ["version-update:semver-major"]
   - package-ecosystem: github-actions
     directory: /
     schedule:
