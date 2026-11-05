@@ -188,7 +188,7 @@ docs/             operations guide and screenshots
 
 ## How it was built
 
-I built Courseflix with AI coding tools. It started from a Lovable scaffold, and much of the code was written with Claude Code, which is why many commits are authored by Claude. My job was deciding what the product should be and holding the work to that: I set the requirements, made the trade-offs, reviewed and tested changes on the live site, and ran the database and launch setup myself.
+I built Courseflix with AI coding tools. It started from a Lovable scaffold, and much of the code was written with Claude Code. My job was deciding what the product should be and holding the work to that: I set the requirements, made the trade-offs, reviewed and tested changes on the live site, and ran the database and launch setup myself.
 
 Some of the calls I made along the way:
 
