@@ -2,7 +2,7 @@
 
 **Browse every University of Toronto Mississauga course like you browse Netflix.**
 
-[![CI](https://github.com/aboodgitawaida/courseflix/actions/workflows/ci.yml/badge.svg)](https://github.com/aboodgitawaida/courseflix/actions/workflows/ci.yml)
+[![CI](https://github.com/aboodgitawaida/Courseflix/actions/workflows/ci.yml/badge.svg)](https://github.com/aboodgitawaida/Courseflix/actions/workflows/ci.yml)
 **Live:** [courseflix.ca](https://www.courseflix.ca) · **Status:** beta-tested with 10 students, public launch December 2026
 
 ![Courseflix home page](docs/screenshots/home.jpg)
@@ -113,8 +113,8 @@ flowchart LR
 You need Node 22+ and a free [Supabase](https://supabase.com) project.
 
 ```bash
-git clone https://github.com/aboodgitawaida/courseflix.git
-cd courseflix
+git clone https://github.com/aboodgitawaida/Courseflix.git
+cd Courseflix
 npm ci
 cp .env.example .env        # add your Supabase URL and publishable key
 npm run hooks:install       # optional: Conventional Commits check
@@ -210,6 +210,7 @@ Course information comes from the [UTM Academic Calendar](https://utm.calendar.u
 - **[LotPulse](https://github.com/aboodgitawaida/LotPulse)**: live, student-reported parking enforcement alerts for UTM campus lots. [lotpulse-utm.vercel.app](https://lotpulse-utm.vercel.app)
 - **[Vitals](https://github.com/aboodgitawaida/Vitals)**: heart rate from an ordinary webcam, measured entirely in the browser. [vitals-track.vercel.app](https://vitals-track.vercel.app)
 - **[Basil](https://github.com/aboodgitawaida/Basil)**: a cosy pixel-art kitchen game that suggests recipes from what's in your fridge. [basil-cat.vercel.app](https://basil-cat.vercel.app)
+- **[Emblem](https://github.com/aboodgitawaida/Emblem)**: a macOS menu bar Now Playing item that morphs into the artist's logo (Swift, SwiftUI).
 
 ## License
 
